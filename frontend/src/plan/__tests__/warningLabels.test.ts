@@ -150,6 +150,8 @@ describe('주변 길이 가파른 곳 · 접근성 문구', () => {
     expect(message).toContain('추정');
     expect(message).not.toContain('못 가');
     expect(message).not.toContain('불가');
+    // 🔴 큰 짐을 고른 사람에게도 붙는 경고다 — 「휠체어·유아차」만 말하지 않는다.
+    expect(message).toContain('큰 짐');
   });
 
   it('접근성 미확인은 휠체어만이 아니라 유아차·큰 짐을 고른 사람에게도 맞는 말이다', () => {

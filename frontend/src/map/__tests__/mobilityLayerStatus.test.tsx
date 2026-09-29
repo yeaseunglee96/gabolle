@@ -79,7 +79,7 @@ describe('겹의 한 줄 풀이', () => {
       expect(layerNote('slope', { ...base, status }, tx)).not.toContain('빨간 길');
       expect(layerNote('shade', { ...base, status }, tx)).not.toContain('파란 길');
     }
-    expect(layerNote('slope', { ...base, status: 'ready' }, tx)).toContain('보다 가파른 길이 없어요');
+    expect(layerNote('slope', { ...base, status: 'ready' }, tx)).toContain('가파른 길이 없어요');
     expect(layerNote('slope', { ...base, status: 'ready' }, tx)).not.toContain('빨간 길');
     expect(layerNote('shade', { ...base, status: 'ready' }, tx)).toContain('그늘 자료가 있는 길이 없어요');
   });
@@ -88,5 +88,27 @@ describe('겹의 한 줄 풀이', () => {
     const drawn = { ...base, status: 'ready' as const, drawn: true, basis: '기준' };
     expect(layerNote('slope', drawn, tx)).toMatch(/^빨간 길: .* · 기준$/);
     expect(layerNote('shade', { ...drawn, partial: true }, tx)).toMatch(/^파란 길이 짙을수록 그늘이 많아요 · 기준 · 일부 지역 자료는 못 불러왔어요$/);
+  });
+
+  // 경사를 휠체어 문제로만 말하던 것 — 휠체어를 안 고른 사람에게도 「휠체어 경사로 기준보다 가팔라요」라고 했다.
+  it('🔴 경사 범례는 휠체어를 말하지 않는다 — 휠체어·유아차 여행(stepFree)에만 한 마디 붙인다', () => {
+    const drawn = { ...base, status: 'ready' as const, drawn: true };
+    for (const state of [drawn, { ...base, status: 'ready' as const }]) {
+      expect(layerNote('slope', state, tx)).not.toContain('휠체어');
+    }
+    expect(layerNote('slope', drawn, tx)).toBe('빨간 길: 경사 8.33% 넘는 가파른 길');
+    expect(layerNote('slope', drawn, tx, true)).toBe('빨간 길: 경사 8.33% 넘는 가파른 길 · 휠체어·유아차로는 피하는 게 좋아요');
+    // 가파른 길이 없으면 피하라는 말도 없다.
+    expect(layerNote('slope', { ...base, status: 'ready' }, tx, true)).not.toContain('휠체어');
+    // 그늘 겹은 stepFree 와 상관없다.
+    expect(layerNote('shade', drawn, tx, true)).not.toContain('휠체어');
+  });
+
+  it('영어 화면도 휠체어 기준으로 말하지 않는다', () => {
+    const en = (_ko: string, english: string) => english;
+    const drawn = { ...base, status: 'ready' as const, drawn: true };
+    expect(layerNote('slope', drawn, en)).toBe('Red: paths steeper than 8.33%');
+    expect(layerNote('slope', drawn, en)).not.toMatch(/wheelchair/i);
+    expect(layerNote('slope', drawn, en, true)).toBe('Red: paths steeper than 8.33% · best avoided with a wheelchair or stroller');
   });
 });
