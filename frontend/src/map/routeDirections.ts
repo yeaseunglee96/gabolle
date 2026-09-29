@@ -35,7 +35,11 @@ export type RouteDirectionsResult =
   | { state: 'unavailable' | 'offline' | 'error'; message: string };
 
 export async function getRouteDirections(
-  params: { originLat: number; originLng: number; destLat: number; destLng: number; mode?: TravelMode },
+  /**
+   * stepFree = 계단·급경사를 피하는 길로 물을까 — 휠체어·유아차·계단 피하기를 고른 여행(일정 응답의 stepFree).
+   * 🔴 true 일 때만 붙인다. false·없음이면 전과 같은 주소라, 이 칸을 모르는 옛 서버도 그대로 답한다.
+   */
+  params: { originLat: number; originLng: number; destLat: number; destLng: number; mode?: TravelMode; stepFree?: boolean },
   accessToken: string | null,
   signal?: AbortSignal,
 ): Promise<RouteDirectionsResult> {
@@ -46,6 +50,7 @@ export async function getRouteDirections(
     destLng: String(params.destLng),
   });
   if (params.mode) query.set('mode', params.mode);
+  if (params.stepFree === true) query.set('stepFree', 'true');
   try {
     const directions = await apiRequest<RouteDirections>(`/api/v1/routes/directions?${query.toString()}`, { accessToken, signal });
     return { state: 'success', directions };

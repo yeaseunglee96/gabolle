@@ -104,6 +104,11 @@ export type ItineraryDto = {
   canEdit?: boolean;
   // — 이 일정이 어느 여행의 것인가.
   tripId?: string;
+  /**
+   * 이 여행이 계단·급경사를 피하는 길로 다녀야 하나 — 휠체어·유아차·계단 피하기를 골랐으면 true(서버가 정한다).
+   * 지도가 구간 길을 물을 때 stepFree=true 를 싣는다(routeDirections.ts). 옛 서버에는 칸이 없다(undefined) — 보통 길로 묻는다.
+   */
+  stepFree?: boolean;
 };
 
 export type ItineraryVersionEntryDto = {

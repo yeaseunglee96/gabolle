@@ -169,7 +169,10 @@ export function useTripPage(source: TripPageSource) {
     () => new Set((loaded?.days ?? []).flatMap((day) => day.items).filter((item) => item.walkingMeters != null).map((item) => item.id)),
     [loaded],
   );
-  const legs = useCourseRoutePaths(legDays, accessToken, { walkInto });
+  // 🔴 휠체어·유아차·계단 피하기 여행이면 계단을 피하는 길로 묻는다 — 안 그러면 일정은 계단 없는 길로 짜 놓고
+  //    지도에는 계단 길을 그린다. 서버가 stepFree 를 안 보내면(옛 서버) 전처럼 보통 길이다.
+  const stepFree = loaded?.stepFree === true;
+  const legs = useCourseRoutePaths(legDays, accessToken, { walkInto, stepFree });
   const routes = useMemo(
     () => [
       ...(start ? [returnRoute(start, color.brand.navy, legs)] : []),
