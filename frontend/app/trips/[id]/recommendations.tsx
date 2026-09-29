@@ -320,11 +320,13 @@ function RecommendationsClassic() {
       const [trips, alreadyAsked] = await Promise.all([loadTrips(accessToken), wasTripNameAsked(tripId)]);
       const title = trips.state === 'success' ? trips.trips.find((trip) => trip.tripId === tripId)?.title : null;
       // 코스를 고른 직후에만 이름 묻기가 열린 채로 들어간다 — 시안 ④.
-      if (shouldAskTripName({ title, alreadyAsked })) { router.push(`${target}?name=1`); return; }
+      if (shouldAskTripName({ title, alreadyAsked })) { router.replace(`${target}?name=1`); return; }
     } catch {
       // 물어볼지 정하다 실패하면 묻지 않고 지나간다. 일정을 보러 가는 길을 막지 않는다.
     }
-    router.push(target);
+    // 🔴 push 가 아니라 replace 다. push 면 확정 전 추천 화면(「코스 A로 확정」 단추)이 뒤에 남아
+    //    일정 편집 → 뒤로 두 번에 그 낡은 화면이 다시 나온다 (S15P21E201-1870).
+    router.replace(target);
   };
 
   const header = (

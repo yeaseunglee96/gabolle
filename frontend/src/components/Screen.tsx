@@ -38,9 +38,12 @@ type ScreenProps = {
   style?: StyleProp<ViewStyle>;
   /** scroll 화면에서 화면이 스스로 굴러야 할 때(펼친 칸을 보여 주기 등) 쓴다. */
   scrollRef?: Ref<ScrollView>;
+  /** 탭바 위에 떠 있는 단추 줄(피드의 「지도 표시하기」 등)의 높이. 그만큼 목록 끝을 더 비워서
+   *  마지막 카드의 좋아요·인용 줄이 단추 밑에 깔리지 않게 한다 (S15P21E201-1870). */
+  floatingDockHeight?: number;
 };
 
-export function Screen({ children, scroll = false, wide = false, withTabBar = false, style, scrollRef }: ScreenProps) {
+export function Screen({ children, scroll = false, wide = false, withTabBar = false, style, scrollRef, floatingDockHeight = 0 }: ScreenProps) {
   const { kind } = useLayout();
   const insets = useSafeAreaInsets();
 
@@ -49,7 +52,7 @@ export function Screen({ children, scroll = false, wide = false, withTabBar = fa
     styles.content,
     kind === 'tablet' && (wide ? styles.tabletWide : styles.tablet),
     style,
-    { paddingBottom: screenBottomPadding(insets.bottom, withTabBar) },
+    { paddingBottom: screenBottomPadding(insets.bottom, withTabBar, floatingDockHeight) },
   ];
 
   // 안드로이드에는 behavior 를 주지 않는다. 키보드가 올라올 때 화면을 밀어 올리는 일은
@@ -75,12 +78,12 @@ export function Screen({ children, scroll = false, wide = false, withTabBar = fa
   );
 }
 
-export function screenBottomPadding(bottomInset: number, withTabBar: boolean) {
+export function screenBottomPadding(bottomInset: number, withTabBar: boolean, floatingDockHeight = 0) {
   // 지금은 탭바가 떠 있어서 레이아웃 자리를 안 먹는다. 그래서 이 화면이 그만큼을
   // 대신 비워 주지 않으면 스크롤 맨 끝 내용이 알약 밑에 영원히 깔린다 — 더 스크롤할
   // 것이 없으니 드러낼 방법도 없다.
-  if (withTabBar) return spacing[8] + TAB_BAR_HEIGHT + tabBarBottomMargin(bottomInset);
-  return spacing[8] + bottomInset;
+  if (withTabBar) return spacing[8] + TAB_BAR_HEIGHT + tabBarBottomMargin(bottomInset) + floatingDockHeight;
+  return spacing[8] + bottomInset + floatingDockHeight;
 }
 
 const styles = StyleSheet.create({
