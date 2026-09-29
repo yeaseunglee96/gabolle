@@ -52,8 +52,11 @@ export function Screen({ children, scroll = false, wide = false, withTabBar = fa
     styles.content,
     kind === 'tablet' && (wide ? styles.tabletWide : styles.tablet),
     style,
-    { paddingBottom: screenBottomPadding(insets.bottom, withTabBar, floatingDockHeight) },
+    // 🔴 떠 있는 단추 줄이 있으면 목록 끝만 비워서는 모자란다 — 첫 화면(스크롤 전)에서 단추가 첫 카드의
+    //    좋아요·인용 줄 위에 그대로 앉는다(S15P21E201-1872 실기). 그래서 스크롤 창 자체를 단추 위에서 끝낸다.
+    { paddingBottom: floatingDockHeight > 0 && scroll ? spacing[8] : screenBottomPadding(insets.bottom, withTabBar, floatingDockHeight) },
   ];
+  const reserve = scroll ? floatingDockReserve(insets.bottom, withTabBar, floatingDockHeight) : 0;
 
   // 안드로이드에는 behavior 를 주지 않는다. 키보드가 올라올 때 화면을 밀어 올리는 일은
   // app.json 의 softwareKeyboardLayoutMode="pan" 이 맡는다 — edge-to-edge 에서는 RN 의
@@ -62,7 +65,7 @@ export function Screen({ children, scroll = false, wide = false, withTabBar = fa
   const keyboardBehavior = Platform.OS === 'ios' ? 'padding' : undefined;
 
   const body = scroll ? (
-    <ScrollView ref={scrollRef} contentContainerStyle={contentStyle} keyboardShouldPersistTaps="handled">
+    <ScrollView ref={scrollRef} style={reserve > 0 ? { marginBottom: reserve } : undefined} contentContainerStyle={contentStyle} keyboardShouldPersistTaps="handled">
       {children}
     </ScrollView>
   ) : (
@@ -84,6 +87,13 @@ export function screenBottomPadding(bottomInset: number, withTabBar: boolean, fl
   // 것이 없으니 드러낼 방법도 없다.
   if (withTabBar) return spacing[8] + TAB_BAR_HEIGHT + tabBarBottomMargin(bottomInset) + floatingDockHeight;
   return spacing[8] + bottomInset + floatingDockHeight;
+}
+
+/** 떠 있는 단추 줄의 윗변까지의 높이 — 스크롤 창이 여기서 끝나야 어떤 카드도 단추 밑에 깔리지 않는다.
+ *  단추 줄이 없으면 0 이다(탭바만 있는 화면은 예전처럼 목록 끝 여백으로 충분하다). */
+export function floatingDockReserve(bottomInset: number, withTabBar: boolean, floatingDockHeight: number) {
+  if (floatingDockHeight <= 0) return 0;
+  return (withTabBar ? TAB_BAR_HEIGHT + tabBarBottomMargin(bottomInset) : bottomInset) + floatingDockHeight;
 }
 
 const styles = StyleSheet.create({
