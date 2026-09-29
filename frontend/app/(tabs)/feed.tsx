@@ -538,6 +538,10 @@ function EmptyState({ scope, signedIn, compact, onSeeAll, onWrite }: {
   </View>;
 }
 
+// 🔴 떠 있는 단추 줄의 키(단추 48 + 탭바와의 틈). Screen 에 이만큼 더 비우라고 넘긴다 — 안 넘기면
+//    목록 끝 카드의 좋아요·인용 줄이 「지도 표시하기」 밑에 깔려 누를 수 없다 (S15P21E201-1870).
+export const FEED_FAB_DOCK_HEIGHT = 48 + spacing[4];
+
 export default function Feed() {
   const router = useRouter();
   const { accessToken, user } = useAuth();
@@ -902,7 +906,7 @@ export default function Feed() {
         좁은 칸 안에서 또 나뉘어 양쪽 다 짓눌린다 — Screen 주석이 경고하는
         바로 그 고장이고, tsc 는 잡지 못한다(폭이 좁은 것은 문법 오류가 아니다).
     */}
-    <Screen scroll withTabBar wide={wide}>
+    <Screen scroll withTabBar wide={wide} floatingDockHeight={composeEntry === 'headerButton' ? FEED_FAB_DOCK_HEIGHT : 0}>
       {wide
         ? <View style={styles.wideGrid}>{feedColumn}{aside}</View>
         : <>
