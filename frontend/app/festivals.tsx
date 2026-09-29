@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { localDateKey } from '@/plan/tripProgress';
-import { Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Image, Pressable, StyleSheet, View } from 'react-native';
+import Svg, { Path, Rect } from 'react-native-svg';
 import { useRouter } from 'expo-router';
 
 import { ApiClientError } from '@/api/client';
@@ -11,8 +12,10 @@ import { Screen } from '@/components/Screen';
 import { PhotoCredit } from '@/components/PhotoCredit';
 import { Text } from '@/components/Text';
 import { useAuth } from '@/auth/AuthProvider';
-import { maskDateInput } from '@/plan/inputMasks';
 import { Eyebrow } from '@/components/Eyebrow';
+import { MonthGrid } from '@/home/PlanStartBar';
+import { MAX_MONTH_OFFSET } from '@/home/monthJump';
+import { EMPTY_START_BAR, addDays } from '@/home/startBarValue';
 import { color, radius, spacing } from '@/design/tokens';
 import { festivalDisplayTitle, getFestivals, type Festival } from '@/discovery/festivals';
 import { formatFeatureSlot, photoLabels } from '@/discovery/places';
@@ -23,12 +26,25 @@ import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 
 type SortMode = 'soon' | 'name';
-const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+/** 기간을 어떻게 골랐나 — 한 달(오늘부터 30일) · 이번 주말 · 달력에서 직접. */
+type RangeMode = 'month' | 'weekend' | 'custom';
 
 function dateInputValue(offsetDays = 0) {
   const date = new Date();
   date.setDate(date.getDate() + offsetDays);
   return localDateKey(date);
+}
+
+/**
+ * 이번 주말 — 토·일. 오늘이 토요일이면 오늘부터, 일요일이면 오늘 하루.
+ * 🔴 주중에는 «다가오는» 토·일이다. 지난 주말을 보여주면 이미 끝난 축제가 섞인다.
+ */
+export function weekendRange(today: Date): { from: string; to: string } {
+  const key = localDateKey(today);
+  const day = today.getDay(); // 0 일 … 6 토
+  if (day === 0) return { from: key, to: key };
+  const saturday = addDays(key, 6 - day);
+  return { from: saturday, to: addDays(saturday, 1) };
 }
 
 /** 「9월 26일 (토) – 9월 27일 (일)」 — 내 여행 목록과 같은 모양(S15P21E201-1679). 받은 글자(2026-09-26)는 사람이 읽는 말이 아니다. */
@@ -45,6 +61,14 @@ export default function Festivals() {
   const { accessToken } = useAuth();
   const [from, setFrom] = useState(() => dateInputValue());
   const [to, setTo] = useState(() => dateInputValue(30));
+  // 🔴 전에는 「YYYY-MM-DD」 칸 두 개에 숫자를 쳐서 넣고 「이 기간으로 조회」를 눌러야 했다(UI 캔버스 ⑪).
+  //    폰에서 날짜를 타자로 치는 사람은 없다 — 자주 쓰는 두 기간은 한 번 누르면 바로 찾고, 나머지는 달력에서 고른다.
+  const [mode, setMode] = useState<RangeMode>('month');
+  // 달력에서 출발일만 찍은 상태 — 두 번째로 찍어야 기간이 된다(여행 만들기 달력과 같은 규칙).
+  const [pendingStart, setPendingStart] = useState<string | null>(null);
+  const [monthOffset, setMonthOffset] = useState(0);
+  // 기간을 다 고르면 달력을 접는다 — 펼친 채면 결과가 한 화면 아래로 밀린다. 「날짜 고르기」를 다시 누르면 펼친다.
+  const [calendarOpen, setCalendarOpen] = useState(false);
   const [sort, setSort] = useState<SortMode>('soon');
   const [festivals, setFestivals] = useState<Festival[]>([]);
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
@@ -52,15 +76,12 @@ export default function Festivals() {
   // — 이 축제를 내 일정에 더한다. 로그인 안 했으면 모달을 열지 않고
   // 바로 로그인으로 보낸다 — 모달 안에서 물어도 결국 로그인해야 하는 것은 같다.
   const [addPlaceId, setAddPlaceId] = useState<string | null>(null);
-  const dateValid = ISO_DATE.test(from) && ISO_DATE.test(to) && from <= to;
-
-  const load = useCallback(async () => {
-    if (!dateValid) return;
+  const load = useCallback(async (start = from, end = to) => {
     const controller = new AbortController();
     setState('loading');
     setErrorMessage('');
     try {
-      setFestivals(await getFestivals(from, to, controller.signal));
+      setFestivals(await getFestivals(start, end, controller.signal));
       setState('ready');
     } catch (cause) {
       setFestivals([]);
@@ -68,7 +89,37 @@ export default function Festivals() {
       setState('error');
     }
     return () => controller.abort();
-  }, [dateValid, from, to]);
+  }, [from, to]);
+
+  const applyRange = (start: string, end: string) => { setFrom(start); setTo(end); void load(start, end); };
+  const chooseMode = (next: RangeMode) => {
+    setMode(next);
+    setPendingStart(null);
+    setCalendarOpen(next === 'custom');
+    if (next === 'month') applyRange(dateInputValue(), dateInputValue(30));
+    else if (next === 'weekend') { const w = weekendRange(new Date()); applyRange(w.from, w.to); }
+  };
+  const pickDay = (key: string) => {
+    if (!pendingStart || key < pendingStart) { setPendingStart(key); return; }
+    setPendingStart(null);
+    setCalendarOpen(false);
+    applyRange(pendingStart, key);
+  };
+  const todayKey = dateInputValue();
+  const calendarMonth = useMemo(() => {
+    const base = new Date();
+    base.setDate(1);
+    base.setMonth(base.getMonth() + monthOffset);
+    return { year: base.getFullYear(), month: base.getMonth() };
+  }, [monthOffset]);
+  const rangeText = pendingStart
+    ? `${formatDayHeading(pendingStart, locale) ?? pendingStart} – ${tx('끝나는 날을 골라 주세요', 'Pick the last day')}`
+    : from === to ? formatDayHeading(from, locale) ?? from : `${formatDayHeading(from, locale) ?? from} – ${formatDayHeading(to, locale) ?? to}`;
+  const modes: { key: RangeMode; label: string }[] = [
+    { key: 'month', label: tx('한 달', 'Next 30 days') },
+    { key: 'weekend', label: tx('이번 주말', 'This weekend') },
+    { key: 'custom', label: tx('날짜 고르기', 'Pick dates') },
+  ];
 
   useEffect(() => { void load(); }, []); // 첫 화면의 기본 기간만 자동 조회한다.
 
@@ -85,10 +136,33 @@ export default function Festivals() {
     <View style={styles.heading}><Eyebrow>{tx('부산 축제', 'Busan festival')}</Eyebrow><Text variant="display" weight="bold">{tx('여행 날짜에 열리는 축제', 'Festivals during your trip dates')}</Text><Text color={color.text.body}>{tx('선택한 기간에 실제로 열리는 축제만 보여드려요.', 'We only show festivals actually running in the period you pick.')}</Text></View>
 
     <View style={[styles.filterCard, isAtLeast(width, 'md') && styles.filterCardWide]}>
-      <View style={styles.dateField}><Text variant="caption" weight="bold">{tx('시작일', 'Start date')}</Text><TextInput accessibilityLabel={tx('축제 조회 시작일', 'Festival search start date')} value={from} onChangeText={(value) => setFrom(maskDateInput(value))} keyboardType="number-pad" placeholder="YYYY-MM-DD" maxLength={10} style={[styles.input, !dateValid && styles.inputError]} /></View>
-      <View style={styles.dateField}><Text variant="caption" weight="bold">{tx('종료일', 'End date')}</Text><TextInput accessibilityLabel={tx('축제 조회 종료일', 'Festival search end date')} value={to} onChangeText={(value) => setTo(maskDateInput(value))} keyboardType="number-pad" placeholder="YYYY-MM-DD" maxLength={10} style={[styles.input, !dateValid && styles.inputError]} /></View>
-      <Button label={tx('이 기간으로 조회', 'Search this period')} disabled={!dateValid || state === 'loading'} onPress={() => void load()} containerStyle={styles.searchButton} />
-      {!dateValid && <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{tx('숫자만 입력하면 되고, 시작일이 종료일보다 빨라야 해요.', 'Type digits only — the start date must come before the end date.')}</Text>}
+      <View style={styles.chipRow} accessibilityRole="radiogroup">
+        {modes.map((item) => (
+          <Pressable key={item.key} accessibilityRole="radio" accessibilityState={{ selected: mode === item.key, expanded: item.key === 'custom' ? calendarOpen : undefined }} onPress={() => chooseMode(item.key)} style={({ pressed }) => [styles.sortButton, mode === item.key && styles.sortSelected, pressed && styles.pressed]}>
+            <Text variant="caption" weight="bold" color={mode === item.key ? color.text.onAction : color.text.heading}>{item.label}</Text>
+          </Pressable>
+        ))}
+      </View>
+      <View style={styles.rangeLine} accessibilityLiveRegion="polite">
+        <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+          <Rect x={4} y={5} width={16} height={15} rx={2} stroke={color.text.heading} strokeWidth={1.8} />
+          <Path d="M4 10h16M9 3v4M15 3v4" stroke={color.text.heading} strokeWidth={1.8} strokeLinecap="round" />
+        </Svg>
+        <Text weight="bold" style={styles.shrink}>{rangeText}</Text>
+      </View>
+      {mode === 'custom' && calendarOpen ? (
+        <View style={styles.monthNav}>
+          <Pressable accessibilityRole="button" accessibilityLabel={tx('이전 달', 'Previous month')} disabled={monthOffset <= 0} onPress={() => setMonthOffset((n) => Math.max(0, n - 1))} style={[styles.navButton, monthOffset <= 0 && styles.navOff]}>
+            <Text weight="bold">‹</Text>
+          </Pressable>
+          <View style={styles.monthBody}>
+            <MonthGrid {...calendarMonth} value={{ ...EMPTY_START_BAR, startDate: pendingStart ?? from, endDate: pendingStart ? '' : to }} today={todayKey} onPick={pickDay} tx={tx} />
+          </View>
+          <Pressable accessibilityRole="button" accessibilityLabel={tx('다음 달', 'Next month')} disabled={monthOffset >= MAX_MONTH_OFFSET} onPress={() => setMonthOffset((n) => Math.min(MAX_MONTH_OFFSET, n + 1))} style={[styles.navButton, monthOffset >= MAX_MONTH_OFFSET && styles.navOff]}>
+            <Text weight="bold">›</Text>
+          </Pressable>
+        </View>
+      ) : null}
     </View>
 
     <View style={styles.sortRow} accessibilityRole="radiogroup">
@@ -133,8 +207,11 @@ const styles = StyleSheet.create({
   topBar: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   back: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card }, pressed: { opacity: 0.72, transform: [{ scale: 0.96 }] }, logo: { width: 154, height: 28 }, spacer: { width: 44 },
   heading: { gap: spacing[2], marginTop: spacing[4], marginBottom: spacing[6] },
-  filterCard: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card }, filterCardWide: { flexDirection: 'row', alignItems: 'flex-end', flexWrap: 'wrap' },
-  dateField: { flex: 1, minWidth: 180, gap: spacing[1] }, input: { minHeight: 48, paddingHorizontal: spacing[3], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.md, color: color.text.heading, backgroundColor: color.brand.ivory }, inputError: { borderColor: color.state.danger }, searchButton: { minWidth: 180, width: undefined },
+  filterCard: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card }, filterCardWide: { maxWidth: 520 },
+  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
+  rangeLine: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] }, shrink: { flexShrink: 1 },
+  monthNav: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[1] }, monthBody: { flex: 1 },
+  navButton: { width: 32, height: 40, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full }, navOff: { opacity: 0.3 },
   sortRow: { flexDirection: 'row', gap: spacing[2], marginVertical: spacing[4] }, sortButton: { minHeight: 40, justifyContent: 'center', paddingHorizontal: spacing[4], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.full, backgroundColor: color.surface.card }, sortSelected: { borderColor: color.action.secondary, backgroundColor: color.action.secondary },
   stateCard: { gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card },
   exploreLink: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },

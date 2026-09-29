@@ -2973,6 +2973,10 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '고정하기': { ja: '固定する', zhHans: '锁定', zhHant: '鎖定' },
   '다음 갈 곳': { ja: '次に行く所', zhHans: '下一站', zhHant: '下一站' },
   '여행 당일 이동 기록이 쌓이면 알려 드려요': { ja: '旅行当日の移動記録がたまるとお知らせします', zhHans: '旅行当天的移动记录积累后会告诉您', zhHant: '旅行當天的移動紀錄累積後會告訴您' },
+  '끝나는 날을 골라 주세요': { ja: '最終日を選んでください', zhHans: '请选择结束日期', zhHant: '請選擇結束日期' },
+  '한 달': { ja: '30日間', zhHans: '30天内', zhHant: '30天內' },
+  '이번 주말': { ja: '今週末', zhHans: '本周末', zhHant: '本週末' },
+  '날짜 고르기': { ja: '日付を選ぶ', zhHans: '选择日期', zhHant: '選擇日期' },
 };
 
 export function getTranslation(ko: string, field: 'ja' | 'zhHans' | 'zhHant'): string | null {
