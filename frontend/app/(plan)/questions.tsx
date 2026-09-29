@@ -1,16 +1,17 @@
-// 여행 조건 — **한 번에 하나씩** 묻는다 (시안 ①, 인계 §1 · S15P21E201-1425).
+// 여행 만들기 — 네 단계 + 「이대로 만들까요?」 (UI 개선 캔버스 ⑤, S15P21E201-1865).
 //
-// 🔴 필수 3 + 선택 4 = 일곱 질문. 로컬성·조용함·음식은 온보딩 취향이 draft 로 이식되므로
-//    (PlanProvider prefill) 여기서 다시 묻지 않는다. 예전 「좋아하는 분위기·척도·음식 취향」
-//    세 질문과 3-장 묶음(-1377)은 걷어냈다.
+// 🔴 전에는 질문 일곱을 하나씩 물었다(-1425). 그런데 서버가 반드시 요구하는 날짜·출발지·숙소는 질문이
+//    아니라 위 칩 줄과 홈 시작 바에 있어서, 「필수 질문 3개」를 다 답하고도 마지막 단추가 잠겼다.
+//    이제 서버가 요구하는 것까지 전부 네 화면 안에서 묻는다 —
+//      1 언제·누구와  2 어디서 출발·어떻게 다닐지  3 어디로·얼마나  4 어떤 여행(선택)  → 확인 표
+//    각 화면의 몸은 src/plan/PlanSteps.tsx 에 있다. 여기는 자리(몇 단계인가)·제출·동의·조건 창만 맡는다.
 //
-// 🔴 넓은 화면은 두 기둥이다. 왼쪽 280 레일 = 「이번 여행」 카드 + 일곱 줄 체크리스트,
-//    오른쪽 760 = 눈썹·진행 막대·질문 카드 하나·이전/다음. 레일이 「어디까지 왔나」를
-//    대신하므로 오른쪽엔 답한 목록·다음 질문·상태 문구를 안 그린다.
-//    폰은 기존 구조(위 칩 줄 · StepDots · 상태 문구 · 답한 행 · 질문 카드 · 다음 질문)를 유지한다.
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { AccessibilityInfo, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+// 🔴 판정은 PLAN_QUESTIONS(필수 질문의 「답했나」)와 서버 요구(날짜·출발지·숙소) 그대로다. 단계가 바뀌어도
+//    무엇을 보내는지는 안 바뀐다 — 보내는 값이 달라지면 같은 조건에서 다른 일정이 나온다.
+import { useEffect, useRef, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ApiClientError } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
@@ -24,74 +25,21 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
-import { resolveTextLanguage } from '@/i18n/languages';
 import { useLayout } from '@/layout/useLayout';
-import { usePlan, type PlanDraft } from '@/plan/PlanProvider';
-import { MustVisitSearch } from '@/plan/MustVisitSearch';
-import { EffectBand, OptionCard, StepDots } from '@/plan/PlanStepperParts';
-import { DateRangeCard, dateRangeLabel } from '@/plan/DateRangeCard';
+import { usePlan } from '@/plan/PlanProvider';
+import { dateRangeLabel } from '@/plan/DateRangeCard';
 import { clearQuestionState, loadQuestionState, saveQuestionState } from '@/plan/questionState';
-import {
-  AREA_OPTIONS, CATEGORY_IMAGES, CATEGORY_OPTIONS, PACE_OPTIONS, TRANSPORT_OPTIONS,
-  effectOf, type PlanOption,
-} from '@/plan/planOptions';
-import {
-  INITIAL_QUESTION_STATE, PLAN_QUESTIONS, isSettled,
-  type PlanQuestion, type QuestionKey, type QuestionState,
-  dayWindowIssue,
-} from '@/plan/planQuestions';
-import { maskTimeInput } from '@/plan/inputMasks';
-import { startBarChips, startBarPlaceName } from '@/home/startBarValue';
-type BarSection = 'origin' | 'lodging';
+import { INITIAL_QUESTION_STATE, PLAN_QUESTIONS, dayWindowIssue, type QuestionKey, type QuestionState } from '@/plan/planQuestions';
+import { PLAN_STEP_COUNT, PlanStepBody, REVIEW_STEP, StepBar, firstIncompleteStep, planStepTitle, stepBlocker, type StepReadiness } from '@/plan/PlanSteps';
+import { formatDateShort } from '@/home/startBarValue';
 import { lodgingMissing as isLodgingMissing } from '@/plan/lodgingRequired';
-import { budgetForDaily, tripDayCount } from '@/plan/budgetDefault';
 import { PlanStartBar } from '@/home/PlanStartBar';
 import { startBarEndDate, startBarFromDraft, type StartBarValue } from '@/home/startBarValue';
 import { assistantPrefillPatch } from '@/plan/assistantPrefill';
 import { txf } from '@/i18n/format';
 import { localizeMessage } from '@/i18n/messages';
 
-/**
- * 예산 — 1인 하루 값 셋을 합계로 바로 고른다(UI 캔버스 ⑤). 가운데(5만)가 앱 기본값이다(budgetDefault).
- * 🔴 전에는 「+1만 +3만 +5만 +10만」만 있어서 줄이려면 「전체 지우기」부터 해야 했다.
- */
-const DAILY_BUDGET_PRESETS = [30000, 50000, 80000] as const;
-const BUDGET_UNIT = 10000;
-
-type Tx = (ko: string, en: string) => string;
-function labelOf(option: PlanOption, tx: Tx) { return tx(option[1], option[2]); }
-function subOf(option: PlanOption, tx: Tx) { return tx(option[3], option[4]); }
-
-/** 답한 내용을 한 줄로. 안 고른 칸은 적지 않는다 — 「미정」이 답처럼 보인다. */
-export function summaryOf(key: QuestionKey, draft: PlanDraft, tx: Tx, skipped: boolean, koNames = true): string {
-  if (skipped) return tx('건너뜀', 'Skipped');
-  const labels = (list: readonly PlanOption[], picked: string[]) =>
-    list.filter(([code]) => picked.includes(code)).map((option) => labelOf(option, tx)).join(' · ');
-  switch (key) {
-    case 'areas': return labels(AREA_OPTIONS, draft.travelAreas);
-    case 'budget': return draft.budgetKrw ? tx(`${(draft.budgetKrw / 10000).toLocaleString()}만원`, `₩${draft.budgetKrw.toLocaleString()}`) : '';
-    case 'move': {
-      const transport = TRANSPORT_OPTIONS.find(([code]) => code === draft.transport);
-      const hours = draft.dayStartTime && draft.dayEndTime ? `${draft.dayStartTime}–${draft.dayEndTime}` : '';
-      return [hours, transport ? labelOf(transport, tx) : ''].filter(Boolean).join(' · ');
-    }
-    case 'cats': return labels(CATEGORY_OPTIONS, draft.preferences);
-    case 'pace': {
-      const pace = PACE_OPTIONS.find(([code]) => code === draft.paceLevel);
-      return pace ? labelOf(pace, tx) : '';
-    }
-    case 'aids': {
-      const parts: string[] = [];
-      if (draft.wheelchair) parts.push(tx('휠체어', 'Wheelchair'));
-      if (draft.stroller) parts.push(tx('유아차', 'Stroller'));
-      return parts.length ? parts.join(' · ') : tx('해당 없음', 'None');
-    }
-    case 'must': return draft.mustVisitPlaces.length
-      ? draft.mustVisitPlaces.map((place) => (koNames ? place.nameKo : place.nameEn ?? place.nameKo)).join(' · ')
-      : tx('없음', 'None');
-    default: return '';
-  }
-}
+type BarSection = 'origin' | 'lodging';
 
 /**
  * 🔴 비회원이면 질문보다 먼저 「로그인이 필요하다」를 알린다 — S15P21E201-1818.
@@ -104,26 +52,28 @@ export default function PlanQuestionsRoute() {
   return <PlanConditions />;
 }
 
+const answeredOf = (key: QuestionKey) => PLAN_QUESTIONS.find((item) => item.key === key)!.answered;
+
 function PlanConditions() {
   const router = useRouter();
   const { tx, language } = useI18n();
   const { kind } = useLayout();
   const wide = kind !== 'phone';
+  const insets = useSafeAreaInsets();
   const { draft, ready, update, completeStep } = usePlan();
   const { user, accessToken } = useAuth();
-  // 접근성 자료가 얼마나 덮였나 — 「있는데 적을 때」만 이동 보조 문항 아래에 적는다(S15P21E201-1855).
+  // 접근성 자료가 얼마나 덮였나 — 「있는데 적을 때」만 이동 보조 칸 아래에 적는다(S15P21E201-1855).
   // 못 물어봤으면(끝점 없는 서버·네트워크 실패) null 이라 아무 말도 안 나간다.
   const coverage = useConditionCoverage();
   const accessibilityCounts = hasScarcePlaceData(coverage, COVERAGE_FEATURE.accessibility)
     ? coverageCountsOf(coverage, COVERAGE_FEATURE.accessibility)
     : null;
   const [job, setJob] = useState<RecommendationJobSnapshot | null>(null);
-  const [conditionsOpen, setConditionsOpen] = useState(false);
-  // 🔴 「영어가 아니면 한국어」로 가르면 일본어·중국어 사용자가 한국어를 본다 — S15P21E201-1296.
-  const ko = resolveTextLanguage(language) === 'ko';
+  // 조건 창은 두 길로 열린다 — 만들기 직전 식단을 몰라서(submit: 닫히면 보낸다), 확인 표의 「바꾸기」(edit: 닫히면 그 자리).
+  const [conditionsMode, setConditionsMode] = useState<'submit' | 'edit' | null>(null);
   const [state, setState] = useState<QuestionState>(INITIAL_QUESTION_STATE);
-  // 🔴 자리를 기기에서 잇는다 — S15P21E201-1376. 날짜를 정하러 나갔다 오거나 로그인하고
-  //    돌아와도 1번으로 안 돌아간다. 다 읽기 전에는 저장하지 않는다(빈 자리로 덮어쓴다).
+  // 🔴 자리를 기기에서 잇는다 — S15P21E201-1376. 출발지를 고르러 나갔다 오거나 로그인하고
+  //    돌아와도 1단계로 안 돌아간다. 다 읽기 전에는 저장하지 않는다(빈 자리로 덮어쓴다).
   const [stateRestored, setStateRestored] = useState(false);
   useEffect(() => {
     let active = true;
@@ -132,31 +82,7 @@ function PlanConditions() {
     return () => { active = false; };
   }, []);
   useEffect(() => { if (stateRestored) void saveQuestionState(state); }, [state, stateRestored]);
-  // 날짜 카드 — 날짜가 없으면 펼쳐진 채로 시작하고, 고르면 접힌다. 머리의 「수정」이 다시 편다.
-  const [datesOpen, setDatesOpen] = useState<boolean | null>(null);
-  // 🔴 「수정」으로 날짜 카드를 펴면 그 카드로 굴러간다 (S15P21E201-1626). 아래로 내려가 있던 사람은
-  //    위에서 달력이 펼쳐진 줄 모른다. 자리는 «기둥의 자리 + 기둥 안 카드의 자리» 로 센다.
-  //    시각(타이머)에 기대지 않는다 — 카드를 편 뒤 잠깐 동안은 자리를 «잴 때마다» 그 자리로 간다.
   const scrollRef = useRef<ScrollView>(null);
-  const columnY = useRef(0);
-  const dateCardY = useRef<number | null>(null);
-  const followDateUntil = useRef(0);
-  const reduceMotionRef = useRef(false);
-  useEffect(() => {
-    let alive = true;
-    void AccessibilityInfo.isReduceMotionEnabled().then((on) => { if (alive) reduceMotionRef.current = on; });
-    return () => { alive = false; };
-  }, []);
-  const scrollToDateCard = () => {
-    if (dateCardY.current === null || Date.now() > followDateUntil.current) return;
-    scrollRef.current?.scrollTo({ y: Math.max(0, columnY.current + dateCardY.current - spacing[3]), animated: !reduceMotionRef.current });
-  };
-  useEffect(() => {
-    if (datesOpen !== true) { followDateUntil.current = 0; return; }
-    followDateUntil.current = Date.now() + 800;
-    scrollToDateCard();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [datesOpen]);
 
   const searchParams = useLocalSearchParams<{ days?: string; people?: string }>();
   const prefilled = useRef(false);
@@ -168,51 +94,48 @@ function PlanConditions() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready]);
 
-  // 🔴 자리는 «질문»이다 — 시안이 3-장 묶음을 버리고 질문 하나씩 보이는 스테퍼로 돌아갔다(-1425).
-  //    예전 저장값(장 번호 0~2, 옛 질문 번호 0~9)이 남아 있어도 질문 수 안으로 잘린다.
-  const index = Math.min(state.open, PLAN_QUESTIONS.length - 1);
-  const q = PLAN_QUESTIONS[index];
-  const last = index === PLAN_QUESTIONS.length - 1;
-  // 앞의 몇 개가 필수인가 — 눈썹·진행 막대·상태 문구가 「셋 + 나머지」로 읽히게 한다.
-  const requiredCount = PLAN_QUESTIONS.filter((item) => !item.skippable).length;
-
-  const settledAt = (i: number) => isSettled(PLAN_QUESTIONS[i], draft, state);
-  // 🔴 지금보다 앞에서 실제로 지나온 것만 센다 — 아직 안 본 질문의 기본값을 세면 「남은 0개」 거짓말이 된다.
-  const settledSoFar = PLAN_QUESTIONS.filter((_, i) => i < index && settledAt(i)).length;
-
-  // 🔴 못 건너뛰는 질문 가운데 아직 안 답한 것. 마지막 단추를 잠그는 근거이자 무엇이 모자란지 말해 주는 근거다.
-  const missing = PLAN_QUESTIONS.filter((item) => !item.skippable && !item.answered(draft));
-  const requiredReady = missing.length === 0;
-
   // 미확인 필수 조건(식단)이 남아 있나. 「모르면 안전하다고 치지 않는다」가 방침이다.
   //
   // 🔴 알레르기는 여기서 «빠져야» 한다 (-1513). 조건 창이 알레르기를 더는 안 묻는데(-1497)
-  //    기본값이 'UNKNOWN' 이라, 남겨 두면 모두가 영영 「모름」이다 — 마지막 질문에 경고가 늘
-  //    뜨고, 만들기를 누르면 이미 답한 조건 창이 한 번 더 뜬다. 창의 저장 조건과 같게 맞춘다.
+  //    기본값이 'UNKNOWN' 이라, 남겨 두면 모두가 영영 「모름」이다 — 만들기를 누르면 이미 답한
+  //    조건 창이 한 번 더 뜬다. 창의 저장 조건과 같게 맞춘다.
   const hardUnknown = draft.dietStatus === 'UNKNOWN'
     || (draft.dietStatus === 'VALUES' && !draft.dietTypes.length);
 
-  /**
-   * 🔴 -1337 — 날짜는 여기서 묻지 않는데 <b>서버는 반드시 요구한다.</b> 위쪽 「여행 만들기」로
-   * 들어오면 날짜가 비어 있다. 옆 레일(넓은 화면)·위 칩 줄(폰)이 「날짜를 아직 안 정했어요」라고
-   * 적고 있으니, 알면서 보내지 않는다.
-   */
-  const datesMissing = !draft.startDate || !draft.endDate;
-  // 🔴 출발지가 없으면 서버가 일정을 안 만들어 준다 — S15P21E201-1342. 이 앱에서 출발지를 채우는
-  //    곳은 홈 시작 바 하나뿐이다(PlanStartBar).
-  const originMissing = draft.originLat === null || draft.originLng === null;
-  // 🔴 1박 이상이면 숙소가 있어야 만든다 — S15P21E201-1584. 숙소도 홈 시작 바에서만 고른다.
-  const lodgingMissing = isLodgingMissing(draft);
+  // 🔴 날짜·출발지·(1박 이상이면) 숙소는 서버가 반드시 요구한다 — S15P21E201-1337·1342·1584.
+  //    이제 이 셋도 1·2단계가 묻는다. 필수 질문(지역·예산·이동)은 PLAN_QUESTIONS 의 판정 그대로.
+  const readiness: StepReadiness = {
+    datesMissing: !draft.startDate || !draft.endDate,
+    endMissing: Boolean(draft.startDate) && !draft.endDate,
+    originMissing: draft.originLat === null || draft.originLng === null,
+    lodgingMissing: isLodgingMissing(draft),
+    transportMissing: !draft.transport,
+    hoursInvalid: dayWindowIssue(draft) !== null,
+    areasMissing: !answeredOf('areas')(draft),
+    budgetMissing: !answeredOf('budget')(draft),
+  };
+  const missing = PLAN_QUESTIONS.filter((item) => !item.skippable && !item.answered(draft));
   // 서버가 실제로 만들 수 있는 조건 — 필수 질문 + 날짜 + 출발지 + (1박 이상이면) 숙소. 마지막 단추가 이걸 본다.
-  const readyToBuild = missing.length === 0 && !datesMissing && !originMissing && !lodgingMissing;
+  const readyToBuild = missing.length === 0 && !readiness.datesMissing && !readiness.originMissing && !readiness.lodgingMissing;
 
-  // 🔴 예전에는 홈의 시작 줄로 보냈다(S15P21E201-1350). 돌아오면 문항이 1번부터라 열 개를 다 답한
-  //    사람이 처음부터 다시 했다. 이제 이 화면 안의 달력 카드를 편다.
-  const goSetDates = () => setDatesOpen(true);
-  // 🔴 출발지 고르기는 검색이 붙어 있어(PlanStartBar) 여기 한 벌 더 만들지 않는다 — 시작 바를
-  //    출발지 칸이 열린 채로 연다. 「일정 물어보기」를 누르면 홈이 다시 /plan 으로 돌려보낸다.
-  // 🔴 폰은 홈으로 튕겨 나가지 않고 이 화면 위에 시작 바 시트를 연다(UI 캔버스 ⑤). 홈에 갔다 오면 답하던 자리가
-  //    흐트러지고, 「일정 물어보기」를 한 번 더 눌러야 돌아왔다. 넓은 화면은 시작 바가 첫 화면에 있어 그대로 간다.
+  // 🔴 자리는 «단계»다(0~3, 4 = 확인 표). 옛 저장값(질문 번호 0~6)이 남아 있어도 여기서 잘린다.
+  //    그리고 처음으로 덜 채운 필수 단계보다 뒤에는 서지 않는다 — 빈 필수 단계를 건너뛴 채 확인 표에 서면
+  //    「왜 못 만들지」를 표에서 찾아야 한다. 고친 값이 앞 단계를 다시 비우면(날짜를 바꿔 숙소가 필요해지면) 그 단계로 돌아간다.
+  const step = Math.min(state.open, REVIEW_STEP, firstIncompleteStep(readiness));
+  const review = step === REVIEW_STEP;
+  const styleSkipped = Boolean(state.skipped.cats || state.skipped.pace);
+
+  const goTo = (next: number) => {
+    setState((prev) => ({ ...prev, open: Math.max(0, Math.min(REVIEW_STEP, next)), editing: null }));
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
+  };
+  const skipStyle = () => {
+    setState((prev) => ({ ...prev, skipped: { ...prev.skipped, cats: true, pace: true } }));
+    goTo(REVIEW_STEP);
+  };
+
+  // 🔴 출발지·숙소를 «이름으로 찾기»는 시작 바의 검색 시트를 이 화면 위에 연다(UI 캔버스 ⑤). 홈에 갔다 오면
+  //    답하던 자리가 흐트러지고, 「일정 물어보기」를 한 번 더 눌러야 돌아왔다. 추천 출발지·동네는 2단계가 바로 고른다.
   const [barSheet, setBarSheet] = useState<BarSection | null>(null);
   const [barValue, setBarValue] = useState<StartBarValue | null>(null);
   const openBar = (section: BarSection) => { setBarValue(startBarFromDraft(draft)); setBarSheet(section); };
@@ -226,8 +149,6 @@ function PlanConditions() {
     });
     setBarSheet(null);
   };
-  const goPickOrigin = () => (wide ? router.push({ pathname: '/', params: { edit: 'origin' } }) : openBar('origin'));
-  const goPickLodging = () => (wide ? router.push({ pathname: '/', params: { edit: 'lodging' } }) : openBar('lodging'));
   const goGenerating = (jobId: string) => router.push({ pathname: '/plan/generating', params: { jobId } });
 
   /**
@@ -239,7 +160,7 @@ function PlanConditions() {
   const submittingNow = useRef(false);
   const submitPlan = async (afterConditions = false) => {
     if (submittingNow.current) return;
-    if (hardUnknown && !afterConditions) { setConditionsOpen(true); return; }
+    if (hardUnknown && !afterConditions) { setConditionsMode('submit'); return; }
     if (!user) { router.push({ pathname: '/sign-in', params: { returnTo: '/plan' } }); return; }
     submittingNow.current = true;
     try {
@@ -266,329 +187,33 @@ function PlanConditions() {
     }
   };
 
-  const headerChips = useMemo(() => startBarChips({
-    origin: draft.origin, originLat: draft.originLat, originLng: draft.originLng,
-    lodging: draft.lodging, lodgingLat: draft.lodgingLat, lodgingLng: draft.lodgingLng, lodgingPlace: draft.lodgingPlace,
-    // 화면용 영어 이름 — 영어 화면에 「From 부산역」이 나오던 것(S15P21E201-1795).
-    originEnglish: draft.originEnglish, lodgingEnglish: draft.lodgingEnglish,
-    startDate: draft.startDate, endDate: draft.endDate,
-    adults: draft.adults, children: draft.children,
-  }, tx, language), [draft.lodgingPlace, draft.adults, draft.children, draft.endDate, draft.lodging, draft.lodgingLat, draft.lodgingLng, draft.origin, draft.originLat, draft.originLng, draft.originEnglish, draft.lodgingEnglish, draft.startDate, tx, language]);
-
-  // 칩 줄 맨 앞은 장소 칩(출발지·숙소)이다 — startBarChips 가 이 순서로 넣는다. 폰 위 줄은 이것을 뒤로 돌린다(S15P21E201-1789·1802).
-  const placeChipCount = (draft.origin.trim() ? 1 : 0) + (draft.lodging.trim() ? 1 : 0);
-
-  const goTo = (next: number) => setState((prev) => ({ ...prev, open: Math.max(0, Math.min(PLAN_QUESTIONS.length - 1, next)), editing: null }));
-  /** 지금 질문을 「건너뜀」으로 적고 다음으로. 선택 질문의 카드 머리에 있는 단추가 부른다. */
-  const skipCurrent = () => {
-    setState((prev) => ({ ...prev, skipped: { ...prev.skipped, [q.key]: true } }));
-    if (!last) goTo(index + 1);
-  };
-  /** 그 질문으로 갈 수 있나 — 선택이거나, 필수를 다 채웠거나, 이미 지나온 자리면. */
-  const jumpable = (i: number) => PLAN_QUESTIONS[i].skippable || requiredReady || i <= index;
-
-  const toggleIn = (list: string[], code: string, max?: number) => {
-    if (list.includes(code)) return list.filter((item) => item !== code);
-    if (max && list.length >= max) return list;
-    return [...list, code];
-  };
-
-  const optionGrid = (options: readonly PlanOption[], picked: string[], onPick: (code: string) => void, max?: number, images?: Record<string, number>) => (
-    <View style={styles.optionGrid}>
-      {options.map((option) => (
-        <View key={option[0]} style={styles.optionCell}>
-          <OptionCard
-            image={images?.[option[0]]}
-            label={labelOf(option, tx)}
-            sub={subOf(option, tx)}
-            selected={picked.includes(option[0])}
-            disabled={Boolean(max) && picked.length >= (max as number) && !picked.includes(option[0])}
-            onPress={() => onPick(option[0])}
-          />
-        </View>
-      ))}
-    </View>
-  );
-
-  const body = (item: PlanQuestion) => {
-    switch (item.key) {
-      case 'areas':
-        return optionGrid(AREA_OPTIONS, draft.travelAreas, (code) => update({ travelAreas: toggleIn(draft.travelAreas, code) }));
-      case 'budget': {
-        const total = draft.budgetKrw ?? 0;
-        const people = Math.max(1, draft.adults + draft.children);
-        const days = tripDayCount(draft.startDate, draft.endDate);
-        const won = (value: number) => tx(`${(value / 10000).toLocaleString()}만원`, `₩${value.toLocaleString()}`);
-        return (
-          <View style={styles.stack}>
-            <View style={styles.budgetTotal}>
-              <Text variant="hero" weight="bold" color={color.text.heading}>{won(total)}</Text>
-              {/* 합계가 무엇의 합인지 — 사람 수와 일수를 옆에 적는다. 숙박비는 뺀 값이다(budgetDefault). */}
-              <Text variant="caption" color={color.text.muted}>{txf(tx, '%s명 · %s일 기준', 'For %s people · %s days', people, days)}</Text>
-            </View>
-            <View accessibilityRole="radiogroup" style={styles.budgetPresets}>
-              {DAILY_BUDGET_PRESETS.map((perDay) => {
-                const presetTotal = budgetForDaily(draft, perDay);
-                const selected = total === presetTotal;
-                return (
-                  <Pressable key={perDay} accessibilityRole="radio" accessibilityState={{ selected }} onPress={() => update({ budgetKrw: presetTotal })} style={({ pressed }) => [styles.budgetPreset, selected && styles.chipOn, pressed && styles.pressed]}>
-                    <Text variant="caption" weight="bold" color={selected ? color.text.onAction : color.text.muted}>{perDay === 30000 ? tx('아껴서', 'Frugal') : perDay === 50000 ? tx('보통', 'Standard') : tx('넉넉히', 'Relaxed')}</Text>
-                    <Text weight="bold" color={selected ? color.text.onAction : color.text.heading}>{won(perDay)}</Text>
-                    <Text variant="caption" color={selected ? color.text.onAction : color.text.muted}>{txf(tx, '합계 %s', 'Total %s', won(presetTotal))}</Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-            <Text variant="caption" color={color.text.muted}>{tx('칸의 금액은 1인 하루 기준이에요', 'Amounts are per person, per day')}</Text>
-            {/* 미세 조정 — 1만원씩. 1만원 밑으로는 못 내린다(서버 최소 1만원). */}
-            <View style={styles.budgetStepper}>
-              <Pressable accessibilityRole="button" accessibilityLabel={tx('예산 1만원 줄이기', 'Lower budget by ₩10,000')} disabled={total <= BUDGET_UNIT} onPress={() => update({ budgetKrw: Math.max(BUDGET_UNIT, total - BUDGET_UNIT) })} style={[styles.stepButton, total <= BUDGET_UNIT && styles.prevOff]}>
-                <Text variant="title" weight="bold">−</Text>
-              </Pressable>
-              <Text variant="caption" color={color.text.muted} style={styles.stepLabel}>{tx('1만원씩 조정', 'Adjust by ₩10,000')}</Text>
-              <Pressable accessibilityRole="button" accessibilityLabel={tx('예산 1만원 늘리기', 'Raise budget by ₩10,000')} onPress={() => update({ budgetKrw: total + BUDGET_UNIT })} style={styles.stepButton}>
-                <Text variant="title" weight="bold">+</Text>
-              </Pressable>
-            </View>
-          </View>
-        );
-      }
-      case 'move':
-        return (
-          <View style={styles.stack}>
-            <View style={styles.timeRow}>
-              {([['dayStartTime', '시작', 'Start'], ['dayEndTime', '종료', 'End']] as const).map(([field, k, e]) => (
-                <View key={field} style={styles.timeField}>
-                  <Text variant="caption" color={color.text.muted}>{tx(k, e)}</Text>
-                  {/* 🔴 마스크를 안 꽂아서 「0800」이 그대로 서버까지 갔다. maskTimeInput 은
-                      진작 있었고 시험도 붙어 있었는데 화면 어디서도 안 썼다 (S15P21E201-1452). */}
-                  <TextInput
-                    value={draft[field]}
-                    onChangeText={(value) => update({ [field]: maskTimeInput(value) } as Partial<PlanDraft>)}
-                    keyboardType="number-pad"
-                    maxLength={5}
-                    placeholder={field === 'dayStartTime' ? '09:00' : '21:00'}
-                    placeholderTextColor={color.text.muted}
-                    accessibilityLabel={tx(k, e)}
-                    style={styles.input}
-                  />
-                </View>
-              ))}
-            </View>
-            {/* 🔴 넘어가지 못하는 이유를 그 자리에서 말한다. 「다음」이 안 눌리는데 이유가
-                없으면 사람은 자기가 무엇을 잘못했는지 모른 채 앱을 떠난다. */}
-            {dayWindowIssue(draft) === 'FORMAT' ? (
-              <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>
-                {tx('시각을 09:00 처럼 네 자리로 적어 주세요.', 'Enter the time as four digits, like 09:00.')}
-              </Text>
-            ) : dayWindowIssue(draft) === 'ORDER' ? (
-              <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>
-                {tx('종료 시각은 시작 시각보다 늦어야 해요.', 'The end time must be later than the start time.')}
-              </Text>
-            ) : null}
-            {optionGrid(TRANSPORT_OPTIONS, draft.transport ? [draft.transport] : [], (code) => update({ transport: code as PlanDraft['transport'] }))}
-          </View>
-        );
-      case 'cats':
-        return (
-          <View style={styles.stack}>
-            {/* 몇 개 더 고를 수 있는지 — 셋을 고르면 나머지가 흐려지는데, 이유를 숫자로 먼저 보인다(UI 캔버스 ⑤). */}
-            <Text variant="caption" weight="bold" color={draft.preferences.length >= 3 ? color.text.heading : color.text.muted}>{txf(tx, '%s / 3 골랐어요', '%s / 3 picked', draft.preferences.length)}</Text>
-            {optionGrid(CATEGORY_OPTIONS, draft.preferences, (code) => update({ preferences: toggleIn(draft.preferences, code, 3) }), 3, CATEGORY_IMAGES)}
-          </View>
-        );
-      case 'pace':
-        return optionGrid(PACE_OPTIONS, draft.paceLevel ? [draft.paceLevel] : [], (code) => update({ paceLevel: code as PlanDraft['paceLevel'] }));
-      case 'aids':
-        // 🔴 큰 짐 문항을 뺐다 (S15P21E201-1855). 물어도 아무 일이 안 일어났다 —
-        //    백엔드에 HEAVY_LUGGAGE 를 «읽는» 코드가 한 줄도 없다. 장소 자료에 무거운 짐을
-        //    가리키는 칸이 없고(BarrierFreeAccessibility), 계단 없는 길로 묻는
-        //    STEP_FREE_KEYS 에도 없다. 휠체어·유아차는 둘 다 그 목록에 있어 남긴다.
-        return <View style={styles.stack}>{([
-          ['wheelchair', '휠체어를 써요', 'I use a wheelchair'],
-          ['stroller', '유아차가 있어요', 'I have a stroller'],
-        ] as const).map(([field, k, e]) => (
-          <View key={field} style={styles.binaryRow}>
-            <Text style={styles.binaryLabel}>{tx(k, e)}</Text>
-            <View style={styles.chips}>
-              {([[true, '예', 'Yes'], [false, '아니요', 'No']] as const).map(([value, yk, ye]) => (
-                <Pressable
-                  key={String(value)}
-                  accessibilityRole="radio"
-                  accessibilityState={{ selected: draft[field] === value }}
-                  onPress={() => update({ [field]: value } as Partial<PlanDraft>)}
-                  style={[styles.chip, draft[field] === value && styles.chipOn]}
-                >
-                  <Text weight="bold" color={draft[field] === value ? color.text.onAction : color.text.heading}>{tx(yk, ye)}</Text>
-                </Pressable>
-              ))}
-            </View>
-          </View>
-        ))}
-          {/* 🔴 자료가 «있는데 적다»는 것을 미리 말한다 (S15P21E201-1855). 접근성 표식은
-              6,866곳 중 102곳(1.5%)뿐이라, 고르고 나면 거의 모든 곳에 「확인되지 않았어요」가
-              붙는다. 그때 처음 알면 「앱이 고장 났다」로 읽힌다 — 고르기 전에 말하면
-              「아직 덜 모았구나」가 된다. 숫자는 서버가 세어 준 것이고, 못 물어봤으면 안 적는다. */}
-          {accessibilityCounts ? (
-            <Text variant="caption" color={color.text.muted} style={styles.coverageNote}>
-              {txf(
-                tx,
-                // 영어도 값 순서를 한국어(전체 · 확인된 수)에 맞춰 틀을 고쳐 적었다 — txf 는 앞에서부터 차례로 끼운다.
-                '지금 접근성을 확인한 곳은 %s곳 중 %s곳이에요. 고르시면 나머지는 「아직 확인되지 않았어요」로 나와요 — 못 간다는 뜻은 아니에요.',
-                'Of %s places, we have checked access for %s so far. The rest will show as "not checked yet" — that does not mean you cannot go.',
-                accessibilityCounts.totalPlaceCount,
-                accessibilityCounts.placeCount,
-              )}
-            </Text>
-          ) : null}
-        </View>;
-      case 'must':
-        return (
-          <MustVisitSearch
-            picked={draft.mustVisitPlaces}
-            onChange={(next) => update({ mustVisitPlaces: next })}
-            tx={tx}
-            ko={ko}
-          />
-        );
-      default:
-        return null;
-    }
-  };
-
-  // 🔴 불러오는 동안의 Screen 에도 같은 scrollRef 를 준다 — 준비된 뒤의 Screen 이 이 스크롤 상자를 그대로 이어
-  //    쓰므로, 여기서 안 주면 나중에 준 ref 가 붙지 않는다(웹 실측: 끝까지 null).
   if (!ready) return <Screen scroll scrollRef={scrollRef}><Text>{tx('불러오는 중이에요…', 'Loading…')}</Text></Screen>;
 
-  const stepEyebrow = q.skippable
-    ? txf(tx, '선택 %s / %s', 'Optional %s / %s', index + 1 - requiredCount, PLAN_QUESTIONS.length - requiredCount)
-    : txf(tx, '필수 %s / %s', 'Required %s / %s', index + 1, requiredCount);
-  const stepTitle = q.skippable
-    ? tx('더 답하면 일정이 좋아져요', 'A few more and the plan gets better')
-    // 🔴 「필수 질문은 3개뿐」이라 적어 두고 날짜·출발지(1박 이상이면 숙소)도 필수였다 — 마지막에야 단추가 잠긴 이유를 알았다(UI 캔버스 ⑤).
-    : txf(tx, '날짜·출발지와 필수 질문 %s개만 정하면 돼요', 'Just your dates, a starting point and %s required questions', requiredCount);
-  const fillPct = Math.round((settledSoFar / PLAN_QUESTIONS.length) * 100);
-  const dateLabel = dateRangeLabel({ startDate: draft.startDate, endDate: draft.endDate }, tx);
-  const showDateCard = datesOpen ?? datesMissing;
-  const effect = effectOf(q.key, draft, tx);
-  // 선택 질문은 언제나 「다음」이 열린다(누르면 넘어가고, 「건너뛰기」가 따로 표로 남긴다).
-  const canNext = q.answered(draft) || q.skippable;
-  const statusLine = requiredReady
-    ? readyToBuild
-      ? txf(tx, '이제 만들 수 있어요 · 남은 %s개는 답할수록 일정이 좋아지는 질문이에요', 'You can build now · the remaining %s tune the plan to you', PLAN_QUESTIONS.length - settledSoFar)
-      : originMissing
-        ? tx('필수 질문은 다 답했어요 · 출발지만 고르면 만들 수 있어요', 'Required questions done · just pick a starting point to build')
-        : lodgingMissing && !datesMissing
-          ? tx('필수 질문은 다 답했어요 · 숙소만 고르면 만들 수 있어요', 'Required questions done · just pick where you will stay to build')
-          : tx('필수 질문은 다 답했어요 · 날짜만 정하면 만들 수 있어요', 'Required questions done · just pick your dates to build')
-    : txf(tx, '필수 %s개만 답하면 만들 수 있어요 · 나머지는 건너뛰어도 돼요', 'Answer the %s required questions to build · the rest are optional', requiredCount);
+  const { eyebrow, title } = planStepTitle(step, tx);
+  const blocker = stepBlocker(step, readiness, tx);
+  const submitting = job?.state === 'submitting';
 
-  // ── 어디서나 쓰는 조각들 ──────────────────────────────────────────────────
+  // 1단계 아래 한 줄 — 무엇을 골랐는지(「10.9(금) – 10.11(일) · 2박 · 성인 2」). 출발일만 찍었으면 「출발 10.9(금)」.
+  const people = [txf(tx, '성인 %s', 'Adults %s', draft.adults), draft.children ? txf(tx, '어린이 %s', 'Children %s', draft.children) : null].filter(Boolean).join(' · ');
+  const whenSummary = draft.startDate
+    ? `${draft.endDate ? dateRangeLabel({ startDate: draft.startDate, endDate: draft.endDate }, tx) : txf(tx, '출발 %s', 'Leaving %s', formatDateShort(draft.startDate, tx))} · ${people}`
+    : null;
 
-  // 🔴 출발지 — 없으면 여기서 짚어 준다(S15P21E201-1342). 다 답하고 「만들기」를 누른 뒤에야
-  //    서버 원문으로 막히던 것을 앞으로 당긴다.
-  const originAsk = originMissing ? (
-    <Pressable accessibilityRole="button" onPress={goPickOrigin} style={({ pressed }) => [styles.originAsk, pressed && styles.pressed]}>
-      <Text variant="body" weight="bold" color={color.text.heading}>{tx('어디에서 출발하세요?', 'Where are you starting from?')}</Text>
-      <Text variant="caption" color={color.text.muted}>{tx('출발지를 골라야 일정을 만들 수 있어요 · 눌러서 고르기', 'We need a starting point to build your trip · tap to choose')}</Text>
-    </Pressable>
-  ) : null;
+  const primaryLabel = review
+    ? submitting ? tx('만드는 중…', 'Building…') : blocker ?? tx('이 조건으로 일정 만들기', 'Build my itinerary')
+    : blocker ?? (step === PLAN_STEP_COUNT - 1 ? tx('다음 · 한눈에 보기', 'Next · review') : tx('다음', 'Next'));
+  const onPrimary = () => {
+    completeStep(step + 1);
+    if (review) { if (readyToBuild) void submitPlan(); }
+    else goTo(step + 1);
+  };
 
-  // 🔴 숙소 — 1박 이상인데 없으면 여기서 짚어 준다(S15P21E201-1584). 출발지와 같은 자리, 같은 모양.
-  const lodgingAsk = !originMissing && lodgingMissing ? (
-    <Pressable accessibilityRole="button" onPress={goPickLodging} style={({ pressed }) => [styles.originAsk, pressed && styles.pressed]}>
-      <Text variant="body" weight="bold" color={color.text.heading}>{tx('어디에서 묵으세요?', 'Where are you staying?')}</Text>
-      <Text variant="caption" color={color.text.muted}>{tx('1박 이상 여행은 숙소를 골라야 일정을 만들 수 있어요 · 눌러서 고르기', 'Trips with an overnight stay need a place to stay · tap to choose')}</Text>
-    </Pressable>
-  ) : null;
-
-  // 날짜 — 문항 화면 안에서 고른다(S15P21E201-1376). 없으면 펼친 카드로.
-  const dateCardEl = showDateCard ? (
-    <View onLayout={(event) => { dateCardY.current = event.nativeEvent.layout.y; scrollToDateCard(); }}>
-      <DateRangeCard
-        value={{ startDate: draft.startDate, endDate: draft.endDate }}
-        onChange={(next) => update({ startDate: next.startDate, endDate: next.endDate })}
-        onDone={() => setDatesOpen(false)}
-        tx={tx}
-      />
-    </View>
-  ) : null;
-
-  const questionCard = (
-    <View key={q.key} style={[styles.card, wide ? styles.cardWide : styles.cardPhone]}>
-      <View style={styles.cardHead}>
-        <View style={styles.cardCopy}>
-          <Text variant="caption" weight="bold" color={color.text.eyebrow}>
-            {q.skippable ? tx('선택 · 건너뛰어도 돼요', 'Optional · you can skip') : tx('필수', 'Required')}
-          </Text>
-          <Text variant="title" weight="bold">{tx(q.ko, q.en)}</Text>
-          <Text color={color.text.muted}>{tx(q.hintKo, q.hintEn)}</Text>
-        </View>
-        {q.skippable ? (
-          <Pressable accessibilityRole="button" onPress={skipCurrent} style={styles.skip}>
-            <Text variant="caption" weight="bold" color={color.action.secondary}>{tx('건너뛰기', 'Skip')}</Text>
-          </Pressable>
-        ) : null}
-      </View>
-      {body(q)}
-      {effect ? <EffectBand text={effect} tx={tx} /> : null}
-    </View>
-  );
-
-  const navRow = (
-    <View style={styles.navRow}>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityState={{ disabled: index === 0 }}
-        disabled={index === 0}
-        onPress={() => goTo(index - 1)}
-        style={({ pressed }) => [styles.prev, index === 0 && styles.prevOff, pressed && styles.pressed]}
-      >
-        <Text weight="bold" color={index === 0 ? color.text.muted : color.text.heading}>{tx('이전', 'Back')}</Text>
-      </Pressable>
-      <View style={styles.next}>
-        <Button
-          accessibilityState={{ busy: job?.state === 'submitting' }}
-          label={last
-            ? job?.state === 'submitting' ? tx('만드는 중…', 'Building…')
-              // 🔴 잠겼으면 단추 글자가 이유를 말한다(UI 캔버스 ⑤) — 잠긴 단추만 있으면 고장으로 읽힌다.
-              : missing.length ? tx('필수 질문에 먼저 답해 주세요', 'Answer the required questions first')
-              : datesMissing ? tx('여행 날짜를 골라 주세요', 'Pick your trip dates')
-              : originMissing ? tx('출발지를 골라 주세요', 'Pick a starting point')
-              : lodgingMissing ? tx('숙소를 골라 주세요', 'Pick where you will stay')
-              : tx('이 조건으로 일정 만들기', 'Build my itinerary')
-            : tx('다음', 'Next')}
-          disabled={last ? missing.length > 0 || datesMissing || originMissing || lodgingMissing || job?.state === 'submitting' : !canNext}
-          onPress={() => {
-            completeStep(index + 1);
-            if (last) { if (readyToBuild) void submitPlan(); }
-            else goTo(index + 1);
-          }}
-        />
-      </View>
-    </View>
-  );
-
-  // 마지막 자리에서 왜 못 만드는지 — 잠근 이유를 반드시 말한다. 잠그기만 하면 고장인 줄 안다.
-  const submitAlerts = (
+  // 확인 표에서 왜 못 만드는지 · 동의 · 실패 — 잠근 이유를 반드시 말한다. 잠그기만 하면 고장인 줄 안다.
+  const submitAlerts = review ? (
     <>
-      {last && missing.length ? (
-        <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>
-          {txf(tx, '아직 안 답한 게 있어요: %s', 'Still missing: %s', missing.map((item) => tx(item.ko, item.en)).join(' · '))}
-        </Text>
-      ) : null}
-      {last && requiredReady && originMissing ? (
-        <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{tx('출발지를 골라야 만들 수 있어요 · 위에서 골라 주세요', 'Pick a starting point above to build')}</Text>
-      ) : null}
-      {last && requiredReady && !originMissing && !datesMissing && lodgingMissing ? (
-        <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{tx('1박 이상 여행은 숙소를 골라야 만들 수 있어요 · 위에서 골라 주세요', 'Pick where you will stay above to build')}</Text>
-      ) : null}
-      {last && requiredReady && !originMissing && datesMissing ? (
-        <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{tx('날짜를 정해야 만들 수 있어요 · 위에서 골라 주세요', 'Pick your dates above to build')}</Text>
-      ) : null}
-      {last && hardUnknown ? (
+      {hardUnknown ? (
         // 🔴 「눌러서 알려주세요」라고 적어 두고 눌리지 않는 글자였다(UI 캔버스 ⑤).
-        <Pressable accessibilityRole="button" onPress={() => setConditionsOpen(true)} style={({ pressed }) => [styles.dietAsk, pressed && styles.pressed]}>
+        <Pressable accessibilityRole="button" onPress={() => setConditionsMode('edit')} style={({ pressed }) => [styles.dietAsk, pressed && styles.pressed]}>
           <Text variant="caption" weight="bold" color={color.state.danger}>{tx('식단을 아직 안 알려주셨어요 · 눌러서 알려주기 ›', 'We still need your diet answer · tap to add ›')}</Text>
         </Pressable>
       ) : null}
@@ -603,248 +228,125 @@ function PlanConditions() {
         <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{localizeMessage(tx, job.errorMessage)}</Text>
       ) : null}
     </>
-  );
+  ) : null;
 
-  // ── 넓은 화면 왼쪽 레일 — 「이번 여행」 카드 + 일곱 줄 체크리스트 ─────────────
-  const rail = (
-    <View style={styles.rail}>
-      <View style={styles.tripCard}>
-        <View style={styles.tripCardHead}>
-          <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('이번 여행', 'This trip')}</Text>
-          <Pressable accessibilityRole="button" accessibilityLabel={tx('이번 여행 수정', 'Edit this trip')} onPress={() => router.push('/')}>
-            <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('수정', 'Edit')}</Text>
-          </Pressable>
-        </View>
-        <Text weight="bold" numberOfLines={1}>{headerChips[0] ?? tx('날짜를 아직 안 정했어요', 'No dates yet')}</Text>
-        {headerChips.slice(1).length ? (
-          <Text variant="caption" color={color.text.muted} numberOfLines={1}>{headerChips.slice(1).join(' · ')}</Text>
-        ) : null}
-      </View>
-      <View style={styles.checklist}>
-        {PLAN_QUESTIONS.map((item, i) => {
-          const now = i === index;
-          const done = i < index && settledAt(i);
-          const value = done
-            ? summaryOf(item.key, draft, tx, Boolean(state.skipped[item.key]), ko)
-            : item.skippable ? tx('선택', 'Optional') : tx('필수', 'Required');
-          return (
-            <Pressable
-              key={item.key}
-              accessibilityRole="button"
-              accessibilityState={{ selected: now, disabled: !jumpable(i) }}
-              disabled={!jumpable(i)}
-              onPress={() => goTo(i)}
-              style={[styles.checkRow, now && styles.checkRowNow]}
-            >
-              <View style={[styles.checkDot, now && styles.checkDotNow, done && styles.checkDotDone]}>
-                <Text variant="micro" weight="bold" color={now || done ? color.text.onAction : color.text.muted}>{done ? '✓' : String(i + 1)}</Text>
-              </View>
-              <View style={styles.checkBody}>
-                <Text variant="caption" weight={now ? 'bold' : 'medium'} color={now ? color.text.heading : color.text.body} numberOfLines={1}>{tx(item.ko, item.en)}</Text>
-                <Text variant="micro" color={color.text.muted} numberOfLines={1}>{value}</Text>
-              </View>
-            </Pressable>
-          );
-        })}
-      </View>
-    </View>
-  );
-
-  // ── 넓은 화면 오른쪽 기둥 — 눈썹·진행 막대·질문 카드·이전/다음 ─────────────
-  const desktopColumn = (
-    <View style={styles.questions}>
-      <View style={styles.stepCopy}>
-        <Text variant="caption" weight="bold" color={color.text.eyebrow}>{stepEyebrow}</Text>
-        <Text variant="title" weight="bold">{stepTitle}</Text>
-      </View>
-      <View style={styles.track}><View style={[styles.fill, { width: `${fillPct}%` }]} /></View>
-      {originAsk}
-      {lodgingAsk}
-      {dateCardEl}
-      {questionCard}
-      {navRow}
-      {submitAlerts}
-    </View>
-  );
-
-  // ── 폰 — 위 칩 줄 · StepDots · 상태 문구 · 답한 행 · 질문 카드 · 다음 질문 ──
-  // 🔴 앞에 남은 «안 답한 필수 질문»도 이 목록에 넣는다 (-1540). 답한 것만 그리면, 기기에 남은
-  //    자리나 선택 질문 점으로 뒤에 선 사람이 「아직 안 답한 게 있어요: 여행 범위」만 보고 그 질문으로
-  //    돌아갈 줄을 못 찾는다 — 남는 길이 8px 점 하나였다. 넓은 화면은 레일이 이미 일곱을 다 그린다.
-  const answeredQuestions = PLAN_QUESTIONS.map((item, i) => ({ item, i, missed: !item.skippable && !item.answered(draft) }))
-    .filter(({ i, missed }) => i < index && (missed || settledAt(i)));
-  const upcomingList = PLAN_QUESTIONS.slice(index + 1);
-  const mobileColumn = (
-    <View style={styles.questions}>
-      <View style={styles.stepHead}>
-        <View style={styles.stepCopy}>
-          <Text variant="caption" weight="bold" color={color.text.eyebrow}>{stepEyebrow}</Text>
-          <Text variant="title" weight="bold">{stepTitle}</Text>
-        </View>
-        <StepDots
-          total={PLAN_QUESTIONS.length}
-          required={requiredCount}
-          index={index}
-          settled={settledAt}
-          onJump={(i) => { if (jumpable(i)) goTo(i); }}
-          label={(i) => tx(PLAN_QUESTIONS[i].ko, PLAN_QUESTIONS[i].en)}
+  // 🔴 「이전」은 1단계에는 없다 — 누를 곳 없는 단추가 자리를 먹는다. 1단계에서 나가는 길은 머리의 ‹ 다.
+  const nav = (
+    <View style={styles.navRow}>
+      {step > 0 ? (
+        <Pressable accessibilityRole="button" onPress={() => goTo(step - 1)} style={({ pressed }) => [styles.prev, pressed && styles.pressed]}>
+          <Text weight="bold">{tx('이전', 'Back')}</Text>
+        </Pressable>
+      ) : null}
+      <View style={styles.next}>
+        <Button
+          accessibilityState={{ busy: submitting }}
+          label={primaryLabel}
+          disabled={Boolean(blocker) || (review && (submitting || !readyToBuild))}
+          onPress={onPrimary}
         />
       </View>
-      <View style={styles.track}><View style={[styles.fill, { width: `${fillPct}%` }]} /></View>
-      <Text variant="caption" color={color.text.muted}>{statusLine}</Text>
-
-      {originAsk}
-      {lodgingAsk}
-      {dateCardEl}
-
-      {answeredQuestions.length || (!originMissing) || (!showDateCard && dateLabel) ? (
-        <View style={styles.answeredList}>
-          {!originMissing ? (
-            <Pressable accessibilityRole="button" accessibilityLabel={tx('출발지 수정', 'Edit starting point')} onPress={goPickOrigin} style={({ pressed }) => [styles.answeredRowItem, pressed && styles.pressed]}>
-              <View style={styles.answeredCheck}><Text variant="micro" weight="bold" color={color.text.onAction}>✓</Text></View>
-              <View style={styles.answeredBody}>
-                <Text variant="micro" color={color.text.muted} numberOfLines={1}>{tx('출발지', 'Starting point')}</Text>
-                <Text variant="caption" weight="bold" numberOfLines={1}>{startBarPlaceName(draft.origin, draft.originEnglish, language) || tx('고른 곳', 'Chosen')}</Text>
-              </View>
-              <Text variant="caption" weight="bold" color={color.text.muted}>{tx('수정', 'Edit')}</Text>
-            </Pressable>
-          ) : null}
-          {!showDateCard && dateLabel ? (
-            <Pressable accessibilityRole="button" accessibilityLabel={tx('여행 날짜 수정', 'Edit trip dates')} onPress={() => setDatesOpen(true)} style={({ pressed }) => [styles.answeredRowItem, pressed && styles.pressed]}>
-              <View style={styles.answeredCheck}><Text variant="micro" weight="bold" color={color.text.onAction}>✓</Text></View>
-              <View style={styles.answeredBody}>
-                <Text variant="micro" color={color.text.muted} numberOfLines={1}>{tx('여행 날짜', 'Trip dates')}</Text>
-                <Text variant="caption" weight="bold" numberOfLines={1}>{dateLabel}</Text>
-              </View>
-              <Text variant="caption" weight="bold" color={color.text.muted}>{tx('수정', 'Edit')}</Text>
-            </Pressable>
-          ) : null}
-          {answeredQuestions.map(({ item, i, missed }) => (
-            <Pressable
-              key={item.key}
-              accessibilityRole="button"
-              accessibilityLabel={missed ? txf(tx, '%s 답하기', 'Answer %s', tx(item.ko, item.en)) : txf(tx, '%s 수정', 'Edit %s', tx(item.ko, item.en))}
-              onPress={() => goTo(i)}
-              style={({ pressed }) => [styles.answeredRowItem, missed && styles.missedRowItem, pressed && styles.pressed]}
-            >
-              <View style={[styles.answeredCheck, missed && styles.missedMark]}><Text variant="micro" weight="bold" color={missed ? color.state.danger : color.text.onAction}>{missed ? '!' : '✓'}</Text></View>
-              <View style={styles.answeredBody}>
-                <Text variant="micro" color={color.text.muted} numberOfLines={1}>{tx(item.ko, item.en)}</Text>
-                {missed
-                  ? <Text variant="caption" weight="bold" color={color.state.danger} numberOfLines={1}>{tx('아직 안 답했어요 · 필수', 'Not answered yet · required')}</Text>
-                  : <Text variant="caption" weight="bold" numberOfLines={1}>{summaryOf(item.key, draft, tx, Boolean(state.skipped[item.key]), ko) || tx('건너뜀', 'Skipped')}</Text>}
-              </View>
-              <Text variant="caption" weight="bold" color={missed ? color.state.danger : color.text.muted}>{missed ? tx('답하기', 'Answer') : tx('수정', 'Edit')}</Text>
-            </Pressable>
-          ))}
-        </View>
-      ) : null}
-
-      {questionCard}
-      {navRow}
-      {submitAlerts}
-
-      {upcomingList.length ? (
-        <View style={styles.upcoming}>
-          <Text variant="micro" weight="bold" color={color.text.eyebrow}>{tx('다음 질문', 'Coming up')}</Text>
-          {upcomingList.map((item, offset) => {
-            const i = index + 1 + offset;
-            return (
-              <Pressable key={item.key} accessibilityRole="button" disabled={!jumpable(i)} onPress={() => goTo(i)} style={({ pressed }) => [styles.upcomingRow, pressed && styles.pressed]}>
-                <View style={styles.upcomingNo}><Text variant="micro" weight="bold" color={color.text.muted}>{i + 1}</Text></View>
-                <Text variant="caption" color={color.text.muted} numberOfLines={1} style={styles.upcomingLabel}>{tx(item.ko, item.en)}</Text>
-                <Text variant="micro" weight={item.skippable ? 'regular' : 'bold'} color={item.skippable ? color.text.muted : color.text.body}>{item.skippable ? tx('선택', 'optional') : tx('필수', 'required')}</Text>
-              </Pressable>
-            );
-          })}
-        </View>
-      ) : null}
     </View>
+  );
+
+  const bottom = (
+    <View style={styles.bottomStack}>
+      {step === 0 && whenSummary ? <Text variant="caption" weight="bold" style={styles.center}>{whenSummary}</Text> : null}
+      {submitAlerts}
+      {nav}
+    </View>
+  );
+
+  const head = (
+    <View style={styles.head}>
+      <View style={styles.topRow}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={step > 0 ? tx('이전 단계', 'Previous step') : tx('뒤로 가기', 'Go back')}
+          onPress={() => (step > 0 ? goTo(step - 1) : router.canGoBack() ? router.back() : router.replace('/home'))}
+          style={styles.back}
+        >
+          <Text variant="title">‹</Text>
+        </Pressable>
+        <Text weight="bold" style={styles.topTitle}>{tx('여행 만들기', 'Plan a trip')}</Text>
+        <Text variant="caption" weight="bold" color={color.text.muted}>{review ? tx('확인', 'Review') : `${step + 1}/${PLAN_STEP_COUNT}`}</Text>
+      </View>
+      <StepBar step={step} tx={tx} />
+      <View style={styles.titleRow}>
+        <View style={styles.grow}>
+          <Text variant="caption" weight="bold" color={color.text.eyebrow}>{eyebrow}</Text>
+          <Text variant="title" weight="bold">{title}</Text>
+          {review ? <Text color={color.text.muted}>{tx('칸을 누르면 그 자리에서 고쳐요.', 'Tap a row to change it.')}</Text> : null}
+        </View>
+        {step === PLAN_STEP_COUNT - 1 ? (
+          <Pressable accessibilityRole="button" onPress={skipStyle} style={styles.skip}>
+            <Text variant="caption" weight="bold" color={color.action.secondary}>{tx('건너뛰기', 'Skip')}</Text>
+          </Pressable>
+        ) : null}
+      </View>
+    </View>
+  );
+
+  const body = (
+    <PlanStepBody
+      step={step}
+      draft={draft}
+      update={update}
+      tx={tx}
+      language={language}
+      readiness={readiness}
+      styleSkipped={styleSkipped && !draft.preferences.length}
+      accessibilityCounts={accessibilityCounts}
+      goTo={goTo}
+      onSkipStyle={skipStyle}
+      onSearchPlace={openBar}
+      onEditConditions={() => setConditionsMode('edit')}
+      onOpenMenuScan={() => router.push('/field/menu-scan')}
+    />
   );
 
   return (
     <View style={styles.shell}>
-    <Screen scroll wide={wide} style={styles.canvas} scrollRef={scrollRef}>
-      {/* 🔴 폰은 위 줄 하나에 뒤로 가기와 홈에서 받은 칩(출발·날짜·인원)을 같이 둔다(시안 01b).
-          걸음 수는 바로 아래 눈썹이 이미 말하므로 여기 또 적지 않는다. 넓은 화면은 왼쪽 레일이 대신한다. */}
-      {wide ? null : (
-        <View style={styles.phoneTop}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={tx('뒤로 가기', 'Go back')}
-            onPress={() => (router.canGoBack() ? router.back() : router.replace('/home'))}
-            style={styles.phoneBack}
-          >
-            <Text variant="title">‹</Text>
-          </Pressable>
-          {/* 🔴 칩은 줄을 바꾸지 않는다 — 셋(출발·날짜·인원)이 두 줄로 깨져 「성인 1」이 따로 놀았다
-              (2026-09-21 실기, S15P21E201-1401).
-              🔴 가로로 밀게 두면 390px 에서 「성인 2」가 「수정」 뒤로 잘려 안 보였다 — 밀 수 있다는 걸 아무도 모른다
-              (S15P21E201-1789). 그래서 한 줄 안에 다 들어가게 줄인다 — 이름이 긴 칩(출발지·숙소)만 말줄임으로 줄고,
-              날짜·인원(짧고 꼭 봐야 하는 것)은 줄지 않는다.
-              🔴 그런데 장소 칩에 최소 폭이 없어 360dp 에서 글자 없는 빈 알약(약 18px)으로 줄었다 (S15P21E201-1802).
-              그래서 날짜·인원을 **앞에** 두어 「성인 N」이 언제나 「수정」 앞에 보이게 하고, 장소 칩은 줄이지 않고
-              제 폭(최대 폭 + 말줄임)을 지킨다. 넘치는 것은 뒤에 붙은 장소 칩뿐이고, 그것은 가로로 밀어 본다. */}
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.phoneChips}
-            contentContainerStyle={styles.phoneChipsRow}
-          >
-            {[...headerChips.slice(placeChipCount), ...headerChips.slice(0, placeChipCount)].map((chip, index, row) => (
-              <View key={chip} style={[styles.phoneGivenChip, index >= row.length - placeChipCount && styles.phoneGivenChipPlace]}>
-                <Text variant="caption" weight="bold" numberOfLines={1}>{chip}</Text>
-              </View>
-            ))}
-          </ScrollView>
-          <View>
-            {/* 🔴 -1337 — 받은 것이 없을 때도 그린다. 없으면 「날짜 정하기」로 말만 바꾼다. */}
-            <Pressable accessibilityRole="button" onPress={goSetDates} style={styles.phoneGivenEdit}>
-              <Text variant="caption" weight="bold" color={color.action.secondary}>
-                {headerChips.length ? tx('수정', 'Edit') : tx('날짜 정하기', 'Set dates')}
-              </Text>
-            </Pressable>
-          </View>
+      <Screen scroll wide={wide} style={styles.canvas} scrollRef={scrollRef}>
+        <View style={[styles.column, wide && styles.columnWide]}>
+          {head}
+          {body}
+          {/* 넓은 화면은 단추가 몸 바로 아래 — 화면 바닥에 붙이면 760 기둥과 떨어져 논다. */}
+          {wide ? bottom : null}
         </View>
-      )}
-
-      <View onLayout={(event) => { columnY.current = event.nativeEvent.layout.y; scrollToDateCard(); }}>
-        {wide ? (
-          <View style={styles.split}>
-            {rail}
-            {desktopColumn}
-          </View>
-        ) : (
-          mobileColumn
-        )}
-      </View>
+      </Screen>
+      {/* 🔴 폰은 이전/다음을 바닥에 붙인다 — 달력·카드가 길어 단추가 스크롤 아래로 숨으면 「다음」을 찾아 내려가야 한다. */}
+      {wide ? null : <View style={[styles.bottomBar, { paddingBottom: spacing[3] + insets.bottom }]}>{bottom}</View>}
 
       {/*
         🔴 -1334 — 닫힐 때 무엇을 골랐는지를 반드시 본다. ✕ 로 닫은 것(DISMISSED)만 그 자리에
-        남고, 건너뛰든 저장하든 가려던 곳으로 간다 — 홈 화면이 이미 같은 규칙을 쓴다.
+        남고, 건너뛰든 저장하든 가려던 곳으로 간다. 확인 표의 「바꾸기」로 연 것은 닫히면 그 자리다.
       */}
       <ConditionsPromptModal
-        visible={conditionsOpen}
+        visible={conditionsMode !== null}
         reprompt
         onClose={(outcome) => {
-          setConditionsOpen(false);
-          if (outcome !== 'DISMISSED') void submitPlan(true);
+          const mode = conditionsMode;
+          setConditionsMode(null);
+          if (mode === 'submit' && outcome !== 'DISMISSED') void submitPlan(true);
         }}
       />
-    </Screen>
-    {barSheet && barValue ? (
-      <PlanStartBar
-        sheet
-        wide={false}
-        accessToken={accessToken}
-        value={barValue}
-        onChange={setBarValue}
-        initialSection={barSheet}
-        onClose={() => setBarSheet(null)}
-        onSubmit={applyBar}
-        submitLabel={tx('이대로 적용', 'Apply')}
-      />
-    ) : null}
+      {/* 넓은 화면은 시트를 가운데 기둥 폭으로 — 1280 을 꽉 채우면 칸 하나가 화면 끝에서 끝까지 늘어진다. */}
+      {barSheet && barValue ? (
+        <View style={[styles.sheetLayer, wide && styles.sheetLayerWide]}><View style={[styles.sheetFrame, wide && styles.sheetFrameWide]}>
+        <PlanStartBar
+          sheet
+          wide={false}
+          accessToken={accessToken}
+          value={barValue}
+          onChange={setBarValue}
+          initialSection={barSheet}
+          onClose={() => setBarSheet(null)}
+          onSubmit={applyBar}
+          submitLabel={tx('이대로 적용', 'Apply')}
+        />
+        </View></View>
+      ) : null}
     </View>
   );
 }
@@ -852,82 +354,26 @@ function PlanConditions() {
 const styles = StyleSheet.create({
   canvas: { backgroundColor: color.canvas },
   shell: { flex: 1, backgroundColor: color.canvas },
-  budgetTotal: { gap: 2 },
-  budgetPresets: { flexDirection: 'row', gap: spacing[2] },
-  budgetPreset: { flex: 1, minWidth: 0, minHeight: 72, gap: 2, paddingVertical: spacing[2], paddingHorizontal: spacing[2], borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.brand.ivory, alignItems: 'center', justifyContent: 'center' },
-  budgetStepper: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
-  stepButton: { width: 44, height: 44, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
-  stepLabel: { flex: 1, textAlign: 'center' },
-  dietAsk: { minHeight: 44, justifyContent: 'center' },
-  // 시안: justify-content:center · gap 32. 레일(280)과 카드(760)를 가운데로 모은다.
-  split: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'center', gap: spacing[8], marginTop: spacing[6] },
-  questions: { flex: 1, minWidth: 0, maxWidth: 760, gap: spacing[3] },
-
-  // 왼쪽 레일 — 스크롤해도 붙어 있다(position: sticky 는 웹에서만 먹지만 RN 웹이 대상이다).
-  rail: { width: 280, flexShrink: 0, gap: spacing[3], position: 'sticky' as unknown as 'relative', top: spacing[6] },
-  tripCard: { gap: spacing[1], paddingVertical: spacing[3], paddingHorizontal: spacing[4], borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
-  tripCardHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  checklist: { gap: 2, padding: spacing[2], borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
-  checkRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 44, paddingVertical: spacing[1], paddingHorizontal: spacing[2], borderRadius: radius.md },
-  checkRowNow: { backgroundColor: color.surface.tint },
-  checkDot: { width: 24, height: 24, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
-  checkDotNow: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
-  checkDotDone: { backgroundColor: color.state.success, borderColor: color.state.success },
-  checkBody: { flex: 1, minWidth: 0 },
-
-  phoneTop: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: spacing[2], marginBottom: spacing[3] },
-  phoneChips: { flex: 1, minWidth: 0 },
-  phoneChipsRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[1] },
-  phoneBack: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', marginLeft: -spacing[3] },
-  phoneGivenChip: { paddingHorizontal: spacing[2], paddingVertical: 6, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card, flexShrink: 0 },
-  phoneGivenChipPlace: { maxWidth: 150 },
-  phoneGivenEdit: { minHeight: 44, paddingLeft: spacing[2], justifyContent: 'center' },
-
-  stepHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3] },
-  stepCopy: { flex: 1, minWidth: 0, gap: 2 },
-  track: { height: 4, borderRadius: radius.full, backgroundColor: color.surface.field, overflow: 'hidden' },
-  fill: { height: 4, borderRadius: radius.full, backgroundColor: color.action.secondary },
-
-  card: { gap: spacing[4], padding: spacing[6], borderRadius: radius.lg, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
-  cardWide: {},
-  cardPhone: { padding: spacing[4] },
-  cardHead: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: spacing[3] },
-  cardCopy: { flex: 1, minWidth: 0, gap: spacing[1] },
-  skip: { minHeight: 32, justifyContent: 'center' },
-
-  optionGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
-  // 시안의 auto-fill minmax(150px,1fr) 을 RN 에서 흉내 낸다 — RN 에는 grid 가 없다.
-  optionCell: { flexGrow: 1, flexBasis: 140, minWidth: 140 },
-
+  column: { gap: spacing[4], paddingBottom: spacing[6] },
+  columnWide: { width: '100%', maxWidth: 640, alignSelf: 'center', marginTop: spacing[6] },
+  head: { gap: spacing[3] },
+  topRow: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
+  back: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', marginLeft: -spacing[3] },
+  topTitle: { flex: 1 },
+  titleRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[3], marginTop: spacing[1] },
+  grow: { flex: 1, minWidth: 0, gap: 2 },
+  skip: { minHeight: 44, justifyContent: 'center' },
+  center: { textAlign: 'center' },
+  bottomBar: { paddingTop: spacing[3], paddingHorizontal: spacing[4], backgroundColor: color.surface.card, borderTopWidth: 1, borderTopColor: color.surface.border },
+  bottomStack: { gap: spacing[2] },
   navRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
-  prev: { minHeight: 48, justifyContent: 'center', paddingHorizontal: spacing[6], borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
-  prevOff: { opacity: 0.5 },
+  prev: { minHeight: 48, justifyContent: 'center', paddingHorizontal: spacing[6], borderRadius: radius.full, backgroundColor: color.surface.soft },
   next: { flex: 1 },
   pressed: { opacity: 0.8 },
-
-  // 🔴 출발지를 묻는 자리. 날짜 카드와 같은 무게로 둔다 — 둘 다 없으면 못 만든다.
-  originAsk: { gap: spacing[1], padding: spacing[4], borderRadius: radius.lg, borderWidth: 1, borderColor: color.action.primary, backgroundColor: color.surface.card },
-  answeredList: { gap: spacing[1] },
-  answeredRowItem: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 44, paddingHorizontal: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card },
-  answeredCheck: { width: 18, height: 18, borderRadius: radius.full, backgroundColor: color.state.success, alignItems: 'center', justifyContent: 'center' },
-  missedRowItem: { borderWidth: 1, borderColor: color.state.danger, backgroundColor: color.state.dangerFieldBg },
-  // 🔴 위험은 채우지 않는다(check:palette) — 연분홍 바탕 + 빨간 「!」.
-  missedMark: { backgroundColor: color.state.dangerBg },
-  answeredBody: { flex: 1, paddingVertical: spacing[1] },
-  upcoming: { gap: 2, marginTop: spacing[2] },
-  upcomingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 36, paddingHorizontal: spacing[2] },
-  upcomingNo: { width: 22, height: 22, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field, alignItems: 'center', justifyContent: 'center' },
-  upcomingLabel: { flex: 1 },
+  sheetLayer: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 25 },
+  sheetLayerWide: { alignItems: 'center', backgroundColor: color.canvas },
+  sheetFrame: { flex: 1, width: '100%' },
+  sheetFrameWide: { maxWidth: 640 },
+  dietAsk: { minHeight: 44, justifyContent: 'center' },
   consent: { gap: spacing[2], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.state.warningBg },
-
-  stack: { gap: spacing[3] },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
-  chip: { minHeight: 44, paddingHorizontal: spacing[4], justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.brand.ivory, borderWidth: 1, borderColor: color.surface.border },
-  chipOn: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
-  timeRow: { flexDirection: 'row', gap: spacing[3] },
-  timeField: { flex: 1, gap: spacing[1] },
-  input: { minHeight: 48, paddingHorizontal: spacing[3], borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.border, color: color.text.heading },
-  binaryRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3] },
-  coverageNote: { marginTop: spacing[1] },
-  binaryLabel: { flex: 1 },
 });

@@ -1,9 +1,8 @@
-// 여행 조건 — 한 번에 한 질문 (S15P21E201-1425).
+// 여행 만들기 — 네 단계 + 확인 표 (UI 캔버스 ⑤, S15P21E201-1865).
 //
-// 🔴 시안이 3-장 묶음(-1377)을 버리고 질문 하나씩 보이는 스테퍼로 돌아갔다. 필수 3 + 선택 4 = 일곱.
-//    로컬성·조용함·음식은 온보딩 취향이 draft 로 이식되므로 여기서 다시 묻지 않는다.
-//    이 시험이 지키는 것: 한 번에 하나만 보인다 · 「지금 이대로 만들기」 갈림 카드는 없다 ·
-//    필수를 다 채우면 마지막 질문의 「이 조건으로 일정 만들기」가 일정을 보낸다 · 자리를 이어 붙인다.
+// 🔴 전에는 질문 일곱을 하나씩 물었고(-1425), 서버가 요구하는 날짜·출발지·숙소는 질문 밖에 있었다.
+//    이 시험이 지키는 것: 한 번에 한 단계 · 빈 필수 단계를 건너뛴 채 확인 표에 서지 않는다 ·
+//    잠긴 단추가 이유를 말한다 · 확인 표의 「이 조건으로 일정 만들기」가 일정을 보낸다 · 자리를 이어 붙인다.
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -56,85 +55,98 @@ const mount = () => render(
 
 beforeEach(async () => { jest.clearAllMocks(); mockDraft = BASE; await AsyncStorage.clear(); });
 
-describe('여행 조건 문항 — 한 번에 하나 (S15P21E201-1425)', () => {
-  it('첫 질문은 「필수 1 / 3」이고 한 번에 하나만 보인다 · 갈림 카드는 없다', () => {
+describe('여행 만들기 — 네 단계 + 확인 표 (UI 캔버스 ⑤, S15P21E201-1865)', () => {
+  it('1단계는 「언제, 누구와」이고 날짜·인원을 이 화면 안에서 고른다 · 「이전」은 없다', () => {
     const view = mount();
-    expect(view.getByText('필수 1 / 3')).toBeTruthy();
-    expect(view.getByText('여행 범위')).toBeTruthy();
-    // 예산 질문의 «카드»는 지금 안 보인다 — 금액 더하기 칩(+1만)은 그 카드 안에만 있다.
-    //   질문 이름 「총예산」은 아래 「다음 질문」 목록에 있을 수 있으니 카드 고유의 부품으로 가른다.
+    expect(view.getByText('1/4')).toBeTruthy();
+    expect(view.getByText('언제, 누구와 가세요?')).toBeTruthy();
+    expect(view.getByText('2박 3일')).toBeTruthy();
+    expect(view.getByText('성인')).toBeTruthy();
+    expect(view.queryByText('이전')).toBeNull();
+    // 한 번에 한 단계 — 예산 카드(+1만)는 3단계에만 있다.
     expect(view.queryByText('+1만')).toBeNull();
-    // 「지금 이대로 만들기」 갈림 카드·버튼은 시안에서 걷어냈다.
-    expect(view.queryByText('지금 이대로 만들기 →')).toBeNull();
-    expect(view.queryByText('필수는 끝! 지금 만들 수 있어요')).toBeNull();
-    // 마지막이 아니라 「다음」이지 「이 조건으로 일정 만들기」가 아니다.
-    expect(view.queryByText('이 조건으로 일정 만들기')).toBeNull();
+    fireEvent.press(view.getByText('다음'));
+    expect(view.getByText('어디서 출발해서, 어떻게 다닐까요?')).toBeTruthy();
   });
 
-  it('필수를 다 채우면 「다음」으로 마지막 질문까지 가고, 「이 조건으로 일정 만들기」가 일정을 보낸다', async () => {
+  it('필수를 다 채우면 「다음」 넷으로 확인 표까지 가고, 「이 조건으로 일정 만들기」가 일정을 보낸다', async () => {
     mockDraft = REQUIRED_DONE;
     const view = mount();
-    expect(view.getByText('필수 1 / 3')).toBeTruthy();
-    // 일곱 질문을 「다음」으로 지나 마지막(꼭 가고 싶은 장소)까지 — 여섯 번 누른다.
-    for (let i = 0; i < 6; i += 1) fireEvent.press(view.getByText('다음'));
-    expect(view.getByText('꼭 가고 싶은 장소')).toBeTruthy();
-    expect(view.getByText('선택 4 / 4')).toBeTruthy();
+    fireEvent.press(view.getByText('다음'));
+    fireEvent.press(view.getByText('다음'));
+    fireEvent.press(view.getByText('다음'));
+    expect(view.getByText('어떤 여행이 좋아요?')).toBeTruthy();
+    fireEvent.press(view.getByText('다음 · 한눈에 보기'));
+    expect(view.getByText('이대로 만들까요?')).toBeTruthy();
+    expect(view.getByText('TRIP PASS · 미리보기')).toBeTruthy();
     fireEvent.press(view.getByText('이 조건으로 일정 만들기'));
     await waitFor(() => expect(mockSubmit).toHaveBeenCalledTimes(1));
     expect(mockPush).toHaveBeenCalledWith({ pathname: '/plan/generating', params: { jobId: 'job-1' } });
   });
 
-  it('🔴 1박 이상인데 숙소가 없으면 안 보내고 이유를 말한다 (S15P21E201-1584)', async () => {
+  it('🔴 1박 이상인데 숙소가 없으면 저장된 자리가 확인 표여도 2단계에 선다 — 단추가 이유를 말하고, 찾기는 이 화면 위 시트로 (S15P21E201-1584)', async () => {
     mockDraft = { ...REQUIRED_DONE, lodging: '', lodgingLat: null, lodgingLng: null };
+    await AsyncStorage.setItem('gabolle:plan-questions-state', JSON.stringify({ open: 4, skipped: {} }));
     const view = mount();
-    expect(view.getByText('어디에서 묵으세요?')).toBeTruthy();
-    for (let i = 0; i < 6; i += 1) fireEvent.press(view.getByText('다음'));
-    expect(view.getByText('1박 이상 여행은 숙소를 골라야 만들 수 있어요 · 위에서 골라 주세요')).toBeTruthy();
-    // 잠긴 단추가 이유를 말한다(UI 캔버스 ⑤).
+    await waitFor(() => expect(view.getByText('2/4')).toBeTruthy());
+    expect(view.getByText('숙소 · 2박이라 필요해요')).toBeTruthy();
     fireEvent.press(view.getByText('숙소를 골라 주세요'));
     expect(mockSubmit).not.toHaveBeenCalled();
-    // 🔴 폰은 홈으로 튕겨 나가지 않는다 — 이 화면 위에 시작 바 시트를 연다(UI 캔버스 ⑤).
-    fireEvent.press(view.getByText('어디에서 묵으세요?'));
-    expect(mockPush).not.toHaveBeenCalledWith(expect.objectContaining({ params: { edit: 'lodging' } }));
+    // 추천 동네는 그 자리에서 고른다 — 홈 시작 바와 같은 값(장소 스냅샷은 안 싣는다).
+    fireEvent.press(view.getByText('해운대'));
+    expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({ lodging: '해운대', lodgingPlace: null }));
+    // 🔴 이름으로 찾기는 홈으로 튕겨 나가지 않는다 — 이 화면 위에 시작 바 시트를 연다.
+    fireEvent.press(view.getByText('이름으로 찾기'));
+    expect(mockPush).not.toHaveBeenCalled();
     expect(view.getByLabelText(/닫기|Close/)).toBeTruthy();
   });
 
   it('🔴 알레르기를 안 물었어도(기본값 「모름」) 경고 없이 바로 보낸다 — 조건 창이 다시 뜨지 않는다 (S15P21E201-1513)', async () => {
-    // 조건 창이 알레르기를 더는 안 묻는다(-1497). 그래서 새 사람은 알레르기가 영영 'UNKNOWN' 이다.
     mockDraft = { ...REQUIRED_DONE, allergyStatus: 'UNKNOWN', allergyAnswered: false };
+    await AsyncStorage.setItem('gabolle:plan-questions-state', JSON.stringify({ open: 4, skipped: {} }));
     const view = mount();
-    for (let i = 0; i < 6; i += 1) fireEvent.press(view.getByText('다음'));
-    expect(view.queryByText('식단을 아직 안 알려주셨어요. 눌러서 알려주세요.')).toBeNull();
+    await waitFor(() => expect(view.getByText('이대로 만들까요?')).toBeTruthy());
+    expect(view.queryByText('식단을 아직 안 알려주셨어요 · 눌러서 알려주기 ›')).toBeNull();
     fireEvent.press(view.getByText('이 조건으로 일정 만들기'));
     await waitFor(() => expect(mockSubmit).toHaveBeenCalledTimes(1));
   });
 
-  it('🔴 날짜가 없으면 달력 카드가 이 화면 안에 펼쳐진다 — 홈으로 보내지 않는다 (S15P21E201-1376)', () => {
+  it('🔴 날짜가 없으면 1단계 달력에서 고른다 — 홈으로 보내지 않고, 잠긴 단추가 이유를 말한다 (S15P21E201-1376)', () => {
     mockDraft = { ...BASE, startDate: '', endDate: '' };
     const view = mount();
-    expect(view.getByText('언제 가세요?')).toBeTruthy();
+    expect(view.getByText('여행 날짜를 골라 주세요')).toBeTruthy();
     fireEvent.press(view.getByText('2박 3일'));
     expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({ startDate: expect.stringMatching(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/), endDate: expect.any(String) }));
     expect(mockPush).not.toHaveBeenCalled();
   });
 
-  it('🔴 자리를 기기에 남기고 다시 열면 그 질문에서 잇는다', async () => {
+  it('🔴 자리를 기기에 남기고 다시 열면 그 단계에서 잇는다', async () => {
     mockDraft = REQUIRED_DONE;
     const first = mount();
     fireEvent.press(first.getByText('다음'));
     await waitFor(async () => expect(JSON.parse((await AsyncStorage.getItem('gabolle:plan-questions-state')) ?? '{}').open).toBe(1));
     first.unmount();
     const again = mount();
-    await waitFor(() => expect(again.getByText('필수 2 / 3')).toBeTruthy());
+    await waitFor(() => expect(again.getByText('어디서 출발해서, 어떻게 다닐까요?')).toBeTruthy());
   });
 
-  it('🔴 여행 범위를 안 답한 채 마지막 질문에서 열려도 폰 목록에 그 줄이 있고, 누르면 그 질문으로 간다 (S15P21E201-1540)', async () => {
-    // 기기에 남은 자리는 마지막인데 초안의 여행 범위는 비었다 — 로그아웃이 초안만 지우고 자리는 남긴 모양.
-    await AsyncStorage.setItem('gabolle:plan-questions-state', JSON.stringify({ open: 6, skipped: {} }));
+  it('🔴 지역을 안 답한 채 확인 표 자리로 열려도 3단계에 서고, 이유를 말한다 (S15P21E201-1540)', async () => {
+    // 기기에 남은 자리는 확인 표인데 초안의 지역은 비었다 — 로그아웃이 초안만 지우고 자리는 남긴 모양.
+    await AsyncStorage.setItem('gabolle:plan-questions-state', JSON.stringify({ open: 4, skipped: {} }));
     const view = mount();
-    await waitFor(() => expect(view.getByText('선택 4 / 4')).toBeTruthy());
-    expect(view.getByText('아직 안 답했어요 · 필수')).toBeTruthy();
-    fireEvent.press(view.getByLabelText('여행 범위 답하기'));
-    await waitFor(() => expect(view.getByText('필수 1 / 3')).toBeTruthy());
+    await waitFor(() => expect(view.getByText('3/4')).toBeTruthy());
+    expect(view.getByText('지역을 하나 이상 골라 주세요')).toBeTruthy();
+  });
+
+  it('4단계는 건너뛸 수 있고, 확인 표가 「건너뜀」이라 적는다 · 표의 칸을 누르면 그 단계로 간다', async () => {
+    mockDraft = REQUIRED_DONE;
+    await AsyncStorage.setItem('gabolle:plan-questions-state', JSON.stringify({ open: 3, skipped: {} }));
+    const view = mount();
+    await waitFor(() => expect(view.getByText('어떤 여행이 좋아요?')).toBeTruthy());
+    fireEvent.press(view.getByText('건너뛰기'));
+    expect(view.getByText('이대로 만들까요?')).toBeTruthy();
+    expect(view.getAllByText('건너뜀').length).toBeGreaterThan(0);
+    fireEvent.press(view.getByLabelText('날짜 고치기'));
+    expect(view.getByText('언제, 누구와 가세요?')).toBeTruthy();
   });
 });

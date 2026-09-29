@@ -55,9 +55,11 @@ describe('자료가 적은 조건을 가려낸다', () => {
     expect(coverageCountsOf(coverage, COVERAGE_FEATURE.accessibility)).toEqual({ placeCount: 102, totalPlaceCount: 6866 });
   });
 
-  it('🔴 이동 보조 문항이 이 안내를 실제로 붙인다', () => {
+  it('🔴 이동 보조 칸이 이 안내를 실제로 붙인다', () => {
     const source: string = readFileSync(join(__dirname, '..', '..', '..', 'app', '(plan)', 'questions.tsx'), 'utf8');
     expect(source).toContain('hasScarcePlaceData(coverage, COVERAGE_FEATURE.accessibility)');
-    expect(source).toContain('지금 접근성을 확인한 곳은');
+    // 이동 보조는 확인 표에 있다(S15P21E201-1865) — 화면 몸은 PlanSteps.tsx.
+    const steps: string = readFileSync(join(__dirname, '..', 'PlanSteps.tsx'), 'utf8');
+    expect(steps).toContain('지금 접근성을 확인한 곳은');
   });
 });

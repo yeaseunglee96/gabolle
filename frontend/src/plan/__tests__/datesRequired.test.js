@@ -11,46 +11,41 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..', '..', '..');
+// 🔴 S15P21E201-1865 부터 날짜는 여행 만들기 1단계가 묻는다. 자리·제출은 questions.tsx, 단계 몸은 PlanSteps.tsx.
 const SCREEN = fs.readFileSync(path.join(ROOT, 'app', '(plan)', 'questions.tsx'), 'utf8');
+const STEPS = fs.readFileSync(path.join(ROOT, 'src', 'plan', 'PlanSteps.tsx'), 'utf8');
 
 /** 주석은 뺀다 — 「전에는 이랬다」고 적어 둔 설명까지 세면 시험이 기록을 막는다. */
-const code = SCREEN.split('\n')
-  .map((line) => line.replace(/\/\/.*$/, ''))
-  .join('\n')
-  .replace(/\/\*[\s\S]*?\*\//g, '');
+const strip = (src) => src.split('\n').map((line) => line.replace(/\/\/.*$/, '')).join('\n').replace(/\/\*[\s\S]*?\*\//g, '');
+const code = strip(SCREEN);
+const steps = strip(STEPS);
 
 describe('날짜 없이 일정 만들기', () => {
-  it('🔴 날짜가 없으면 마지막 단추가 안 눌린다', () => {
-    const disabled = code.match(/disabled=\{last \?([^:]*):/);
-    expect(disabled).not.toBeNull();
-    expect(disabled[1]).toContain('datesMissing');
-  });
-
   it('🔴 날짜가 하나라도 비면 없는 것으로 본다 — 시작만 있고 끝이 없으면 서버가 거절한다', () => {
-    expect(code).toContain('!draft.startDate || !draft.endDate');
+    expect(code).toContain('datesMissing: !draft.startDate || !draft.endDate');
   });
 
-  it('🔴 왜 안 눌리는지 화면에 적는다 — 안 적으면 고장으로 읽는다', () => {
-    // 1425 부터는 「지금 이대로 만들기 ↑」 카드를 걷어내고(문항별 스테퍼) 상태 문구로 말한다 —
-    // 「필수 질문은 다 답했어요 · 날짜만 정하면 만들 수 있어요」. 마지막 자리에는 알림 줄도 뜬다.
-    expect(SCREEN).toContain('날짜만 정하면 만들 수 있어요');
-    expect(SCREEN).toContain('날짜를 정해야 만들 수 있어요');
+  it('🔴 날짜가 없으면 1단계에서 못 넘어가고, 만들기 단추도 잠긴다', () => {
+    expect(steps).toContain('case 0: return !r.datesMissing;');
+    expect(code).toContain('!readiness.datesMissing');
+    expect(code).toMatch(/const readyToBuild = [^;]*readiness\.datesMissing/);
   });
 
-  it('🔴 거기서 정하러 갈 수 있다 — 잠그기만 하고 문을 안 주지 않는다', () => {
-    // 날짜가 없으면 달력 카드가 저절로 펼쳐진다(showDateCard) — 잠근 자리 바로 위에 문이 있다.
-    expect(code).toContain('datesOpen ?? datesMissing');
-    // 폰 위쪽 줄(goSetDates)과 답한 날짜 행(setDatesOpen) 둘 다 그 카드를 편다.
-    expect(code).toContain('goSetDates');
-    expect(code.match(/setDatesOpen\(true\)/g).length).toBeGreaterThanOrEqual(2);
+  it('🔴 빈 날짜를 건너뛴 채 뒤 단계(확인 표)에 서지 않는다 — 저장된 자리가 뒤여도 1단계로', () => {
+    expect(code).toContain('firstIncompleteStep(readiness)');
   });
 
-  it('🔴 폰의 날짜 단추가 「받은 것이 있을 때만」에 묶여 있지 않다', () => {
-    // 예전 모양: {headerChips.length ? <Pressable … 수정 …> : null}
-    expect(code).not.toMatch(/headerChips\.length \?\s*\(?\s*<Pressable/);
+  it('🔴 왜 안 눌리는지 단추가 말한다 — 안 적으면 고장으로 읽는다', () => {
+    expect(STEPS).toContain("tx('여행 날짜를 골라 주세요'");
+    expect(STEPS).toContain("tx('돌아오는 날을 골라 주세요'");
+  });
+
+  it('🔴 거기서 정한다 — 1단계가 달력을 이 화면 안에 그린다(홈으로 보내지 않는다)', () => {
+    expect(steps).toContain('<DateRangeCard embedded');
   });
 
   it('🔴 날짜를 대신 지어 넣지 않는다 — 안 고른 날짜로 만든 일정을 주지 않는다', () => {
     expect(code).not.toMatch(/startDate:\s*(today|new Date|addDays)/);
+    expect(steps).not.toMatch(/startDate:\s*(today|new Date|addDays)/);
   });
 });

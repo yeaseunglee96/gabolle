@@ -28,13 +28,15 @@ export function dateRangeLabel(value: DateRange, tx: (ko: string, en: string) =>
   return `${range} · ${nights > 0 ? tx(`${nights}박`, `${nights} ${nights === 1 ? 'night' : 'nights'}`) : tx('당일치기', 'Day trip')}`;
 }
 
-export function DateRangeCard({ value, onChange, onDone, tx, today = new Date() }: {
+export function DateRangeCard({ value, onChange, onDone, tx, today = new Date(), embedded = false }: {
   value: DateRange;
   onChange: (next: DateRange) => void;
   /** 「이 날짜로」 — 고른 것을 확정하고 카드를 접는다. 양쪽 날짜가 있을 때만 켜진다. */
   onDone: () => void;
   tx: (ko: string, en: string) => string;
   today?: Date;
+  /** 여행 만들기 1단계 안 — 제목·「이 날짜로」 없이 달력만. 단계의 「다음」이 확정을 대신한다. */
+  embedded?: boolean;
 }) {
   const todayKey = toDateKey(today);
   // 이미 고른 출발일이 있으면 그 달부터 연다 — S15P21E201-1539. 이번 달부터 열면 고른 날을 보려고 › 를 또 눌러야 했다.
@@ -61,8 +63,8 @@ export function DateRangeCard({ value, onChange, onDone, tx, today = new Date() 
   };
 
   return (
-    <View style={styles.card}>
-      <View style={styles.head}>
+    <View style={[styles.card, embedded && styles.cardEmbedded]}>
+      {embedded ? null : <View style={styles.head}>
         <View style={styles.headText}>
           <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('필수', 'Required')}</Text>
           <Text variant="title" weight="bold" color={color.text.heading}>{tx('언제 가세요?', 'When are you going?')}</Text>
@@ -70,7 +72,7 @@ export function DateRangeCard({ value, onChange, onDone, tx, today = new Date() 
         <Text variant="caption" weight="bold" color={label ? color.text.heading : color.text.muted} numberOfLines={1} style={styles.summary}>
           {label ?? tx('출발일 → 귀환일 순서로 눌러요', 'Tap departure, then return')}
         </Text>
-      </View>
+      </View>}
 
       <View style={styles.chipRow}>
         {[0, 1, 2, 3].map((nights) => (
@@ -97,15 +99,18 @@ export function DateRangeCard({ value, onChange, onDone, tx, today = new Date() 
       {lastPickable ? (
         <Text variant="caption" color={color.text.muted}>{txf(tx, '돌아오는 날은 %s까지 고를 수 있어요 (최대 7박)', 'You can come back as late as %s (up to 7 nights)', formatDateShort(lastPickable, tx))}</Text>
       ) : null}
-      <Pressable accessibilityRole="button" accessibilityState={{ disabled: !complete }} disabled={!complete} onPress={onDone} style={[styles.done, !complete && styles.doneOff]}>
-        <Text weight="bold" color={color.text.onAction}>{complete && label ? `${label} · ${tx('이 날짜로', 'Use these dates')}` : tx('귀환일까지 골라 주세요', 'Pick the return date too')}</Text>
-      </Pressable>
+      {embedded ? null : (
+        <Pressable accessibilityRole="button" accessibilityState={{ disabled: !complete }} disabled={!complete} onPress={onDone} style={[styles.done, !complete && styles.doneOff]}>
+          <Text weight="bold" color={color.text.onAction}>{complete && label ? `${label} · ${tx('이 날짜로', 'Use these dates')}` : tx('귀환일까지 골라 주세요', 'Pick the return date too')}</Text>
+        </Pressable>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   card: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, borderWidth: 1.5, borderColor: color.action.secondary, backgroundColor: color.surface.card },
+  cardEmbedded: { borderWidth: 0 },
   head: { gap: spacing[1] },
   headText: { gap: 2 },
   summary: {},

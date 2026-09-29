@@ -276,7 +276,7 @@ async function searchOriginsWithNames(query: string, accessToken: string | null,
  * 카카오는 한국어 주소만 주고, 택시에 보여 줄 값이다.
  * 🔴 한국어 원문은 origins.ts 의 RECOMMENDED_LODGING_AREAS 와 같은 문장이다. 한쪽을 바꾸면 둘 다 바꾼다.
  */
-function lodgingAreaNote(candidate: OriginCandidate, tx: (ko: string, en: string) => string): string {
+export function lodgingAreaNote(candidate: OriginCandidate, tx: (ko: string, en: string) => string): string {
   switch (candidate.externalId) {
     case 'lodging-haeundae': return tx('바다 앞 호텔·리조트가 모여 있어요', 'Beachfront hotels and resorts');
     case 'lodging-seomyeon': return tx('교통 중심 · 어디든 가기 편해요', 'Transit hub · easy to get anywhere');

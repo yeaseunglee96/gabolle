@@ -18,9 +18,10 @@ const read = (...parts: string[]): string => readFileSync(join(__dirname, '..', 
 
 describe('큰 짐 문항을 지웠다', () => {
   it('🔴 조건 화면이 「큰 짐」을 묻지 않는다 — 유아차는 그대로 묻는다', () => {
-    const source = read('app', '(plan)', 'questions.tsx');
-    expect(source).not.toContain('큰 짐이 있어요');
-    expect(source).toContain('유아차가 있어요');
+    // 이동 보조는 여행 만들기 확인 표에서 고른다(S15P21E201-1865) — 화면 몸은 PlanSteps.tsx.
+    const source = read('app', '(plan)', 'questions.tsx') + read('src', 'plan', 'PlanSteps.tsx');
+    expect(source).not.toContain('큰 짐');
+    expect(source).toContain("['stroller', '유아차', 'Stroller']");
   });
 
   it('🔴 서버로 HEAVY_LUGGAGE 를 보내지 않는다 — WHEELCHAIR·STROLLER 는 보낸다', () => {
