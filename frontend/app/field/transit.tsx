@@ -23,6 +23,7 @@ import {
 } from '@/field/busArrivals';
 import { vendorNotReadyMessage } from '@/api/vendorReady';
 import { useI18n } from '@/i18n';
+import { romanizeKorean } from '@/discovery/romanize';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { txf } from '@/i18n/format';
@@ -46,7 +47,10 @@ type LocationState = 'detecting' | 'granted' | 'denied';
 
 export default function Bus() {
   const router = useRouter();
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
+  // 역 이름 — 원천(부산교통공사)에 한글 이름만 있다. 한국어가 아닌 화면에서는 읽는 법으로 적고(「Sicheong Station」),
+  // 역 안내판에서 찾을 수 있게 한글 역 이름을 아래에 같이 둔다(S15P21E201-1867). 전에는 「시청 Station」처럼 섞여 나왔다.
+  const stationTitle = (name: string) => (language === 'ko' ? `${name}역` : txf(tx, '%s역', '%s Station', romanizeKorean(name) ?? name));
   const { preview } = useLocalSearchParams<{ preview?: string }>();
   const { accessToken, ready } = useAuth();
   const locationGate = useLocationGate(accessToken);
@@ -386,13 +390,13 @@ export default function Bus() {
                   <Pressable
                     key={id}
                     accessibilityRole="button"
-                    accessibilityLabel={txf(tx, '%s 지도에서 보기', 'Show %s on the map', txf(tx, '%s역', '%s Station', station.name))}
+                    accessibilityLabel={txf(tx, '%s 지도에서 보기', 'Show %s on the map', stationTitle(station.name))}
                     onPress={() => setSelectedId(id)}
                     style={[styles.stationRow, selectedId === id && styles.selectedRow]}
                   >
                     {stationsNumbered ? <View style={styles.numberBadge}><Text variant="micro" weight="bold" color={color.text.onAction}>{index + 1}</Text></View> : null}
                     <View style={styles.grow}>
-                      <Text weight="bold">{txf(tx, '%s역', '%s Station', station.name)}</Text>
+                      <Text weight="bold">{stationTitle(station.name)}{language === 'ko' ? null : <Text variant="caption" color={color.text.muted}>{`  ${station.name}역`}</Text>}</Text>
                       {located ? <Text variant="caption" color={color.text.muted}>{howFar(station.latitude, station.longitude)}</Text> : null}
                     </View>
                     <View style={styles.lineChips}>

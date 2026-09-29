@@ -19,11 +19,16 @@ const FAQS = [
   ['내 정보는 어떻게 삭제하나요?', 'How do I delete my data?', '마이페이지 → 프로필 → 회원 탈퇴에서 삭제되는 항목을 확인한 뒤 계정을 영구 삭제할 수 있어요.', 'Go to My page → Profile → Delete account to review and permanently remove your account data.'],
 ] as const;
 
+/** 약관·개인정보 처리방침(legalContent)에 적힌 문의 주소와 같은 값. */
+const SUPPORT_EMAIL_FALLBACK = 'gabolle.support@gmail.com';
+
 export function HelpBody() {
   const router = useRouter();
   const { tx } = useI18n();
   const [open, setOpen] = useState<number | null>(0);
-  const supportEmail = process.env.EXPO_PUBLIC_SUPPORT_EMAIL?.trim();
+  // 🔴 빌드 설정이 비면 약관·방침에 이미 적힌 문의 주소를 쓴다(S15P21E201-1867). 전에는 설정이 없는 빌드(배포 웹)에서
+  //    「문의 수신 주소를 준비하고 있어요. 그 전에는 팀에 전달해 주세요」가 사용자에게 나왔다 — 사용자는 팀을 모른다.
+  const supportEmail = process.env.EXPO_PUBLIC_SUPPORT_EMAIL?.trim() || SUPPORT_EMAIL_FALLBACK;
   const contact = async () => {
     if (!supportEmail) return;
     const subject = encodeURIComponent(tx('[가볼래] 앱 문의', '[GABOLLE] App support'));

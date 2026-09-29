@@ -144,7 +144,8 @@ export function StoryRow({
         : stories.map((story) => <StoryCard key={story.id} story={story} cardWidth={cardWidth} />)}
 
       {stories !== null && stories.length === 0 ? (
-        <Text variant="caption" color={color.text.body}>
+        // 🔴 가로로 미는 줄 안이라 폭을 주지 않으면 줄을 안 바꾸고 화면 밖으로 나갔다(일본어 실측, S15P21E201-1867). 줄 폭만큼으로 묶는다.
+        <Text variant="caption" color={color.text.body} style={{ width: Math.max(160, width - (gutter ?? 24) * 2) }}>
           {tx('아직 남겨진 기록이 없어요. 첫 기록을 남겨 보세요.', 'No records yet — be the first to share one.')}
         </Text>
       ) : null}

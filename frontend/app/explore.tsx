@@ -22,6 +22,7 @@ import { color, gutter, radius, spacing } from '@/design/tokens';
 import { flattenLocalFacets, getFacets, getNearbyPlaces, localFacetLabel, localPlaceName, type FacetsLoadResult, type LocalFacetEntry, type NearbyPlacesLoadResult } from '@/discovery/localExplore';
 import { getPlacesByFacet, photoLabels, type PhotoSubject, type PlaceSearchItem } from '@/discovery/places';
 import { useI18n } from '@/i18n';
+import { romanizeKorean } from '@/discovery/romanize';
 import { txf } from '@/i18n/format';
 import { localizeMessage } from '@/i18n/messages';
 import { syncLocationConsent } from '@/personalization/locationConsent';
@@ -387,6 +388,8 @@ function PlaceRows({ items, showDistance = false, cardWidth }: {
       </View>
       <View style={styles.cardBody}>
         <Text weight="bold" numberOfLines={1}>{localPlaceName(item, language)}</Text>
+        {/* 번역 이름이 없어 한글로 남은 이름엔 읽는 법을 곁들인다(S15P21E201-1867) — 외국어 화면에서 「부산연등회」만 있으면 읽지도 묻지도 못한다. */}
+        {language !== 'ko' && localPlaceName(item, language) === item.nameKo && romanizeKorean(item.nameKo) ? <Text variant="caption" color={color.text.body} numberOfLines={1}>{romanizeKorean(item.nameKo)}</Text> : null}
         {item.address ? <Text variant="caption" color={color.text.muted} numberOfLines={1}>{tx(item.address, item.addressEn ?? item.address)}</Text> : null}
         {/* 🔴 거리는 「내 근처」일 때만. 부산 전체로 찾을 때는 거리 기준이 없어서,
             그리면 없는 기준을 있는 것처럼 보여준다. */}

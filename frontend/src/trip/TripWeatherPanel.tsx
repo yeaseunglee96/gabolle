@@ -223,7 +223,7 @@ export function TripWeatherCard({ date, hourly = false, stops = [] }: { date: st
         ) : weather?.state === 'out-of-range' ? (
           <Text variant="body" color={color.text.muted}>{tx('출발일 예보는 출발 3일 전부터 보여드려요. 그때 다시 열어 주세요.', 'The departure-day forecast opens 3 days before you leave. Check back then.')}</Text>
         ) : weather ? (
-          <Text variant="body" color={color.text.muted}>{tx('예보를 가져오지 못했습니다.', 'Could not load the forecast.')}</Text>
+          <Text variant="body" color={color.text.muted}>{tx('예보를 가져오지 못했어요.', 'Could not load the forecast.')}</Text>
         ) : (
           <Text variant="body" color={color.text.muted}>{tx('예보를 불러오는 중…', 'Loading the forecast…')}</Text>
         )}

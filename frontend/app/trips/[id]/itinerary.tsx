@@ -417,7 +417,7 @@ function ItineraryClassic() {
   // 🔴 `name=1` 은 ③ 코스 고르기에서 넘어왔다는 뜻이다. 그때만 이름 묻기가 **열린 채로**
   //    들어온다(시안 ④). 내 여행에서 다시 들어오면 안 연다 — 열 때마다 물으면 건너뛸 수
   //    있다고 말해 놓고 안 놓아주는 것이다.
-  const { id, day: dayParam, view: viewParam, name: nameParam } = useLocalSearchParams<{ id: string; day?: string; view?: string; name?: string }>();
+  const { id, day: dayParam, view: viewParam, name: nameParam, reorder: reorderParam } = useLocalSearchParams<{ id: string; day?: string; view?: string; name?: string; reorder?: string }>();
   const { tx, locale } = useI18n();
   const itineraryId = id ?? '';
   const [result, setResult] = useState<ItineraryLoadResult>({ state: 'error', message: tx('일정 식별자가 없어요.', 'Missing itinerary identifier.') });
@@ -838,6 +838,15 @@ function ItineraryClassic() {
   };
 
   const cancelReorder = () => setOrderDraft(null);
+
+  // 통합 화면의 「순서 수정」에서 왔으면(?reorder=1) 일정이 보이는 대로 한 번 순서 수정을 연다 — 두 번 누르게 하지 않는다.
+  const reorderOpened = useRef(false);
+  useEffect(() => {
+    if (reorderParam !== '1' || reorderOpened.current || !day || !canReorder) return;
+    reorderOpened.current = true;
+    startReorder();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reorderParam, day, canReorder]);
 
   // 날짜를 바꿀 때마다 주소도 같이 바꾼다 — router.setParams는 다시 불러오지 않고
   // 주소창만 갱신한다(완료 기준: "탭 전환 시 네트워크 요청이 발생하지 않는다").
