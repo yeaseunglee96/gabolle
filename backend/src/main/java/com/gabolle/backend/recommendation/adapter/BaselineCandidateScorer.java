@@ -81,6 +81,13 @@ public class BaselineCandidateScorer {
 	static final String ACCESS_VERIFIED_UNAVAILABLE = "ACCESS_VERIFIED_UNAVAILABLE";
 
 	/**
+	 * 취향 한 축의 정렬도(1 - |장소 값 - 취향 값|, 0~1)가 이 값 이상일 때만 「취향에 맞음」 이유 코드
+	 * ({@code PREF_ALIGNED_*})를 단다. 0.5 는 눈금의 한가운데다 — 이보다 낮으면 장소가 취향과 반대쪽 절반에
+	 * 있다는 뜻이라 「맞아서 골랐다」고 말할 수 없다. 점수 계산에는 쓰지 않고 이유 코드에만 쓴다.
+	 */
+	static final double PREF_ALIGNED_MIN_ALIGNMENT = 0.5;
+
+	/**
 	 * 이동 조건이 받아들이는 경사 상한(%)의 기본값 — 온톨로지의 휠체어 경사로 기준 1:12({@code bm:RuleWheelchairSlope}).
 	 * 휠체어·유아차·큰 짐이 이 값 하나를 같이 쓴다(2026-09-25 사용자 결정 — 「경사」 하나로 묶는다).
 	 */
@@ -939,7 +946,11 @@ public class BaselineCandidateScorer {
 		double normalizedPlace = placeValueIsPercent ? placeScore / 100.0 : placeScore;
 		double alignment = clamp01(1.0 - Math.abs(normalizedPlace - prefScore));
 		alignments.put(preferenceCode, alignment);
-		reasonCodes.add("PREF_ALIGNED_" + preferenceCode);
+		// 이유 코드는 「취향에 맞아서 골랐다」는 말이다. 예전에는 값을 쟀기만 하면 붙어서, 그늘 우선인데
+		// 뙤약볕(정렬도 0.1)인 곳에도 「그늘 취향에 맞음」이 붙었다.
+		if (alignment >= PREF_ALIGNED_MIN_ALIGNMENT) {
+			reasonCodes.add("PREF_ALIGNED_" + preferenceCode);
+		}
 	}
 
 	/** 점수형 피처(키가 없는 행) 하나의 값. 못 구하면 {@code null} 이다. */
