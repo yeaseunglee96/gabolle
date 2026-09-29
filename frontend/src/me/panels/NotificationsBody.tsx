@@ -12,7 +12,9 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { formatDayHeading } from '@/i18n/datetime';
-import { hasUnseen, loadActivityFeed, loadSeenAt, markSeenNow, noticeCopy, type ActivityNotice } from '@/notifications/activityFeed';
+import { groupLines, groupNotices, hasUnseen, loadActivityFeed, loadSeenAt, markSeenNow, noticeCopy, noticeKind, type ActivityNotice, type NoticeGroup } from '@/notifications/activityFeed';
+import { NoticeIcon } from '@/components/NoticeIcon';
+import { txf } from '@/i18n/format';
 import { relativeStoryTime } from '@/social/stories';
 
 const bellIcon = require('../../../assets/icons/home/bell.png');
@@ -110,22 +112,62 @@ export function NotificationsBody() {
   }
 
   if (feed.state === 'ready' && feed.items.length) {
-    const { today, earlier } = splitToday(feed.items);
     const unseenFrom = feed.seenAt;
-    const row = (item: ActivityNotice) => {
+    const isFresh = (item: ActivityNotice) => (unseenFrom ? item.at > unseenFrom : true);
+    const groups = groupNotices(feed.items);
+    // 🔴 동행이 바꾼 것 중 아직 안 본 것은 맨 위에 — 「장소가 빠졌어요」 한 줄이면 중요한지 모르고 지나갔다(UI 캔버스 ⑦).
+    const companionFresh = groups.filter((group) => !group.latest.isMe && group.latest.operation !== 'CREATE' && group.items.some(isFresh));
+    const rest = groups.filter((group) => !companionFresh.includes(group));
+    const { today, earlier } = splitToday(rest.map((group) => ({ ...group, at: group.latest.at })));
+    const open = (group: NoticeGroup) => router.push(`/trips/${group.latest.itineraryId}/itinerary`);
+    const trip = (group: NoticeGroup) => txf(tx, '「%s」', '“%s”', group.latest.tripTitle);
+
+    // 동행이 바꾼 일정 — 누가 · 무엇을 · 몇 곳을, 그리고 「일정에서 확인하기」.
+    const companionCard = (group: NoticeGroup) => (
+      <View key={group.id} style={styles.companionCard}>
+        <View style={styles.companionHead}>
+          <View style={styles.actorBadge}><Text weight="bold" color={color.text.onAction}>{(group.latest.actorName ?? '·').trim().slice(0, 1)}</Text></View>
+          <View style={styles.rowBody}>
+            <View style={styles.rowTitle}>
+              <Text weight="bold" numberOfLines={2} style={styles.rowTitleText}>{group.latest.actorName ? txf(tx, '%s님이 일정을 바꿨어요', '%s changed your trip', group.latest.actorName) : tx('동행이 일정을 바꿨어요', 'A companion changed your trip')}</Text>
+              <View style={styles.freshDot} />
+            </View>
+            <Text variant="caption" color={color.text.muted} numberOfLines={1}>{`${trip(group)} · ${relativeStoryTime(group.latest.at, tx)}`}</Text>
+          </View>
+        </View>
+        <View style={styles.changeLines}>
+          {groupLines(group, tx).map((line) => (
+            <View key={line.kind} style={styles.changeLine}>
+              <NoticeIcon kind={line.kind} tint={color.text.body} size={18} />
+              <Text variant="caption" color={color.text.body}>{line.text}</Text>
+            </View>
+          ))}
+        </View>
+        <Button label={tx('일정에서 확인하기', 'Review in itinerary')} variant="secondary" compact onPress={() => open(group)} />
+      </View>
+    );
+
+    // 한 장 — 하나면 전과 같은 문구, 여럿이면 「내가 한 변경 N건」·「○○님이 바꾼 것 N건」으로 접는다.
+    const row = (group: NoticeGroup) => {
+      const item = group.latest;
+      const many = group.items.length > 1;
       const copy = noticeCopy(item, tx);
-      const fresh = unseenFrom ? item.at > unseenFrom : true;
+      const title = !many ? copy.title : item.isMe ? txf(tx, '내가 한 변경 %s건', '%s changes you made', String(group.items.length)) : item.actorName ? txf(tx, '%s님이 일정을 바꿨어요', '%s changed your trip', item.actorName) : tx('일정이 바뀌었어요', 'Your itinerary changed');
+      const body = !many ? copy.body : `${trip(group)} · ${groupLines(group, tx).map((line) => line.text).join(' · ')}`;
+      // 묶음이 한 종류뿐이면(고정 10건) 그 아이콘 — 네모(여러 종류)는 섞였을 때만.
+      const lines = many ? groupLines(group, tx) : [];
+      const kind = many ? (lines.length === 1 ? lines[0].kind : 'change') : noticeKind(item.operation);
       return (
-        <Pressable key={item.id} accessibilityRole="button" accessibilityLabel={copy.title} onPress={() => router.push(`/trips/${item.itineraryId}/itinerary`)} style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
-          <View style={[styles.rowIcon, item.operation === 'CREATE' && styles.rowIconCreate]}>
-            <Text variant="body" weight="bold" color={item.operation === 'CREATE' ? color.state.success : color.text.heading}>{item.operation === 'CREATE' ? '✦' : '⇄'}</Text>
+        <Pressable key={group.id} accessibilityRole="button" accessibilityLabel={title} onPress={() => open(group)} style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
+          <View style={[styles.rowIcon, kind === 'created' && styles.rowIconCreate]}>
+            <NoticeIcon kind={kind} tint={kind === 'created' ? color.state.success : color.text.heading} />
           </View>
           <View style={styles.rowBody}>
             <View style={styles.rowTitle}>
-              <Text weight="bold" numberOfLines={1} style={styles.rowTitleText}>{copy.title}</Text>
-              {fresh ? <View style={styles.freshDot} /> : null}
+              <Text weight="bold" numberOfLines={1} style={styles.rowTitleText}>{title}</Text>
+              {group.items.some(isFresh) ? <View style={styles.freshDot} /> : null}
             </View>
-            <Text variant="caption" color={color.text.body} numberOfLines={2}>{copy.body}</Text>
+            <Text variant="caption" color={color.text.body} numberOfLines={2}>{body}</Text>
             <Text variant="micro" color={color.text.muted}>{relativeStoryTime(item.at, tx)}</Text>
           </View>
         </Pressable>
@@ -133,7 +175,9 @@ export function NotificationsBody() {
     };
     return (
       <View style={styles.list}>
-        {today.length ? <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('오늘', 'Today')}</Text> : null}
+        {companionFresh.length ? <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('동행이 바꾼 일정 · 확인해 주세요', 'Changed by companions · please review')}</Text> : null}
+        {companionFresh.map(companionCard)}
+        {today.length ? <Text variant="caption" weight="bold" color={color.text.eyebrow} style={companionFresh.length ? styles.sectionGap : undefined}>{tx('오늘', 'Today')}</Text> : null}
         {today.map(row)}
         {earlier.length ? <Text variant="caption" weight="bold" color={color.text.eyebrow} style={styles.sectionGap}>{tx('이전 알림', 'Earlier')}</Text> : null}
         {earlier.map(row)}
@@ -161,6 +205,11 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: spacing[3], padding: spacing[3], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
   rowIcon: { width: 40, height: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.soft },
   rowIconCreate: { backgroundColor: color.state.successBg },
+  companionCard: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
+  companionHead: { flexDirection: 'row', gap: spacing[3], alignItems: 'center' },
+  actorBadge: { width: 40, height: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
+  changeLines: { gap: spacing[2], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint },
+  changeLine: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
   rowBody: { flex: 1, minWidth: 0, gap: 2 },
   rowTitle: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
   rowTitleText: { flexShrink: 1 },

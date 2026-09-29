@@ -123,6 +123,17 @@ export default function Chat() {
     <Pressable accessibilityRole="link" accessibilityLabel={tx('현장 도구 전부 보기', 'See all on-the-go tools')} onPress={() => router.push('/field/translate')} style={({ pressed }) => [styles.toolMore, pressed && styles.quickToolPressed]}><Text variant="caption" weight="bold" color={desktop ? color.text.onAction : color.action.secondary}>{tx('현장 도구 전부 보기 ›', 'See all on-the-go tools ›')}</Text></Pressable>
   </View>;
 
+  // 대화 중의 작은 도구 줄 — 큰 칸과 같은 넷 + 「전부」. 옆으로 민다.
+  const compactTools = <ScrollView horizontal showsHorizontalScrollIndicator={false} accessibilityLabel={tx('여행 도구 바로가기', 'Trip tool shortcuts')} style={styles.compactRail} contentContainerStyle={styles.compactTools} keyboardShouldPersistTaps="handled">
+    {QUICK_TOOLS.map((tool) => <Pressable key={tool.key} accessibilityRole="button" accessibilityLabel={`${tx(tool.labelKo, tool.labelEn)}, ${tx(tool.hintKo, tool.hintEn)}`} onPress={() => router.push(tool.href)} style={({ pressed }) => [styles.compactTool, pressed && styles.quickToolPressed]}>
+      <View style={styles.compactIcon}>{toolIcon(tool.icon)}</View>
+      <Text variant="caption" weight="bold" numberOfLines={1}>{tx(tool.labelKo, tool.labelEn)}</Text>
+    </Pressable>)}
+    <Pressable accessibilityRole="link" onPress={() => router.push('/field/translate')} style={({ pressed }) => [styles.compactTool, pressed && styles.quickToolPressed]}>
+      <Text variant="caption" weight="bold" color={color.action.secondary}>{tx('현장 도구 전부 ›', 'All tools ›')}</Text>
+    </Pressable>
+  </ScrollView>;
+
   return <Screen wide style={[styles.screen, desktop && styles.desktopScreen]}>
     <View style={[styles.header, desktop && styles.desktopHeader]}><View style={styles.identity}><GabolleMascot state="open" still style={desktop ? styles.desktopAvatar : styles.avatar} /><View style={styles.identityText}><Text variant={desktop ? 'display' : 'title'} weight="bold">{tx('가볼래 AI', 'GABOLLE AI')}</Text><Text variant="caption" color={color.text.body}>{tx('앱 기능을 실행하는 부산 여행 도우미', 'A Busan travel assistant that runs app features for you')}</Text></View></View><Pressable accessibilityRole="button" accessibilityLabel={tx('채팅 닫기', 'Close chat')} onPress={() => router.canGoBack() ? router.back() : router.replace('/')} style={styles.close}><Text variant="title">×</Text></Pressable></View>
     <View style={[styles.workspace, desktop && styles.workspaceDesktop]}>
@@ -142,7 +153,9 @@ export default function Chat() {
               챗봇처럼 「기능을 찾아 바로 실행하는 검색 도구」다. 그래서 실제로 누르면 바로 실행되는
               기능 버튼(tools)과 검색 예시(suggestions)를 인사말 바로 아래, 자유 입력창보다 먼저
               보여준다 — 자유 대화가 주된 사용법이라는 인상을 주지 않기 위해서다. */}
-          {!desktop ? tools : null}
+          {/* 🔴 대화가 시작되면 큰 도구 칸을 접는다 — 약 330px 이 위에 남아 답이 화면 아래로 밀렸다(UI 캔버스 ⑫).
+              대신 입력창 바로 위에 같은 도구를 작은 줄로 둔다(compactTools) — 도구는 늘 보이고 대화는 안 밀린다. */}
+          {!desktop && messages.length === 0 ? tools : null}
           {messages.length === 0 ? <View style={styles.suggestionSection}><Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('이렇게 검색해 보세요', 'Try searching for these')}</Text><View style={styles.suggestions}>{SUGGESTIONS.map((suggestion) => <Pressable key={suggestion.ko} accessibilityRole="button" accessibilityState={{ disabled: pending }} disabled={pending} onPress={() => send(suggestion.ko, tx(suggestion.ko, suggestion.en), true)} style={styles.suggestion}><Text variant="body" weight="medium">{tx(suggestion.ko, suggestion.en)}</Text></Pressable>)}</View></View> : null}
           {messages.map((message) => <View key={message.id} style={[styles.bubble, desktop && styles.bubbleDesktop, message.role === 'user' ? styles.userBubble : styles.assistantBubble]}><Text color={message.role === 'user' ? color.text.onAction : color.text.heading}>{message.text}</Text>
             {message.action?.kind === 'plan' && message.action.summary.length ? <View style={styles.actionCard}><Text variant="caption" weight="bold">{tx('찾은 여행 조건', 'Conditions found')}</Text><Text variant="caption" color={color.text.body}>{message.action.summary.join(' · ')}</Text><Button label={message.applied ? tx('일정 초안에 적용됨 ✓', 'Applied to draft itinerary ✓') : tx('일정에 적용하고 확인하기', 'Apply to itinerary and review')} variant="outline" disabled={message.applied} onPress={() => { applyPlan(message.id, message.action as Extract<AssistantAction, { kind: 'plan' }>); router.push('/plan'); }} /></View> : null}
@@ -151,6 +164,7 @@ export default function Chat() {
           </View>)}
           {pending ? <View accessibilityLabel={tx('답변 준비 중', 'Preparing a reply')} style={[styles.bubble, desktop && styles.bubbleDesktop, styles.assistantBubble]}><Text color={color.text.body}>{tx('생각하는 중…', 'Thinking…')}</Text></View> : null}
         </ScrollView>
+        {!desktop && messages.length > 0 ? compactTools : null}
         {/* 검색창처럼 보이도록 한 줄 높이로 두고(예전엔 여러 줄로 늘어나는 대화창 모양이었다)
             왼쪽에 검색 글자(⌕, app-intro.tsx 검색 미리보기와 같은 글자)를 붙인다. */}
         <View style={styles.composer}><Text weight="bold" color={color.text.muted} style={styles.searchMark}>⌕</Text><TextInput accessibilityLabel={tx('기능이나 궁금한 점 검색', 'Search for a feature or ask something')} value={input} onChangeText={setInput} onSubmitEditing={() => send()} editable={!pending} returnKeyType="search" placeholder={tx('예: 광안리 맛집 2명 일정 짜줘', 'e.g. Gwangalli food trip for 2')} placeholderTextColor={color.text.muted} style={styles.input} />{input.length > 0 && <Pressable accessibilityRole="button" accessibilityLabel={tx('입력 지우기', 'Clear input')} onPress={() => setInput('')} style={styles.clear}><Text variant="body" color={color.text.muted}>✕</Text></Pressable>}<Pressable accessibilityRole="button" accessibilityLabel={tx('검색', 'Search')} accessibilityState={{ disabled: !input.trim() || pending }} disabled={!input.trim() || pending} onPress={() => send()} style={[styles.send, (!input.trim() || pending) && styles.sendDisabled]}><Text weight="bold" color={color.text.onAction}>↑</Text></Pressable></View>
@@ -162,6 +176,11 @@ export default function Chat() {
 
 const styles = StyleSheet.create({
   screen: { gap: spacing[3] }, desktopScreen: { paddingTop: spacing[4] }, header: { marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, desktopHeader: { minHeight: 64, paddingHorizontal: spacing[4], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.lg, backgroundColor: color.surface.card }, identity: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: spacing[3] }, identityText: { flex: 1, minWidth: 0 }, avatar: { width: 44, height: 44 }, desktopAvatar: { width: 52, height: 52 }, close: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.soft },
+  // 🔴 flexGrow 0 — 가로로 미는 칸이 채팅 칸의 남는 높이를 다 먹어 알약이 세로로 길게 늘어났다.
+  compactRail: { flexGrow: 0, flexShrink: 0 },
+  compactTools: { gap: spacing[2], paddingRight: spacing[2], alignItems: 'center' },
+  compactTool: { flexDirection: 'row', alignItems: 'center', gap: spacing[1], minHeight: 40, paddingHorizontal: spacing[3], borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card },
+  compactIcon: { width: 22, height: 22, alignItems: 'center', justifyContent: 'center', transform: [{ scale: 0.8 }] },
   workspace: { flex: 1 }, workspaceDesktop: { flexDirection: 'row', gap: spacing[4], minHeight: 0 }, sidebar: { width: 290, gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.brand.navy }, chatPanel: { flex: 1, gap: spacing[3], minHeight: 0 }, chatPanelDesktop: { padding: spacing[4], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.lg, backgroundColor: color.surface.card },
   messages: { flex: 1 }, messageContent: { gap: spacing[3], paddingVertical: spacing[3] }, messageContentDesktop: { paddingHorizontal: spacing[2] }, bubble: { maxWidth: '88%', padding: spacing[3], borderRadius: radius.lg, gap: spacing[3] }, bubbleDesktop: { maxWidth: '72%' }, userBubble: { alignSelf: 'flex-end', backgroundColor: color.brand.navy, borderBottomRightRadius: radius.sm }, assistantBubble: { alignSelf: 'flex-start', backgroundColor: color.surface.blush, borderBottomLeftRadius: radius.sm }, actionCard: { gap: spacing[2], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card },
   suggestionSection: { gap: spacing[2], marginTop: spacing[4] }, suggestions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] }, suggestion: { minHeight: 48, maxWidth: '100%', justifyContent: 'center', paddingHorizontal: spacing[4], borderWidth: 1, borderColor: color.action.secondary, borderRadius: radius.full, backgroundColor: color.surface.card },
