@@ -37,9 +37,10 @@ import { usePlan, type ConstraintSelectionStatus, type PlanDraft } from '@/plan/
 import { COVERAGE_FEATURE, hasNoPlaceData, useConditionCoverage } from '@/plan/conditionCoverage';
 import { conditionsFromDraft, saveTravelConditions } from '@/plan/travelConditions';
 
+// 비건·페스코는 뺐다(S15P21E201-1828). 서버가 달걀·유제품을 가릴 자료가 없어 비건과 채식을 구분하지
+// 못하고, 셋 다 고기·해산물 중심 집을 빼는 같은 규칙으로 판정한다. 옛 저장값은 travelConditions 가 채식으로 읽는다.
 const DIETS = [
-  ['VEGETARIAN', '채식', 'Vegetarian'], ['VEGAN', '비건', 'Vegan'], ['HALAL', '할랄', 'Halal'],
-  ['GLUTEN_FREE', '글루텐 프리', 'Gluten-free'], ['PESCATARIAN', '페스코', 'Pescatarian'],
+  ['VEGETARIAN', '채식', 'Vegetarian'], ['HALAL', '할랄', 'Halal'], ['GLUTEN_FREE', '글루텐 프리', 'Gluten-free'],
 ] as const;
 
 const WALK_LIMITS = [500, 1000, 2000, 0] as const;
