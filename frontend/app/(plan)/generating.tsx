@@ -23,6 +23,8 @@ import { loadPlacePhotos } from '@/plan/placePhotos';
 import { buildTripPass, buildTripPassDetails } from '@/plan/tripPassData';
 import { useI18n } from '@/i18n';
 import { otherNameFor } from '@/discovery/localNames';
+import { DIETS } from '@/plan/travelConditions';
+import { txf } from '@/i18n/format';
 
 const STAGES = [
   { keys: ['접수', '후보', 'COLLECT', 'CANDIDATE', 'CREATED', 'VERSION_RESOLUTION'], label: '후보 장소 수집', en: 'Collect candidate places' },
@@ -70,6 +72,8 @@ export default function Generating() {
   const adapter = useMemo(() => createRecommendationJobAdapter(accessToken), [accessToken]);
   const previewJob = __DEV__ && preview === 'completed' ? { state: 'completed', jobId: 'preview', progress: 100, stage: '시간표 배치', canCancel: false, errorMessage: null, resultRef: 'preview-trip' } satisfies RecommendationJobSnapshot : __DEV__ && preview === 'running' ? { state: 'polling', jobId: 'preview', progress: 48, stage: '최적 동선 계산', canCancel: false, errorMessage: null, resultRef: null } satisfies RecommendationJobSnapshot : __DEV__ && preview === 'failed' ? { state: 'failed', jobId: 'preview', progress: null, stage: null, canCancel: false, errorMessage: '조건에 맞는 장소를 찾지 못했어요. 날짜·예산·취향 조건을 조금 넓혀서 다시 시도해 주세요.', resultRef: null } satisfies RecommendationJobSnapshot : null;
   const [job, setJob] = useState<RecommendationJobSnapshot>(() => previewJob ?? (jobId ? { state: 'accepted', jobId, progress: 0, stage: tx('요청 접수', 'Request received'), canCancel: false, errorMessage: null, resultRef: null } : unavailableJob(tx('생성 요청을 찾을 수 없어요. 조건을 확인한 뒤 다시 시작해 주세요.', 'Could not find the generation request. Please review your conditions and try again.'))));
+  // 폰에서 다 끝난 뒤의 네 단계 목록 — 접어 두고 「자세히」로 편다(UI 캔버스 ⑤-6). 끝난 뒤에도 네 줄이 크게 남아 승차권이 아래로 밀렸다.
+  const [stagesOpen, setStagesOpen] = useState(false);
   const [itinerary, setItinerary] = useState<ItineraryDto | null>(() => previewJob?.state === 'completed' ? PREVIEW_ITINERARY : null);
   const [itineraryMessage, setItineraryMessage] = useState<string | null>(null);
   // 🔴 S15P21E201-1559 — 「일정 보기」가 이 트립 ID로 /trips/{tripId}/recommendations 를 연다.
@@ -270,7 +274,17 @@ export default function Generating() {
   const actualEndDate = itinerary?.days.at(-1)?.date || draft.endDate;
   // 여행 티켓에 찍히는 값 — 시안(TripPassCard)대로 실제 일정에서 만든다
   // 계산은 tripPassData 가 하고 시험이 붙든다.
+  // 「이 조건을 지켜서 만들었어요」 — 서버에 실어 보낸 조건만(모르는 칸은 안 적는다).
+  const keptConditions = [
+    ...(draft.dietStatus === 'VALUES' ? DIETS.filter(([code]) => draft.dietTypes.includes(code)).map(([, ko, en]) => tx(ko, en)) : []),
+    ...(typeof draft.maxWalkingDistanceM === 'number' ? [txf(tx, '한 번에 %s까지 걷기', 'Walk up to %s at a time', draft.maxWalkingDistanceM >= 1000 ? `${draft.maxWalkingDistanceM / 1000}km` : `${draft.maxWalkingDistanceM}m`)] : []),
+    ...(draft.slopeConstraint === 'AVOID' ? [tx('가파른 경사 피하기', 'Avoid steep slopes')] : []),
+    ...(draft.stairsConstraint === 'AVOID' ? [tx('계단 피하기', 'Avoid stairs')] : []),
+    ...(draft.wheelchair ? [tx('휠체어', 'Wheelchair')] : []),
+    ...(draft.stroller ? [tx('유아차', 'Stroller')] : []),
+  ];
   const tripPass = buildTripPass({
+    conditions: keptConditions,
     itinerary,
     baseUrl: process.env.EXPO_PUBLIC_API_BASE_URL ?? null,
     origin: draft.origin || null,
@@ -334,7 +348,17 @@ export default function Generating() {
           </View>
         </View>
       ) : null}
-      {!(kind === 'phone' && job.state !== 'completed') && <View style={[styles.statusPanel, kind !== 'phone' && styles.statusWide]}>
+      {kind === 'phone' && job.state === 'completed' && !failed && !stagesOpen ? (
+        <View style={styles.doneHead}>
+          <Pressable accessibilityRole="button" accessibilityState={{ expanded: false }} onPress={() => setStagesOpen(true)} style={({ pressed }) => [styles.doneStrip, pressed && styles.donePressed]}>
+            <View style={styles.doneCheck}><Text variant="micro" weight="bold" color={color.text.onAction}>✓</Text></View>
+            <Text variant="caption" weight="bold" color={color.text.onAction} style={styles.doneStripText}>{txf(tx, 'AI 일정 완성 · %s단계 모두 확인', 'AI plan ready · all %s steps checked', STAGES.length)}</Text>
+            <Text variant="caption" color={color.text.onDarkMuted}>{tx('자세히', 'Details')}</Text>
+          </Pressable>
+          <Text variant="title" weight="bold">{tx('당신만의 부산 여행이 완성됐어요', 'Your own Busan trip is ready')}</Text>
+        </View>
+      ) : null}
+      {!(kind === 'phone' && job.state !== 'completed') && !(kind === 'phone' && job.state === 'completed' && !failed && !stagesOpen) && <View style={[styles.statusPanel, kind !== 'phone' && styles.statusWide]}>
         {/* 시안 p4 — 네이비는 위에 가로로 눕는 띠다. 왼쪽에 글, 오른쪽에 단계 넷을
             2열로 둔다. 전에는 왼쪽 44% 세로 칸이라 여행표가 옆으로 밀려 있었다.
         */}
@@ -417,7 +441,7 @@ export default function Generating() {
     />
   </Screen>;
 }
-const styles = StyleSheet.create({ canvas: { backgroundColor: color.canvas, maxWidth: 1200 }, mobileTop: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[4] }, back: { width: 44, height: 44, borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' }, logo: { width: 154, height: 28 }, stepPill: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.brand.navy }, layout: { gap: spacing[4] }, layoutWide: { minHeight: 720 }, statusPanel: { gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.brand.navy }, statusWide: { flexDirection: 'row', alignItems: 'center', gap: spacing[8], paddingHorizontal: spacing[8], paddingVertical: spacing[6] }, aiBadge: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: spacing[2], paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.08)' }, pulse: { width: 8, height: 8, borderRadius: radius.full, backgroundColor: '#4a5568' }, pulseActive: { backgroundColor: color.state.dot }, headline: { lineHeight: 32 }, stageList: { gap: spacing[2] },
+const styles = StyleSheet.create({ doneHead: { gap: spacing[3], marginBottom: spacing[2] }, doneStrip: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: spacing[2], paddingHorizontal: spacing[3], borderRadius: radius.md, backgroundColor: color.brand.navy }, donePressed: { opacity: 0.85 }, doneCheck: { width: 18, height: 18, borderRadius: radius.full, backgroundColor: color.state.success, alignItems: 'center', justifyContent: 'center' }, doneStripText: { flex: 1 }, canvas: { backgroundColor: color.canvas, maxWidth: 1200 }, mobileTop: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[4] }, back: { width: 44, height: 44, borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' }, logo: { width: 154, height: 28 }, stepPill: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.brand.navy }, layout: { gap: spacing[4] }, layoutWide: { minHeight: 720 }, statusPanel: { gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.brand.navy }, statusWide: { flexDirection: 'row', alignItems: 'center', gap: spacing[8], paddingHorizontal: spacing[8], paddingVertical: spacing[6] }, aiBadge: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: spacing[2], paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.08)' }, pulse: { width: 8, height: 8, borderRadius: radius.full, backgroundColor: '#4a5568' }, pulseActive: { backgroundColor: color.state.dot }, headline: { lineHeight: 32 }, stageList: { gap: spacing[2] },
   stageItemWide: { width: '48%' },
   stageListWide: { width: 440, flexShrink: 0, flexDirection: 'row', flexWrap: 'wrap' },
   // ── 03b 동백이 대기 화면(폰) ──

@@ -241,6 +241,25 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
               {!!data.code && <Text variant="caption" weight="bold" color={color.text.body}>{data.code}</Text>}
             </View>
 
+            {data.firstStop && data.lastStop ? (
+              <View style={styles.legRow}>
+                <View style={styles.legEnd}>
+                  <Text variant="caption" color={color.text.body}>{tx('첫 일정', 'First stop')}</Text>
+                  <Text variant="display" weight="bold" numberOfLines={1}>{data.firstStop.time || '—'}</Text>
+                  <Text variant="caption" weight="bold" numberOfLines={2}>{data.firstStop.name}</Text>
+                </View>
+                <View style={styles.legMiddle}>
+                  <View style={styles.dashed} />
+                  <PlaneIcon />
+                  <View style={styles.dashed} />
+                </View>
+                <View style={[styles.legEnd, styles.legEndRight]}>
+                  <Text variant="caption" color={color.text.body}>{tx('마지막 일정', 'Last stop')}</Text>
+                  <Text variant="display" weight="bold" numberOfLines={1}>{data.lastStop.time || '—'}</Text>
+                  <Text variant="caption" weight="bold" numberOfLines={2} style={styles.legNameRight}>{data.lastStop.name}</Text>
+                </View>
+              </View>
+            ) : (
             <View style={styles.legRow}>
               {/* 출발지를 모를 때 「부산」으로 채우지 않는다. 그러면 티켓이
                   「부산 → 부산」이 되어 사람이 고장으로 읽는다. 모르면 칸을 접는다.
@@ -268,6 +287,7 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
                 {!!data.endTime && <Text variant="caption" color={color.text.body}>{data.endTime}</Text>}
               </View>
             </View>
+            )}
 
             {(!!data.dateRange || !!data.mode) && (
               <View style={styles.rowBetween}>
@@ -302,6 +322,14 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
                 ))}
               </View>
             )}
+
+            {/* 저장한 조건이 지켜졌는지 — 확인 표와 같은 값(UI 캔버스 ⑤-6). 없으면 칸째 안 그린다. */}
+            {data.conditions.length > 0 && (
+              <View style={styles.conditions}>
+                <Text variant="caption" weight="bold" color={color.text.muted}>{tx('이 조건을 지켜서 만들었어요', 'Built to keep these conditions')}</Text>
+                <Text variant="caption" weight="bold">{data.conditions.join(' · ')}</Text>
+              </View>
+            )}
           </View>
 
           <TearLine />
@@ -311,13 +339,13 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
                 QR(가운데 96~120)과 겹치지 않도록 오른쪽 귀퉁이에 비스듬히 찍는다. 장식이라 낭독기에는 안 읽힌다. */}
             {/* 🔴 가짜 바코드는 뺐다(2026-09-21 실기, S15P21E201-1400) — QR 과 바코드가 둘이라 「왜 둘인지」를 물었다.
                 남는 것은 진짜로 읽히는 QR 하나. 도장은 QR 옆 제 칸에 크게 — 귀퉁이에 겹쳐 찍었을 때 글자가 안 읽혔다. */}
-            <View style={styles.codeRow}>
+            <View style={[styles.codeRow, onOpenItinerary && styles.codeRowButton]}>
               {/* 🔴 일정이 다 되면 QR 자리가 「내 일정 보기」 단추가 된다(S15P21E201-1562). 티켓을 눌러 뒤집고
                   뒷면의 「일정 보기」를 눌러야 다음으로 가는데, 화면이 그걸 말해 주지 않아 사람이 티켓 앞에서 멈췄다.
                   뒤집어 상세를 보는 것은 그대로다 — 이 단추 밖의 티켓을 누르면 된다. */}
               {onOpenItinerary ? (
-                <Animated.View style={{ opacity: codeMark, transform: [{ scale: markScale }] }}>
-                  <Pressable accessibilityRole="button" tabIndex={frontTab} onPress={onOpenItinerary} style={({ pressed }) => [styles.nextButton, wide && styles.nextButtonWide, pressed && styles.backPressed]}>
+                <Animated.View style={{ width: '100%', opacity: codeMark, transform: [{ scale: markScale }] }}>
+                  <Pressable accessibilityRole="button" tabIndex={frontTab} onPress={onOpenItinerary} style={({ pressed }) => [styles.nextButton, wide && styles.nextButtonWide, styles.nextButtonFull, pressed && styles.backPressed]}>
                     <Text weight="bold" color={color.text.onAction} style={styles.nextLabel}>{tx('내 일정 보기', 'View my itinerary')}</Text>
                     <Text variant="title" weight="bold" color={color.text.onAction}>→</Text>
                   </Pressable>
@@ -328,10 +356,14 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
                 </Animated.View>
               )}
               {/* 🔴 날짜는 그림에 안 박혀 있다 — 「12 · SEP · 2026」이 모든 여행에 찍히던 것(실기 빌드 28, S15P21E201-1437). 빈 칸에 출발일을 앱이 찍는다. */}
-              <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.stamp, wide && styles.stampWide]}>
-                <Image source={stamp} resizeMode="contain" style={styles.stampImage} />
-                {data.stampDate ? <Text weight="bold" color={color.action.outline} style={[styles.stampDate, wide && styles.stampDateWide]}>{data.stampDate}</Text> : null}
-              </View>
+              {/* 🔴 일정이 다 되면 「내 일정 보기」가 이 줄을 다 쓴다(UI 캔버스 ⑤-6) — 도장과 나란히 서면 단추가 좁고 도장이 단추처럼 보였다.
+                  도장(팀이 고른 2b 안)은 인쇄되는 동안 QR 옆에 그대로 찍힌다. */}
+              {onOpenItinerary ? null : (
+                <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.stamp, wide && styles.stampWide]}>
+                  <Image source={stamp} resizeMode="contain" style={styles.stampImage} />
+                  {data.stampDate ? <Text weight="bold" color={color.action.outline} style={[styles.stampDate, wide && styles.stampDateWide]}>{data.stampDate}</Text> : null}
+                </View>
+              )}
             </View>
             <Text variant="caption" color={color.text.muted} style={styles.validText}>{data.validText}</Text>
             {!!data.code && (
@@ -491,6 +523,10 @@ const styles = StyleSheet.create({
   wordmark: { width: 116, height: 21, marginLeft: -2 },
   // 도장 — 스터브 오른쪽, QR 옆 빈 자리. 유효기간 글줄(바코드 바로 아래) 위에 얹히지 않게 그 밑에서 시작한다.
   codeRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing[4] },
+  conditions: { gap: 2, paddingVertical: spacing[2], paddingHorizontal: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.soft },
+  legNameRight: { textAlign: 'right' },
+  codeRowButton: { alignSelf: 'stretch', justifyContent: 'center' },
+  nextButtonFull: { width: '100%', height: 56, flexDirection: 'row', gap: spacing[2] },
   stamp: { width: 112, height: 112, transform: [{ rotate: '-8deg' }], pointerEvents: 'none' },
   stampImage: { width: '100%', height: '100%' },
   // 그림의 빈 띠(1024 기준 y 486~620)에 맞춘 자리 — 112px 에서는 위 53px, 글자 7px.

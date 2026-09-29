@@ -3000,6 +3000,10 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '%s명 · %s일 기준': { ja: '%s人 · %s日分', zhHans: '%s人 · %s天', zhHant: '%s人 · %s天' },
   '칸의 금액은 1인 하루 기준이에요': { ja: '金額は1人1日あたりです', zhHans: '金额按每人每天计算', zhHant: '金額按每人每天計算' },
   '이대로 적용': { ja: 'この内容で適用', zhHans: '按此应用', zhHant: '按此套用' },
+  'AI 일정 완성 · %s단계 모두 확인': { ja: 'AI旅程完成 · %s段階すべて確認', zhHans: 'AI行程已完成 · 已确认全部%s步', zhHant: 'AI行程已完成 · 已確認全部%s步' },
+  '이 조건을 지켜서 만들었어요': { ja: 'この条件を守って作りました', zhHans: '已按这些条件生成', zhHant: '已按這些條件產生' },
+  '자세히': { ja: '詳しく', zhHans: '详情', zhHant: '詳情' },
+  '한 번에 %s까지 걷기': { ja: '一度に%sまで歩く', zhHans: '一次最多步行%s', zhHant: '一次最多步行%s' },
 };
 
 export function getTranslation(ko: string, field: 'ja' | 'zhHans' | 'zhHant'): string | null {
