@@ -285,7 +285,7 @@ function PlanConditions() {
         <View style={styles.reviewTitle}>
           <View style={styles.grow}>
             <Text variant="display" weight="bold">{title}</Text>
-            <Text color={color.text.muted}>{tx('칸을 누르면 그 자리에서 고쳐요.', 'Tap a row to change it.')}</Text>
+            <Text color={color.text.muted}>{tx('칸을 누르면 고치고 바로 돌아와요.', 'Tap a row to change it, then come right back.')}</Text>
           </View>
           {/* 동백이는 글 옆 제 칸에 — 좁은 폰에서 글을 누르지 않게 작게 두고, 글은 남은 폭을 다 쓴다. */}
           <GabolleMascot state="open" still style={styles.reviewMascot} />
