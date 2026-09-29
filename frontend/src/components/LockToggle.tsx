@@ -5,7 +5,9 @@
 //    그래서 지금 상태를 말로 적는다 — 안 잡혔으면 「고정하기」(누를 것), 잡혔으면 「고정됨」(짙은 판).
 //    핀 그림은 알림 화면의 「고정」 아이콘(NoticeIcon 'lock')과 같은 것이다.
 //    `compact` 는 좁은 폰 카드용 — 안 잡힌 곳은 핀 동그라미만 둔다. 글자 알약이 제목 칸을 80 쯤 먹어
-//    「12:41 · 130,000원」이 두 줄로 꺾였다. 잡힌 곳은 그대로 「고정됨」 글자다(상태는 글로 읽혀야 한다).
+//    「12:41 · 130,000원」이 두 줄로 꺾였다. 잡힌 곳도 짙은 핀 동그라미다 — 영어판은 로마자 이름이 길어
+//    「고정됨(Locked)」 알약 옆에서 「(Oraenjibad / a)」처럼 낱말 가운데가 꺾였다(5개 언어 점검 2026-09-29).
+//    상태는 색(짙은 판 ↔ 테두리)과 화면 낭독 이름으로 전한다. 넓은 화면은 글자 알약 그대로.
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { NoticeIcon } from '@/components/NoticeIcon';
@@ -22,7 +24,7 @@ export function LockToggle({ locked, name, busy = false, disabled = false, compa
 }) {
   const tint = locked ? color.text.onAction : color.text.body;
   const label = locked ? tx('고정됨', 'Locked') : tx('고정하기', 'Lock');
-  const iconOnly = compact && !locked;
+  const iconOnly = compact;
   const body = (
     <>
       <NoticeIcon kind="lock" tint={tint} size={iconOnly ? 16 : 14} />
@@ -30,7 +32,7 @@ export function LockToggle({ locked, name, busy = false, disabled = false, compa
     </>
   );
   if (!onPress) {
-    return locked ? <View style={[styles.pill, styles.locked]}>{body}</View> : null;
+    return locked ? <View accessible accessibilityLabel={label} style={[styles.pill, styles.locked, iconOnly && styles.round]}>{body}</View> : null;
   }
   const off = busy || disabled;
   return (

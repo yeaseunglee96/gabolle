@@ -191,7 +191,7 @@ export default function LocalExplore() {
           {selectedFacet ? (
             <View style={styles.resultHead}>
               <Text variant="display" weight="bold">
-                {localFacetLabel(selectedFacet, language)}{' '}
+                {localFacetLabel(selectedFacet, language, tx)}{' '}
                 <Text variant="display" weight="bold" color={color.text.muted}>{tx(`${selectedFacet.placeCount}곳`, `${selectedFacet.placeCount} places`)}</Text>
               </Text>
               <Text variant="caption" style={styles.resultNote}>
@@ -228,6 +228,7 @@ function FacetPicker({ facets, selectedKey, onSelect, mode, language }: {
    */
   language: Parameters<typeof localFacetLabel>[1];
 }) {
+  const { tx } = useI18n();
   // 🔴 고른 갈래가 칩 줄 밖에 숨어 있으면 무엇을 보고 있는지 모른다 — 홈의 「자연」 카드로 들어오면 첫 화면에
   //    「전통시장 · 축제 · 액티비티」만 보이고 고른 「자연」은 오른쪽 밖이었다. 고른 칩이 보이게 줄을 옮긴다.
   const railRef = useRef<ScrollView>(null);
@@ -239,7 +240,7 @@ function FacetPicker({ facets, selectedKey, onSelect, mode, language }: {
   useEffect(scrollToSelected, [selectedKey]);
   const chips = facets.map((entry) => {
     const selected = entry.featureKey === selectedKey;
-    const label = localFacetLabel(entry, language);
+    const label = localFacetLabel(entry, language, tx);
     return (
       <Pressable key={entry.featureKey} onLayout={(event) => { chipX.current[entry.featureKey] = event.nativeEvent.layout.x; if (selected) scrollToSelected(); }} accessibilityRole="button" accessibilityState={{ selected }} onPress={() => onSelect(entry.featureKey)} style={[styles.categoryChip, selected && styles.categoryChipSelected]}>
         {/* 개수는 이름과 다른 굵기·흐린 색으로 둔다 — 「축제 12」가 한 덩어리로 읽히면

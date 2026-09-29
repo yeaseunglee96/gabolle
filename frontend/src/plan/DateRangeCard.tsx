@@ -23,7 +23,7 @@ export function dateRangeLabel(value: DateRange, tx: (ko: string, en: string) =>
   const end = value.endDate || value.startDate;
   const range = end !== value.startDate ? `${formatDateShort(value.startDate, tx)} – ${formatDateShort(end, tx)}` : formatDateShort(value.startDate, tx);
   const nights = nightCount(value.startDate, end);
-  return `${range} · ${nights > 0 ? tx(`${nights}박`, `${nights} nights`) : tx('당일치기', 'Day trip')}`;
+  return `${range} · ${nights > 0 ? tx(`${nights}박`, `${nights} ${nights === 1 ? 'night' : 'nights'}`) : tx('당일치기', 'Day trip')}`;
 }
 
 export function DateRangeCard({ value, onChange, onDone, tx, today = new Date() }: {
@@ -70,7 +70,7 @@ export function DateRangeCard({ value, onChange, onDone, tx, today = new Date() 
       <View style={styles.chipRow}>
         {[0, 1, 2, 3].map((nights) => (
           <Pressable key={nights} accessibilityRole="button" onPress={() => quick(nights)} style={({ pressed }) => [styles.chip, pressed && styles.pressed]}>
-            <Text variant="caption" weight="bold">{nights === 0 ? tx('당일치기', 'Day trip') : tx(`${nights}박 ${nights + 1}일`, `${nights} nights`)}</Text>
+            <Text variant="caption" weight="bold">{nights === 0 ? tx('당일치기', 'Day trip') : tx(`${nights}박 ${nights + 1}일`, `${nights} ${nights === 1 ? 'night' : 'nights'}`)}</Text>
           </Pressable>
         ))}
       </View>
