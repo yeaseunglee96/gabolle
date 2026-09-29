@@ -172,6 +172,42 @@ function rangesText(ranges: unknown): string | null {
   return parts.length ? parts.join(', ') : null;
 }
 
+type DayRow = { day: typeof WEEK[number]; text: string | null };
+
+/** 월→일 순서에서 시간이 같은 이웃 요일끼리 묶는다. 쉬거나 모르는 날(null)은 묶음을 끊는다. */
+function dayRuns(rows: DayRow[]): { days: typeof WEEK; text: string }[] {
+  const runs: { days: typeof WEEK; text: string }[] = [];
+  for (const row of rows) {
+    if (row.text === null) continue;
+    const last = runs[runs.length - 1];
+    const prev = rows[rows.indexOf(row) - 1];
+    if (last && prev && prev.text === row.text && last.days[last.days.length - 1] === prev.day) last.days.push(row.day);
+    else runs.push({ days: [row.day], text: row.text });
+  }
+  return runs;
+}
+
+/** 셋 이상 이어지면 「월–토」, 둘이면 「토·일」, 하나면 그 요일. */
+function runLabel(days: typeof WEEK, tx: (ko: string, en: string) => string): string {
+  const name = (day: typeof WEEK[number]) => tx(day.ko, day.en);
+  if (days.length >= 3) return `${name(days[0])}–${name(days[days.length - 1])}`;
+  return days.map(name).join('·');
+}
+
+// 쉬는 날은 요일 이름을 다 쓴다 — 「일 휴무」는 중국어에서 한 글자 「일」이 「天」(날짜 단위)으로 옮겨진다.
+const FULL_DAY: Record<string, [ko: string, en: string]> = {
+  mon: ['월요일', 'Monday'], tue: ['화요일', 'Tuesday'], wed: ['수요일', 'Wednesday'], thu: ['목요일', 'Thursday'],
+  fri: ['금요일', 'Friday'], sat: ['토요일', 'Saturday'], sun: ['일요일', 'Sunday'],
+};
+
+/** 서버가 준 closedDays(예: ["sun"])를 「일요일 휴무」로. 없거나 못 읽으면 null. */
+function closedDaysText(value: object, tx: (ko: string, en: string) => string): string | null {
+  const closedDays = (value as { closedDays?: unknown }).closedDays;
+  if (!Array.isArray(closedDays)) return null;
+  const names = WEEK.filter((day) => closedDays.includes(day.key)).map((day) => tx(FULL_DAY[day.key][0], FULL_DAY[day.key][1]));
+  return names.length ? txf(tx, '%s 휴무', 'Closed %s', names.join('·')) : null;
+}
+
 /** 영업시간 값의 문장화 */
 export function formatOpeningHoursValue(value: unknown, tx: (ko: string, en: string) => string): string | null {
   if (!value || typeof value !== 'object') return null;
@@ -185,7 +221,11 @@ export function formatOpeningHoursValue(value: unknown, tx: (ko: string, en: str
       // 일곱 요일이 같으면 「매일」 한 줄로 묶음.
       const sameEveryDay = known.length === WEEK.length && known.every((row) => row.text === known[0].text);
       if (sameEveryDay) return txf(tx, '매일 %s', 'Daily %s', known[0].text);
-      return known.map((row) => `${tx(row.day.ko, row.day.en)} ${row.text}`).join(' · ');
+      // 🔴 이어진 요일의 같은 시간은 한 덩어리로 — 「월 09:00~20:00 · 화 09:00~20:00 · …」가 세 줄을 차지했다.
+      //    쉬는 날은 서버가 closedDays 로 따로 준다. 안 적으면 그날도 여는 줄 알고 간다(국제시장 「매주 일요일」).
+      const hours = dayRuns(rows).map((run) => `${runLabel(run.days, tx)} ${run.text}`).join(' · ');
+      const closed = closedDaysText(value, tx);
+      return closed ? `${hours}\n${closed}` : hours;
     }
   }
   const raw = (value as { raw?: unknown }).raw;
@@ -294,7 +334,17 @@ export function formatSlopePercent(place: Place, tx: (ko: string, en: string) =>
   // JSON.stringify 금지 자리 — 서버 값이 숫자에서 객체로 바뀌면 화면에 그대로 찍힌다.
   const text = slopeText(slot.value);
   if (text === null) return tx('확인했지만 형식을 읽지 못했어요', "We checked, but couldn't read the format");
-  return slot.evidenceStatus === 'ESTIMATED' ? txf(tx, '%s (추정)', '%s (est.)', text) : text;
+  const number = slot.evidenceStatus === 'ESTIMATED' ? txf(tx, '%s (추정)', '%s (est.)', text) : text;
+  // 숫자만으로는 판단이 안 선다 — 지도의 경사 색과 같은 기준으로 먼저 말한다(slopeGrades.ts: 5% · 8.33%).
+  const percent = Number.parseFloat(text);
+  return Number.isFinite(percent) ? `${slopeWord(percent, tx)} · ${number}` : number;
+}
+
+/** 지도 경사 색과 같은 문턱 — 5% 미만 초록 · 8.33% 이하 노랑 · 그 위 빨강. */
+function slopeWord(percent: number, tx: (ko: string, en: string) => string): string {
+  if (percent < 5) return tx('완만해요', 'Gentle');
+  if (percent <= 8.33) return tx('조금 가파라요', 'A bit steep');
+  return tx('가파라요', 'Steep');
 }
 
 // 숙박 체크인·체크아웃(CHECK_IN_OUT) — 숙박에는 OPENING_HOURS 대신 이 표식이 온다. 답하는
