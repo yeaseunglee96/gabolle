@@ -57,14 +57,40 @@ public class RouteQueryService {
 	}
 
 	/**
-	 * 대중교통 답과 직선 도보 어림을 견줘 빠른 쪽을 준다. 같으면 도보다 — 기다리지도 갈아타지도 않는다.
-	 * 도보 쪽은 어림값이라 estimated=true 로 나가고, 요금·환승을 싣지 않는다(걷는 데는 요금이 없다).
+	 * 대중교통 답과 걷기를 견줘 빠른 쪽을 준다. 같으면 도보다 — 기다리지도 갈아타지도 않는다.
+	 * 요금·환승은 싣지 않는다(걷는 데는 요금이 없다).
+	 *
+	 * <p>🔴 걷기는 도보를 물었을 때와 같은 길(보행 그래프)로 잰다. 예전에는 직선 × 우회 배수 어림과 견줬는데,
+	 * 강·철길·산을 돌아가야 하는 곳은 직선으로는 가깝고 실제로 걸으면 멀다. 그러면 30분 버스를 버리고 실제로는
+	 * 50분 걷는 길을 「걷는 편이 빠르다」며 내줬다. 계단을 피하는 길({@code stepFree})을 물었으면 그것도 넘긴다.
+	 *
+	 * <p>보행 그래프가 답을 못 줄 때(자원이 없다·길에 못 붙인다)만 전처럼 직선 어림으로 견주고, 그때는
+	 * {@link #REASON_WALK_FASTER} 를 단 추정으로 나간다. 실제 길로 이긴 걷기는 잰 값이라 추정 표시가 없다 —
+	 * 대중교통을 물었는데 이동수단이 WALK 로 온 것이 바꿔 준 표시다.
+	 *
+	 * <p>직선으로 곧장 걸어도 대중교통보다 느리면 길을 찾지 않는다 — 실제 걷기는 직선보다 짧을 수 없어 결과가
+	 * 같고, 먼 구간마다 그래프를 뒤지지 않아도 된다.
 	 */
 	private RouteLeg walkIfFaster(RouteQuery query, RouteLeg transit) {
-		RouteLeg walk = this.estimator.estimate(new RouteQuery(query.originLat(), query.originLng(),
-				query.destLat(), query.destLng(), TravelMode.WALK, query.departureAt(), query.stepFree()),
-				REASON_WALK_FASTER);
+		RouteQuery walkQuery = new RouteQuery(query.originLat(), query.originLng(),
+				query.destLat(), query.destLng(), TravelMode.WALK, query.departureAt(), query.stepFree());
+		if (this.estimator.straightWalkMinutesFloor(walkQuery) > transit.durationMin()) {
+			return transit;
+		}
+		RouteLeg walk = realWalk(walkQuery)
+				.orElseGet(() -> this.estimator.estimate(walkQuery, REASON_WALK_FASTER));
 		return walk.durationMin() <= transit.durationMin() ? walk : transit;
+	}
+
+	/** 도보 질문과 같은 길(캐시 → 걷기 업체)로 잰 실제 걷기. 업체가 없거나 못 주면 빈 값 — 어림은 부르는 쪽이 한다. */
+	private Optional<RouteLeg> realWalk(RouteQuery walkQuery) {
+		Optional<RouteLeg> cached = this.cache.find(walkQuery);
+		if (cached.isPresent()) {
+			return cached;
+		}
+		Optional<RouteLeg> found = providerFor(TravelMode.WALK).flatMap(provider -> provider.find(walkQuery));
+		found.ifPresent(leg -> this.cache.put(walkQuery, leg));
+		return found;
 	}
 
 	private RouteLeg lookup(RouteQuery query) {
