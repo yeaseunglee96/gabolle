@@ -27,7 +27,7 @@ import { findCourseLink, withoutCourseLink } from '@/social/courseLink';
 import { CourseLinkCard } from '@/social/CourseLinkCard';
 import { regionText } from '@/social/districtNames';
 import { regionBesidePlace } from '@/social/placeRegion';
-import { createStory, deleteStory, getCachedStory, getStory, getStoryReplies, getUserProfile, loadSavedStoryIds, recordStoryLinkCopy, relativeStoryTime, reportStory, resetFeedAfterPost, setBlocked, setFollowing, setStoryReaction, setStorySaved, storyMetricLabels, storyShareUrl, updateStory, VISIBILITY_LABEL, type StoryDto, type StoryReportReason } from '@/social/stories';
+import { createStory, deleteStory, getCachedStory, getStory, getStoryReplies, getUserProfile, loadSavedStoryIds, recordStoryLinkCopy, relativeStoryTime, reportStory, resetFeedAfterPost, setBlocked, setFollowing, setStoryReaction, setStorySaved, storyMetricLabels, storyShareUrl, updateStory, VISIBILITY_LABEL, type StoryDto, type StoryVisibility, type StoryReportReason } from '@/social/stories';
 import { applyReaction, nextReaction, StoryReactionRow, storyReactionStyles, type ReactableStory, type Reaction } from '@/social/StoryReactionRow';
 import { txf } from '@/i18n/format';
 import { MAX_STORY_IMAGES, useStoryImages } from '@/social/useStoryImages';
@@ -333,7 +333,7 @@ export function ReplyCard({
 
 export default function StoryDetail() {
   const router = useRouter();
-  const { accessToken } = useAuth();
+  const { accessToken, user } = useAuth();
   const { tx } = useI18n();
   const { id } = useLocalSearchParams<{ id: string }>();
   const [state, setState] = useState<State>({ status: 'loading', cached: null });
@@ -348,6 +348,7 @@ export default function StoryDetail() {
   const [copyNotice, setCopyNotice] = useState('');
   const [postEditing, setPostEditing] = useState(false);
   const [postDraft, setPostDraft] = useState('');
+  const [postVisibility, setPostVisibility] = useState<StoryVisibility>('PUBLIC');
   const [postSaving, setPostSaving] = useState(false);
   const [postSaveError, setPostSaveError] = useState('');
   // 복사 알림은 목록(feed.tsx)처럼 잠깐 떴다 사라진다. 남겨 두면 다음에 눌렀을 때 같은 글자라 새로 떴는지 모른다.
@@ -470,10 +471,15 @@ export default function StoryDetail() {
     return true;
   };
 
+  // 🔴 쓸 때 고른 공개 범위를 고칠 때도 바꿀 수 있어야 한다 — 전에는 본문만 고쳐져서, 잘못 고른 「전체 공개」를 지우고
+  //    다시 써야 했다(사용자 지적 2026-09-29). 서버는 이미 받는다(StoryUpdateRequest.visibility, 작성자만).
+  const isAuthor = Boolean(story && user && story.author.id === user.userId);
+
   // 원글 본문 수정 — 댓글 수정(ReplyCard)과 같은 모양이다. 취소하면 초안을 버리고 원래 본문이 그대로 남는다.
   const startPostEdit = () => {
     if (!story) return;
     setPostDraft(story.body);
+    setPostVisibility(story.visibility);
     setPostSaveError('');
     setConfirmingDelete(false);
     setPostEditing(true);
@@ -484,7 +490,8 @@ export default function StoryDetail() {
     if (!id || postSaving) return;
     if (!body) { setPostSaveError(tx('1자 이상 입력해 주세요', 'Please enter at least 1 character')); return; }
     setPostSaving(true);
-    const outcome = await updateStory(id, body, accessToken);
+    // 공개 범위는 작성자만 — 공동 작성자가 보내면 서버가 거절한다. 바뀌었을 때만 싣는다.
+    const outcome = await updateStory(id, body, accessToken, isAuthor && story && postVisibility !== story.visibility ? { visibility: postVisibility } : {});
     setPostSaving(false);
     if (outcome.state !== 'success') { setPostSaveError(outcome.message); return; }
     setPostEditing(false);
@@ -658,6 +665,10 @@ export default function StoryDetail() {
           <View style={styles.headerRow}>
             {/* 작성자 이름 뒤에 공동 작성자 「· 이예승」(S15P21E201-1583). 이름 버튼 «안»에 둘 수 없어서
                 (버튼 안의 버튼) 이름만 프로필로 가는 버튼이 되고, 시각·지역 줄은 그 아래 글자로 선다. */}
+            {/* 🔴 목록 카드에는 작성자 사진이 있는데 들어오면 이름만 있었다(사용자 지적 2026-09-29) — 같은 사람이 다르게 보였다. */}
+            <Pressable accessibilityElementsHidden importantForAccessibility="no-hide-descendants" onPress={() => router.push(`/user/${story.author.id}`)}>
+              <AuthorAvatar name={story.author.displayName} uri={story.author.avatarUrl} style={styles.headerAvatar} />
+            </Pressable>
             <View style={styles.grow}>
               <View style={styles.bylineRow}>
                 <Pressable accessibilityRole="link" accessibilityLabel={txf(tx, '%s 프로필 보기', "View %s's profile", story.author.displayName)} onPress={() => router.push(`/user/${story.author.id}`)} style={styles.authorLink}>
@@ -699,6 +710,19 @@ export default function StoryDetail() {
                 multiline
                 style={styles.composerInput}
               />
+              {isAuthor ? (
+                <View style={styles.editVisibility}>
+                  <Text variant="caption" weight="bold" color={color.text.muted}>{tx('공개 범위', 'Visibility')}</Text>
+                  <View accessibilityRole="radiogroup" style={styles.editVisibilityRow}>
+                    {(['PUBLIC', 'FOLLOWERS', 'PRIVATE'] as const).map((value) => {
+                      const selected = postVisibility === value;
+                      return <Pressable key={value} accessibilityRole="radio" accessibilityState={{ selected }} onPress={() => setPostVisibility(value)} style={[styles.editVisibilityOption, selected && styles.editVisibilityOptionSelected]}>
+                        <Text variant="caption" weight="bold" numberOfLines={1} color={selected ? color.text.onAction : color.text.heading}>{tx(...VISIBILITY_LABEL[value])}</Text>
+                      </Pressable>;
+                    })}
+                  </View>
+                </View>
+              ) : null}
               {postSaveError ? <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{postSaveError}</Text> : null}
               <View style={styles.confirmButtons}>
                 <Button label={tx('취소', 'Cancel')} variant="tertiary" disabled={postSaving} onPress={() => { setPostEditing(false); setPostSaveError(''); }} compact />
@@ -919,6 +943,11 @@ const styles = StyleSheet.create({
   confirmRow: { flex: 1, gap: spacing[2] },
   confirmText: { textAlign: 'right' },
   confirmButtons: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing[2] },
+  headerAvatar: { width: 40, height: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
+  editVisibility: { gap: spacing[2] },
+  editVisibilityRow: { flexDirection: 'row', gap: spacing[2] },
+  editVisibilityOption: { flex: 1, minHeight: 40, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[1], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.md, backgroundColor: color.surface.card },
+  editVisibilityOptionSelected: { backgroundColor: color.action.secondary, borderColor: color.action.secondary },
   recoveryButton: { marginTop: spacing[2] },
 
   // 지표 줄 — 댓글 머리 바로 위. 붙는 자리라 위 여백만 준다.

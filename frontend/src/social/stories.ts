@@ -145,12 +145,16 @@ export async function getStoryReplies(storyId: string, accessToken: string | nul
 }
 
 /** 글(또는 댓글 — 같은 표라 같은 경로다) 본문을 고친다 — PATCH /api/v1/stories/{id}. */
-export async function updateStory(id: string, body: string, accessToken: string | null): Promise<StoryMutationResult> {
+/**
+ * 기록 고치기 — PATCH 는 없는 칸을 「안 바꾼다」로 읽는다(StoryUpdateRequest).
+ * 공개 범위는 작성자만 바꿀 수 있다(서버가 공동 작성자의 visibility 를 거절한다) — 부르는 쪽이 작성자일 때만 싣는다.
+ */
+export async function updateStory(id: string, body: string, accessToken: string | null, changes: { visibility?: StoryVisibility } = {}): Promise<StoryMutationResult> {
   try {
     const story = withDisplayImageUrls(await apiRequest<StoryDto>(`/api/v1/stories/${encodeURIComponent(id)}`, {
       method: 'PATCH',
       accessToken,
-      body: { body },
+      body: { body, ...(changes.visibility ? { visibility: changes.visibility } : {}) },
     }));
     storyCache.set(story.id, story);
     return { state: 'success', story };

@@ -351,6 +351,7 @@ export default function Me() {
       actions={(
         <ProfileCardButton
           label={user ? tx('프로필 편집', 'Edit profile') : tx('로그인', 'Sign in')}
+          tone={user ? 'soft' : 'primary'}
           onPress={() => (user ? openPanel('profile') : router.push({ pathname: '/sign-in', params: { returnTo: '/me' } }))}
         />
       )}
@@ -566,12 +567,12 @@ const styles = StyleSheet.create({
   segmentItem: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
   // 표시가 달리는 칸 = 세그먼트 안쪽. 여백(4)만큼 들여 놓아야 반 칸이 정확히 탭 하나가 된다.
   segmentTrack: { position: 'absolute', top: spacing[1], bottom: spacing[1], left: spacing[1], right: spacing[1] },
-  // 🔴 이 화면의 「활성 탭」 동백 채움 — check-palette 의 me.tsx 예외가 말하는 바로 그것이다(사용자 지시).
-  //    전에는 누른 탭 자체를 칠했고, 지금은 이 표시가 미끄러지며 칠한다. 채움이 하나 는 것이 아니다.
-  //    그림자는 시안 값(0 2px 8px, 동백 28%) — 표시가 바닥에서 살짝 떠 보여 «움직이는 것»으로 읽힌다.
+  // 🔴 활성 탭은 짙은 회색(선택 = action.secondary, tokens.ts 규칙 2 「선택에 빨강 금지」) — 2026-09-29 사용자 결정(UI 캔버스 ⑱).
+  //    전에는 동백 채움이라 「프로필 편집」과 빨강이 둘이었고, 선택 표시가 눌러야 할 단추처럼 보였다.
+  //    그림자는 시안 값(0 2px 8px, 28%) — 표시가 바닥에서 살짝 떠 보여 «움직이는 것»으로 읽힌다.
   segmentIndicator: {
-    width: '50%', height: '100%', borderRadius: radius.full, backgroundColor: color.action.primary,
-    shadowColor: color.action.primary, shadowOpacity: 0.28, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 3,
+    width: '50%', height: '100%', borderRadius: radius.full, backgroundColor: color.action.secondary,
+    shadowColor: color.action.secondary, shadowOpacity: 0.28, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 3,
   },
   segmentInk: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, alignItems: 'center', justifyContent: 'center' },
 
