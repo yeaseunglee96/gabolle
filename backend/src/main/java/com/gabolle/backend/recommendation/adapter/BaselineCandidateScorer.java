@@ -75,6 +75,12 @@ public class BaselineCandidateScorer {
 	static final String SLOPE_OVER_LIMIT = "SLOPE_OVER_LIMIT";
 
 	/**
+	 * 재 봤더니 이동 조건(휠체어·유아차 등)으로 갈 수 없다고 나온 곳. 「반드시」면 탈락 사유 코드, 「되도록」이면
+	 * 경고 코드로 같은 낱말을 쓴다 — {@link #SLOPE_OVER_LIMIT} 과 같은 방식이다.
+	 */
+	static final String ACCESS_VERIFIED_UNAVAILABLE = "ACCESS_VERIFIED_UNAVAILABLE";
+
+	/**
 	 * 이동 조건이 받아들이는 경사 상한(%)의 기본값 — 온톨로지의 휠체어 경사로 기준 1:12({@code bm:RuleWheelchairSlope}).
 	 * 휠체어·유아차·큰 짐이 이 값 하나를 같이 쓴다(2026-09-25 사용자 결정 — 「경사」 하나로 묶는다).
 	 */
@@ -262,6 +268,10 @@ public class BaselineCandidateScorer {
 		}
 		// 접근성 미확인도 같은 폭으로 깎는다. 빼지는 않고 뒤로 민다.
 		if (warnings.contains(ACCESSIBILITY_UNVERIFIED_WARNING)) {
+			total -= MOBILITY_WARNING_PENALTY;
+		}
+		// 「되도록」인데 재 보니 못 간다고 나온 곳 — 빼지는 않지만 안 재 본 곳보다 나을 리 없으니 같은 폭으로 민다.
+		if (warnings.contains(ACCESS_VERIFIED_UNAVAILABLE)) {
 			total -= MOBILITY_WARNING_PENALTY;
 		}
 		total = Math.max(0.0, total);
@@ -574,7 +584,16 @@ public class BaselineCandidateScorer {
 		}
 		switch (bucketFor(candidate, featureType, key)) {
 			// 방향이 알레르기와 반대다 — 여기는 "없다고 확인됨" 이 FAIL 이다.
-			case ABSENT -> violations.add(Map.of("code", "ACCESS_VERIFIED_UNAVAILABLE", "featureKey", key));
+			// 🔴 단 「반드시」일 때만이다. 「되도록」(SOFT)은 경사가 상한을 넘을 때(evaluateSlope)와 같이 빼지 않고
+			//    경고로 단다. 예전에는 등급을 안 보고 늘 FAIL 로 적어서 「되도록」이 「반드시」처럼 굴었다.
+			case ABSENT -> {
+				if (constraint.severity() == TripConstraint.Severity.HARD) {
+					violations.add(Map.of("code", ACCESS_VERIFIED_UNAVAILABLE, "featureKey", key));
+				}
+				else if (!warnings.contains(ACCESS_VERIFIED_UNAVAILABLE)) {
+					warnings.add(ACCESS_VERIFIED_UNAVAILABLE);
+				}
+			}
 			case UNVERIFIED -> {
 				warnings.add(ACCESSIBILITY_UNVERIFIED_WARNING);
 				evaluateSlope(candidate, constraint, violations, warnings);
