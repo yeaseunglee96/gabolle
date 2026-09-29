@@ -21,9 +21,9 @@ import { useLayout } from '@/layout/useLayout';
 import { RouteMap, type MapRouteLayer } from '@/map/RouteMap';
 import type { MapStop } from '@/map/types';
 import { getRouteDirections, type RouteDirections, type RouteDirectionsResult, type TravelMode } from '@/map/routeDirections';
-import { listAvailableRouteMapApps, type AvailableMapProvider } from '@/utils/externalMaps';
 import { txf } from '@/i18n/format';
 import { localizeMessage } from '@/i18n/messages';
+import { distanceText } from '@/field/subwayStations';
 import { estimateReasonText, formatDuration, modeFareLine, parseTransitGuidance, parseTravelMode, ROUTE_MODES, toMapPath, transitStepKind } from '@/field/routeLegs';
 
 const MODE_LABEL: Record<TravelMode, readonly [string, string]> = {
@@ -60,7 +60,6 @@ export default function RouteDetail() {
   const [mode, setMode] = useState<TravelMode>(parseTravelMode(parseText(params.mode)) ?? 'TRANSIT');
 
   const [results, setResults] = useState<Partial<Record<TravelMode, RouteDirectionsResult>>>({});
-  const [mapApps, setMapApps] = useState<AvailableMapProvider[]>([]);
 
   const hasCoords = originLat != null && originLng != null && destLat != null && destLng != null;
 
@@ -77,13 +76,6 @@ export default function RouteDetail() {
     return () => { active = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [originLat, originLng, destLat, destLng, accessToken]);
-
-  useEffect(() => {
-    if (!hasCoords) return;
-    let active = true;
-    void listAvailableRouteMapApps({ originLat: originLat!, originLng: originLng!, destLat: destLat!, destLng: destLng!, destName }).then((apps) => { if (active) setMapApps(apps); });
-    return () => { active = false; };
-  }, [originLat, originLng, destLat, destLng, destName, hasCoords]);
 
   const stops: MapStop[] = useMemo(() => {
     if (!hasCoords) return [];
@@ -176,12 +168,15 @@ export default function RouteDetail() {
               {directions ? <Summary directions={directions} tx={tx} /> : null}
               {directions ? <Steps directions={directions} originName={originName} destName={destName} tx={tx} /> : null}
 
-              <View style={styles.actions}>
-                {destPlaceId ? <Button label={tx('택시 기사에게 보여주기', 'Show to a taxi driver')} onPress={() => router.push(`/taxi-card/${destPlaceId}`)} containerStyle={styles.actionButton} /> : null}
-                {mapApps.map((app) => (
-                  <Button key={app.key} variant="tertiary" label={txf(tx, '%s에서 경로 열기', 'Open route in %s', tx(app.labelKo, app.labelEn))} onPress={() => void app.open()} containerStyle={styles.actionButton} />
-                ))}
-              </View>
+              {/* 🔴 외부 지도 앱(카카오맵·구글맵)으로 보내지 않는다 — S15P21E201-1831. 이 앱이 푸는 문제가 「구글맵은 한국
+                  대중교통·도보 길찾기를 못 하고, 카카오맵은 한국어뿐이다」라서(기획서 v7), 그 앱들로 보내면 풀던 문제로 되돌려 보낸다.
+                  길·타는 법·택시비는 이 화면이 보여준다.
+                  🔴 택시 카드는 택시·자동차 탭에서만 — 대중교통·도보를 고른 사람에게 「택시 기사에게 보여주기」는 맥락이 안 맞는다. */}
+              {mode === 'CAR' && destPlaceId ? (
+                <View style={styles.actions}>
+                  <Button label={tx('택시 기사에게 보여주기', 'Show to a taxi driver')} onPress={() => router.push(`/taxi-card/${destPlaceId}`)} containerStyle={styles.actionButton} />
+                </View>
+              ) : null}
             </View>
 
             {twoColumn ? <View style={styles.mapColumn}>{map(480)}</View> : null}
@@ -269,10 +264,11 @@ function Steps({ directions, originName, destName, tx }: { directions: RouteDire
           <View key={`${step.name}-${index}`} style={styles.stepRow}>
             <View style={styles.stepMarker}><Text variant="caption" weight="bold" color={color.text.onAction}>{index + 1}</Text></View>
             <View style={styles.grow}>
-              {step.name ? <Text weight="bold">{step.name}</Text> : null}
+              {/* 「목적지 / 목적지」처럼 이름과 안내가 같으면 한 번만 적는다. */}
+              {step.name && step.name !== step.guidance ? <Text weight="bold">{step.name}</Text> : null}
               <Text variant="caption" color={color.text.muted}>{step.guidance}</Text>
             </View>
-            <Text variant="caption" color={color.text.muted}>{tx(`${step.distanceM}m`, `${step.distanceM}m`)}</Text>
+            <Text variant="caption" color={color.text.muted}>{distanceText(step.distanceM)}</Text>
           </View>
         ))}
       </View>
