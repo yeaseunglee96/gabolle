@@ -53,6 +53,10 @@ const KEY_LABEL: Record<string, LocalizedText> = {
   PESCATARIAN: { ko: '페스코', en: 'Pescatarian' },
   WHEELCHAIR: { ko: '휠체어', en: 'Wheelchair' },
   STROLLER: { ko: '유아차', en: 'Stroller' },
+  // 🔴 앱은 더 이상 이 조건을 «보내지» 않는다(S15P21E201-1855). 그래도 이름은 남긴다 —
+  //    이 줄을 지우기 «전에» 만든 여행에는 서버에 그 제약이 저장돼 있고, 그 여행을 다시
+  //    짜면 서버가 이 키를 그대로 돌려준다. 이름을 지우면 그때 「큰 짐」이 갈래 이름
+  //    「이동 조건」으로 뭉개진다 — 있는 이름을 버리는 쪽이 손해다.
   HEAVY_LUGGAGE: { ko: '큰 짐', en: 'Large luggage' },
   STAIRS_AVOIDANCE: { ko: '계단 피하기', en: 'Avoid stairs' },
   MAX_WALKING_METERS: { ko: '걷는 거리', en: 'Walking distance' },

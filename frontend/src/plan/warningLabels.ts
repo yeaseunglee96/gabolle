@@ -18,19 +18,20 @@ export const WARNING_LABEL: Record<string, [string, string]> = {
   ],
   // "못 간다" 가 아니라 "안 재 봤다" 로 옮긴다. 영어도 Not verified 이지
   // Not accessible 이 아니다 — 갈 수 있는 곳을 못 가게 만드는 말이 된다.
-  // 휠체어만이 아니다 — 유아차·큰 짐을 고른 사람에게도 이 경고가 붙는다(S15P21E201-1640, 백엔드 지적).
+  // 휠체어만이 아니다 — 유아차를 고른 사람에게도 이 경고가 붙는다(S15P21E201-1640, 백엔드 지적).
+  // 「큰 짐」은 뺐다 — 앱이 더는 그 조건을 묻지 않는다(S15P21E201-1855).
   ACCESSIBILITY_UNVERIFIED: [
-    '휠체어·유아차·큰 짐으로 다니기 편한지 아직 확인되지 않은 곳이에요.',
-    'Access with a wheelchair, stroller, or large luggage has not been checked here yet.',
+    '휠체어·유아차로 다니기 편한지 아직 확인되지 않은 곳이에요.',
+    'Access with a wheelchair or stroller has not been checked here yet.',
   ],
   /**
    * 둘레 걷는 길이 8.33%(1:12)보다 가파르다 — 둘레 길로 짐작한 추정값(백엔드 !1624).
-   * 🔴 휠체어만이 아니다 — 채점기는 휠체어·유아차·큰 짐 어느 것을 골라도 같은 경사 상한으로 이 경고를 단다.
-   *    전에는 「휠체어·유아차」만 말해서 큰 짐을 고른 사람에게는 엉뚱한 말이었다.
+   * 🔴 휠체어만이 아니다 — 채점기는 휠체어·유아차 어느 것을 골라도 같은 경사 상한으로 이 경고를 단다.
+   *    「큰 짐」은 뺐다 — 앱이 더는 그 조건을 묻지 않는다(S15P21E201-1855).
    */
   SLOPE_OVER_LIMIT: [
-    '주변 길이 가팔라요(추정). 휠체어·유아차·큰 짐으로는 힘들 수 있어요.',
-    'Paths around here are steep (estimated) — may be hard with a wheelchair, stroller, or large luggage.',
+    '주변 길이 가팔라요(추정). 휠체어·유아차로는 힘들 수 있어요.',
+    'Paths around here are steep (estimated) — may be hard with a wheelchair or stroller.',
   ],
   /**
    * 「되도록」 휠체어·유아차로 고른 여행에서, 재 보니 들어가기 어렵다고 **확인된** 곳 — 빼지 않고 경고로 남긴다(백엔드
