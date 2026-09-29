@@ -85,8 +85,10 @@ export function monthWeeks(year: number, month: number): Array<Array<string | nu
 }
 
 export function MonthGrid({
-  year, month, value, today, onPick, tx, onPressTitle, titleOpen = false, maxDate,
+  year, month, value, today, onPick, tx, onPressTitle, titleOpen = false, maxDate, hideTitle = false,
 }: {
+  /** 부르는 쪽이 달 제목을 따로 그린다(여행 만들기 1단계 — 제목 왼쪽 · 화살표 오른쪽). */
+  hideTitle?: boolean;
   year: number; month: number; value: StartBarValue; today: string;
   /**
    * 이 날 뒤는 못 고른다 — 출발일을 찍고 돌아오는 날을 고르는 동안(최대 7박, TripConditionRules.MAX_NIGHTS).
@@ -102,7 +104,7 @@ export function MonthGrid({
   const heads = WEEKDAY_HEADS_KO.map((head, index) => tx(head, WEEKDAY_HEADS_EN[index]));
   return (
     <View style={styles.month}>
-      {onPressTitle
+      {hideTitle ? null : onPressTitle
         ? <Pressable accessibilityRole="button" accessibilityState={{ expanded: titleOpen }} onPress={onPressTitle} style={styles.monthTitleButton}>
             <Text variant="caption" weight="bold" style={styles.monthTitle}>
               {tx(`${year}년 ${month + 1}월`, `${month + 1}/${year}`)} {titleOpen ? '▴' : '▾'}
@@ -129,9 +131,11 @@ export function MonthGrid({
           //    회색 네모로 그려서 셋이 끊겨 보였고, 칸이 넓은 넓은 화면에서는 시작·끝이 가로로 긴 알약이 됐다.
           //    띠는 칸 폭을 채우고(시작은 가운데부터 · 끝은 가운데까지), 시작·끝은 고정 크기 동그라미를 얹는다.
           //    줄마다 알약으로 닫는다 — 줄 처음(일요일·앞이 빈칸)은 띠 왼쪽을, 줄 끝(토요일·뒤가 빈칸)은 오른쪽을 둥글게.
-          const range = Boolean(value.startDate && value.endDate && value.startDate !== value.endDate && key >= value.startDate && key <= value.endDate);
           const rowStart = index === 0 || !week[index - 1];
           const rowEnd = index === week.length - 1 || !week[index + 1];
+          // 끝 날이 줄 맨 앞이면(또는 시작 날이 줄 맨 끝이면) 그 칸의 띠는 동그라미 밖으로 삐져나온 반달만 남는다 — 안 그린다.
+          const range = Boolean(value.startDate && value.endDate && value.startDate !== value.endDate && key >= value.startDate && key <= value.endDate)
+            && !(key === value.endDate && rowStart) && !(key === value.startDate && rowEnd);
           return (
             <Pressable
               key={key}

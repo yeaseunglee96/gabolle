@@ -27,11 +27,11 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { useLayout } from '@/layout/useLayout';
 import { usePlan } from '@/plan/PlanProvider';
-import { dateRangeLabel } from '@/plan/DateRangeCard';
 import { clearQuestionState, loadQuestionState, saveQuestionState } from '@/plan/questionState';
 import { INITIAL_QUESTION_STATE, PLAN_QUESTIONS, dayWindowIssue, type QuestionKey, type QuestionState } from '@/plan/planQuestions';
-import { PLAN_STEP_COUNT, PlanStepBody, REVIEW_STEP, StepBar, firstIncompleteStep, planStepTitle, stepBlocker, type StepReadiness } from '@/plan/PlanSteps';
-import { formatDateShort } from '@/home/startBarValue';
+import { PLAN_STEP_COUNT, PlanStepBody, REVIEW_STEP, StepBar, firstIncompleteStep, planStepTitle, stepBlocker, whenSummary, type StepReadiness } from '@/plan/PlanSteps';
+import Svg, { Path } from 'react-native-svg';
+import { GabolleMascot } from '@/components/DongbaekMascot';
 import { lodgingMissing as isLodgingMissing } from '@/plan/lodgingRequired';
 import { PlanStartBar } from '@/home/PlanStartBar';
 import { startBarEndDate, startBarFromDraft, type StartBarValue } from '@/home/startBarValue';
@@ -193,11 +193,8 @@ function PlanConditions() {
   const blocker = stepBlocker(step, readiness, tx);
   const submitting = job?.state === 'submitting';
 
-  // 1단계 아래 한 줄 — 무엇을 골랐는지(「10.9(금) – 10.11(일) · 2박 · 성인 2」). 출발일만 찍었으면 「출발 10.9(금)」.
-  const people = [txf(tx, '성인 %s', 'Adults %s', draft.adults), draft.children ? txf(tx, '어린이 %s', 'Children %s', draft.children) : null].filter(Boolean).join(' · ');
-  const whenSummary = draft.startDate
-    ? `${draft.endDate ? dateRangeLabel({ startDate: draft.startDate, endDate: draft.endDate }, tx) : txf(tx, '출발 %s', 'Leaving %s', formatDateShort(draft.startDate, tx))} · ${people}`
-    : null;
+  // 1단계 바닥 한 줄 — 무엇을 골랐는지(시안: 「출발 10월 9일 (금) · 성인 2」, 날짜만 굵게).
+  const summary = step === 0 ? whenSummary(draft, tx) : null;
 
   const primaryLabel = review
     ? submitting ? tx('만드는 중…', 'Building…') : blocker ?? tx('이 조건으로 일정 만들기', 'Build my itinerary')
@@ -230,10 +227,10 @@ function PlanConditions() {
     </>
   ) : null;
 
-  // 🔴 「이전」은 1단계에는 없다 — 누를 곳 없는 단추가 자리를 먹는다. 1단계에서 나가는 길은 머리의 ‹ 다.
+  // 🔴 「이전」은 1단계와 확인 표에는 없다(시안) — 1단계는 누를 곳이 없고, 확인 표는 칸을 눌러 그 단계로 간다. 나가는 길은 머리의 ‹ 다.
   const nav = (
     <View style={styles.navRow}>
-      {step > 0 ? (
+      {step > 0 && !review ? (
         <Pressable accessibilityRole="button" onPress={() => goTo(step - 1)} style={({ pressed }) => [styles.prev, pressed && styles.pressed]}>
           <Text weight="bold">{tx('이전', 'Back')}</Text>
         </Pressable>
@@ -251,7 +248,11 @@ function PlanConditions() {
 
   const bottom = (
     <View style={styles.bottomStack}>
-      {step === 0 && whenSummary ? <Text variant="caption" weight="bold" style={styles.center}>{whenSummary}</Text> : null}
+      {summary ? (
+        <Text variant="caption" color={color.text.body} style={styles.center}>
+          {summary.lead ? `${summary.lead} ` : ''}<Text variant="caption" weight="bold" color={color.text.heading}>{summary.bold}</Text>{summary.rest ? ` · ${summary.rest}` : ''}
+        </Text>
+      ) : null}
       {submitAlerts}
       {nav}
     </View>
@@ -266,24 +267,34 @@ function PlanConditions() {
           onPress={() => (step > 0 ? goTo(step - 1) : router.canGoBack() ? router.back() : router.replace('/home'))}
           style={styles.back}
         >
-          <Text variant="title">‹</Text>
+          <Svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={color.text.heading} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><Path d="M15 5l-7 7 7 7" /></Svg>
         </Pressable>
         <Text weight="bold" style={styles.topTitle}>{tx('여행 만들기', 'Plan a trip')}</Text>
-        <Text variant="caption" weight="bold" color={color.text.muted}>{review ? tx('확인', 'Review') : `${step + 1}/${PLAN_STEP_COUNT}`}</Text>
+        <Text variant="caption" weight="bold" color={color.text.muted} style={styles.topCount}>{review ? tx('확인', 'Review') : `${step + 1} / ${PLAN_STEP_COUNT}`}</Text>
       </View>
       <StepBar step={step} tx={tx} />
-      <View style={styles.titleRow}>
-        <View style={styles.grow}>
-          <Text variant="caption" weight="bold" color={color.text.eyebrow}>{eyebrow}</Text>
-          <Text variant="title" weight="bold">{title}</Text>
-          {review ? <Text color={color.text.muted}>{tx('칸을 누르면 그 자리에서 고쳐요.', 'Tap a row to change it.')}</Text> : null}
+      {review ? (
+        <View style={styles.reviewTitle}>
+          <View style={styles.grow}>
+            <Text variant="display" weight="bold">{title}</Text>
+            <Text color={color.text.muted}>{tx('칸을 누르면 그 자리에서 고쳐요.', 'Tap a row to change it.')}</Text>
+          </View>
+          {/* 동백이는 글 옆 제 칸에 — 좁은 폰에서 글을 누르지 않게 작게 두고, 글은 남은 폭을 다 쓴다. */}
+          <GabolleMascot state="open" still style={styles.reviewMascot} />
         </View>
-        {step === PLAN_STEP_COUNT - 1 ? (
-          <Pressable accessibilityRole="button" onPress={skipStyle} style={styles.skip}>
-            <Text variant="caption" weight="bold" color={color.action.secondary}>{tx('건너뛰기', 'Skip')}</Text>
-          </Pressable>
-        ) : null}
-      </View>
+      ) : (
+        <View style={styles.titleBlock}>
+          <View style={styles.eyebrowRow}>
+            <Text variant="caption" weight="bold" color={color.text.eyebrow}>{eyebrow}</Text>
+            {step === PLAN_STEP_COUNT - 1 ? (
+              <Pressable accessibilityRole="button" onPress={skipStyle} style={styles.skip}>
+                <Text variant="caption" weight="bold" color={color.text.muted}>{tx('건너뛰기', 'Skip')}</Text>
+              </Pressable>
+            ) : null}
+          </View>
+          <Text variant="display" weight="bold">{title}</Text>
+        </View>
+      )}
     </View>
   );
 
@@ -359,15 +370,21 @@ const styles = StyleSheet.create({
   head: { gap: spacing[3] },
   topRow: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
   back: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', marginLeft: -spacing[3] },
-  topTitle: { flex: 1 },
+  topTitle: { flex: 1, textAlign: 'center' },
+  topCount: { minWidth: 44, textAlign: 'right' },
+  titleBlock: { gap: 6, marginTop: spacing[2] },
+  eyebrowRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 20 },
+  reviewTitle: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], marginTop: spacing[1] },
+  reviewMascot: { width: 56, height: 56 },
   titleRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[3], marginTop: spacing[1] },
   grow: { flex: 1, minWidth: 0, gap: 2 },
-  skip: { minHeight: 44, justifyContent: 'center' },
+  skip: { minHeight: 32, justifyContent: 'center', paddingLeft: spacing[2] },
   center: { textAlign: 'center' },
-  bottomBar: { paddingTop: spacing[3], paddingHorizontal: spacing[4], backgroundColor: color.surface.card, borderTopWidth: 1, borderTopColor: color.surface.border },
+  // 시안: 바닥 단추는 캔버스 바탕 위 — 선도 흰 판도 없다.
+  bottomBar: { paddingTop: spacing[3], paddingHorizontal: spacing[6], backgroundColor: color.canvas },
   bottomStack: { gap: spacing[2] },
   navRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
-  prev: { minHeight: 48, justifyContent: 'center', paddingHorizontal: spacing[6], borderRadius: radius.full, backgroundColor: color.surface.soft },
+  prev: { width: 88, minHeight: 48, alignItems: 'center', justifyContent: 'center', borderRadius: radius.md, backgroundColor: color.surface.soft },
   next: { flex: 1 },
   pressed: { opacity: 0.8 },
   sheetLayer: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 25 },

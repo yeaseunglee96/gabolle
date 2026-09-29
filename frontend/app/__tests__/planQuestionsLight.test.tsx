@@ -58,7 +58,7 @@ beforeEach(async () => { jest.clearAllMocks(); mockDraft = BASE; await AsyncStor
 describe('여행 만들기 — 네 단계 + 확인 표 (UI 캔버스 ⑤, S15P21E201-1865)', () => {
   it('1단계는 「언제, 누구와」이고 날짜·인원을 이 화면 안에서 고른다 · 「이전」은 없다', () => {
     const view = mount();
-    expect(view.getByText('1/4')).toBeTruthy();
+    expect(view.getByText('1 / 4')).toBeTruthy();
     expect(view.getByText('언제, 누구와 가세요?')).toBeTruthy();
     expect(view.getByText('2박 3일')).toBeTruthy();
     expect(view.getByText('성인')).toBeTruthy();
@@ -88,7 +88,7 @@ describe('여행 만들기 — 네 단계 + 확인 표 (UI 캔버스 ⑤, S15P21
     mockDraft = { ...REQUIRED_DONE, lodging: '', lodgingLat: null, lodgingLng: null };
     await AsyncStorage.setItem('gabolle:plan-questions-state', JSON.stringify({ open: 4, skipped: {} }));
     const view = mount();
-    await waitFor(() => expect(view.getByText('2/4')).toBeTruthy());
+    await waitFor(() => expect(view.getByText('2 / 4')).toBeTruthy());
     expect(view.getByText('숙소 · 2박이라 필요해요')).toBeTruthy();
     fireEvent.press(view.getByText('숙소를 골라 주세요'));
     expect(mockSubmit).not.toHaveBeenCalled();
@@ -96,7 +96,7 @@ describe('여행 만들기 — 네 단계 + 확인 표 (UI 캔버스 ⑤, S15P21
     fireEvent.press(view.getByText('해운대'));
     expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({ lodging: '해운대', lodgingPlace: null }));
     // 🔴 이름으로 찾기는 홈으로 튕겨 나가지 않는다 — 이 화면 위에 시작 바 시트를 연다.
-    fireEvent.press(view.getByText('이름으로 찾기'));
+    fireEvent.press(view.getByLabelText('숙소 검색'));
     expect(mockPush).not.toHaveBeenCalled();
     expect(view.getByLabelText(/닫기|Close/)).toBeTruthy();
   });
@@ -134,7 +134,7 @@ describe('여행 만들기 — 네 단계 + 확인 표 (UI 캔버스 ⑤, S15P21
     // 기기에 남은 자리는 확인 표인데 초안의 지역은 비었다 — 로그아웃이 초안만 지우고 자리는 남긴 모양.
     await AsyncStorage.setItem('gabolle:plan-questions-state', JSON.stringify({ open: 4, skipped: {} }));
     const view = mount();
-    await waitFor(() => expect(view.getByText('3/4')).toBeTruthy());
+    await waitFor(() => expect(view.getByText('3 / 4')).toBeTruthy());
     expect(view.getByText('지역을 하나 이상 골라 주세요')).toBeTruthy();
   });
 

@@ -41,7 +41,7 @@ describe('날짜 없이 일정 만들기', () => {
   });
 
   it('🔴 거기서 정한다 — 1단계가 달력을 이 화면 안에 그린다(홈으로 보내지 않는다)', () => {
-    expect(steps).toContain('<DateRangeCard embedded');
+    expect(steps).toContain('<DateRangePicker ');
   });
 
   it('🔴 날짜를 대신 지어 넣지 않는다 — 안 고른 날짜로 만든 일정을 주지 않는다', () => {
