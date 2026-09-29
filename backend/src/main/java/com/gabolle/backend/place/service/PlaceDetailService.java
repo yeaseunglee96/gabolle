@@ -10,6 +10,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,8 +20,10 @@ import com.gabolle.backend.place.api.PlaceFeatureView;
 import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.place.domain.PlaceEvidenceStatus;
 import com.gabolle.backend.place.domain.PlaceFeature;
+import com.gabolle.backend.place.domain.PlacePhoto;
 import com.gabolle.backend.place.domain.UserPlaceCodeMap;
 import com.gabolle.backend.place.repository.PlaceFeatureRepository;
+import com.gabolle.backend.place.repository.PlacePhotoRepository;
 import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.place.repository.UserPlaceCodeMapRepository;
 
@@ -55,10 +58,22 @@ public class PlaceDetailService {
 
 	private final ObjectMapper objectMapper;
 
+	/** 대표 사진 밖의 사진(S15P21E201-1840). {@code null} 이면 여러 장이 없는 것으로 본다. */
+	private final PlacePhotoRepository placePhotoRepository;
+
 	public PlaceDetailService(PlaceRepository placeRepository, PlaceFeatureRepository placeFeatureRepository,
 			UserPlaceCodeMapRepository codeMapRepository,
 			ObjectProvider<ItineraryMembershipPort> itineraryMembership,
 			ObjectMapper objectMapper) {
+		this(placeRepository, placeFeatureRepository, codeMapRepository, itineraryMembership, objectMapper, null);
+	}
+
+	@Autowired
+	public PlaceDetailService(PlaceRepository placeRepository, PlaceFeatureRepository placeFeatureRepository,
+			UserPlaceCodeMapRepository codeMapRepository,
+			ObjectProvider<ItineraryMembershipPort> itineraryMembership,
+			ObjectMapper objectMapper, PlacePhotoRepository placePhotoRepository) {
+		this.placePhotoRepository = placePhotoRepository;
 		this.placeRepository = placeRepository;
 		this.placeFeatureRepository = placeFeatureRepository;
 		this.codeMapRepository = codeMapRepository;
@@ -104,7 +119,28 @@ public class PlaceDetailService {
 				featureSlot(features, "PRICE_LEVEL"),
 				// 이 화면의 주된 값은 이름이라 영문 이름 유무로 판정한다
 				RequestLanguage.resolve(acceptLanguageHeader, place.getNameEn() != null),
-				place.getPhotoLicense());
+				place.getPhotoLicense(),
+				photosOf(place));
+	}
+
+	/**
+	 * 대표 사진을 맨 앞에 두고 {@code place_photo} 를 순서대로 붙인다. 대표 사진과 같은 주소는 한 번만 싣는다 —
+	 * 적재 때 대표 사진을 목록에도 넣었어도 화면에 같은 사진이 두 번 나오지 않게.
+	 */
+	private List<PlaceDetailResponse.Photo> photosOf(Place place) {
+		List<PlaceDetailResponse.Photo> photos = new ArrayList<>();
+		if (place.getPhotoUrl() != null) {
+			photos.add(new PlaceDetailResponse.Photo(place.getPhotoUrl(), place.getPhotoSource(),
+					place.getPhotoLicense()));
+		}
+		if (this.placePhotoRepository != null) {
+			for (PlacePhoto extra : this.placePhotoRepository.findByPlaceIdOrderByPositionAsc(place.getPlaceId())) {
+				if (!extra.getUrl().equals(place.getPhotoUrl())) {
+					photos.add(new PlaceDetailResponse.Photo(extra.getUrl(), extra.getSource(), extra.getLicense()));
+				}
+			}
+		}
+		return photos;
 	}
 
 	/**
