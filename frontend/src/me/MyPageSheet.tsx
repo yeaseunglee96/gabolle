@@ -74,7 +74,8 @@ export function MyPageSheetBody({
     <View style={styles.head}>
       <View style={styles.headCopy}>
         <Eyebrow>{tx('내 계정', 'Account')}</Eyebrow>
-        <Text variant="display" weight="bold" numberOfLines={1}>{title}</Text>
+        {/* 두 줄까지 — 일본어는 제목이 길어 한 줄이면 「ブロックしたアカウ…」로 잘렸다(S15P21E201-1867). */}
+        <Text variant="display" weight="bold" numberOfLines={2}>{title}</Text>
         {description ? <Text variant="caption">{description}</Text> : null}
       </View>
       <Pressable accessibilityRole="button" onPress={onClose} style={({ pressed }) => [styles.closeChip, pressed && styles.pressed]}>

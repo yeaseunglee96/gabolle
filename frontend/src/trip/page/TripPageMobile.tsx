@@ -407,6 +407,10 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   const openClassic = () => {
     if (course?.itineraryId) router.push(`/trips/${course.itineraryId}/itinerary?classic=1`);
   };
+  // 🔴 「순서 수정」은 순서 수정 상태로 연다(S15P21E201-1867). 전에는 편집 화면만 열려서 거기서 「순서 수정」을 한 번 더 눌러야 했다.
+  const openReorder = () => {
+    if (course?.itineraryId) router.push(`/trips/${course.itineraryId}/itinerary?classic=1&reorder=1`);
+  };
   const goBack = () => (router.canGoBack() ? router.back() : router.replace('/trips'));
 
   // ── 「지금」 카드의 글 — itinerary.tsx 와 같은 규칙 ──────────────────────────────
@@ -671,7 +675,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
 
           {loaded ? <TripBudgetCard budget={budget} style={styles.budget} /> : null}
           {canEdit && items.length > 1 ? (
-            <Pressable accessibilityRole="button" onPress={openClassic} style={({ pressed }) => [styles.reorder, pressed && styles.pressed]}>
+            <Pressable accessibilityRole="button" onPress={openReorder} style={({ pressed }) => [styles.reorder, pressed && styles.pressed]}>
               <Text weight="bold">{tx('순서 수정', 'Reorder')}</Text>
             </Pressable>
           ) : null}
