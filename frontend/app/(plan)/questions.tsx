@@ -42,12 +42,21 @@ import {
 } from '@/plan/planQuestions';
 import { maskTimeInput } from '@/plan/inputMasks';
 import { startBarChips, startBarPlaceName } from '@/home/startBarValue';
+type BarSection = 'origin' | 'lodging';
 import { lodgingMissing as isLodgingMissing } from '@/plan/lodgingRequired';
+import { budgetForDaily, tripDayCount } from '@/plan/budgetDefault';
+import { PlanStartBar } from '@/home/PlanStartBar';
+import { startBarEndDate, startBarFromDraft, type StartBarValue } from '@/home/startBarValue';
 import { assistantPrefillPatch } from '@/plan/assistantPrefill';
 import { txf } from '@/i18n/format';
 import { localizeMessage } from '@/i18n/messages';
 
-const BUDGET_STEPS = [10000, 30000, 50000, 100000] as const;
+/**
+ * 예산 — 1인 하루 값 셋을 합계로 바로 고른다(UI 캔버스 ⑤). 가운데(5만)가 앱 기본값이다(budgetDefault).
+ * 🔴 전에는 「+1만 +3만 +5만 +10만」만 있어서 줄이려면 「전체 지우기」부터 해야 했다.
+ */
+const DAILY_BUDGET_PRESETS = [30000, 50000, 80000] as const;
+const BUDGET_UNIT = 10000;
 
 type Tx = (ko: string, en: string) => string;
 function labelOf(option: PlanOption, tx: Tx) { return tx(option[1], option[2]); }
@@ -202,8 +211,23 @@ function PlanConditions() {
   const goSetDates = () => setDatesOpen(true);
   // 🔴 출발지 고르기는 검색이 붙어 있어(PlanStartBar) 여기 한 벌 더 만들지 않는다 — 시작 바를
   //    출발지 칸이 열린 채로 연다. 「일정 물어보기」를 누르면 홈이 다시 /plan 으로 돌려보낸다.
-  const goPickOrigin = () => router.push({ pathname: wide ? '/' : '/home', params: { edit: 'origin' } });
-  const goPickLodging = () => router.push({ pathname: wide ? '/' : '/home', params: { edit: 'lodging' } });
+  // 🔴 폰은 홈으로 튕겨 나가지 않고 이 화면 위에 시작 바 시트를 연다(UI 캔버스 ⑤). 홈에 갔다 오면 답하던 자리가
+  //    흐트러지고, 「일정 물어보기」를 한 번 더 눌러야 돌아왔다. 넓은 화면은 시작 바가 첫 화면에 있어 그대로 간다.
+  const [barSheet, setBarSheet] = useState<BarSection | null>(null);
+  const [barValue, setBarValue] = useState<StartBarValue | null>(null);
+  const openBar = (section: BarSection) => { setBarValue(startBarFromDraft(draft)); setBarSheet(section); };
+  const applyBar = (value: StartBarValue) => {
+    update({
+      origin: value.origin, originLat: value.originLat, originLng: value.originLng,
+      lodging: value.lodging, lodgingLat: value.lodgingLat, lodgingLng: value.lodgingLng, lodgingPlace: value.lodgingPlace,
+      originEnglish: value.originEnglish ?? null, lodgingEnglish: value.lodgingEnglish ?? null,
+      startDate: value.startDate, endDate: startBarEndDate(value),
+      adults: value.adults, children: value.children, travelers: value.adults + value.children,
+    });
+    setBarSheet(null);
+  };
+  const goPickOrigin = () => (wide ? router.push({ pathname: '/', params: { edit: 'origin' } }) : openBar('origin'));
+  const goPickLodging = () => (wide ? router.push({ pathname: '/', params: { edit: 'lodging' } }) : openBar('lodging'));
   const goGenerating = (jobId: string) => router.push({ pathname: '/plan/generating', params: { jobId } });
 
   /**
@@ -290,24 +314,45 @@ function PlanConditions() {
     switch (item.key) {
       case 'areas':
         return optionGrid(AREA_OPTIONS, draft.travelAreas, (code) => update({ travelAreas: toggleIn(draft.travelAreas, code) }));
-      case 'budget':
+      case 'budget': {
+        const total = draft.budgetKrw ?? 0;
+        const people = Math.max(1, draft.adults + draft.children);
+        const days = tripDayCount(draft.startDate, draft.endDate);
+        const won = (value: number) => tx(`${(value / 10000).toLocaleString()}만원`, `₩${value.toLocaleString()}`);
         return (
           <View style={styles.stack}>
-            <Text variant="hero" weight="bold" color={color.text.heading}>
-              {tx(`${((draft.budgetKrw ?? 0) / 10000).toLocaleString()}만원`, `₩${(draft.budgetKrw ?? 0).toLocaleString()}`)}
-            </Text>
-            <View style={styles.chips}>
-              {BUDGET_STEPS.map((step) => (
-                <Pressable key={step} accessibilityRole="button" onPress={() => update({ budgetKrw: (draft.budgetKrw ?? 0) + step })} style={styles.chip}>
-                  <Text weight="bold">+{tx(`${step / 10000}만`, `${step / 1000}k`)}</Text>
-                </Pressable>
-              ))}
-              <Pressable accessibilityRole="button" onPress={() => update({ budgetKrw: 0 })} style={styles.chip}>
-                <Text weight="bold" color={color.action.secondary}>{tx('전체 지우기', 'Clear')}</Text>
+            <View style={styles.budgetTotal}>
+              <Text variant="hero" weight="bold" color={color.text.heading}>{won(total)}</Text>
+              {/* 합계가 무엇의 합인지 — 사람 수와 일수를 옆에 적는다. 숙박비는 뺀 값이다(budgetDefault). */}
+              <Text variant="caption" color={color.text.muted}>{txf(tx, '%s명 · %s일 기준', 'For %s people · %s days', people, days)}</Text>
+            </View>
+            <View accessibilityRole="radiogroup" style={styles.budgetPresets}>
+              {DAILY_BUDGET_PRESETS.map((perDay) => {
+                const presetTotal = budgetForDaily(draft, perDay);
+                const selected = total === presetTotal;
+                return (
+                  <Pressable key={perDay} accessibilityRole="radio" accessibilityState={{ selected }} onPress={() => update({ budgetKrw: presetTotal })} style={({ pressed }) => [styles.budgetPreset, selected && styles.chipOn, pressed && styles.pressed]}>
+                    <Text variant="caption" weight="bold" color={selected ? color.text.onAction : color.text.muted}>{perDay === 30000 ? tx('아껴서', 'Frugal') : perDay === 50000 ? tx('보통', 'Standard') : tx('넉넉히', 'Relaxed')}</Text>
+                    <Text weight="bold" color={selected ? color.text.onAction : color.text.heading}>{won(perDay)}</Text>
+                    <Text variant="caption" color={selected ? color.text.onAction : color.text.muted}>{txf(tx, '합계 %s', 'Total %s', won(presetTotal))}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+            <Text variant="caption" color={color.text.muted}>{tx('칸의 금액은 1인 하루 기준이에요', 'Amounts are per person, per day')}</Text>
+            {/* 미세 조정 — 1만원씩. 1만원 밑으로는 못 내린다(서버 최소 1만원). */}
+            <View style={styles.budgetStepper}>
+              <Pressable accessibilityRole="button" accessibilityLabel={tx('예산 1만원 줄이기', 'Lower budget by ₩10,000')} disabled={total <= BUDGET_UNIT} onPress={() => update({ budgetKrw: Math.max(BUDGET_UNIT, total - BUDGET_UNIT) })} style={[styles.stepButton, total <= BUDGET_UNIT && styles.prevOff]}>
+                <Text variant="title" weight="bold">−</Text>
+              </Pressable>
+              <Text variant="caption" color={color.text.muted} style={styles.stepLabel}>{tx('1만원씩 조정', 'Adjust by ₩10,000')}</Text>
+              <Pressable accessibilityRole="button" accessibilityLabel={tx('예산 1만원 늘리기', 'Raise budget by ₩10,000')} onPress={() => update({ budgetKrw: total + BUDGET_UNIT })} style={styles.stepButton}>
+                <Text variant="title" weight="bold">+</Text>
               </Pressable>
             </View>
           </View>
         );
+      }
       case 'move':
         return (
           <View style={styles.stack}>
@@ -345,7 +390,13 @@ function PlanConditions() {
           </View>
         );
       case 'cats':
-        return optionGrid(CATEGORY_OPTIONS, draft.preferences, (code) => update({ preferences: toggleIn(draft.preferences, code, 3) }), 3, CATEGORY_IMAGES);
+        return (
+          <View style={styles.stack}>
+            {/* 몇 개 더 고를 수 있는지 — 셋을 고르면 나머지가 흐려지는데, 이유를 숫자로 먼저 보인다(UI 캔버스 ⑤). */}
+            <Text variant="caption" weight="bold" color={draft.preferences.length >= 3 ? color.text.heading : color.text.muted}>{txf(tx, '%s / 3 골랐어요', '%s / 3 picked', draft.preferences.length)}</Text>
+            {optionGrid(CATEGORY_OPTIONS, draft.preferences, (code) => update({ preferences: toggleIn(draft.preferences, code, 3) }), 3, CATEGORY_IMAGES)}
+          </View>
+        );
       case 'pace':
         return optionGrid(PACE_OPTIONS, draft.paceLevel ? [draft.paceLevel] : [], (code) => update({ paceLevel: code as PlanDraft['paceLevel'] }));
       case 'aids':
@@ -414,7 +465,8 @@ function PlanConditions() {
     : txf(tx, '필수 %s / %s', 'Required %s / %s', index + 1, requiredCount);
   const stepTitle = q.skippable
     ? tx('더 답하면 일정이 좋아져요', 'A few more and the plan gets better')
-    : txf(tx, '필수 질문은 %s개뿐이에요', 'Just %s required questions', requiredCount);
+    // 🔴 「필수 질문은 3개뿐」이라 적어 두고 날짜·출발지(1박 이상이면 숙소)도 필수였다 — 마지막에야 단추가 잠긴 이유를 알았다(UI 캔버스 ⑤).
+    : txf(tx, '날짜·출발지와 필수 질문 %s개만 정하면 돼요', 'Just your dates, a starting point and %s required questions', requiredCount);
   const fillPct = Math.round((settledSoFar / PLAN_QUESTIONS.length) * 100);
   const dateLabel = dateRangeLabel({ startDate: draft.startDate, endDate: draft.endDate }, tx);
   const showDateCard = datesOpen ?? datesMissing;
@@ -498,7 +550,13 @@ function PlanConditions() {
         <Button
           accessibilityState={{ busy: job?.state === 'submitting' }}
           label={last
-            ? job?.state === 'submitting' ? tx('만드는 중…', 'Building…') : tx('이 조건으로 일정 만들기', 'Build my itinerary')
+            ? job?.state === 'submitting' ? tx('만드는 중…', 'Building…')
+              // 🔴 잠겼으면 단추 글자가 이유를 말한다(UI 캔버스 ⑤) — 잠긴 단추만 있으면 고장으로 읽힌다.
+              : missing.length ? tx('필수 질문에 먼저 답해 주세요', 'Answer the required questions first')
+              : datesMissing ? tx('여행 날짜를 골라 주세요', 'Pick your trip dates')
+              : originMissing ? tx('출발지를 골라 주세요', 'Pick a starting point')
+              : lodgingMissing ? tx('숙소를 골라 주세요', 'Pick where you will stay')
+              : tx('이 조건으로 일정 만들기', 'Build my itinerary')
             : tx('다음', 'Next')}
           disabled={last ? missing.length > 0 || datesMissing || originMissing || lodgingMissing || job?.state === 'submitting' : !canNext}
           onPress={() => {
@@ -529,7 +587,10 @@ function PlanConditions() {
         <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{tx('날짜를 정해야 만들 수 있어요 · 위에서 골라 주세요', 'Pick your dates above to build')}</Text>
       ) : null}
       {last && hardUnknown ? (
-        <Text variant="caption" color={color.state.danger}>{tx('식단을 아직 안 알려주셨어요. 눌러서 알려주세요.', 'We still need your diet answer — tap to add it.')}</Text>
+        // 🔴 「눌러서 알려주세요」라고 적어 두고 눌리지 않는 글자였다(UI 캔버스 ⑤).
+        <Pressable accessibilityRole="button" onPress={() => setConditionsOpen(true)} style={({ pressed }) => [styles.dietAsk, pressed && styles.pressed]}>
+          <Text variant="caption" weight="bold" color={color.state.danger}>{tx('식단을 아직 안 알려주셨어요 · 눌러서 알려주기 ›', 'We still need your diet answer · tap to add ›')}</Text>
+        </Pressable>
       ) : null}
       {job?.state === 'consent-required' && job.requiredConsent === 'HEALTH_CONSTRAINTS' ? (
         <View style={styles.consent}>
@@ -702,6 +763,7 @@ function PlanConditions() {
   );
 
   return (
+    <View style={styles.shell}>
     <Screen scroll wide={wide} style={styles.canvas} scrollRef={scrollRef}>
       {/* 🔴 폰은 위 줄 하나에 뒤로 가기와 홈에서 받은 칩(출발·날짜·인원)을 같이 둔다(시안 01b).
           걸음 수는 바로 아래 눈썹이 이미 말하므로 여기 또 적지 않는다. 넓은 화면은 왼쪽 레일이 대신한다. */}
@@ -770,11 +832,33 @@ function PlanConditions() {
         }}
       />
     </Screen>
+    {barSheet && barValue ? (
+      <PlanStartBar
+        sheet
+        wide={false}
+        accessToken={accessToken}
+        value={barValue}
+        onChange={setBarValue}
+        initialSection={barSheet}
+        onClose={() => setBarSheet(null)}
+        onSubmit={applyBar}
+        submitLabel={tx('이대로 적용', 'Apply')}
+      />
+    ) : null}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   canvas: { backgroundColor: color.canvas },
+  shell: { flex: 1, backgroundColor: color.canvas },
+  budgetTotal: { gap: 2 },
+  budgetPresets: { flexDirection: 'row', gap: spacing[2] },
+  budgetPreset: { flex: 1, minWidth: 0, minHeight: 72, gap: 2, paddingVertical: spacing[2], paddingHorizontal: spacing[2], borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.brand.ivory, alignItems: 'center', justifyContent: 'center' },
+  budgetStepper: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
+  stepButton: { width: 44, height: 44, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
+  stepLabel: { flex: 1, textAlign: 'center' },
+  dietAsk: { minHeight: 44, justifyContent: 'center' },
   // 시안: justify-content:center · gap 32. 레일(280)과 카드(760)를 가운데로 모은다.
   split: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'center', gap: spacing[8], marginTop: spacing[6] },
   questions: { flex: 1, minWidth: 0, maxWidth: 760, gap: spacing[3] },

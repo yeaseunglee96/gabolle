@@ -137,6 +137,9 @@ export function startBarFromDraft(draft: StartBarValue): StartBarValue {
 const WEEKDAY_KO = ['일', '월', '화', '수', '목', '금', '토'];
 const WEEKDAY_EN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+/** 서버가 받는 가장 긴 여행 — TripConditionRules.MAX_NIGHTS(7박 8일). 달력이 8일째 뒤를 못 누르게 한다. */
+export const MAX_TRIP_NIGHTS = 7;
+
 export function toDateKey(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }

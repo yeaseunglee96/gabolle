@@ -90,10 +90,13 @@ describe('여행 조건 문항 — 한 번에 하나 (S15P21E201-1425)', () => {
     expect(view.getByText('어디에서 묵으세요?')).toBeTruthy();
     for (let i = 0; i < 6; i += 1) fireEvent.press(view.getByText('다음'));
     expect(view.getByText('1박 이상 여행은 숙소를 골라야 만들 수 있어요 · 위에서 골라 주세요')).toBeTruthy();
-    fireEvent.press(view.getByText('이 조건으로 일정 만들기'));
+    // 잠긴 단추가 이유를 말한다(UI 캔버스 ⑤).
+    fireEvent.press(view.getByText('숙소를 골라 주세요'));
     expect(mockSubmit).not.toHaveBeenCalled();
+    // 🔴 폰은 홈으로 튕겨 나가지 않는다 — 이 화면 위에 시작 바 시트를 연다(UI 캔버스 ⑤).
     fireEvent.press(view.getByText('어디에서 묵으세요?'));
-    expect(mockPush).toHaveBeenCalledWith(expect.objectContaining({ params: { edit: 'lodging' } }));
+    expect(mockPush).not.toHaveBeenCalledWith(expect.objectContaining({ params: { edit: 'lodging' } }));
+    expect(view.getByLabelText(/닫기|Close/)).toBeTruthy();
   });
 
   it('🔴 알레르기를 안 물었어도(기본값 「모름」) 경고 없이 바로 보낸다 — 조건 창이 다시 뜨지 않는다 (S15P21E201-1513)', async () => {
