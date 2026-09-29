@@ -9,7 +9,7 @@ import { Linking, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } 
 
 import { Text } from '@/components/Text';
 import { color, spacing } from '@/design/tokens';
-import { photoSourceShortText, photoSourceText } from '@/discovery/places';
+import { isSelfLabelledSource, photoSourceShortText, photoSourceText } from '@/discovery/places';
 import { txf } from '@/i18n/format';
 
 type Tx = (ko: string, en: string) => string;
@@ -18,8 +18,10 @@ export function PhotoCreditBar({ source, license, licenseUrl, tx, style }: {
   source: string; license: string | null; licenseUrl: string | null; tx: Tx; style?: StyleProp<ViewStyle>;
 }) {
   // 띠에는 짧은 출처(기관 · 공공누리 유형), 화면 낭독에는 긴 출처 전체(S15P21E201-1705, 사용자 결정).
-  const credit = txf(tx, '사진: %s', 'Photo: %s', photoSourceShortText(source, tx));
-  const spoken = txf(tx, '사진: %s', 'Photo: %s', photoSourceText(source, tx));
+  // 🔴 「출처 : …」「Google 지도 · 사진 …」처럼 이름표를 달고 오는 출처에는 「사진: 」을 또 붙이지 않는다.
+  const labelled = isSelfLabelledSource(source);
+  const credit = labelled ? photoSourceShortText(source, tx) : txf(tx, '사진: %s', 'Photo: %s', photoSourceShortText(source, tx));
+  const spoken = labelled ? photoSourceText(source, tx) : txf(tx, '사진: %s', 'Photo: %s', photoSourceText(source, tx));
   const full = license ? `${spoken} · ${license}` : spoken;
   const lines = license ? (
     <>

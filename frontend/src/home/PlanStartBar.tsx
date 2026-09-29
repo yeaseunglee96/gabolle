@@ -604,7 +604,7 @@ export function PlanStartBar({
             style={styles.chip}
           >
             <Text variant="caption" weight="bold">
-              {nights === 0 ? tx('당일치기', 'Day trip') : tx(`${nights}박 ${nights + 1}일`, `${nights} nights`)}
+              {nights === 0 ? tx('당일치기', 'Day trip') : tx(`${nights}박 ${nights + 1}일`, `${nights} ${nights === 1 ? 'night' : 'nights'}`)}
             </Text>
           </Pressable>
         ))}

@@ -199,7 +199,7 @@ export function summarizeStartBar(value: StartBarValue, tx: StartBarTx, language
       : formatDateShort(value.startDate, tx);
     parts.push(range);
     const nights = nightCount(value.startDate, value.endDate || value.startDate);
-    parts.push(nights > 0 ? tx(`${nights}박`, `${nights} nights`) : tx('당일치기', 'Day trip'));
+    parts.push(nights > 0 ? tx(`${nights}박`, `${nights} ${nights === 1 ? 'night' : 'nights'}`) : tx('당일치기', 'Day trip'));
   }
 
   const people: string[] = [];
@@ -224,7 +224,7 @@ export function startBarChips(value: StartBarValue, tx: StartBarTx, language?: L
       ? `${formatDateShort(value.startDate, tx)} – ${formatDateShort(value.endDate, tx)}`
       : formatDateShort(value.startDate, tx);
     const nights = nightCount(value.startDate, value.endDate || value.startDate);
-    const stay = nights > 0 ? tx(`${nights}박`, `${nights} nights`) : tx('당일치기', 'Day trip');
+    const stay = nights > 0 ? tx(`${nights}박`, `${nights} ${nights === 1 ? 'night' : 'nights'}`) : tx('당일치기', 'Day trip');
     chips.push(`${range} · ${stay}`);
   }
   const people: string[] = [];

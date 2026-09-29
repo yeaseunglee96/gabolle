@@ -21,3 +21,10 @@ it('shows English place names when provided and keeps a readable fallback', () =
   expect(localPlaceName({ nameKo: '해운대', nameEn: ' ' }, 'en')).toBe('해운대');
   expect(localPlaceName({ nameKo: '해운대', nameEn: 'Haeundae' }, 'ko')).toBe('해운대');
 });
+
+it('🔴 일본어·중국어는 한국어 이름을 번역표에서 찾는다 — 영어 이름으로 떨어지지 않는다', () => {
+  const entry = { featureKey: 'FESTIVAL', placeCount: 76, labelKo: '축제', labelEn: null };
+  const ja = (ko: string, en: string) => (ko === '축제' ? '祭り' : en);
+  expect(localFacetLabel(entry, 'ja', ja)).toBe('祭り');
+  expect(localFacetLabel(entry, 'en', ja)).toBe('Festivals');
+});

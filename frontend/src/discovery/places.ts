@@ -73,6 +73,13 @@ const GALLERY_SOURCE = /^한국관광공사 관광사진갤러리 공공누리 �
 // 🔴 거기에 「사진: 」을 또 붙이면 「사진: 출처 : …」가 된다. 그래서 이 두 모양은 받은 글자만 쓴다.
 const SOURCE_LABELLED_KO = /^출처\s*:\s*(.+)$/;
 const SELF_LABELLED_SOURCE = /^(출처\s*:|Google\s)/;
+// 「Google 지도 · 사진 박대규」 — 🔴 영어·일본어·중국어 화면에 이 한국어가 그대로 떴다(5개 언어 점검 2026-09-29).
+const GOOGLE_SOURCE = /^Google 지도 · 사진 (.+)$/;
+
+/** 이름표를 스스로 달고 오는 출처인가 — 그러면 앞에 「사진: 」을 또 붙이지 않는다(카드 띠가 「Photo: Google 지도 · 사진 …」이었다). */
+export function isSelfLabelledSource(source: string): boolean {
+  return SELF_LABELLED_SOURCE.test(source);
+}
 
 /**
  * 사진 출처의 영어 — 공공누리 출처 표시 의무는 번역해도 지켜진다(S15P21E201-1705, 조율 세션 결정 A).
@@ -86,6 +93,8 @@ export function photoSourceEnglish(source: string): string {
   if (gallery) return `Korea Tourism Organization Photo Gallery · ${koglEn(gallery[1])} · Photographer: ${gallery[2]}`;
   const labelled = source.match(SOURCE_LABELLED_KO);
   if (labelled) return `Source: ${labelled[1]}`;
+  const google = source.match(GOOGLE_SOURCE);
+  if (google) return `Google Maps · Photo: ${google[1]}`;
   return source;
 }
 
@@ -102,7 +111,7 @@ export function photoSourceText(source: string, tx: (ko: string, en: string) => 
  */
 export function photoSourceShortText(source: string, tx: (ko: string, en: string) => string): string {
   const match = source.match(PLAIN_SOURCE) ?? source.match(GALLERY_SOURCE);
-  if (!match) return source;
+  if (!match) return isSelfLabelledSource(source) ? photoSourceText(source, tx) : source;
   return tx(`한국관광공사 공공누리 제${match[1]}유형`, `KTO · ${koglEn(match[1])}`);
 }
 
