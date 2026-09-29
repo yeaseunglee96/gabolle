@@ -204,6 +204,20 @@ export default function Bus() {
     return txf(tx, '%s · 걸어서 약 %s분', '%s · about %s min walk', distanceText(meters), walkMinutes(meters));
   }
 
+  // 넓은 화면은 왼쪽 목록·오른쪽 지도 — 지도를 가로로 길게 깔면 목록이 한참 아래로 밀린다(S15P21E201-1830).
+  const mapView = showMap ? (
+    <View style={wide ? styles.mapColumn : styles.mapWrap}>
+      <RouteMap
+        stops={mapStops}
+        points={mapPoints}
+        selectedId={selectedId}
+        onSelect={setSelectedId}
+        currentLocation={located ? coords : null}
+        height={wide ? 520 : 260}
+      />
+    </View>
+  ) : null;
+
   const timeOnly = checkedAt
     ? `${String(checkedAt.getHours()).padStart(2, '0')}:${String(checkedAt.getMinutes()).padStart(2, '0')}`
     : '';
@@ -239,125 +253,118 @@ export default function Bus() {
         ) : null}
       </View>
 
-      {showMap ? (
-        <View style={styles.mapWrap}>
-          <RouteMap
-            stops={mapStops}
-            points={mapPoints}
-            selectedId={selectedId}
-            onSelect={setSelectedId}
-            currentLocation={located ? coords : null}
-            height={wide ? 360 : 260}
-          />
-        </View>
-      ) : null}
-
-      {stations.length > 0 ? (
-        <View style={[styles.card, styles.stationCard]}>
-          <Text variant="body" weight="bold">{tx('가까운 지하철역', 'Nearby metro stations')}</Text>
-          {stations.map((station, index) => {
-            const id = `subway-${station.name}`;
-            return (
-              <Pressable
-                key={id}
-                accessibilityRole="button"
-                accessibilityLabel={txf(tx, '%s 지도에서 보기', 'Show %s on the map', txf(tx, '%s역', '%s Station', station.name))}
-                onPress={() => setSelectedId(id)}
-                style={[styles.stationRow, selectedId === id && styles.selectedRow]}
-              >
-                {stationsNumbered ? <View style={styles.numberBadge}><Text variant="micro" weight="bold" color={color.text.onAction}>{index + 1}</Text></View> : null}
-                <View style={styles.grow}>
-                  <Text weight="bold">{txf(tx, '%s역', '%s Station', station.name)}</Text>
-                  {located ? <Text variant="caption" color={color.text.muted}>{howFar(station.latitude, station.longitude)}</Text> : null}
-                </View>
-                <View style={styles.lineChips}>
-                  {station.lines.map((line) => (
-                    <View key={line} style={styles.lineChip}><Text variant="micro" weight="bold" color={color.state.warning}>{txf(tx, '%s호선', 'Line %s', line)}</Text></View>
-                  ))}
-                </View>
-              </Pressable>
-            );
-          })}
-        </View>
-      ) : null}
-
-      {state === 'loading' ? (
-        <View style={styles.card}><Text color={color.text.muted}>{tx('도착 정보를 확인하고 있어요…', 'Checking arrivals…')}</Text></View>
-      ) : null}
-
-      {state === 'blocked' && reason ? (
-        <View accessibilityLiveRegion="polite" style={styles.card}>
-          <Text variant="title" weight="bold">{blockedText(reason).title}</Text>
-          <Text color={color.text.body} style={styles.blockedBody}>{blockedText(reason).body}</Text>
-          {/* — 준비되지 않은 기능에는 「다시 시도」를 안 보여준다.
-              눌러도 달라지지 않는 단추는 없는 것보다 나쁘다 — 사람을 거기 묶어 둔다.
-          */}
-          {reason === 'signed-out'
-            ? <Button label={tx('로그인하기', 'Sign in')} containerStyle={styles.cta} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/field/transit' } })} />
-            : reason === 'not-ready'
-              ? null
-              : <Button label={tx('다시 시도', 'Try again')} variant="tertiary" containerStyle={styles.cta} onPress={() => void load(coords)} />}
-        </View>
-      ) : null}
-
-      {state === 'ready' && stops.length === 0 ? (
-        <View style={styles.card}>
-          <Text variant="title" weight="bold">{tx('근처에 정류소가 없어요', 'No stops nearby')}</Text>
-          <Text color={color.text.body} style={styles.blockedBody}>
-            {tx('조금 움직인 뒤 다시 찾아보세요.', 'Move a little and search again.')}
-          </Text>
-          <Button label={tx('다시 찾기', 'Search again')} variant="tertiary" containerStyle={styles.cta} onPress={() => void load(coords)} />
-        </View>
-      ) : null}
-
-      {state === 'ready' && stops.length > 0 ? (
-        <>
-          <View style={[styles.list, wide && styles.listWide]}>
-            {stops.map((stop, stopIndex) => (
-              <Pressable
-                key={stop.nodeId}
-                accessibilityRole="button"
-                accessibilityLabel={txf(tx, '%s 지도에서 보기', 'Show %s on the map', stop.nodeName)}
-                onPress={() => setSelectedId(stop.nodeId)}
-                style={[styles.card, wide && styles.cardWide, selectedId === stop.nodeId && styles.selectedCard]}
-              >
-                <View style={styles.stopHead}>
-                  <View style={styles.numberBadge}><Text variant="micro" weight="bold" color={color.text.onAction}>{stopIndex + 1}</Text></View>
-                  <View style={styles.grow}>
-                    <Text variant="body" weight="bold">{stop.nodeName}</Text>
-                    {located ? <Text variant="caption" color={color.text.muted}>{howFar(stop.lat, stop.lng)}</Text> : null}
-                  </View>
-                </View>
-                {stop.arrivals.length === 0 ? (
-                  <Text variant="caption" color={color.text.muted}>{tx('지금 오는 버스가 없어요', 'No buses coming right now')}</Text>
-                ) : (
-                  stop.arrivals.map((arrival, index) => (
-                    <View key={`${stop.nodeId}-${arrival.routeNo}-${index}`} style={styles.arrivalRow}>
-                      <View style={styles.routeBadge}>
-                        <Text variant="caption" weight="bold" color={color.text.onAction}>{arrival.routeNo}</Text>
-                      </View>
-                      <Text variant="title" weight="bold" style={styles.arrivalTime}>{arrivalText(arrival.arrivalSeconds)}</Text>
-                      {/* 몇 정류장 전인지도 없을 수 있다 — 없으면 아예 안 적는다.
-                          0은 안 적는다. 「0정류장 전」은 사람이 쓰는 말이 아니고
-                          그 경우는 옆의 「곧 도착」이 이미 같은 것을 말하고 있다.
-                      */}
-                      {arrival.remainingStops != null && arrival.remainingStops > 0 ? (
-                        <Text variant="caption" color={color.text.muted}>{tx(`${arrival.remainingStops}정류장 전`, `${arrival.remainingStops} stops away`)}</Text>
-                      ) : null}
+      {!wide ? mapView : null}
+      <View style={wide && showMap ? styles.columns : undefined}>
+        <View style={wide && showMap ? styles.listColumn : undefined}>
+          {stations.length > 0 ? (
+            <View style={[styles.card, styles.stationCard]}>
+              <Text variant="body" weight="bold">{tx('가까운 지하철역', 'Nearby metro stations')}</Text>
+              {stations.map((station, index) => {
+                const id = `subway-${station.name}`;
+                return (
+                  <Pressable
+                    key={id}
+                    accessibilityRole="button"
+                    accessibilityLabel={txf(tx, '%s 지도에서 보기', 'Show %s on the map', txf(tx, '%s역', '%s Station', station.name))}
+                    onPress={() => setSelectedId(id)}
+                    style={[styles.stationRow, selectedId === id && styles.selectedRow]}
+                  >
+                    {stationsNumbered ? <View style={styles.numberBadge}><Text variant="micro" weight="bold" color={color.text.onAction}>{index + 1}</Text></View> : null}
+                    <View style={styles.grow}>
+                      <Text weight="bold">{txf(tx, '%s역', '%s Station', station.name)}</Text>
+                      {located ? <Text variant="caption" color={color.text.muted}>{howFar(station.latitude, station.longitude)}</Text> : null}
                     </View>
-                  ))
-                )}
-              </Pressable>
-            ))}
-          </View>
-          <Button label={tx('다시 불러오기', 'Refresh')} variant="tertiary" containerStyle={styles.refresh} onPress={() => void load(coords)} />
-          {checkedAt ? (
-            <Text variant="caption" color={color.text.muted} style={styles.checkedAt}>
-              {txf(tx, '%s 기준이에요', 'As of %s', timeOnly)}
-            </Text>
+                    <View style={styles.lineChips}>
+                      {station.lines.map((line) => (
+                        <View key={line} style={styles.lineChip}><Text variant="micro" weight="bold" color={color.state.warning}>{txf(tx, '%s호선', 'Line %s', line)}</Text></View>
+                      ))}
+                    </View>
+                  </Pressable>
+                );
+              })}
+            </View>
           ) : null}
-        </>
-      ) : null}
+
+          {state === 'loading' ? (
+            <View style={styles.card}><Text color={color.text.muted}>{tx('도착 정보를 확인하고 있어요…', 'Checking arrivals…')}</Text></View>
+          ) : null}
+
+          {state === 'blocked' && reason ? (
+            <View accessibilityLiveRegion="polite" style={styles.card}>
+              <Text variant="title" weight="bold">{blockedText(reason).title}</Text>
+              <Text color={color.text.body} style={styles.blockedBody}>{blockedText(reason).body}</Text>
+              {/* — 준비되지 않은 기능에는 「다시 시도」를 안 보여준다.
+                  눌러도 달라지지 않는 단추는 없는 것보다 나쁘다 — 사람을 거기 묶어 둔다.
+              */}
+              {reason === 'signed-out'
+                ? <Button label={tx('로그인하기', 'Sign in')} containerStyle={styles.cta} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/field/transit' } })} />
+                : reason === 'not-ready'
+                  ? null
+                  : <Button label={tx('다시 시도', 'Try again')} variant="tertiary" containerStyle={styles.cta} onPress={() => void load(coords)} />}
+            </View>
+          ) : null}
+
+          {state === 'ready' && stops.length === 0 ? (
+            <View style={styles.card}>
+              <Text variant="title" weight="bold">{tx('근처에 정류소가 없어요', 'No stops nearby')}</Text>
+              <Text color={color.text.body} style={styles.blockedBody}>
+                {tx('조금 움직인 뒤 다시 찾아보세요.', 'Move a little and search again.')}
+              </Text>
+              <Button label={tx('다시 찾기', 'Search again')} variant="tertiary" containerStyle={styles.cta} onPress={() => void load(coords)} />
+            </View>
+          ) : null}
+
+          {state === 'ready' && stops.length > 0 ? (
+            <>
+              <View style={[styles.list, wide && !showMap && styles.listWide]}>
+                {stops.map((stop, stopIndex) => (
+                  <Pressable
+                    key={stop.nodeId}
+                    accessibilityRole="button"
+                    accessibilityLabel={txf(tx, '%s 지도에서 보기', 'Show %s on the map', stop.nodeName)}
+                    onPress={() => setSelectedId(stop.nodeId)}
+                    style={[styles.card, wide && !showMap && styles.cardWide, selectedId === stop.nodeId && styles.selectedCard]}
+                  >
+                    <View style={styles.stopHead}>
+                      <View style={styles.numberBadge}><Text variant="micro" weight="bold" color={color.text.onAction}>{stopIndex + 1}</Text></View>
+                      <View style={styles.grow}>
+                        <Text variant="body" weight="bold">{stop.nodeName}</Text>
+                        {located ? <Text variant="caption" color={color.text.muted}>{howFar(stop.lat, stop.lng)}</Text> : null}
+                      </View>
+                    </View>
+                    {stop.arrivals.length === 0 ? (
+                      <Text variant="caption" color={color.text.muted}>{tx('지금 오는 버스가 없어요', 'No buses coming right now')}</Text>
+                    ) : (
+                      stop.arrivals.map((arrival, index) => (
+                        <View key={`${stop.nodeId}-${arrival.routeNo}-${index}`} style={styles.arrivalRow}>
+                          <View style={styles.routeBadge}>
+                            <Text variant="caption" weight="bold" color={color.text.onAction}>{arrival.routeNo}</Text>
+                          </View>
+                          <Text variant="title" weight="bold" style={styles.arrivalTime}>{arrivalText(arrival.arrivalSeconds)}</Text>
+                          {/* 몇 정류장 전인지도 없을 수 있다 — 없으면 아예 안 적는다.
+                              0은 안 적는다. 「0정류장 전」은 사람이 쓰는 말이 아니고
+                              그 경우는 옆의 「곧 도착」이 이미 같은 것을 말하고 있다.
+                          */}
+                          {arrival.remainingStops != null && arrival.remainingStops > 0 ? (
+                            <Text variant="caption" color={color.text.muted}>{tx(`${arrival.remainingStops}정류장 전`, `${arrival.remainingStops} stops away`)}</Text>
+                          ) : null}
+                        </View>
+                      ))
+                    )}
+                  </Pressable>
+                ))}
+              </View>
+              <Button label={tx('다시 불러오기', 'Refresh')} variant="tertiary" containerStyle={styles.refresh} onPress={() => void load(coords)} />
+              {checkedAt ? (
+                <Text variant="caption" color={color.text.muted} style={styles.checkedAt}>
+                  {txf(tx, '%s 기준이에요', 'As of %s', timeOnly)}
+                </Text>
+              ) : null}
+            </>
+          ) : null}
+        </View>
+        {wide ? mapView : null}
+      </View>
       {locationGate.sheet}
     </Screen>
   );
@@ -371,6 +378,9 @@ const styles = StyleSheet.create({
   smallButton: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.tint },
   list: { gap: spacing[3] },
   mapWrap: { marginBottom: spacing[4] },
+  columns: { flexDirection: 'row', gap: spacing[6], alignItems: 'flex-start' },
+  listColumn: { flex: 1, minWidth: 0 },
+  mapColumn: { flex: 1 },
   stationCard: { marginBottom: spacing[4], gap: spacing[2] },
   stationRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], minHeight: 44, paddingVertical: spacing[1], paddingHorizontal: spacing[2], marginHorizontal: -spacing[2], borderRadius: radius.md },
   selectedRow: { backgroundColor: color.surface.tint },
