@@ -105,5 +105,16 @@ await t('경사 기준선 보정 불변식', async () => {
   ok(`대표값 ${s.representativeStat.split(' ')[0]}`)
 })
 
+await t('걷는 길에 그늘 붙이기 (process/walk-graph-shade.mjs)', async () => {
+  // 서버의 걷는 길 파일에 그늘을 붙이는 스크립트다. 파일 판(v1/v2)·짝짓기·같은 입력이면 같은 바이트 규칙을 지킨다.
+  // 진짜 파일은 건드리지 않는다 — 작은 가짜 그래프로만 돈다(S15P21E201-1895).
+  try {
+    execFileSync(process.execPath, ['--test', join(ROOT, 'test/walk-graph-shade.test.mjs')], { stdio: 'pipe' })
+  } catch (e) {
+    throw new Error('단위 시험 실패' + '\n' + String(e.stdout || '').split('\n').slice(-25).join('\n'))
+  }
+  ok('단위 시험 통과')
+})
+
 console.log(failed ? `\n🔴 ${failed}건 실패` : '\n전부 통과')
 process.exit(failed ? 1 : 0)

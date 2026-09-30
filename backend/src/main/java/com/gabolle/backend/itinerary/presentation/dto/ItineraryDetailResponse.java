@@ -56,7 +56,29 @@ public record ItineraryDetailResponse(
 		 * 센다. 앱이 한 구간의 길을 다시 물을 때 이 값을 {@code /routes?stepFree=} 에 그대로 실으면 일정과 같은 길이
 		 * 나온다.
 		 */
-		boolean stepFree) {
+		boolean stepFree,
+
+		/**
+		 * 사용자가 추천 단계에서 「경사를 피하고 싶어요」를 <b>골랐나</b>(S15P21E201-1895). 지도가 이 값이 {@code true} 일
+		 * 때만 경로 선을 경사대로 칠한다 — 안 골랐는데 칠하면 조건과 무관한 색이 된다. 안 골랐거나 「상관없어요」거나 답을
+		 * 못 읽으면 {@code false}. 여행의 가장 최신 선호 판({@code PreferenceSnapshot})에서 읽는다.
+		 */
+		boolean slopeAvoid,
+
+		/**
+		 * 사용자가 「그늘길 우선」을 <b>골랐나</b>(S15P21E201-1895). {@code slopeAvoid} 와 같은 규칙이다. 둘 다
+		 * {@code true} 면 지도가 경사와 그늘을 합친 점수로 칠한다.
+		 */
+		boolean shadePrefer) {
+
+	/** 경사·그늘 선택 칸 이전의 생성자 — 조건을 안 골랐다고 본다. */
+	public ItineraryDetailResponse(String id, String title, int version, List<Day> days,
+			Integer totalEstimatedCostKrw, Integer totalWalkingMeters, FallbackMode fallbackMode, String myRole,
+			boolean canEdit, List<String> warningCodes, String tripId, int accessibilityUnverifiedCount,
+			int partySize, Integer budgetCapKrw, boolean stepFree) {
+		this(id, title, version, days, totalEstimatedCostKrw, totalWalkingMeters, fallbackMode, myRole, canEdit,
+				warningCodes, tripId, accessibilityUnverifiedCount, partySize, budgetCapKrw, stepFree, false, false);
+	}
 
 	/** 계단 피하기 칸 이전의 생성자 — 보통 길로 잰 일정이다. */
 	public ItineraryDetailResponse(String id, String title, int version, List<Day> days,
@@ -64,15 +86,23 @@ public record ItineraryDetailResponse(
 			boolean canEdit, List<String> warningCodes, String tripId, int accessibilityUnverifiedCount,
 			int partySize, Integer budgetCapKrw) {
 		this(id, title, version, days, totalEstimatedCostKrw, totalWalkingMeters, fallbackMode, myRole, canEdit,
-				warningCodes, tripId, accessibilityUnverifiedCount, partySize, budgetCapKrw, false);
+				warningCodes, tripId, accessibilityUnverifiedCount, partySize, budgetCapKrw, false, false, false);
 	}
 
 	/**
 	 * 길 조각 하나 — 경로 API({@code /routes})의 {@code pieces} 와 같은 모양이다.
 	 * {@code travelPath[from]..travelPath[to]}(둘 다 포함)의 경사(%, 방향 없음 · 모르면 {@code null} — 0(평지)과
-	 * 다르다)와 계단 여부.
+	 * 다르다)와 계단 여부, 그늘.
+	 *
+	 * @param shade 그늘(0~1, 1 이 하루 종일 그늘, 0.1 단위 — 건물 그림자 하루 평균). 모르면 {@code null} — 0(볕)과
+	 *        다르다. 그늘 값을 재 둔 여섯 지역 밖·다리·터널·이 칸이 생기기 전(2026-09-30)에 만든 판이 그렇다
 	 */
-	public record Piece(int from, int to, Double slopePercent, boolean stairs) {
+	public record Piece(int from, int to, Double slopePercent, boolean stairs, Double shade) {
+
+		/** 그늘 칸이 생기기 전의 모양 — 그늘을 모르는 조각이다. */
+		public Piece(int from, int to, Double slopePercent, boolean stairs) {
+			this(from, to, slopePercent, stairs, null);
+		}
 	}
 
 	/**

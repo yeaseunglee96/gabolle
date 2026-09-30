@@ -102,8 +102,15 @@ public record RouteLeg(
 	 * @param slopePercent 그 길의 보통 기울기(%, 방향 없는 크기 — 오르막·내리막을 안 가른다). 모르면 {@code null} —
 	 *        30m 미만 조각·다리·터널·길 밖(출발·도착을 길에 붙이는 토막)이다. {@code 0}(평지)과 다르다
 	 * @param stairs 계단인가
+	 * @param shade 그 길의 그늘(0~1, 1 이 하루 종일 그늘) — 건물 그림자 하루 평균이고 0.1 단위로 묶었다(S15P21E201-1895).
+	 *        모르면 {@code null} — 그늘 값을 재 둔 여섯 지역 밖, 다리·터널, 길 밖 토막이다. {@code 0}(볕)과 다르다
 	 */
-	public record Piece(int from, int to, Double slopePercent, boolean stairs) {
+	public record Piece(int from, int to, Double slopePercent, boolean stairs, Double shade) {
+
+		/** 그늘 칸이 생기기 전의 모양 — 그늘을 모르는 조각이다. */
+		public Piece(int from, int to, Double slopePercent, boolean stairs) {
+			this(from, to, slopePercent, stairs, null);
+		}
 	}
 
 	public static final String PROVIDER_KAKAO_MOBILITY = "KAKAO_MOBILITY";

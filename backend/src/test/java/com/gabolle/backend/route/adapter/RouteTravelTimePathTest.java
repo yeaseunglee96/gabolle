@@ -111,7 +111,7 @@ class RouteTravelTimePathTest {
 	// ── 경사·계단 조각 ────────────────────────────────────────────────────────
 
 	private static final List<RouteLeg.Piece> PIECES = List.of(
-			new RouteLeg.Piece(0, 1, 2.5, false), new RouteLeg.Piece(1, 2, null, true));
+			new RouteLeg.Piece(0, 1, 2.5, false, 0.4), new RouteLeg.Piece(1, 2, null, true, null));
 
 	@Test
 	@DisplayName("🔴 보행 그래프가 준 경사·계단 조각이 일정 쪽까지 온다 — 예전에는 선형만 오고 조각은 버렸다")
@@ -126,6 +126,9 @@ class RouteTravelTimePathTest {
 		assertThat(measured.pieces().get(0).slopePercent()).isEqualTo(2.5);
 		assertThat(measured.pieces().get(1).slopePercent()).as("모르는 경사는 모른다로 남는다").isNull();
 		assertThat(measured.pieces().get(1).stairs()).isTrue();
+		// 그늘도 같이 온다 — 예전에는 조각을 옮기면서 네 칸만 복사해 그늘이 여기서 사라졌을 것이다 (S15P21E201-1895).
+		assertThat(measured.pieces().get(0).shade()).isEqualTo(0.4);
+		assertThat(measured.pieces().get(1).shade()).as("모르는 그늘은 모른다로 남는다").isNull();
 	}
 
 	@Test

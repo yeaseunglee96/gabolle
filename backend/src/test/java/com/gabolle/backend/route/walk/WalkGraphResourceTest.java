@@ -57,6 +57,30 @@ class WalkGraphResourceTest {
 	}
 
 	@Test
+	@DisplayName("🔴 실어 둔 그래프에 그늘이 붙어 있다 — 그늘 없는 v1 로 되돌리면 지도가 경사만 칠하게 된다 (S15P21E201-1895)")
+	void theShippedGraphCarriesShade() {
+		// 2026-09-30 실측 14,102 길. walk-graph.mjs 로 그래프를 다시 만들면 v1(그늘 0)이 나오므로
+		// walk-graph-shade.mjs 를 다시 돌려야 한다 — 그걸 빠뜨리면 여기서 걸린다.
+		assertThat(graph.shadedWayCount()).isGreaterThan(10_000);
+	}
+
+	@Test
+	@DisplayName("그늘을 재 둔 지역(해운대·남포)의 표본 길은 그늘 있는 조각을 갖고, 값은 0~1 의 0.1 단위다")
+	void shadeReachesRealRoutesInMeasuredAreas() {
+		for (int index : new int[] { 0, 2 }) {
+			Object[] s = SAMPLES.get(index);
+			WalkGraph.Route route = graph.route((double) s[1], (double) s[2], (double) s[3], (double) s[4])
+					.orElseThrow(() -> new AssertionError(s[0]));
+			List<Double> known = route.pieces().stream().map(piece -> piece.shade())
+					.filter(java.util.Objects::nonNull).toList();
+			assertThat(known).as((String) s[0] + " — 그늘 있는 조각").isNotEmpty();
+			assertThat(known).as((String) s[0] + " — 값은 0.1 단위")
+					.allSatisfy(v -> assertThat(v * 10).isBetween(0.0, 10.0).isCloseTo(Math.rint(v * 10),
+							org.assertj.core.data.Offset.offset(1e-9)));
+		}
+	}
+
+	@Test
 	@DisplayName("🔴 표본 세 길을 찾고, 한 번에 0.2초 안이다 — 길이는 직선거리보다 길다")
 	void samplesAreFoundQuickly() {
 		for (Object[] s : SAMPLES) {

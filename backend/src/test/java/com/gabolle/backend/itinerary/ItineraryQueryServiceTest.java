@@ -510,6 +510,52 @@ class ItineraryQueryServiceTest {
 	}
 
 	@Test
+	@DisplayName("🔴 고른 경사·그늘 조건이 판 수준 slopeAvoid·shadePrefer 로, 조각의 그늘이 travelPieces 의 shade 로 실린다 (S15P21E201-1895)")
+	void detailCarriesChosenPaintConditionsAndPieceShade() {
+		@SuppressWarnings("unchecked")
+		ObjectProvider<TravelTimePort> noRoutes = mock(ObjectProvider.class);
+		ItineraryLegPlanner planner = new ItineraryLegPlanner(this.placeRepository, noRoutes);
+		com.gabolle.backend.trip.domain.TripRepository trips = mock(com.gabolle.backend.trip.domain.TripRepository.class);
+		when(trips.findLatestSnapshot(this.tripId)).thenReturn(java.util.Optional.of(
+				new com.gabolle.backend.trip.domain.PreferenceSnapshot("snap_1", this.tripId, 1,
+						List.of(new com.gabolle.backend.trip.domain.PreferenceSnapshot.PreferenceAnswer(
+										"SLOPE_PREFERENCE", "\"AVOID\"",
+										com.gabolle.backend.trip.domain.PreferenceSnapshot.AnswerStatus.SELECTED),
+								new com.gabolle.backend.trip.domain.PreferenceSnapshot.PreferenceAnswer(
+										"SHADE_PREFERENCE", "\"PREFER\"",
+										com.gabolle.backend.trip.domain.PreferenceSnapshot.AnswerStatus.SELECTED)),
+						com.gabolle.backend.trip.domain.PersonalizationScope.TRIP, List.of(), Instant.now())));
+		planner.setTripRepository(trips);
+		ItineraryQueryService withPlanner = new ItineraryQueryService(this.itineraryRepository, this.itineraryAccess,
+				this.placeRepository, this.recommendationJobRepository, mock(ActorNames.class),
+				new FakeItineraryItemActualRepository(), placeIds -> Map.of(), planner);
+		stubTripMembership(threeDayTrip());
+		String itineraryId = "itn_" + UUID.randomUUID();
+		ItineraryVersion v = new ItineraryVersion(UUID.randomUUID().toString(), itineraryId, 1, null,
+				ItineraryVersion.Operation.CREATE, this.requesterId, "req_1", null, Instant.now());
+		com.gabolle.backend.itinerary.domain.ItineraryLeg leg = new com.gabolle.backend.itinerary.domain.ItineraryLeg(
+				UUID.randomUUID().toString(), v.itineraryVersionId(), 0, 1, null, this.placeId.toString(), "WALK",
+				300, 5, 300, null, null, ItineraryItem.DataStatus.VERIFIED, null,
+				List.of(new double[] { 129.1590, 35.1580 }, new double[] { 129.1600, 35.1585 },
+						new double[] { 129.1604, 35.1587 }),
+				List.of(new com.gabolle.backend.itinerary.domain.ItineraryLeg.Piece(0, 1, 9.5, false, 0.4),
+						new com.gabolle.backend.itinerary.domain.ItineraryLeg.Piece(1, 2, null, true, null)),
+				null, Instant.now());
+		this.itineraryRepository.create(new Itinerary(itineraryId, this.tripId, 1), v,
+				List.of(itemOf("item_1", 0, LocalDate.of(2026, 9, 10), 1, null, null)), List.of(leg));
+
+		ItineraryDetailResponse detail = withPlanner.getDetail(itineraryId, this.requesterId);
+		ItineraryDetailResponse.Item item = detail.days().get(0).items().get(0);
+
+		assertThat(detail.slopeAvoid()).as("경사 「피하고 싶어요」를 골랐다").isTrue();
+		assertThat(detail.shadePrefer()).as("「그늘길 우선」을 골랐다").isTrue();
+		assertThat(detail.stepFree()).as("이동 제약은 고르지 않았다 — 경사 선호와 별개다").isFalse();
+		assertThat(item.travelPieces()).containsExactly(
+				new ItineraryDetailResponse.Piece(0, 1, 9.5, false, 0.4),
+				new ItineraryDetailResponse.Piece(1, 2, null, true, null));
+	}
+
+	@Test
 	@DisplayName("구간이 없거나 이동 조건을 못 읽으면 travelPieces 는 null, stepFree 는 거짓이다")
 	void noPiecesAndNoStepFreeByDefault() {
 		stubTripMembership(threeDayTrip());
@@ -520,6 +566,9 @@ class ItineraryQueryServiceTest {
 
 		assertThat(detail.stepFree()).isFalse();
 		assertThat(detail.days().get(0).items().get(0).travelPieces()).isNull();
+		// 조건을 못 읽으면 아무것도 안 골랐다고 본다 — 지도는 단색 선으로 남는다 (S15P21E201-1895).
+		assertThat(detail.slopeAvoid()).isFalse();
+		assertThat(detail.shadePrefer()).isFalse();
 	}
 
 	private String seedItinerary(int version, List<ItineraryItem> items) {

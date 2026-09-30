@@ -21,6 +21,10 @@ import com.gabolle.backend.route.domain.RouteLeg;
  * 점이고, 길은 점 번호의 줄이며 길마다 경사(천분율, -1 = 모름)와 계단 표시를 든다. 이 클래스는 읽은 뒤 바뀌지 않아
  * 여러 요청이 함께 써도 된다.
  *
+ * <p>GBWG v2(S15P21E201-1895)는 v1 에 <b>길마다 그늘 한 바이트</b>가 경사 뒤에 더해진 것이다 — 0~100 은 건물 그림자
+ * 하루 평균(%), 255 는 모름. {@code bigData/process/walk-graph-shade.mjs} 가 v1 에 그늘을 붙여 만든다. 이 클래스는
+ * v1 도 읽고, v1 이면 그늘은 전부 모름이다.
+ *
  * <p>🔴 붙일 점은 <b>한 덩어리(가장 큰 연결 성분)</b>에서만 찾는다. 섬처럼 떨어진 작은 덩어리(아파트 단지 안 길 등)에
  * 붙으면 어디로도 못 가서, 가까운 큰 길에 붙었으면 찾았을 길을 못 찾는다.
  *
@@ -77,6 +81,9 @@ public final class WalkGraph {
 
 	private final boolean[] wayStairs;
 
+	/** 길마다 그늘(건물 그림자 하루 평균, 0~100 %). -1 = 모름 — v1 파일이거나 그늘을 재 두지 않은 길이다. */
+	private final short[] wayShadePercent;
+
 	private final Map<Long, int[]> cells;
 
 	private final int mainNodes;
@@ -85,14 +92,17 @@ public final class WalkGraph {
 	private final int maxSettled;
 
 	private WalkGraph(int[] latE7, int[] lonE7, int[] adjStart, int[] adjTo, float[] adjMeters, int[] adjWay,
-			short[] waySlopePermille, boolean[] wayStairs, Map<Long, int[]> cells, int mainNodes) {
-		this(latE7, lonE7, adjStart, adjTo, adjMeters, adjWay, waySlopePermille, wayStairs, cells, mainNodes,
-				MAX_SETTLED);
+			short[] waySlopePermille, boolean[] wayStairs, short[] wayShadePercent, Map<Long, int[]> cells,
+			int mainNodes) {
+		this(latE7, lonE7, adjStart, adjTo, adjMeters, adjWay, waySlopePermille, wayStairs, wayShadePercent, cells,
+				mainNodes, MAX_SETTLED);
 	}
 
 	private WalkGraph(int[] latE7, int[] lonE7, int[] adjStart, int[] adjTo, float[] adjMeters, int[] adjWay,
-			short[] waySlopePermille, boolean[] wayStairs, Map<Long, int[]> cells, int mainNodes, int maxSettled) {
+			short[] waySlopePermille, boolean[] wayStairs, short[] wayShadePercent, Map<Long, int[]> cells,
+			int mainNodes, int maxSettled) {
 		this.maxSettled = maxSettled;
+		this.wayShadePercent = wayShadePercent;
 		this.latE7 = latE7;
 		this.lonE7 = lonE7;
 		this.adjStart = adjStart;
@@ -118,10 +128,21 @@ public final class WalkGraph {
 		return this.mainNodes;
 	}
 
+	/** 그늘 값이 있는 길 수 — v1 파일이면 0 이다. 기동 로그에 남겨 그늘 없는 파일이 배포됐는지 바로 보이게 한다. */
+	public int shadedWayCount() {
+		int count = 0;
+		for (short shade : this.wayShadePercent) {
+			if (shade >= 0) {
+				count++;
+			}
+		}
+		return count;
+	}
+
 	/** 같은 그래프를 점 수 상한만 바꿔 든다 — 배열은 나눠 쓴다. 상한을 넘는 경우를 작은 그래프로 재 보려는 시험용이다. */
 	WalkGraph withMaxSettled(int limit) {
 		return new WalkGraph(this.latE7, this.lonE7, this.adjStart, this.adjTo, this.adjMeters, this.adjWay,
-				this.waySlopePermille, this.wayStairs, this.cells, this.mainNodes, limit);
+				this.waySlopePermille, this.wayStairs, this.wayShadePercent, this.cells, this.mainNodes, limit);
 	}
 
 	/**
@@ -147,8 +168,9 @@ public final class WalkGraph {
 				new BufferedInputStream(new GZIPInputStream(gzip, 1 << 16), 1 << 16))) {
 			byte[] magic = in.readNBytes(4);
 			int version = in.readInt();
-			if (!"GBWG".equals(new String(magic, java.nio.charset.StandardCharsets.US_ASCII)) || version != 1) {
-				throw new IOException("보행 그래프 파일이 아니거나 판이 다르다 — GBWG v1 이어야 한다");
+			if (!"GBWG".equals(new String(magic, java.nio.charset.StandardCharsets.US_ASCII))
+					|| (version != 1 && version != 2)) {
+				throw new IOException("보행 그래프 파일이 아니거나 판이 다르다 — GBWG v1 또는 v2 여야 한다");
 			}
 			int n = in.readInt();
 			int w = in.readInt();
@@ -165,11 +187,18 @@ public final class WalkGraph {
 			int[] way = new int[edges];
 			short[] slope = new short[w];
 			boolean[] stairs = new boolean[w];
+			short[] shade = new short[w];
+			Arrays.fill(shade, (short) -1);
 			int e = 0;
 			for (int k = 0; k < w; k++) {
 				int count = in.readInt();
 				stairs[k] = in.readUnsignedByte() == 1;
 				slope[k] = in.readShort();
+				if (version >= 2) {
+					// 0~100 은 그림자 %, 255 는 모름. 그 밖의 값은 깨진 것이므로 모름으로 읽는다 — 틀린 그늘을 칠하지 않는다.
+					int percent = in.readUnsignedByte();
+					shade[k] = (percent <= 100) ? (short) percent : -1;
+				}
 				int prev = in.readInt();
 				for (int i = 1; i < count; i++) {
 					int cur = in.readInt();
@@ -180,12 +209,12 @@ public final class WalkGraph {
 					prev = cur;
 				}
 			}
-			return build(lat, lon, from, to, way, slope, stairs);
+			return build(lat, lon, from, to, way, slope, stairs, shade);
 		}
 	}
 
 	private static WalkGraph build(int[] lat, int[] lon, int[] from, int[] to, int[] way, short[] slope,
-			boolean[] stairs) {
+			boolean[] stairs, short[] shade) {
 		int n = lat.length;
 		int[] start = new int[n + 1];
 		for (int i = 0; i < from.length; i++) {
@@ -252,7 +281,7 @@ public final class WalkGraph {
 		}
 		Map<Long, int[]> cells = new HashMap<>(byCell.size() * 2);
 		byCell.forEach((k, v) -> cells.put(k, v.stream().mapToInt(Integer::intValue).toArray()));
-		return new WalkGraph(lat, lon, start, adjTo, adjMeters, adjWay, slope, stairs, cells, bestSize);
+		return new WalkGraph(lat, lon, start, adjTo, adjMeters, adjWay, slope, stairs, shade, cells, bestSize);
 	}
 
 	/** 두 좌표 사이 최단 보행 경로. 붙일 길이 없거나 못 이으면 빈 값이다. 계단은 가리지 않는다. */
@@ -304,32 +333,45 @@ public final class WalkGraph {
 		for (int i = 0; i < nodes.length; i++) {
 			path.add(new double[] { this.lonE7[nodes[i]] / 1e7, this.latE7[nodes[i]] / 1e7 });
 		}
-		// 출발 좌표 → 첫 점: 길 밖이라 경사를 모른다.
-		addPiece(pieces, 0, 1, null, false);
+		// 출발 좌표 → 첫 점: 길 밖이라 경사·그늘을 모른다.
+		addPiece(pieces, 0, 1, null, false, null);
 		for (int i = 1; i < nodes.length; i++) {
 			int a = edgeBetween(nodes[i - 1], nodes[i], searchedStepFree);
 			meters += this.adjMeters[a];
 			int wayIndex = this.adjWay[a];
 			short permille = this.waySlopePermille[wayIndex];
-			addPiece(pieces, i, i + 1, permille < 0 ? null : permille / 10.0, this.wayStairs[wayIndex]);
+			addPiece(pieces, i, i + 1, permille < 0 ? null : permille / 10.0, this.wayStairs[wayIndex],
+					shadeOf(this.wayShadePercent[wayIndex]));
 		}
 		path.add(new double[] { destLng, destLat });
 		meters += planarMeters(this.latE7[g] / 1e7, this.lonE7[g] / 1e7, destLat, destLng);
-		addPiece(pieces, nodes.length, nodes.length + 1, null, false);
+		addPiece(pieces, nodes.length, nodes.length + 1, null, false, null);
 		return Optional.of(new Route(List.copyOf(path), List.copyOf(pieces), meters, honored));
 	}
 
-	/** 앞 조각과 경사·계단이 같으면 이어 붙이고, 다르면 새 조각을 연다. */
-	private static void addPiece(List<RouteLeg.Piece> pieces, int from, int to, Double slopePercent, boolean stairs) {
+	/**
+	 * 그늘(%)을 조각에 싣는 값으로 — 0.1 단위(0.0, 0.1, … 1.0)로 묶는다. 모르면({@code < 0}) {@code null}.
+	 *
+	 * <p>10% 단위로 묶는 것은 조각이 잘게 쪼개지지 않게 하려는 것이다. 그늘은 길마다 조금씩 달라(37%, 41%, 38%…) 그대로
+	 * 두면 경사가 같은 이웃 길도 매번 새 조각이 되어 지도 선이 수십 토막으로 나뉜다. 10% 차이는 색 단계(세 단계)보다
+	 * 작아 눈에 보이지 않는다.
+	 */
+	static Double shadeOf(short percent) {
+		return (percent < 0) ? null : Math.round(percent / 10.0) / 10.0;
+	}
+
+	/** 앞 조각과 경사·계단·그늘이 같으면 이어 붙이고, 다르면 새 조각을 연다. */
+	private static void addPiece(List<RouteLeg.Piece> pieces, int from, int to, Double slopePercent, boolean stairs,
+			Double shade) {
 		if (!pieces.isEmpty()) {
 			RouteLeg.Piece last = pieces.get(pieces.size() - 1);
 			if (last.to() == from && java.util.Objects.equals(last.slopePercent(), slopePercent)
-					&& last.stairs() == stairs) {
-				pieces.set(pieces.size() - 1, new RouteLeg.Piece(last.from(), to, slopePercent, stairs));
+					&& last.stairs() == stairs && java.util.Objects.equals(last.shade(), shade)) {
+				pieces.set(pieces.size() - 1, new RouteLeg.Piece(last.from(), to, slopePercent, stairs, shade));
 				return;
 			}
 		}
-		pieces.add(new RouteLeg.Piece(from, to, slopePercent, stairs));
+		pieces.add(new RouteLeg.Piece(from, to, slopePercent, stairs, shade));
 	}
 
 	/**

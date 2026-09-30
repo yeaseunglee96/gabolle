@@ -51,8 +51,15 @@ public class ItineraryLeg {
 
     /**
      * 조각 하나. {@code slopePercent} 는 방향 없는 기울기(%)이고 모르면 {@code null} — 0(평지)과 다르다.
+     * {@code shade} 는 그늘(0~1, 1 이 하루 종일 그늘, 0.1 단위)이고 모르면 {@code null} — 0(볕)과 다르다.
+     * 그늘 칸이 생기기 전(2026-09-30)에 만든 판은 조각이 있어도 {@code shade} 가 {@code null} 이다.
      */
-    public record Piece(int from, int to, Double slopePercent, boolean stairs) {
+    public record Piece(int from, int to, Double slopePercent, boolean stairs, Double shade) {
+
+        /** 그늘 칸이 생기기 전의 모양 — 그늘을 모르는 조각이다. */
+        public Piece(int from, int to, Double slopePercent, boolean stairs) {
+            this(from, to, slopePercent, stairs, null);
+        }
     }
 
     /**
