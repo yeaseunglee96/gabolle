@@ -33,7 +33,7 @@ import com.gabolle.backend.itinerary.domain.ItineraryVersion;
  *
  * <p>{@code scheduler} 가 없으면 모으지 않고 바로 보낸다 — 시험과 예전 동작이 그대로다.
  */
-public class EditPushBatcher {
+public class EditPushBatcher implements AutoCloseable {
 
 	private static final Logger log = LoggerFactory.getLogger(EditPushBatcher.class);
 
@@ -100,6 +100,10 @@ public class EditPushBatcher {
 		}
 	}
 
+	/**
+	 * 묶음을 꺼내 보낸다. 꺼낸 뒤에 들어온 편집은 새 묶음이 된다 — 「보낸 뒤의 편집은 다음 알림」이 뜻한 동작이다.
+	 * 새 묶음은 적어도 {@code quiet} 뒤에 나가므로 지금 보내는 것과 순서가 뒤집히지 않는다(AI 리뷰 !1923).
+	 */
 	private void fire(Key key, BiConsumer<Key, List<ItineraryVersion.Operation>> flush) {
 		List<ItineraryVersion.Operation> operations;
 		synchronized (this.pending) {
@@ -116,6 +120,14 @@ public class EditPushBatcher {
 			// 예약 실행자 안에서 던지면 아무도 못 본다 — 여기서 남긴다.
 			log.error("모아 둔 일정 알림을 보내지 못했습니다. itineraryId={} 편집 {}건", key.itineraryId(), operations.size(),
 					exception);
+		}
+	}
+
+	/** 서버가 꺼질 때 예약 실행자를 닫는다 — 아직 모으던 묶음은 보내지 않는다(알림은 다시 보내지 않는 규칙과 같다). */
+	@Override
+	public void close() {
+		if (this.scheduler != null) {
+			this.scheduler.shutdownNow();
 		}
 	}
 

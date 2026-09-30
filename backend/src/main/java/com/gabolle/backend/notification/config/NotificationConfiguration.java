@@ -20,9 +20,9 @@ public class NotificationConfiguration {
 
 	/**
 	 * 연달아 바꾼 일정 알림을 한 통으로 모으는 자리(S15P21E201-1880). 예약 실행자 한 줄이면 된다 — 한 번에 도는 일은
-	 * 「모은 것을 보내기」뿐이고 그것도 몇 초면 끝난다. 데몬 스레드라 서버가 꺼질 때 붙잡지 않는다.
+	 * 「모은 것을 보내기」뿐이고 그것도 몇 초면 끝난다. 데몬 스레드이고, 서버가 꺼지면 close() 가 닫는다.
 	 */
-	@Bean(destroyMethod = "")
+	@Bean(destroyMethod = "close")
 	EditPushBatcher editPushBatcher(PushProperties properties) {
 		if (properties.getEditBatchQuiet() == null || properties.getEditBatchQuiet().isZero()) {
 			return EditPushBatcher.immediate();
