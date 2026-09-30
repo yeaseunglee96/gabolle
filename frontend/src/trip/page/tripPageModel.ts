@@ -128,6 +128,11 @@ export function dayMap(items: ItineraryItemDto[], dayNumber: number): DayMap {
  */
 export const RETURN_DAY_OFFSET = 1000;
 
+/** 돌아가는 구간이 닿는 자리(숙소·출발지)의 정차지 id — 길을 걷기로 물을지 고르는 열쇠({@link walkIntoStopIds})가 이것이다. */
+export function returnAnchorId(dayNumber: number): string {
+  return `return-${dayNumber}`;
+}
+
 /**
  * @param approximate 돌아가는 자리가 동네 중심이라 정확한 숙소를 모른다 — 길을 받아 오지 않고 곧은 점선으로 그린다.
  */
@@ -136,7 +141,7 @@ export type ReturnTrip = { day: { day: number; stops: MapStop[] }; anchor: MapSt
 export function returnTrip(map: DayMap, dayNumber: number, returnLeg: DayReturnLeg | null | undefined): ReturnTrip | null {
   const last = map.stops[map.stops.length - 1];
   if (!returnLeg || !last) return null;
-  const anchor: MapStop = { id: `return-${dayNumber}`, number: 0, name: returnLeg.label ?? '', latitude: returnLeg.lat, longitude: returnLeg.lng };
+  const anchor: MapStop = { id: returnAnchorId(dayNumber), number: 0, name: returnLeg.label ?? '', latitude: returnLeg.lat, longitude: returnLeg.lng };
   // 🔴 숙소를 동네(「해운대」)로 골랐으면 서버는 동네 중심을 숙소 자리로 쓴다. 해운대의 그 점은 해수욕장 모래사장
   //    위라서, 카카오 «자동차» 길찾기가 거기 닿으려고 일방통행을 돌아 동백섬까지 갔다 왔다(사용자 폰 화면 2026-09-24,
   //    S15P21E201-1570). 정확한 숙소를 모르는데 길을 지어내지 않는다 — 곧은 점선(어림)이다.
@@ -160,10 +165,50 @@ export function startTrip(map: DayMap, dayNumber: number, start: DayStart | null
   return { day: { day: START_DAY_OFFSET + dayNumber, stops: [anchor, first] }, anchor, kind: start.kind, approximate };
 }
 
-/** 돌아가는 구간(과 하루 시작 구간)의 선 — 받아 온 길이 있으면 그 길, 없으면 곧은 점선. */
-export function returnRoute(back: ReturnTrip, lineColor: string, legs: Record<string, LegPath>): MapRouteLayer {
+/**
+ * 돌아가는 구간(과 하루 시작 구간)의 선 — 받아 온 길이 있으면 그 길, 없으면 곧은 점선.
+ *
+ * 🔴 걷기로 받은 길이면 경사·그늘 조각(pieces)과 고른 조건(grading)을 정차지 사이 선({@link dayRoutes})과 똑같이 지도에 넘긴다
+ *    (S15P21E201-1899). 전에는 길(path)만 넘겨서, 조건 색으로 칠한 경로 한가운데 출발지에서 첫 곳까지의 구간만 남색 한 가지로 남았다 —
+ *    그 길은 걷기로 조각까지 받아 놓고 그림에서만 버렸다(운영 실측: 조각 10개, 그늘 6개).
+ *    조각이 없으면(자동차·대중교통·어림) 지도가 전처럼 이 선의 자기 색 한 가지로 그린다.
+ */
+export function returnRoute(back: ReturnTrip, lineColor: string, legs: Record<string, LegPath>, grading?: RouteGrading): MapRouteLayer {
   const leg = back.approximate ? undefined : legs[legKey(back.day.day, 0)];
-  return { id: `return-${back.day.day}`, color: lineColor, stops: back.day.stops, path: leg?.path, estimated: leg ? leg.estimated : true };
+  return {
+    id: `return-${back.day.day}`,
+    color: lineColor,
+    stops: back.day.stops,
+    path: leg?.path,
+    estimated: leg ? leg.estimated : true,
+    pieces: leg?.pieces,
+    ...(grading ? { grading } : {}),
+  };
+}
+
+/**
+ * 길을 걷기로 받을 정차지 id — 「들어오는 구간이 걷기」인 일정 항목과, 걷는 날의 돌아가는 구간의 도착 자리.
+ *
+ * 항목은 서버가 walkingMeters 를 실어 준 곳이다(백엔드: 그 구간이 도보가 아니면 null).
+ *
+ * 🔴 돌아가는 구간(returnLeg)은 서버가 이동수단을 안 싣는다. 하지만 서버는 한 여행의 모든 구간을 같은 이동수단으로 잰다
+ *    (ItineraryLegPlanner — 여행이 고른 첫 이동수단, 없으면 걷기)이고 walkingMeters 는 걷기일 때만 찬다. 그러니 그날 걷는 항목이 하나라도
+ *    있으면 돌아가는 구간의 시간도 걸어서 잰 것이다 — 그 길을 이동수단 없이 물으면 서버가 자동차 길(조각 없음)을 답해서, 「6분 걸어서」라고
+ *    적힌 구간에 찻길이 그려지고 경사·그늘 색도 못 칠했다(S15P21E201-1899). 걷는 항목이 없으면(자동차·대중교통 여행, 거리를 모르는 날)
+ *    전처럼 이동수단 없이 묻는다.
+ */
+export function walkIntoStopIds(days: ReadonlyArray<{ items: ReadonlyArray<Pick<ItineraryItemDto, 'id' | 'walkingMeters'>> }>): Set<string> {
+  const ids = new Set<string>();
+  days.forEach((day, index) => {
+    let walking = false;
+    for (const item of day.items) {
+      if (item.walkingMeters == null) continue;
+      ids.add(item.id);
+      walking = true;
+    }
+    if (walking) ids.add(returnAnchorId(index + 1));
+  });
+  return ids;
 }
 
 /**

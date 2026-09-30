@@ -25,7 +25,7 @@ import { humanTripTitle, tripNameOrDates, shouldAskTripName, wasTripNameAsked } 
 import { invalidateTripLists, loadTrips } from '@/trip/trips';
 
 import { itineraryFirstPage, loadTripPageCourses, type TripPageCourses, type TripPageSource } from './tripPageData';
-import { dayMap, dayRoutes, formatManwon, itineraryLegs, returnRoute, returnTrip, routeGradingOf, startTrip } from './tripPageModel';
+import { dayMap, dayRoutes, formatManwon, itineraryLegs, returnRoute, returnTrip, routeGradingOf, startTrip, walkIntoStopIds } from './tripPageModel';
 
 export type TripItinerary = { id: string; value: ItineraryDto | null; message: string | null };
 
@@ -167,10 +167,8 @@ export function useTripPage(source: TripPageSource) {
   );
   // 들어오는 구간이 걷기인 정차지 — 일정 항목의 walkingMeters 가 있는 곳(백엔드: 그 구간이 도보가 아니면 null).
   // 걷는 구간만 걷기로 받아 경사 조각을 칠한다(S15P21E201-1658). 스위치(courseRoutePaths 의 WALK_SLOPE_ROUTES)가 꺼져 있으면 안 쓴다.
-  const walkInto = useMemo(
-    () => new Set((loaded?.days ?? []).flatMap((day) => day.items).filter((item) => item.walkingMeters != null).map((item) => item.id)),
-    [loaded],
-  );
+  // 걷는 날의 돌아가는 구간도 걷기로 받는다(S15P21E201-1899) — 이동수단은 tripPageModel 의 walkIntoStopIds 에 까닭이 있다.
+  const walkInto = useMemo(() => walkIntoStopIds(loaded?.days ?? []), [loaded]);
   // 🔴 휠체어·유아차·계단 피하기 여행이면 계단을 피하는 길로 묻는다 — 안 그러면 일정은 계단 없는 길로 짜 놓고
   //    지도에는 계단 길을 그린다. 서버가 stepFree 를 안 보내면(옛 서버) 전처럼 보통 길이다.
   const stepFree = loaded?.stepFree === true;
@@ -188,9 +186,10 @@ export function useTripPage(source: TripPageSource) {
   const grading = useMemo(() => ({ slope: gradeSlope, shade: gradeShade }), [gradeSlope, gradeShade]);
   const routes = useMemo(
     () => [
-      ...(start ? [returnRoute(start, color.brand.navy, legs)] : []),
+      // 하루 시작·돌아가는 구간도 정차지 사이 선과 같은 조건으로 칠한다 — 걷기로 받은 조각이 있을 때(S15P21E201-1899).
+      ...(start ? [returnRoute(start, color.brand.navy, legs, grading)] : []),
       ...dayRoutes(map, dayIndex + 1, color.brand.navy, legs, grading),
-      ...(back ? [returnRoute(back, color.brand.navy, legs)] : []),
+      ...(back ? [returnRoute(back, color.brand.navy, legs, grading)] : []),
     ],
     [map, dayIndex, legs, back, start, grading],
   );
