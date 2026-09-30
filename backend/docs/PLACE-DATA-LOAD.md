@@ -522,6 +522,91 @@ SELECT feature_type, evidence_status, count(*)
 DELETE FROM place_feature WHERE source_version = 'place-detail-202609';
 ```
 
+## 10. 설문 추천 장소 — 레드테이블 식당 + 관광공사 명소 (S15P21E201-1897, 2026-09-30 추가)
+
+부산 사람들이 설문에서 추천했는데 DB 에 없던 장소를 넣는다. 파일이 둘이고 적재기도 둘이다.
+
+| 파일 | 줄 | 적재기 |
+|---|---|---|
+| `survey-redtable-places.ndjson` | 48 | **`RedtablePlaceLoader`**(새로 만듦 — 부산 레드테이블 식당을 `source_type='REDTABLE'` 로 넣는다) |
+| `survey-tourapi-places.ndjson` | 25 | 이미 있는 `TourApiPlaceLoader`(3절 ①과 같은 것) |
+
+두 파일은 git 에 없다 — 만든 사람 PC 의 `gabolle-archive/` 에 있고, 1절처럼 `/home/ubuntu/load/` 로 올린다.
+같은 폴더의 `survey-places-manifest.csv` 가 한 곳씩의 설문 이름·넣을 이름·출처·번호·사진 여부를 적은 목록이다.
+
+### 10-1. 레드테이블 한 줄 모양
+
+```json
+{"rstrId":"39929","name":"밀양가산돼지국밥","lat":35.1405587,"lng":129.0625474,"roadAddress":"부산광역시 동구 자성로133번길 45","jibunAddress":"부산광역시 동구 범일동 830-173","businessType":"한식","licenseType":"일반음식점","tel":"051-632-0409","intro":"…","imageUrl":null,"surveyRecommenders":1}
+```
+
+- `rstrId`(레드테이블 식당 번호, 숫자 글자)·`name`·`lat`·`lng`(숫자, 부산 상자 안) 필수, 주소는 도로명·지번 중 하나는 있어야 한다. 주소는 도로명이 먼저다
+- 🔴 **모르는 칸·같은 번호 두 줄·틀린 모양이 하나라도 있으면 줄 번호와 함께 멈추고 한 행도 안 넣는다**
+- `tel`·`intro`·`imageUrl`·`surveyRecommenders` 는 읽기만 하고 DB 에 안 넣는다
+- 🔴 **사진은 넣지 않는다.** 레드테이블 사진을 다시 써도 되는지·출처를 어떻게 적는지가 확인되지 않았다. 주소는 `imageUrl` 에 남겨 두었다
+- 장소 id = `UUID.nameUUIDFromBytes("gabolle:place:REDTABLE:" + rstrId)` — 두 번 돌려도 행이 안 는다. 이름이 같은 곳이 150m 안에 이미 있으면 `SamePlaceGuard` 가 막고 마침 줄 뒤에 보고한다
+
+**갈래 옮김표** (`RedtablePlaceLoader.categoryOf`)
+
+| 레드테이블 칸 | 갈래 |
+|---|---|
+| 업태가 커피숍·다방·전통찻집·떡카페·아이스크림·제과점영업 | `CAFE_HEALING` |
+| 업태가 그 밖의 값(한식·일식·분식·호프/통닭·회집·경양식 …) | `FOOD` — 술집도 여기(앱에 술집 갈래가 없다) |
+| 업태가 비었고 허가가 휴게음식점·제과점영업 | `CAFE_HEALING` (휴게음식점은 술을 못 파는 허가) |
+| 업태가 비었고 이름에 커피·카페·다실·제과·베이커리 | `CAFE_HEALING` |
+| 그 밖 | `FOOD` |
+
+업태가 있으면 이름보다 업태를 믿는다. 같은 낱말로 `CATEGORY_TAG` 표식 하나를 함께 넣는다.
+
+### 10-2. 관광공사 줄 — 🔴 새 분류만 오는 항목
+
+관광공사 줄은 3절 ① 파일과 같은 모양(`stage":"list"`, `raw` 는 문자열)이다. `areaBasedList2`(`lDongRegnCd=26`) 응답에서
+해당 항목만 원문 그대로 한 줄에 하나씩 옮겼다.
+
+2026-09 에 받은 항목 대부분은 옛 분류 `cat1`·`cat3` 가 **빈 글자**이고 새 분류(`lclsSystm1`)만 있다. 그대로면 갈래가 비어
+추천에 안 나온다. 그래서 `TourApiPlaceReader` 가 **`cat1` 이 빌 때만** 새 대분류를 옛 대분류로 옮긴다 — NA→A01 자연,
+HS·VE·EX→A02 인문, LS→A03 레포츠(갈래 없음), SH→A04 쇼핑, FD→A05 음식(버린다), AC→B02 숙박. `cat1` 이 있는 기존 수집본은
+영향이 없다.
+
+관광공사 **음식점**(유형 39) 넷(딤타오·부우사안·해목·세븐아일랜드)은 파일에 넣지 않았다 — 이 적재기는 상가정보와 같은 가게가
+두 행이 될까 봐 음식을 받지 않는다.
+
+### 10-3. 돌리기
+
+3 절의 `run` 함수를 그대로 쓴다.
+
+```bash
+$RUN --gabolle.place.loader.redtable-places=/load/survey-redtable-places.ndjson      --gabolle.place.loader.dataset-version=survey-redtable-20260930
+
+$RUN --gabolle.place.loader.tourapi=/load/survey-tourapi-places.ndjson      --gabolle.place.loader.dataset-version=survey-tourapi-20260930
+```
+
+마침 줄: `레드테이블 장소 적재를 마쳤다 — 읽은 곳 N · 새로 넣은 장소 A곳 · 이미 있어 건너뛴 B곳 · 갈래별 {…}`.
+두 번째 실행은 A 가 0 이어야 한다.
+
+### 10-4. 확인
+
+```sql
+SELECT source_type, dataset_version, category, count(*), count(photo_url) AS photos
+  FROM place
+ WHERE dataset_version IN ('survey-redtable-20260930', 'survey-tourapi-20260930')
+ GROUP BY 1, 2, 3 ORDER BY 1, 2, 3;
+```
+
+레드테이블은 `photos` 가 0 이어야 한다.
+
+### 10-5. 되돌리기
+
+```sql
+DELETE FROM place_feature WHERE source_type = 'REDTABLE' AND source_version = 'survey-redtable-20260930';
+DELETE FROM place         WHERE source_type = 'REDTABLE' AND dataset_version = 'survey-redtable-20260930';
+DELETE FROM place_feature WHERE source_type = 'TOURAPI'  AND source_version = 'survey-tourapi-20260930';
+DELETE FROM place         WHERE source_type = 'TOURAPI'  AND dataset_version = 'survey-tourapi-20260930';
+```
+
+🔴 그 사이 다른 적재(영업시간·사진 등)가 이 장소들에 값을 붙였으면 `fk_place_feature_place`(장소가 지워지면 안 되는 표식이
+남아 있다는 외래키)에 막힌다. 그때는 `place_id IN (SELECT place_id FROM place WHERE dataset_version = …)` 로 표식을 먼저 지운다.
+
 ## 되돌리기
 
 전부 출처와 수집분이 찍힌다.

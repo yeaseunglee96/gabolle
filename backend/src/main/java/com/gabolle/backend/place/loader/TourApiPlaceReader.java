@@ -90,7 +90,7 @@ public final class TourApiPlaceReader {
 				listLines++;
 				for (JsonNode item : parsed) {
 					items++;
-					if (CAT1_FOOD.equals(text(item, "cat1"))) {
+					if (CAT1_FOOD.equals(cat1Of(item))) {
 						food++;
 						continue;
 					}
@@ -153,9 +153,40 @@ public final class TourApiPlaceReader {
 		}
 		double lng = Double.parseDouble(mapx);
 		double lat = Double.parseDouble(mapy);
-		return new TourApiPlaceRow(contentId, text(item, "contenttypeid"), text(item, "cat1"),
+		return new TourApiPlaceRow(contentId, text(item, "contenttypeid"), cat1Of(item),
 				text(item, "cat3"), title, text(item, "addr1"), lat, lng,
 				text(item, "firstimage"), text(item, "cpyrhtDivCd"));
+	}
+
+	/**
+	 * 옛 대분류({@code cat1}). 🔴 2026-09 부터 관광공사가 새로 올린 항목(과 옛 항목 일부)은 {@code cat1}·{@code cat3} 를
+	 * <b>빈 글자로</b> 주고 새 분류({@code lclsSystm1}, 2025 개편 분류체계)만 채운다 (S15P21E201-1897 실측 — 설문 장소 25곳
+	 * 중 23곳). 그대로 두면 갈래가 비어 추천에 한 번도 안 나오고, 음식점({@code FD})은 음식 거르기를 빠져나간다.
+	 *
+	 * <p>그래서 {@code cat1} 이 비었을 때만 새 대분류를 옛 대분류로 옮긴다. {@code cat1} 이 있으면 손대지 않는다 — 운영
+	 * 수집본({@code tourapi-busan.ndjson})은 전부 {@code cat1} 이 있어 이 대체가 안 돈다. 옮김표는 옛 분류가 같은 것을
+	 * 어디에 뒀는지를 따랐다: 자연관광 NA→A01 자연, 역사관광 HS·문화관광 VE·체험관광 EX→A02 인문(옛 분류는 전망대·공원·
+	 * 온천·체험관광지를 전부 인문 아래 뒀다), 레저스포츠 LS→A03, 쇼핑 SH→A04, 음식 FD→A05, 숙박 AC→B02. 모르는 값은 비운다.
+	 * 소분류({@code cat3})는 옮기지 않는다 — 새 소분류와 옛 소분류는 한 칸씩 짝이 맞지 않는다.
+	 */
+	static String cat1Of(JsonNode item) {
+		String cat1 = text(item, "cat1");
+		if (cat1 != null) {
+			return cat1;
+		}
+		String lcls1 = text(item, "lclsSystm1");
+		if (lcls1 == null) {
+			return null;
+		}
+		return switch (lcls1) {
+			case "NA" -> "A01";
+			case "HS", "VE", "EX" -> "A02";
+			case "LS" -> "A03";
+			case "SH" -> "A04";
+			case "FD" -> CAT1_FOOD;
+			case "AC" -> "B02";
+			default -> null;
+		};
 	}
 
 	private static String text(JsonNode node, String field) {
