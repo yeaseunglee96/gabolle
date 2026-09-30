@@ -646,7 +646,9 @@ public class BaselineCandidateScorer {
 			// S15P21E201-1873 — 백반·한정식 업종으로 채식에 새던 고기 밥집. 완당은 돼지고기 만두다.
 			"꼬리곰", "완당",
 			// S15P21E201-1873 — 운영 채식 여행(0abbc25f)에 백반 업종으로 새던 이름. 「육계장」은 육개장의 흔한 오기다.
-			"오돌뼈", "육계장", "해장", "로코모코", "로꼬모꼬");
+			"오돌뼈", "육계장", "해장", "로코모코", "로꼬모꼬",
+			// 스테이크하우스 체인 — 샐러드바가 있어도 고기가 중심이다(운영의 빕스 서면점, 사용자 판단).
+			"빕스", "VIPS", "아웃백", "OUTBACK");
 
 	/**
 	 * 식당(FOOD) 이름에서만 보는 한 글자 — 「돈」(돼지)·「닭」.
@@ -688,7 +690,9 @@ public class BaselineCandidateScorer {
 			"우동", "소바", "조개구이", "매운탕", "알탕", "꽃게", "게내장", "아나고", "붕장어", "광어", "재첩",
 			"FISH", "OYSTER", "SHRIMP", "CRAB",
 			// S15P21E201-1873 — 백반·한정식 업종으로 채식에 새던 해산물 밥집(조사 대기열 실측). 「바다」는 명소 이름에 흔해 안 넣었다.
-			"해녀", "어부", "생태", "동태", "코다리", "황태", "물꽁");
+			"해녀", "어부", "생태", "동태", "코다리", "황태", "물꽁",
+			// 쭈꾸미 집을 줄여 부르는 이름(쭈야네) — S15P21E201-1873.
+			"쭈야");
 
 	/** 채식이 해산물 집으로 빼는 음식 태그 — CUISINE_TAG 의 해산물, DESIRED_FOOD_TAG 의 복국. */
 	private static final Set<String> SEAFOOD_TAGS = Set.of("CUISINE_TAG:SEAFOOD", "DESIRED_FOOD_TAG:BOKGUK");
@@ -946,10 +950,17 @@ public class BaselineCandidateScorer {
 				|| hasFeature(candidate, "CUISINE_TAG", "CAFE_DESSERT")) {
 			return true;
 		}
+		// 글에서는 음식 자체를 말하는 낱말만 본다. 「생활형 백반집」「도시락」은 가게 종류일 뿐 채식 근거가 아니다 — 그 말로
+		// 쭈꾸미 집(쭈야네)과 시장 백반집(양순식당)이 채식에 남았다(S15P21E201-1873).
 		return describedTexts(candidate).values().stream()
 				.map(BaselineCandidateScorer::cleaned)
-				.anyMatch(text -> containsAny(text, PLANT_BASED_NAME_WORDS) || containsAny(text, PLANT_DISH_WORDS));
+				.anyMatch(text -> containsAny(text, PLANT_BASED_NAME_WORDS) || containsAny(text, PLANT_TEXT_WORDS));
 	}
+
+	/** 방문 이유·대표 메뉴 글에서 채식 근거로 보는 음식 낱말 — {@link #PLANT_DISH_WORDS} 에서 가게 종류(백반·한정식·밥상·집밥·도시락·쌈밥)를 뺐다. */
+	private static final List<String> PLANT_TEXT_WORDS = List.of(
+			"두부", "보리밥", "비빔밥", "산채", "콩국수", "사찰", "샐러드", "SALAD", "채소", "나물", "곤드레",
+			"포케", "POKE", "샌드위치", "SANDWICH", "야채죽", "맷돌");
 
 	/**
 	 * 할랄(느슨)이 남기는 근거 — 해산물 중심, 채식 근거(한정식·백반 포함), 소·닭·양고기 중심, 할랄·무슬림을 말하는 이름이나
