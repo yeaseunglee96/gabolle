@@ -2914,7 +2914,7 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '내일 일정 보기 ›': { ja: '明日の日程を見る ›', zhHans: '查看明天的行程 ›', zhHant: '查看明天的行程 ›' },
   '이동': { ja: '移動', zhHans: '移动', zhHant: '移動' },
   '미집계': { ja: '未集計', zhHans: '未统计', zhHant: '未統計' },
-  '도보 거리 미집계 · 버스·지하철은 「길 보기」에서': { ja: '徒歩距離は未集計 · バス・地下鉄は「道順」で', zhHans: '步行距离未统计 · 公交和地铁请看「路线」', zhHant: '步行距離未統計 · 公車和捷運請看「路線」' },
+  '걷는 거리는 아직 안 셌어요 · 버스·지하철은 「길 안내」에서': { ja: '徒歩の距離はまだ数えていません · バス・地下鉄は「道案内」で', zhHans: '步行距离尚未统计 · 公交和地铁请看“导航”', zhHant: '步行距離尚未統計 · 公車和地鐵請看「導航」' },
   '확인할 것': { ja: '確認すること', zhHans: '需要确认', zhHant: '需要確認' },
   // 🔴 받침에 따라 키가 둘이다(koreanSubject) — 한쪽만 올리면 받침 없는 이름에서만 영어로 떨어진다.
   '%s이 하루를 넘길 수 있어요': { ja: '%sが1日を超える可能性があります', zhHans: '%s可能会超出当天', zhHant: '%s可能會超出當天' },
@@ -3132,6 +3132,7 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '%s까지 길 안내 시작': { ja: '%sまでの道案内を開始', zhHans: '开始导航到%s', zhHant: '開始導航到%s' },
   '길 안내 ›': { ja: '道案内 ›', zhHans: '导航 ›', zhHant: '導航 ›' },
   '%s까지': { ja: '%sまで', zhHans: '前往%s', zhHant: '前往%s' },
+  '아직 몰라요': { ja: 'まだ分かりません', zhHans: '暂时未知', zhHant: '暫時未知' },
 };
 
 export function getTranslation(ko: string, field: 'ja' | 'zhHans' | 'zhHant'): string | null {

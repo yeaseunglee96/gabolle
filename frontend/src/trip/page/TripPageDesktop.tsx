@@ -33,6 +33,7 @@ import { courseLetter } from '@/plan/CourseCard';
 import { stopClock, type DayStart, type ItineraryItemDto } from '@/plan/itinerary';
 import { formatTravelLabel, totalTravelMinutes } from '@/plan/itinerarySummary';
 import { legRouteParams } from '@/trip/page/legRoute';
+import { LegRow } from '@/trip/page/LegRow';
 import { categoryGlyph, type PlacePhoto } from '@/plan/placePhotos';
 import { pickReasonLine } from '@/plan/recommendations';
 import { canConfirmCourse, type TripCourse } from '@/plan/tripCourses';
@@ -267,17 +268,21 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
                   : <Text variant="caption" color={color.text.muted}>{tx('이 날에는 아직 장소가 없어요.', 'No places for this day yet.')}</Text>) : null}
               </View>
               {/* 고른 카드로 들어오는 구간의 길 — 카드 전체가 버튼이라 그 안에 버튼을 또 둘 수 없어 카드 줄 아래에 둔다(S15P21E201-1831). */}
+              {/* 폰과 같은 이동 칸(UI 캔버스 ㉓-2b, S15P21E201-1887) — 테두리 있는 누르는 칸 + 짙은 「길 안내 ›」. */}
               {selectedLeg ? (
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={txf(tx, '%s까지 가는 길 보기', 'Directions to %s', selectedLeg.item.title)}
-                  onPress={() => router.push({ pathname: '/route-detail', params: selectedLeg.params })}
-                  style={({ pressed }) => [styles.selectedLeg, pressed && styles.pressed]}
-                >
-                  <Text variant="caption" weight="bold" numberOfLines={1} style={styles.shrinkText}>{selectedLeg.item.title}</Text>
-                  {selectedLeg.label ? <Text variant="caption" color={color.text.muted} numberOfLines={1} style={styles.shrinkText}>{selectedLeg.label}</Text> : null}
-                  <Text variant="caption" weight="bold" color={color.brand.navy}>{tx('길 보기 ›', 'Directions ›')}</Text>
-                </Pressable>
+                <View style={styles.selectedLeg}>
+                  <LegRow
+                    destName={stopNameForLanguage(selectedLeg.item.title, photos[selectedLeg.item.placeId]?.nameEn, language)}
+                    label={selectedLeg.label}
+                    transit={typeof selectedLeg.item.travelFareKrw === 'number' && selectedLeg.item.travelFareKrw > 0}
+                    route={selectedLeg.params}
+                    now={false}
+                    onOpen={() => router.push({ pathname: '/route-detail', params: selectedLeg.params })}
+                    accessToken={accessToken}
+                    language={language}
+                    tx={tx}
+                  />
+                </View>
               ) : null}
               {/* 하루 끝 — 숙소(마지막 날은 출발지)로 돌아가기 (S15P21E201-1566) */}
               <DayReturnRow leg={loaded?.days[dayIndex]?.returnLeg} tx={tx} />
@@ -285,10 +290,10 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
                 <TripBudgetCard budget={budget} style={styles.summaryFlexBudget} />
                 <View style={[styles.summaryCard, styles.summaryFlex1]}>
                   <Text variant="caption" weight="bold" color={color.text.muted}>{tx('이동', 'Travel')}</Text>
-                  <Text variant="display" weight="bold">{travelTotal > 0 ? txf(tx, '%s분', '%s min', travelTotal) : tx('미집계', 'Not measured')}</Text>
+                  <Text variant="display" weight="bold">{travelTotal > 0 ? txf(tx, '%s분', '%s min', travelTotal) : tx('아직 몰라요', 'Not known yet')}</Text>
                   {/* 🔴 모르는 것을 지우지 않고 «모른다» 고 적는다 — 도보는 대중교통 여행에서 서버가 안 잰다(itinerary.tsx 주석).
                       「대중교통 안내 아직 없어요」는 지웠다 — 구간마다 「길 보기」가 버스·지하철 단계를 보여준다(S15P21E201-1831). */}
-                  <Text variant="caption" color={color.text.muted}>{tx('도보 거리 미집계 · 버스·지하철은 「길 보기」에서', 'Walking distance not measured · bus and metro in Directions')}</Text>
+                  <Text variant="caption" color={color.text.muted}>{tx('걷는 거리는 아직 안 셌어요 · 버스·지하철은 「길 안내」에서', 'Walking distance isn’t counted yet · bus and metro under Directions')}</Text>
                 </View>
                 <View style={[styles.summaryCard, styles.summaryFlex1]}>
                   <Text variant="caption" weight="bold" color={color.text.muted}>{tx('확인할 것', 'Check')}</Text>
@@ -323,16 +328,20 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
                     {/* 앞 곳과 이 곳 사이에 남는 시간 — 「자유 시간 · 50분」(S15P21E201-1668). 모르거나 30분이 안 되면 안 그린다. */}
                     {index > 0 ? <FreeTimeRow minutes={freeTimeMinutes(items, index - 1)} tx={tx} style={styles.bigFree} /> : null}
                     {legParams ? (
-                      <Pressable
-                        accessibilityRole="button"
-                        accessibilityLabel={txf(tx, '%s까지 가는 길 보기', 'Directions to %s', item.title)}
-                        onPress={() => router.push({ pathname: '/route-detail', params: legParams })}
-                        style={({ pressed }) => [styles.bigLeg, pressed && styles.pressed]}
-                      >
-                        {leg ? <Text variant="caption" color={color.text.muted}>{leg}</Text> : null}
-                        <Text variant="caption" weight="bold" color={color.brand.navy}>{tx('길 보기 ›', 'Directions ›')}</Text>
-                      </Pressable>
-                    ) : null}
+                      <View style={styles.bigLeg}>
+                        <LegRow
+                          destName={stopNameForLanguage(item.title, photo?.nameEn, language)}
+                          label={leg}
+                          transit={typeof item.travelFareKrw === 'number' && item.travelFareKrw > 0}
+                          route={legParams}
+                          now={false}
+                          onOpen={() => router.push({ pathname: '/route-detail', params: legParams })}
+                          accessToken={accessToken}
+                          language={language}
+                          tx={tx}
+                        />
+                      </View>
+                    ) : leg ? <Text variant="caption" color={color.text.muted} style={styles.bigLegText}>{leg}</Text> : null}
                     <ImpressionView tracker={impressions} placeId={item.placeId} requestId={item.requestId}>
                     <Pressable accessibilityRole="button" accessibilityState={{ selected: item.id === selectedId }} onPress={() => setSelectedId(item.id)} style={[styles.bigRow, item.id === selectedId && styles.selectedBorder]}>
                       <View style={styles.bigThumb}>
@@ -593,9 +602,9 @@ const styles = StyleSheet.create({
 
   bigList: { width: BIG_LIST_WIDTH, gap: spacing[2] },
   bigFree: { marginLeft: spacing[3] },
-  selectedLeg: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 44, paddingHorizontal: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, alignSelf: 'stretch' },
-  shrinkText: { flexShrink: 1 },
-  bigLeg: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 32, marginLeft: spacing[3], alignSelf: 'flex-start' },
+  selectedLeg: { flexDirection: 'row', alignSelf: 'stretch' },
+  bigLeg: { flexDirection: 'row', marginLeft: spacing[6], alignSelf: 'stretch' },
+  bigLegText: { marginLeft: spacing[6] },
   bigRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], padding: spacing[3], borderRadius: radius.lg, borderWidth: 2, borderColor: color.surface.card, backgroundColor: color.surface.card },
   bigThumb: { width: 48, height: 48, borderRadius: radius.md, overflow: 'hidden', backgroundColor: color.surface.tint, alignItems: 'center', justifyContent: 'center' },
   bigCopy: { flex: 1, minWidth: 0, gap: 2 },
