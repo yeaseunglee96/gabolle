@@ -433,11 +433,28 @@ public class BaselineCandidateScorer {
 					"reason", "ALCOHOL_CENTRIC", "evidence", "NAME"));
 			return;
 		}
+		// S15P21E201-1873: 할랄은 돼지고기와 술만 피하는 느슨한 기준으로 바꿨다(사용자 결정). 소·닭·양·해산물 집은
+		// 할랄 도축을 확인할 수 없어도 남긴다 — 무슬림 여행자 다수가 돼지고기와 술이 없는 집을 먹을 수 있는 집으로 본다.
+		boolean halal = "HALAL".equals(dietKey);
 		if (!supportTagged && MEAT_EXCLUDING_DIETS.contains(dietKey) && !isExplicitlyPlantBased(candidate)) {
-			DietEvidence evidence = dietExclusionEvidence(candidate, SEAFOOD_EXCLUDING_DIETS.contains(dietKey));
+			DietEvidence evidence = halal ? porkEvidence(candidate)
+					: dietExclusionEvidence(candidate, SEAFOOD_EXCLUDING_DIETS.contains(dietKey));
 			if (evidence != null) {
 				violations.add(Map.of("code", "DIET_NOT_SUPPORTED", "featureKey", constraint.constraintKey(),
 						"reason", evidence.reason(), "evidence", evidence.source()));
+				return;
+			}
+		}
+		// S15P21E201-1873: 식당은 «될 근거»가 있어야 남긴다(허용 목록). 뺄 근거만 찾으면 이름·메뉴에 고기가 안 보이는
+		// 국수집·경양식집이 전부 통과했다 — 운영 채식 추천에 고명이 고기인 국수집과 스테이크집이 나왔다. 근거는 상가정보
+		// 업종 소분류, 이름, 대표 메뉴, 방문 이유 글이다. 식당이 아닌 곳(명소·카페 갈래)에는 쓰지 않는다.
+		// 대가는 채식 여행의 식사 자리다. 부산 자료에 채식 근거가 있는 식당은 드물어, 끼니 칸에 밥집을 못 앉히면
+		// 일정 조립이 밥집 아닌 곳을 앉히고 SIGHT_SLOT_UNFILLED 를 단다.
+		if (!supportTagged && MEAT_EXCLUDING_DIETS.contains(dietKey) && "FOOD".equals(candidate.category())) {
+			boolean allowed = halal ? hasHalalFriendlyEvidence(candidate) : hasPlantEvidence(candidate);
+			if (!allowed) {
+				violations.add(Map.of("code", "DIET_NOT_SUPPORTED", "featureKey", constraint.constraintKey(),
+						"reason", halal ? "NO_HALAL_FRIENDLY_EVIDENCE" : "NO_PLANT_EVIDENCE", "evidence", "ALLOWLIST"));
 				return;
 			}
 		}
@@ -523,6 +540,9 @@ public class BaselineCandidateScorer {
 	private static final List<String> SUL_LOOKALIKES = List.of("예술", "미술", "기술", "마술", "수술");
 
 	static boolean isAlcoholCentric(PlaceCandidateResponse.Candidate candidate) {
+		if (ALCOHOL_SUBCATEGORIES.contains(subCategory(candidate))) {
+			return true;
+		}
 		String name = cleaned(candidate.nameKo());
 		if (containsAny(name, ALCOHOL_NAME_WORDS)) {
 			return true;
@@ -566,7 +586,9 @@ public class BaselineCandidateScorer {
 			"오리구이", "오리고기", "훈제오리", "오리백숙", "오리불고기", "오리주물럭", "오리탕", "후라이드",
 			"순살", "육전", "육쌈", "핫도그", "소시지", "베이컨", "하몽", "차슈", "돈코츠", "타코", "TACO",
 			"부리또", "BURRITO", "부어스트", "굴라쉬", "낙곱새", "PORK", "BEEF", "CHICKEN", "STEAK", "RAMEN",
-			"KATSU");
+			"KATSU",
+			// S15P21E201-1873 — 백반·한정식 업종으로 채식에 새던 고기 밥집. 완당은 돼지고기 만두다.
+			"꼬리곰", "완당");
 
 	/**
 	 * 식당(FOOD) 이름에서만 보는 한 글자 — 「돈」(돼지)·「닭」.
@@ -606,7 +628,9 @@ public class BaselineCandidateScorer {
 			// 「도미」는 뺐다 — 도미노피자에 걸린다.
 			"추어", "곰장어", "꼼장어", "석화", "생굴", "가리비", "멍게", "해삼", "성게", "오마카세", "자연산",
 			"우동", "소바", "조개구이", "매운탕", "알탕", "꽃게", "게내장", "아나고", "붕장어", "광어", "재첩",
-			"FISH", "OYSTER", "SHRIMP", "CRAB");
+			"FISH", "OYSTER", "SHRIMP", "CRAB",
+			// S15P21E201-1873 — 백반·한정식 업종으로 채식에 새던 해산물 밥집(조사 대기열 실측). 「바다」는 명소 이름에 흔해 안 넣었다.
+			"해녀", "어부", "생태", "동태", "코다리", "황태", "물꽁");
 
 	/** 채식이 해산물 집으로 빼는 음식 태그 — CUISINE_TAG 의 해산물, DESIRED_FOOD_TAG 의 복국. */
 	private static final Set<String> SEAFOOD_TAGS = Set.of("CUISINE_TAG:SEAFOOD", "DESIRED_FOOD_TAG:BOKGUK");
@@ -623,6 +647,56 @@ public class BaselineCandidateScorer {
 
 	/** 방문 이유 — {@code {"reasons":[{"type":…,"note":"…"}],"sources":[…]}} 의 note. 출처 주소는 안 본다. */
 	private static final String WHY_VISIT_FEATURE = "WHY_VISIT";
+
+	/** 상가정보 업종 소분류 — {@code {"name":"돼지고기 구이/찜"}}. V20260930160000 과 SBIZ 적재기가 싣는다. */
+	static final String BUSINESS_SUBCATEGORY_FEATURE = "BUSINESS_SUBCATEGORY";
+
+	/*
+	 * 업종 소분류로 판정하는 무리(S15P21E201-1873). 상가정보 43종 중 뜻이 분명한 것만 넣었다. 「국/탕/찌개류」
+	 * 「김밥/만두/분식」「국수/칼국수」처럼 섞인 업종은 어디에도 안 넣어, 이름·글 근거가 없으면 허용 목록에서 빠진다.
+	 * 「경양식」은 대부분 돈까스·함박·스테이크 집이라 고기 쪽이다(부산 조사 대기열 2,355곳 중 494곳).
+	 */
+	private static final Set<String> PORK_SUBCATEGORIES = Set.of("돼지고기 구이/찜", "족발/보쌈");
+
+	private static final Set<String> MEAT_SUBCATEGORIES = Set.of("돼지고기 구이/찜", "족발/보쌈", "소고기 구이/찜",
+			"닭/오리고기 구이/찜", "치킨", "곱창 전골/구이", "버거", "경양식", "냉면/밀면", "뷔페", "일식 카레/돈가스/덮밥");
+
+	private static final Set<String> SEAFOOD_SUBCATEGORIES = Set.of("일식 회/초밥", "횟집", "해산물 구이/찜", "복 요리 전문");
+
+	private static final Set<String> ALCOHOL_SUBCATEGORIES = Set.of("요리 주점", "생맥주 전문", "일반 유흥 주점", "무도 유흥 주점");
+
+	/** 채식이 남기는 간식 업종 — 빵·음료·아이스크림·떡은 고기가 중심일 일이 없다. */
+	private static final Set<String> SWEET_SUBCATEGORIES = Set.of("빵/도넛", "카페", "아이스크림/빙수", "떡/한과");
+
+	/** 반찬으로 한 끼가 되는 업종 — 고기 근거가 없으면 채식·할랄 모두에 남긴다. */
+	private static final Set<String> TABLE_MEAL_SUBCATEGORIES = Set.of("백반/한정식");
+
+	/** 할랄(느슨)이 남기는 고기 업종 — 돼지가 아닌 고기가 중심이다. */
+	private static final Set<String> HALAL_FRIENDLY_SUBCATEGORIES = Set.of("소고기 구이/찜", "닭/오리고기 구이/찜", "치킨");
+
+	/**
+	 * 돼지고기가 중심인 집의 낱말 — {@link #MEAT_NAME_WORDS} 중 돼지만 골랐다. 「국밥」「갈비」「곱창」처럼 돼지·소가
+	 * 섞이는 낱말은 넣지 않았다. 느슨한 할랄에서 그런 집은 뺄 근거도 남길 근거도 없어 허용 목록에서 빠진다.
+	 */
+	private static final List<String> PORK_WORDS = List.of(
+			"돼지", "삼겹", "목살", "족발", "보쌈", "순대", "수육", "돈까스", "돈가스", "감자탕", "뼈해장", "대패",
+			"항정", "갈매기살", "가브리살", "제육", "김치찜", "짜장", "짬뽕", "탕수육", "라멘", "돈코츠", "차슈", "카츠",
+			"가츠", "베이컨", "소시지", "하몽", "햄버그", "부어스트", "까르니따스", "카르니타스", "CARNITAS", "PORK",
+			"KATSU", "RAMEN", "BACON", "완당");
+
+	/** 채소·두부가 중심인 메뉴 이름과 한정식·백반. 이 낱말이 상호에 있으면 채식 근거로 본다(고기·해산물 근거가 없을 때). */
+	private static final List<String> PLANT_DISH_WORDS = List.of(
+			"두부", "보리밥", "비빔밥", "산채", "콩국수", "사찰", "샐러드", "SALAD", "채소", "나물", "곤드레",
+			"한정식", "백반", "밥상", "쌈밥");
+
+	/** 할랄(느슨)이 남기는 이름 낱말 — 할랄·무슬림을 말하거나, 돼지가 아닌 고기·중동·남아시아 음식을 가리킨다. */
+	private static final List<String> HALAL_FRIENDLY_WORDS = List.of(
+			"할랄", "HALAL", "무슬림", "MUSLIM", "한우", "소고기", "양고기", "양꼬치", "삼계탕", "오리", "닭", "치킨",
+			"CHICKEN", "BEEF", "케밥", "KEBAB", "터키", "튀르키예", "우즈벡", "파키스탄", "인도", "인디아", "INDIA",
+			"네팔", "NEPAL", "말레이", "인도네시아");
+
+	/** 할랄(느슨)이 글에서 남길 근거로 보는 낱말. */
+	private static final List<String> HALAL_TEXT_WORDS = List.of("할랄", "HALAL", "무슬림");
 
 	/**
 	 * 고기·해산물 중심이라는 근거 하나와 그것을 어디서 봤는가. {@code source} 는 NAME_OR_TAG ·
@@ -710,6 +784,9 @@ public class BaselineCandidateScorer {
 	}
 
 	static boolean isSeafoodCentric(PlaceCandidateResponse.Candidate candidate) {
+		if (SEAFOOD_SUBCATEGORIES.contains(subCategory(candidate))) {
+			return true;
+		}
 		if (containsAny(cleaned(candidate.nameKo()), SEAFOOD_NAME_WORDS)) {
 			return true;
 		}
@@ -725,6 +802,9 @@ public class BaselineCandidateScorer {
 
 	static boolean isMeatCentric(PlaceCandidateResponse.Candidate candidate) {
 		// 「물고기」(수족관·체험)는 고깃집이 아니다 — cleaned 가 지운다.
+		if (MEAT_SUBCATEGORIES.contains(subCategory(candidate))) {
+			return true;
+		}
 		String name = cleaned(candidate.nameKo());
 		if (containsAny(name, MEAT_NAME_WORDS)) {
 			return true;
@@ -738,6 +818,83 @@ public class BaselineCandidateScorer {
 						&& MEAT_CUISINE_TAGS.contains(feature.featureKey())) {
 					return true;
 				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * 할랄이 빼는 근거 — 돼지고기가 중심인 집. 이름·음식 태그·업종 소분류를 먼저 보고, 없으면 대표 메뉴·방문 이유 글을
+	 * 본다. 소·닭·양고기는 여기서 안 잡는다(S15P21E201-1873, 느슨한 할랄).
+	 */
+	static DietEvidence porkEvidence(PlaceCandidateResponse.Candidate candidate) {
+		String name = cleaned(candidate.nameKo());
+		if (PORK_SUBCATEGORIES.contains(subCategory(candidate)) || containsAny(name, PORK_WORDS)
+				|| ("FOOD".equals(candidate.category()) && name.contains("돈"))
+				|| hasFeature(candidate, "CUISINE_TAG", "PORK_SOUP")) {
+			return new DietEvidence("PORK_CENTRIC", "NAME_OR_TAG");
+		}
+		for (Map.Entry<String, String> text : describedTexts(candidate).entrySet()) {
+			if (containsAny(cleaned(text.getValue()), PORK_WORDS)) {
+				return new DietEvidence("PORK_CENTRIC", text.getKey());
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * 채식이 남기는 근거 — 채식 가게 이름, 채소·두부 중심 메뉴 이름, 한정식·백반, 인도·네팔 식당, 디저트 업종, 글의 채식
+	 * 낱말. 한정식·백반은 고기 반찬이 있어도 나물·두부·밥이 기본으로 나와 고기 없이 한 끼가 된다(사용자 판단). 고기·해산물
+	 * 근거가 있는 집은 이 앞에서 이미 빠졌다.
+	 */
+	static boolean hasPlantEvidence(PlaceCandidateResponse.Candidate candidate) {
+		String name = cleaned(candidate.nameKo());
+		String sub = subCategory(candidate);
+		if (isExplicitlyPlantBased(candidate) || containsAny(name, PLANT_DISH_WORDS)
+				|| containsAny(name, USUALLY_HAS_VEGETARIAN_DISHES)
+				|| SWEET_SUBCATEGORIES.contains(sub) || TABLE_MEAL_SUBCATEGORIES.contains(sub)
+				|| hasFeature(candidate, "CUISINE_TAG", "CAFE_DESSERT")) {
+			return true;
+		}
+		return describedTexts(candidate).values().stream()
+				.anyMatch(text -> containsAny(cleaned(text), PLANT_BASED_NAME_WORDS));
+	}
+
+	/**
+	 * 할랄(느슨)이 남기는 근거 — 해산물 중심, 채식 근거(한정식·백반 포함), 소·닭·양고기 중심, 할랄·무슬림을 말하는 이름이나
+	 * 글, 인도·중동 음식. 돼지·술 근거는 이 앞에서 이미 걸렀다.
+	 */
+	static boolean hasHalalFriendlyEvidence(PlaceCandidateResponse.Candidate candidate) {
+		String name = cleaned(candidate.nameKo());
+		if (isSeafoodCentric(candidate) || hasPlantEvidence(candidate)
+				|| HALAL_FRIENDLY_SUBCATEGORIES.contains(subCategory(candidate))
+				|| containsAny(name, HALAL_FRIENDLY_WORDS)) {
+			return true;
+		}
+		return describedTexts(candidate).values().stream()
+				.anyMatch(text -> containsAny(cleaned(text), HALAL_TEXT_WORDS));
+	}
+
+	/** 상가정보 업종 소분류({@code BUSINESS_SUBCATEGORY} 의 {@code name}). 없으면 빈 글. */
+	private static String subCategory(PlaceCandidateResponse.Candidate candidate) {
+		if (candidate.features() == null) {
+			return "";
+		}
+		for (PlaceFeatureView feature : candidate.features()) {
+			if (BUSINESS_SUBCATEGORY_FEATURE.equals(feature.featureType()) && feature.value() != null) {
+				return feature.value().path("name").asString("");
+			}
+		}
+		return "";
+	}
+
+	private static boolean hasFeature(PlaceCandidateResponse.Candidate candidate, String type, String key) {
+		if (candidate.features() == null) {
+			return false;
+		}
+		for (PlaceFeatureView feature : candidate.features()) {
+			if (type.equals(feature.featureType()) && key.equals(feature.featureKey())) {
+				return true;
 			}
 		}
 		return false;

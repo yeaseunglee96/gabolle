@@ -55,11 +55,12 @@ class BaselineCandidateScorerVegetarianTest {
 	}
 
 	@Test
-	@DisplayName("고기와 상관없는 집·물고기 체험관은 빼지 않는다 — 예전처럼 경고만")
+	@DisplayName("채식 근거가 있는 식당과 식당이 아닌 곳(물고기 체험관)은 남긴다 — 확인된 것은 아니므로 경고")
 	void 고기집이_아니면_그대로() {
-		for (String name : List.of("비빔밥 카페", "물고기 체험관", "해운대 두부마을")) {
-			EngineCandidate result = score(candidate(name, List.of()), diet("VEGETARIAN"));
-			assertThat(result.constraintVerdict()).as(name).isEqualTo(ConstraintVerdict.PASS);
+		for (PlaceCandidateResponse.Candidate candidate : List.of(candidate("비빔밥 카페", List.of()),
+				candidate("해운대 두부마을", List.of()), place("물고기 체험관", "CULTURE_TEMPLE"))) {
+			EngineCandidate result = score(candidate, diet("VEGETARIAN"));
+			assertThat(result.constraintVerdict()).as(candidate.nameKo()).isEqualTo(ConstraintVerdict.PASS);
 			assertThat(result.warningCodes()).contains("DIET_SUPPORT_UNVERIFIED");
 		}
 	}
@@ -123,13 +124,44 @@ class BaselineCandidateScorerVegetarianTest {
 	}
 
 	@Test
-	@DisplayName("비건·채식을 위한 집, 카페, 짧은 글자 오탐(회관·가게·게스트하우스)은 남긴다")
+	@DisplayName("비건·채식을 위한 집과 디저트 업종은 남기고, 짧은 글자(회관·가게·게스트하우스)를 해산물로 읽지 않는다")
 	void 비건_오탐_안난다() {
-		for (String name : List.of("채식뷔페 연화", "비건버거 해운대", "사찰음식 전문점", "카페오뜨", "젤라또조이",
-				"해운대회관", "행복한 가게", "광안리 게스트하우스", "회현 베이커리")) {
-			EngineCandidate result = score(candidate(name, List.of()), diet("VEGAN"));
-			assertThat(result.constraintVerdict()).as(name).isEqualTo(ConstraintVerdict.PASS);
+		for (PlaceCandidateResponse.Candidate candidate : List.of(candidate("채식뷔페 연화", List.of()),
+				candidate("비건버거 해운대", List.of()), candidate("사찰음식 전문점", List.of()),
+				candidate("카페오뜨", List.of(subCategory("카페"))), candidate("젤라또조이", List.of(subCategory("아이스크림/빙수"))),
+				candidate("회현 베이커리", List.of(subCategory("빵/도넛"))))) {
+			assertThat(score(candidate, diet("VEGAN")).constraintVerdict()).as(candidate.nameKo())
+					.isEqualTo(ConstraintVerdict.PASS);
 		}
+		// 근거가 없어 허용 목록에서 빠질 뿐, 해산물 집으로 읽혀 빠지는 것이 아니다.
+		for (String name : List.of("해운대회관", "행복한 가게", "광안리 게스트하우스")) {
+			assertThat(reasonOf(score(candidate(name, List.of()), diet("VEGAN")))).as(name).isEqualTo("NO_PLANT_EVIDENCE");
+		}
+	}
+
+	@Test
+	@DisplayName("S15P21E201-1873 — 식당은 채식 근거가 있어야 남는다. 고기가 안 보이는 국수집·경양식집이 새던 것")
+	void 근거_없는_식당은_빠진다() {
+		assertThat(reasonOf(score(candidate("해운대 국수", List.of()), diet("VEGETARIAN")))).isEqualTo("NO_PLANT_EVIDENCE");
+		assertThat(reasonOf(score(candidate("라온", List.of(subCategory("경양식"))), diet("VEGETARIAN"))))
+				.as("경양식은 업종만으로 고기 쪽").isEqualTo("MEAT_CENTRIC");
+		assertThat(reasonOf(score(candidate("바다정", List.of(subCategory("횟집"))), diet("VEGETARIAN"))))
+				.as("횟집은 업종만으로 해산물 쪽").isEqualTo("SEAFOOD_CENTRIC");
+	}
+
+	@Test
+	@DisplayName("S15P21E201-1873 — 한정식·백반은 나물·두부·밥으로 한 끼가 되어 남긴다. 고기 근거가 있으면 빠진다")
+	void 한정식_백반은_남긴다() {
+		for (PlaceCandidateResponse.Candidate candidate : List.of(candidate("할매밥집", List.of(subCategory("백반/한정식"))),
+				candidate("청학 한정식", List.of()), candidate("시골쌈밥", List.of()))) {
+			EngineCandidate result = score(candidate, diet("VEGETARIAN"));
+			assertThat(result.constraintVerdict()).as(candidate.nameKo()).isEqualTo(ConstraintVerdict.PASS);
+			assertThat(result.warningCodes()).as(candidate.nameKo()).contains("DIET_SUPPORT_UNVERIFIED");
+		}
+		assertThat(reasonOf(score(candidate("돼지백반", List.of(subCategory("백반/한정식"))), diet("VEGETARIAN"))))
+				.isEqualTo("MEAT_CENTRIC");
+		assertThat(reasonOf(score(candidate("기사식당", List.of(subCategory("백반/한정식"), menu("제육볶음 9,000원"))),
+				diet("VEGETARIAN")))).isEqualTo("MEAT_CENTRIC");
 	}
 
 	@Test
@@ -202,20 +234,33 @@ class BaselineCandidateScorerVegetarianTest {
 	@Test
 	@DisplayName("오탐을 막는다 — 에스프레소바는 소바가 아니고, 「돈」은 식당 이름에서만 보고, 출처 주소는 안 읽는다")
 	void 새_낱말의_오탐_안난다() {
-		assertThat(score(candidate("오엘스에스프레소바", List.of()), diet("VEGAN")).constraintVerdict())
-				.isEqualTo(ConstraintVerdict.PASS);
+		// 허용 목록 뒤로는 근거 없는 식당이 빠지므로, 오탐이 없다는 것은 «해산물·고기로 읽혀 빠지지 않는다» 로 본다.
+		assertThat(reasonOf(score(candidate("오엘스에스프레소바", List.of()), diet("VEGAN")))).isEqualTo("NO_PLANT_EVIDENCE");
 		assertThat(score(new PlaceCandidateResponse.Candidate(UUID.randomUUID(), "다대포 돈대", "CULTURE_TEMPLE", 35.1,
 				129.0, 1000L, List.of()), diet("VEGAN")).constraintVerdict()).isEqualTo(ConstraintVerdict.PASS);
 		PlaceFeatureView sourcedFromSushiBlog = feature("WHY_VISIT",
 				"{\"reasons\":[{\"type\":\"맛 자체\",\"note\":\"직접 볶은 원두의 산미\"}],"
 						+ "\"sources\":[\"https://sushi-and-seafood.example/busan\"]}");
-		assertThat(score(candidate("원두공방", List.of(sourcedFromSushiBlog)), diet("VEGAN")).constraintVerdict())
-				.isEqualTo(ConstraintVerdict.PASS);
+		assertThat(reasonOf(score(candidate("원두공방", List.of(sourcedFromSushiBlog)), diet("VEGAN"))))
+				.isEqualTo("NO_PLANT_EVIDENCE");
 		// 글의 「자갈치」는 위치다 — 갈치가 아니다. 이름의 자갈치는 여전히 해산물 집으로 본다.
-		assertThat(score(candidate("동네빵집", List.of(whyVisit("자갈치시장 앞에서 40년 된 식빵"))), diet("VEGAN"))
-				.constraintVerdict()).isEqualTo(ConstraintVerdict.PASS);
+		assertThat(score(candidate("동네빵집", List.of(whyVisit("자갈치시장 앞에서 40년 된 식빵"), subCategory("빵/도넛"))),
+				diet("VEGAN")).constraintVerdict()).isEqualTo(ConstraintVerdict.PASS);
 		assertThat(score(candidate("일번지자갈치산곰장어", List.of()), diet("VEGAN")).constraintVerdict())
 				.isEqualTo(ConstraintVerdict.FAIL);
+	}
+
+	private static String reasonOf(EngineCandidate result) {
+		assertThat(result.constraintVerdict()).isEqualTo(ConstraintVerdict.FAIL);
+		return String.valueOf(result.violations().get(0).get("reason"));
+	}
+
+	private static PlaceFeatureView subCategory(String name) {
+		return feature("BUSINESS_SUBCATEGORY", "{\"name\":\"" + name + "\"}");
+	}
+
+	private static PlaceCandidateResponse.Candidate place(String name, String category) {
+		return new PlaceCandidateResponse.Candidate(UUID.randomUUID(), name, category, 35.1, 129.0, 1000L, List.of());
 	}
 
 	private static PlaceFeatureView menu(String menu) {
