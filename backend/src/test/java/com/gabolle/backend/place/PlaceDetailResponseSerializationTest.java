@@ -146,6 +146,6 @@ class PlaceDetailResponseSerializationTest {
 				List.of(),
 				new PlaceDetailResponse.ItineraryInclusion("UNAVAILABLE", "ITINERARY_NOT_SPECIFIED"),
 				addressEn, photoUrl, photoSource, photoSubject, openingHours, priceLevel, resolvedLanguage,
-				photoLicense, List.of(), Map.of());
+				photoLicense, List.of(), Map.of(), Map.of());
 	}
 }

@@ -47,6 +47,19 @@ public class Place {
 	private String nameZhHant;
 
 	/**
+	 * 주소의 일본어·중국어(간체·번체) — 관광공사 다국어 서비스가 번역해 둔 주소(V20260930180000, S15P21E201-1876).
+	 * 이름과 같은 장소에만 있고 전부 nullable 이다.
+	 */
+	@Column(name = "address_ja", length = 300)
+	private String addressJa;
+
+	@Column(name = "address_zh_hans", length = 300)
+	private String addressZhHans;
+
+	@Column(name = "address_zh_hant", length = 300)
+	private String addressZhHant;
+
+	/**
 	 * 값 목록이 없는 자유 문자열이라 자바에서 검증하지 않는다. enum 을 두면 수집이 다른 값으로
 	 * 들어오는 순간 조회가 전부 빈 결과가 된다.
 	 */
@@ -264,6 +277,15 @@ public class Place {
 		putIfPresent(names, "zh-Hans", nameZhHans);
 		putIfPresent(names, "zh-Hant", nameZhHant);
 		return names;
+	}
+
+	/** 응답에 싣는 언어별 주소 — {@link #localNames()} 와 같은 키·규칙. */
+	public Map<String, String> localAddresses() {
+		Map<String, String> addresses = new LinkedHashMap<>();
+		putIfPresent(addresses, "ja", addressJa);
+		putIfPresent(addresses, "zh-Hans", addressZhHans);
+		putIfPresent(addresses, "zh-Hant", addressZhHant);
+		return addresses;
 	}
 
 	private static void putIfPresent(Map<String, String> names, String language, String value) {
