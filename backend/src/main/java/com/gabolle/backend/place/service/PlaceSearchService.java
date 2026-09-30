@@ -197,18 +197,27 @@ public class PlaceSearchService {
 		for (Place place : candidates) {
 			int koTier = tier(place.getNameKo(), queryLower);
 			int enTier = place.getNameEn() == null ? Integer.MAX_VALUE : tier(place.getNameEn(), queryLower);
-			// 한국어 이름이 걸리면 우선한다 — 같은 등급이면(<=) 한국어를 택한다.
-			if (koTier <= enTier) {
+			int localTier = place.localNames().values().stream()
+					.mapToInt(name -> tier(name, queryLower)).min().orElse(Integer.MAX_VALUE);
+			// 한국어 → 영어 → 현지 이름 순으로 우선한다 — 같은 등급이면(<=) 앞의 것을 택한다.
+			if (koTier <= enTier && koTier <= localTier) {
 				ranked.add(new RankedPlace(place, koTier, MatchedField.NAME_KO));
 			}
-			else {
+			else if (enTier <= localTier) {
 				ranked.add(new RankedPlace(place, enTier, MatchedField.NAME_EN));
+			}
+			else {
+				ranked.add(new RankedPlace(place, localTier, MatchedField.NAME_LOCAL));
 			}
 		}
 		return ranked;
 	}
 
-	/** 0=정확일치, 1=접두일치, 2=포함. 후보는 이미 LIKE 로 걸러졌으니 포함까지는 항상 걸린다. */
+	/**
+	 * 0=정확일치, 1=접두일치, 2=포함, 안 걸림={@link Integer#MAX_VALUE}. 후보는 LIKE 로 걸러졌지만 그건 이름 칸
+	 * 중 <b>하나</b>가 걸렸다는 뜻이라, 칸마다 정말 들어 있는지를 여기서 다시 본다 — 안 보면 안 걸린 칸이
+	 * 「포함」으로 쳐져 어느 칸이 걸렸는지({@code matchedField})가 틀린다(S15P21E201-1875).
+	 */
 	private int tier(String name, String queryLower) {
 		String nameLower = compact(name).toLowerCase(Locale.ROOT);
 		if (nameLower.equals(queryLower)) {
@@ -217,7 +226,7 @@ public class PlaceSearchService {
 		if (nameLower.startsWith(queryLower)) {
 			return 1;
 		}
-		return 2;
+		return nameLower.contains(queryLower) ? 2 : Integer.MAX_VALUE;
 	}
 
 	/** 공백을 전부 뗀다. 「해운대 해수욕장」과 「해운대해수욕장」을 같은 이름으로 본다. */

@@ -62,6 +62,13 @@ public final class PlaceFixture {
 		return placeId;
 	}
 
+	/** 관광공사 일본어·중국어 공식 이름을 채운다. 다른 시험과 안 섞이게 앞에 {@link #prefix()} 를 붙인다. */
+	public void setLocalNames(UUID placeId, String nameJa, String nameZhHans, String nameZhHant) {
+		this.jdbcTemplate.update("UPDATE place SET name_ja = ?, name_zh_hans = ?, name_zh_hant = ? WHERE place_id = ?",
+				nameJa == null ? null : prefix() + nameJa, nameZhHans == null ? null : prefix() + nameZhHans,
+				nameZhHant == null ? null : prefix() + nameZhHant, placeId);
+	}
+
 	/**
 	 * 태그형 피처. {@code featureKey} 가 반드시 있어야 한다 ({@code ck_place_feature_key_shape}).
 	 * {@code evidenceStatus} 가 {@code UNKNOWN} 이면 {@code value} 는 {@code null} 로 들어간다.

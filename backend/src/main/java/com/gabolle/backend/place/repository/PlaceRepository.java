@@ -38,7 +38,10 @@ import com.gabolle.backend.place.domain.Place;
 public interface PlaceRepository extends JpaRepository<Place, UUID> {
 
 	/**
-	 * 이름으로 찾는다. 한국어 이름과 영문 이름 둘 다 본다.
+	 * 이름으로 찾는다. 한국어·영문 이름과 관광공사 일본어·중국어(간체·번체) 공식 이름을 본다.
+	 *
+	 * <p>🔴 일본어·중국어 이름도 본다(S15P21E201-1875). 앱이 일본어 화면에 「海雲台海水浴場」을 보여주는데
+	 * 그 이름으로 검색하면 0건이었다 — 여행자는 화면·안내 책자에서 본 이름을 그대로 친다.
 	 *
 	 * <p>{@code pattern} 은 호출하는 쪽이 이미 이스케이프하고 {@code %} 를 붙인 값이어야 한다.
 	 * 사용자가 {@code %} 를 넣으면 전체 스캔이 되고 {@code _} 를 넣으면 엉뚱한 것이 걸린다.
@@ -54,7 +57,10 @@ public interface PlaceRepository extends JpaRepository<Place, UUID> {
 			SELECT p FROM Place p
 			WHERE p.curationStatus = com.gabolle.backend.place.domain.CurationStatus.CURATED
 			  AND (REPLACE(LOWER(p.nameKo), ' ', '') LIKE :pattern ESCAPE '\\'
-			       OR (p.nameEn IS NOT NULL AND REPLACE(LOWER(p.nameEn), ' ', '') LIKE :pattern ESCAPE '\\'))
+			       OR (p.nameEn IS NOT NULL AND REPLACE(LOWER(p.nameEn), ' ', '') LIKE :pattern ESCAPE '\\')
+			       OR (p.nameJa IS NOT NULL AND REPLACE(LOWER(p.nameJa), ' ', '') LIKE :pattern ESCAPE '\\')
+			       OR (p.nameZhHans IS NOT NULL AND REPLACE(LOWER(p.nameZhHans), ' ', '') LIKE :pattern ESCAPE '\\')
+			       OR (p.nameZhHant IS NOT NULL AND REPLACE(LOWER(p.nameZhHant), ' ', '') LIKE :pattern ESCAPE '\\'))
 			ORDER BY p.placeId
 			""")
 	List<Place> searchByName(@Param("pattern") String pattern, Limit limit);
@@ -63,7 +69,10 @@ public interface PlaceRepository extends JpaRepository<Place, UUID> {
 	@Query("""
 			SELECT p FROM Place p
 			WHERE (REPLACE(LOWER(p.nameKo), ' ', '') LIKE :pattern ESCAPE '\\'
-			       OR (p.nameEn IS NOT NULL AND REPLACE(LOWER(p.nameEn), ' ', '') LIKE :pattern ESCAPE '\\'))
+			       OR (p.nameEn IS NOT NULL AND REPLACE(LOWER(p.nameEn), ' ', '') LIKE :pattern ESCAPE '\\')
+			       OR (p.nameJa IS NOT NULL AND REPLACE(LOWER(p.nameJa), ' ', '') LIKE :pattern ESCAPE '\\')
+			       OR (p.nameZhHans IS NOT NULL AND REPLACE(LOWER(p.nameZhHans), ' ', '') LIKE :pattern ESCAPE '\\')
+			       OR (p.nameZhHant IS NOT NULL AND REPLACE(LOWER(p.nameZhHant), ' ', '') LIKE :pattern ESCAPE '\\'))
 			  AND LOWER(p.category) = LOWER(:category)
 			  AND p.curationStatus = com.gabolle.backend.place.domain.CurationStatus.CURATED
 			ORDER BY p.placeId
