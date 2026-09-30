@@ -24,10 +24,13 @@ import { useI18n } from '@/i18n';
 import { useLayout } from '@/layout/useLayout';
 import { RouteMap, type MapRouteLayer } from '@/map/RouteMap';
 import type { MapStop } from '@/map/types';
-import { getRouteDirections, type RouteDirections, type RouteDirectionsResult, type TravelMode } from '@/map/routeDirections';
+import { getRouteDirections, type RouteDirections, type RouteDirectionsResult, type RouteStep, type TravelMode } from '@/map/routeDirections';
 import { txf } from '@/i18n/format';
 import { localizeMessage } from '@/i18n/messages';
-import { distanceText } from '@/field/subwayStations';
+import { distanceText, stationEnglishName, stationEnglishTitle } from '@/field/subwayStations';
+import { nearestExit, parseRideGuidance, subwayRide } from '@/field/subwayRide';
+import { romanizeKorean } from '@/discovery/romanize';
+import type { LanguageCode } from '@/i18n/languages';
 import { estimateReasonText, formatDuration, modeFareLine, parseTransitGuidance, parseTravelMode, ROUTE_MODES, toMapPath, transitStepKind } from '@/field/routeLegs';
 
 const MODE_LABEL: Record<TravelMode, readonly [string, string]> = {
@@ -48,7 +51,7 @@ function parseText(value: string | string[] | undefined): string | undefined {
 }
 
 export default function RouteDetail() {
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
   const router = useRouter();
   const { accessToken } = useAuth();
   const params = useLocalSearchParams<{ originLat?: string; originLng?: string; originName?: string; destLat?: string; destLng?: string; destName?: string; destPlaceId?: string; mode?: string }>();
@@ -193,7 +196,7 @@ export default function RouteDetail() {
                 <RidePanel directions={directions} riding={riding} live={live} onStart={() => void startRide()} onStop={() => setRiding(false)} tx={tx} />
               ) : null}
               {directions ? <Summary directions={directions} tx={tx} /> : null}
-              {directions ? <Steps directions={directions} originName={originName} destName={destName} tx={tx} /> : null}
+              {directions ? <Steps directions={directions} originName={originName} destName={destName} destLat={destLat} destLng={destLng} language={language} tx={tx} /> : null}
 
               {/* 🔴 외부 지도 앱(카카오맵·구글맵)으로 보내지 않는다 — S15P21E201-1831. 이 앱이 푸는 문제가 「구글맵은 한국
                   대중교통·도보 길찾기를 못 하고, 카카오맵은 한국어뿐이다」라서(기획서 v7), 그 앱들로 보내면 풀던 문제로 되돌려 보낸다.
@@ -239,7 +242,7 @@ function Summary({ directions, tx }: { directions: RouteDirections; tx: Tx }) {
   );
 }
 
-function Steps({ directions, originName, destName, tx }: { directions: RouteDirections; originName: string; destName: string; tx: Tx }) {
+function Steps({ directions, originName, destName, destLat, destLng, language, tx }: { directions: RouteDirections; originName: string; destName: string; destLat: number | null; destLng: number | null; language: LanguageCode; tx: Tx }) {
   if (directions.mode === 'WALK' || directions.steps.length === 0) {
     // 🔴 걷기는 단계 안내가 없다 — 길은 지도에 그렸다. 「못 드려요」라고 말하지 않는다. 길을 못 찾았을 때만 그렇게 말한다.
     if (directions.mode !== 'WALK' || !directions.estimated) return null;
@@ -265,14 +268,15 @@ function Steps({ directions, originName, destName, tx }: { directions: RouteDire
               <View key={`${step.name}-${index}`} style={styles.stepRow}>
                 <View style={[styles.rideChip, kind === 'walk' && styles.walkChip, kind === 'subway' && styles.subwayChip]}>
                   <Text variant="micro" weight="bold" color={kind === 'walk' ? color.text.heading : color.text.onAction} numberOfLines={1}>
-                    {kind === 'walk' ? tx('도보', 'Walk') : step.name}
+                    {kind === 'walk' ? tx('도보', 'Walk') : kind === 'subway' ? lineLabel(step.name, tx) : step.name}
                   </Text>
                 </View>
-                <StepText guidance={step.guidance} tx={tx} />
+                {kind === 'subway' ? <SubwayStepText step={step} language={language} tx={tx} /> : <StepText guidance={step.guidance} tx={tx} />}
                 <Text variant="caption" color={color.text.muted}>{formatDuration(step.durationMin, tx)}</Text>
               </View>
             );
           })}
+          <ExitHint directions={directions} destLat={destLat} destLng={destLng} language={language} tx={tx} />
           <View style={styles.stepRow}>
             <View style={[styles.endDot, styles.endDotFilled]} />
             <Text weight="bold" style={styles.grow} numberOfLines={2}>{destName}</Text>
@@ -302,6 +306,63 @@ function Steps({ directions, originName, destName, tx }: { directions: RouteDire
       </View>
     </Card>
   );
+}
+
+/**
+ * 지하철 한 구간 — 타는 방면을 크게, 반대 방면을 경고로(UI 캔버스 ⑲-1, S15P21E201-1881). 승강장 전광판은 「○○ 방면」으로 쓴다.
+ * 방면을 셀 수 없으면(역 순서에 없는 역) 예전 한 줄로 물러선다 — 짐작하지 않는다.
+ */
+function SubwayStepText({ step, language, tx }: { step: RouteStep; language: LanguageCode; tx: Tx }) {
+  const parsed = parseRideGuidance(step.guidance);
+  const ride = parsed ? subwayRide(step.name, parsed.from, parsed.to) : null;
+  if (!ride) return <StepText guidance={step.guidance} tx={tx} />;
+  return (
+    <View style={styles.grow}>
+      <Text variant="body" weight="bold" color={color.text.heading}>{txf(tx, '%s 방면', 'Towards %s', terminalLabel(ride.towards, language))}</Text>
+      <Text variant="caption" color={color.text.body}>{txf(tx, '%s에서 타서 %s정거장 · %s에서 내려요', 'Board at %s · %s stops · get off at %s', stationLabel(ride.from, language), String(ride.stopCount), stationLabel(ride.to, language))}</Text>
+      <Text variant="caption" color={color.text.muted}>{txf(tx, '반대쪽 「%s 방면」을 타면 멀어져요', 'Trains towards %s go the other way', terminalLabel(ride.opposite, language))}</Text>
+    </View>
+  );
+}
+
+/**
+ * 마지막으로 지하철에서 내리면 — 목적지에서 가장 가까운 출구(OpenStreetMap 출구 번호, 직선거리). 출구 자료가 없거나 목적지가
+ * 너무 멀면(지하철 뒤에 더 탈 것이 있는 경로) 그리지 않는다.
+ */
+function ExitHint({ directions, destLat, destLng, language, tx }: { directions: RouteDirections; destLat: number | null; destLng: number | null; language: LanguageCode; tx: Tx }) {
+  if (destLat == null || destLng == null) return null;
+  const rides = directions.steps.filter((step) => transitStepKind(step) !== 'walk');
+  const last = rides[rides.length - 1];
+  if (!last || transitStepKind(last) !== 'subway') return null;
+  const parsed = parseRideGuidance(last.guidance);
+  const exit = parsed ? nearestExit(parsed.to, destLat, destLng) : null;
+  if (!parsed || !exit) return null;
+  return (
+    <View testID="route-exit-hint" style={styles.exitCard}>
+      <Text variant="caption" weight="bold" color={color.text.muted}>{txf(tx, '%s에서 내려서', 'After getting off at %s', stationLabel(parsed.to, language))}</Text>
+      <Text variant="title" weight="bold" color={color.text.heading}>{txf(tx, '%s번 출구로 나가세요', 'Take exit %s', exit.ref)}</Text>
+      <Text variant="caption" color={color.text.body}>{txf(tx, '목적지에서 가장 가까운 출구 · 직선 약 %s', 'Closest exit to your destination · about %s in a straight line', distanceText(exit.distanceM))}</Text>
+      <Text variant="micro" color={color.text.muted}>{tx('출구 번호: © OpenStreetMap 기여자', 'Exit numbers: © OpenStreetMap contributors')}</Text>
+    </View>
+  );
+}
+
+/** 호선 칩 — 「1호선」 · 「Line 1」 · 「1号線」. 모양이 다르면 서버 글자 그대로. */
+function lineLabel(name: string, tx: Tx): string {
+  const m = name.match(/^(\d+)호선$/);
+  return m ? txf(tx, '%s호선', 'Line %s', m[1]) : name;
+}
+
+/** 역 이름 — 한국어는 「서면역」, 그 밖은 부산교통공사 공식 영문 역명(「Seomyeon Station」, S15P21E201-1874). */
+function stationLabel(name: string, language: LanguageCode): string {
+  if (language === 'ko') return `${name}역`;
+  return stationEnglishTitle(name) ?? romanizeKorean(name) ?? name;
+}
+
+/** 방면 이름 — 전광판처럼 역 이름만(「다대포해수욕장」 · 「Dadaepo Beach」). */
+function terminalLabel(name: string, language: LanguageCode): string {
+  if (language === 'ko') return name;
+  return stationEnglishName(name) ?? romanizeKorean(name) ?? name;
 }
 
 function StepText({ guidance, tx }: { guidance: string; tx: Tx }) {
@@ -336,6 +397,8 @@ const styles = StyleSheet.create({
   summaryHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   estimatedBadge: { paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.tint },
   stepsCard: { gap: spacing[2] },
+  // 내릴 출구 — 목적지 줄 바로 위. 번호를 크게(UI 캔버스 ⑲-1).
+  exitCard: { gap: 2, marginLeft: spacing[6], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint },
   stepsTitle: { marginBottom: spacing[1] },
   stepList: { gap: spacing[3] },
   stepRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
