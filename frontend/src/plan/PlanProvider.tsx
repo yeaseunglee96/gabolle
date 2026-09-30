@@ -64,9 +64,9 @@ export type PlanDraft = {
   shadePreference: 'PREFER' | 'NO_PREFERENCE' | null;
   wheelchair: boolean | null;
   stroller: boolean | null;
-  // 🔴 luggage 를 뺐다 (S15P21E201-1855). 서버에 이 값을 읽는 코드가 없어 물어도 아무 일이
-  //    안 일어났다. 옛 기기에 저장된 초안에 이 칸이 남아 있어도 복원이 EMPTY_PLAN 을 먼저
-  //    펼치므로 그냥 무시된다 — 지우는 이사 코드가 따로 필요하지 않다.
+  // 큰 짐. 서버는 이것을 접근성 표식 없이 «경사로만» 가른다(BaselineCandidateScorer.evaluateMobility) —
+  // 「반드시」면 8.33% 넘게 가파른 곳을 빼고 「되도록」이면 경고만. 계단 없는 길 찾기(stepFree)에는 안 들어간다.
+  luggage: boolean | null;
   accessibilityNeeds: string[];
   travelAreas: string[];
   maxCompletedStep: number;
@@ -95,7 +95,7 @@ const ANONYMOUS_KEY = `${STORAGE_PREFIX}:anonymous`;
 const LEGACY_STORAGE_KEY = STORAGE_PREFIX;
 
 const storageKeyFor = (userId: string | null) => (userId ? `${STORAGE_PREFIX}:${userId}` : ANONYMOUS_KEY);
-export const EMPTY_PLAN: PlanDraft = { startDate: '', endDate: '', travelers: 1, adults: 1, children: 0, origin: '', originLat: null, originLng: null, lodging: '', lodgingLat: null, lodgingLng: null, lodgingPlace: null, originEnglish: null, lodgingEnglish: null, transport: 'TRANSIT', budgetKrw: DAILY_BUDGET_PER_PERSON_KRW, budgetEdited: false, dayStartTime: '09:00', dayEndTime: '21:00', walkingLevel: 'MEDIUM', companionType: 'SOLO', preferences: [], preferenceAnswerStatus: { category: 'UNKNOWN', atmosphere: 'UNKNOWN', locality: 'UNKNOWN', quietness: 'UNKNOWN', touristPreference: 'UNKNOWN', foodPreference: 'UNKNOWN' }, atmospheres: [], localityLevel: null, quietLevel: null, touristLevel: null, foods: [], dietTypes: [], allergies: [], allergyStatus: 'UNKNOWN', allergyAnswered: false, dietStatus: 'UNKNOWN', dietAnswered: false, maxWalkingDistanceM: null, slopeConstraint: null, stairsConstraint: null, shadePreference: null, wheelchair: null, stroller: null, accessibilityNeeds: [], travelAreas: [], maxCompletedStep: 0, paceLevel: null, englishMenuRequired: false, foreignCardRequired: false, soloDiningPreferred: false, accommodation: '', accommodationPlace: null, maxTransfers: null, mustVisitPlaces: [], cloneShareToken: null };
+export const EMPTY_PLAN: PlanDraft = { startDate: '', endDate: '', travelers: 1, adults: 1, children: 0, origin: '', originLat: null, originLng: null, lodging: '', lodgingLat: null, lodgingLng: null, lodgingPlace: null, originEnglish: null, lodgingEnglish: null, transport: 'TRANSIT', budgetKrw: DAILY_BUDGET_PER_PERSON_KRW, budgetEdited: false, dayStartTime: '09:00', dayEndTime: '21:00', walkingLevel: 'MEDIUM', companionType: 'SOLO', preferences: [], preferenceAnswerStatus: { category: 'UNKNOWN', atmosphere: 'UNKNOWN', locality: 'UNKNOWN', quietness: 'UNKNOWN', touristPreference: 'UNKNOWN', foodPreference: 'UNKNOWN' }, atmospheres: [], localityLevel: null, quietLevel: null, touristLevel: null, foods: [], dietTypes: [], allergies: [], allergyStatus: 'UNKNOWN', allergyAnswered: false, dietStatus: 'UNKNOWN', dietAnswered: false, maxWalkingDistanceM: null, slopeConstraint: null, stairsConstraint: null, shadePreference: null, wheelchair: null, stroller: null, luggage: null, accessibilityNeeds: [], travelAreas: [], maxCompletedStep: 0, paceLevel: null, englishMenuRequired: false, foreignCardRequired: false, soloDiningPreferred: false, accommodation: '', accommodationPlace: null, maxTransfers: null, mustVisitPlaces: [], cloneShareToken: null };
 
 // 초안을 기기에 적을 때 비우는 칸. 여기 있는 조건은 새로고침 뒤 여행 조건(travelConditions.ts)이 다시 채운다.
 // 🔴 휠체어·유아차·큰 짐은 여기 두지 않는다 — 여행마다 바뀌는 답이라 여행 조건에 저장되지 않아, 비우면

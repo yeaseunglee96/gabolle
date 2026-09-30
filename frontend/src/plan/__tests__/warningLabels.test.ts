@@ -150,18 +150,16 @@ describe('주변 길이 가파른 곳 · 접근성 문구', () => {
     expect(message).toContain('추정');
     expect(message).not.toContain('못 가');
     expect(message).not.toContain('불가');
-    // 🔴 휠체어만이 아니다 — 유아차를 고른 사람에게도 붙는 경고다.
-    //    「큰 짐」은 뺐다(S15P21E201-1855) — 앱이 더는 그 조건을 묻지 않으므로, 적으면
-    //    고른 적 없는 조건을 말하는 셈이 된다.
+    // 🔴 휠체어만이 아니다 — 서버는 유아차·큰 짐도 같은 경사 상한으로 가르므로 셋 다에게 붙는 경고다.
     expect(message).toContain('유아차');
-    expect(message).not.toContain('큰 짐');
+    expect(message).toContain('큰 짐');
   });
 
-  it('접근성 미확인은 휠체어만이 아니라 유아차를 고른 사람에게도 맞는 말이다', () => {
+  it('접근성 미확인은 휠체어·유아차의 말이다 — 큰 짐에는 서버가 이 경고를 안 붙인다', () => {
     const [message] = describeWarningCodes(['ACCESSIBILITY_UNVERIFIED'], tx);
     expect(message).toContain('유아차');
     expect(message).toContain('확인되지 않은');
-    // 묻지 않는 조건은 말하지 않는다 — S15P21E201-1855.
+    // 큰 짐은 경사로만 가른다(접근성 표식이 원천 자료에 없다) — 이 문장에 큰 짐을 넣으면 받지도 않을 말을 약속한다.
     expect(message).not.toContain('큰 짐');
   });
 });

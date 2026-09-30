@@ -121,9 +121,10 @@ export function toCreateTripPayload(draft: PlanDraft): CreateTripPayload {
     }] : []),
     mobility('WHEELCHAIR', draft.wheelchair),
     mobility('STROLLER', draft.stroller),
-    // 🔴 HEAVY_LUGGAGE 를 «일부러» 안 보낸다 (S15P21E201-1855). 서버에 이 값을 읽는 코드가
-    //    한 줄도 없어서, 보내면 DB 에만 쌓이고 판정에도 경로에도 안 쓰인다. 문항도 뺐다.
-    //    다시 보내는 조건: 장소 자료에 큰 짐을 가리키는 칸이 생겼을 때.
+    // 큰 짐은 서버가 경사로만 가른다 — 「반드시」면 가파른 곳을 빼고, 「확인 안 됨」 경고는 안 붙인다.
+    // (S15P21E201-1855 에서 「읽는 코드가 없다」고 뺐다가 되살렸다. 이름으로 따로 읽지 않을 뿐, 휠체어·유아차와
+    //  같은 이동 조건 갈래에서 경사 판정을 받고 있었다.)
+    mobility('HEAVY_LUGGAGE', draft.luggage),
     mobility('STAIRS_AVOIDANCE', draft.stairsConstraint === null ? null : draft.stairsConstraint === 'AVOID'),
   ];
 

@@ -249,7 +249,7 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
             </View>
 
             <Text variant="caption" color={color.text.muted}>
-              {tx('휠체어·유아차는 여행마다 달라서 여행 조건 화면에서 물어봐요.', 'Wheelchair and stroller change trip to trip, so we ask those on the conditions page.')}
+              {tx('휠체어·유아차·큰 짐은 여행마다 달라서 여행 조건 화면에서 물어봐요.', 'Wheelchair, stroller and large luggage change trip to trip, so we ask those on the conditions page.')}
             </Text>
           </ScrollView>
 

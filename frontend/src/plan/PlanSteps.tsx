@@ -488,7 +488,7 @@ function ReviewStep({ draft, update, tx, language, styleSkipped, accessibilityCo
   const peopleParts = [txf(tx, '성인 %s', 'Adults %s', draft.adults), draft.children ? txf(tx, '어린이 %s', 'Children %s', draft.children) : ''].filter(Boolean);
   const nightsLabel = nights > 0 ? tx(`${nights}박 ${nights + 1}일`, `${nights} night${nights === 1 ? '' : 's'}`) : tx('당일치기', 'Day trip');
   const kept = conditionLabels(draft, tx, { withAids: false });
-  const aids = [draft.wheelchair ? tx('휠체어', 'Wheelchair') : null, draft.stroller ? tx('유아차', 'Stroller') : null].filter(Boolean).join(' · ');
+  const aids = [draft.wheelchair ? tx('휠체어', 'Wheelchair') : null, draft.stroller ? tx('유아차', 'Stroller') : null, draft.luggage ? tx('큰 짐', 'Large luggage') : null].filter(Boolean).join(' · ');
   const must = draft.mustVisitPlaces.map((place) => (language === 'ko' ? place.nameKo : place.nameEn ?? place.nameKo)).join(' · ');
   const dates = draft.startDate ? (draft.endDate && draft.endDate !== draft.startDate ? `${formatDateShort(draft.startDate, tx)} – ${formatDateShort(draft.endDate, tx)}` : formatDateShort(draft.startDate, tx)) : '—';
   // 알레르기 안내 한 문장 안의 「메뉴판 읽기 ›」 — 번역문을 %s 에서 갈라 그 자리에 누르는 글자를 넣는다(언어마다 어순이 다르다).
@@ -567,13 +567,14 @@ function ReviewStep({ draft, update, tx, language, styleSkipped, accessibilityCo
           {open === 'aids' ? (
             <View style={styles.expand}>
               <View style={styles.chips}>
-                {([['wheelchair', '휠체어', 'Wheelchair'], ['stroller', '유아차', 'Stroller']] as const).map(([field, ko, en]) => (
+                {/* 큰 짐은 서버가 경사로만 가른다 — 「확인 안 됨」 안내는 휠체어·유아차에만 붙는다(아래 문구도 그렇게 말한다). */}
+                {([['wheelchair', '휠체어', 'Wheelchair'], ['stroller', '유아차', 'Stroller'], ['luggage', '큰 짐', 'Large luggage']] as const).map(([field, ko, en]) => (
                   <Chip key={field} role="checkbox" label={tx(ko, en)} selected={draft[field] === true} onPress={() => update({ [field]: !(draft[field] === true) } as Partial<PlanDraft>)} />
                 ))}
               </View>
               {/* 🔴 고르기 «전에» 알린다 — 고른 뒤에야 뜨면 이미 정한 사람에게 늦은 말이다(S15P21E201-1869, !1888 의 뜻). */}
               {accessibilityCounts ? (
-                <Text variant="micro" color={color.text.muted}>{txf(tx, '지금 접근성을 확인한 곳은 %s곳 중 %s곳이에요. 고르시면 나머지는 「아직 확인되지 않았어요」로 나와요 — 못 간다는 뜻은 아니에요.', 'Of %s places, we have checked access for %s so far. The rest will show as "not checked yet" — that does not mean you cannot go.', accessibilityCounts.totalPlaceCount, accessibilityCounts.placeCount)}</Text>
+                <Text variant="micro" color={color.text.muted}>{txf(tx, '지금 접근성을 확인한 곳은 %s곳 중 %s곳이에요. 휠체어·유아차를 고르시면 나머지는 「아직 확인되지 않았어요」로 나와요 — 못 간다는 뜻은 아니에요.', 'Of %s places, we have checked access for %s so far. With a wheelchair or stroller, the rest will show as "not checked yet" — that does not mean you cannot go.', accessibilityCounts.totalPlaceCount, accessibilityCounts.placeCount)}</Text>
               ) : null}
             </View>
           ) : null}
