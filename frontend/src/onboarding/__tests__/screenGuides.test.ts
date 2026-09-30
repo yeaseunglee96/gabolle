@@ -16,6 +16,8 @@ describe('화면별 첫 안내', () => {
     expect(await takeScreenGuide('taxi')).toBe(false);
     // 다른 화면의 안내는 따로 센다
     expect(await takeScreenGuide('assistant')).toBe(true);
+    expect(await takeScreenGuide('legs')).toBe(true);
+    expect(await takeScreenGuide('legs')).toBe(false);
   });
 
   it('앱 소개를 안 거친 기존 회원에게는 저절로 안 뜬다', async () => {

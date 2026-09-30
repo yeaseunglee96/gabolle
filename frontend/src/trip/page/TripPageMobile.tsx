@@ -53,6 +53,8 @@ import {
 } from '@/plan/itinerary';
 import { formatTravelLabel, totalTravelMinutes } from '@/plan/itinerarySummary';
 import { LegRow } from '@/trip/page/LegRow';
+import { GuideCallout } from '@/onboarding/GuideCallout';
+import { markScreenGuideUsed, takeScreenGuide } from '@/onboarding/firstRun';
 import { legRouteParams, type LegRouteParams } from '@/trip/page/legRoute';
 import type { LanguageCode } from '@/i18n/languages';
 import { categoryGlyph, type PlacePhoto } from '@/plan/placePhotos';
@@ -422,6 +424,18 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   // 지금 머무는 곳 — 「출발」 모드이거나 오늘 일정을 다 돈 뒤(마지막 곳의 출발을 적을 수 있게).
   const stayId = progress.status === 'RUNNING' || progress.status === 'DONE' ? stayingStopId(stopIds, progress.outcomes, departedIds) : null;
   // 지금 향하는 곳 하나 — 머무는 중이 아니면 「지금」 칸, 머무는 중이거나 아직 출발 전이면 그다음 칸(UI 캔버스 ⑧).
+  // 이동 칸 첫 안내(UI 캔버스 ㉓-4, S15P21E201-1890) — 누를 수 있는 첫 이동 칸 위에 한 번. 좌표를 몰라 누를 수 없는 칸만
+  // 있는 날에는 가리킬 것이 없으니 안 띄운다(표시도 안 쓴다 — 다음 날 누를 수 있는 칸에서 뜬다).
+  const firstLegIndex = items.findIndex((_, index) => legRouteParams(items, index, day?.start, nameOf, tx) !== null);
+  const [legGuide, setLegGuide] = useState(false);
+  const legGuideAsked = useRef(false);
+  useEffect(() => {
+    if (firstLegIndex < 0 || legGuideAsked.current) return;
+    legGuideAsked.current = true;
+    let alive = true;
+    void takeScreenGuide('legs').then((show) => { if (alive && show) setLegGuide(true); });
+    return () => { alive = false; };
+  }, [firstLegIndex]);
   const aimIndex = (() => {
     const heading = steps.findIndex((step, index) => step === 'current' && items[index]?.id !== stayId);
     return heading >= 0 ? heading : steps.findIndex((step) => step === 'next');
@@ -664,8 +678,11 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
                   onOpenLeg={(() => {
                     // 들어오는 구간을 경로 상세로 — 대중교통·택시·도보를 나란히 본다(S15P21E201-1831).
                     const params = legRouteParams(items, index, day?.start, nameOf, tx);
-                    return params ? () => router.push({ pathname: '/route-detail', params }) : null;
+                    // 이동 칸을 한 번 눌러 본 사람에게는 첫 안내를 다시 띄우지 않는다(㉔-5 규칙).
+                    return params ? () => { setLegGuide(false); void markScreenGuideUsed('legs'); router.push({ pathname: '/route-detail', params }); } : null;
                   })()}
+                  legGuide={legGuide && index === firstLegIndex}
+                  onLegGuideDone={() => setLegGuide(false)}
                   accessToken={accessToken}
                   language={language}
                   tx={tx}
@@ -1005,7 +1022,7 @@ function RiskStrip({ atRisk, known, estimated, nameOf, tx }: { atRisk: Itinerary
   );
 }
 
-function TimelineStop({ item, name, startKind, index, last, freeBefore, date, photo, step, aim = false, risky, pace, paceEstimated, expanded, canEdit, busy, excluding, onToggle, onLock, onArrive, onExclude, onOpenPlace, onOpenLeg, legRoute, accessToken, language, tx, locale }: {
+function TimelineStop({ item, name, startKind, index, last, freeBefore, date, photo, step, aim = false, risky, pace, paceEstimated, expanded, canEdit, busy, excluding, onToggle, onLock, onArrive, onExclude, onOpenPlace, onOpenLeg, legRoute, legGuide = false, onLegGuideDone, accessToken, language, tx, locale }: {
   item: ItineraryItemDto; /** 화면에 적을 장소 이름 — 영어면 로마자가 붙는다(S15P21E201-1735). */ name: string; startKind: DayStart['kind']; index: number; last: boolean; freeBefore: number | null; date: string | null; photo: PlacePhoto | null; step?: StepState;
   /** 지금 향하는 곳 — 빨간 고리와 「다음」 표. 한 날에 한 곳뿐이다. */ aim?: boolean; risky: boolean;
   pace?: ItineraryPaceItemDto; paceEstimated: boolean; expanded: boolean; canEdit: boolean; busy: boolean; excluding: boolean;
@@ -1014,6 +1031,7 @@ function TimelineStop({ item, name, startKind, index, last, freeBefore, date, ph
   /** 들어오는 구간을 경로 상세로 연다. 앞 곳이나 이 곳의 좌표를 모르면 null — 누를 수 없는 글자로 둔다(legRoute.ts). */
   onOpenLeg: (() => void) | null;
   /** 들어오는 구간의 좌표 — 펼친 이동 칸이 경로를 물을 때 쓴다(LegRow). */ legRoute: LegRouteParams | null;
+  /** 이 칸 위에 이동 칸 첫 안내를 띄운다(한 날에 한 칸) */ legGuide?: boolean; onLegGuideDone?: () => void;
   accessToken: string | null; language: LanguageCode; tx: Tx; locale: string;
 }) {
   const leg = formatTravelLabel(item, tx, index === 0 && startKind);
@@ -1045,6 +1063,15 @@ function TimelineStop({ item, name, startKind, index, last, freeBefore, date, ph
       ) : null}
       {/* 들어오는 구간 — 카드 사이 32px 줄. 첫 곳은 「출발지에서 …」. */}
       {/* 구간 줄을 누르면 무엇을 타는지·택시로 얼마인지 본다(S15P21E201-1831) — 전에는 「이동 25분」 글자뿐이었다. */}
+      {legGuide && onOpenLeg ? (
+        <GuideCallout
+          pointDown
+          title={tx('장소 사이 이 칸이 길 안내예요', 'This row between places is your directions')}
+          body={tx('누르면 무엇을 타는지, 어디서 내리는지까지 알려 드려요.', 'Tap it to see what to ride and where to get off.')}
+          onDone={() => onLegGuideDone?.()}
+          style={styles.legGuide}
+        />
+      ) : null}
       {index > 0 || leg || onOpenLeg ? (
         <View style={onOpenLeg ? styles.legRowTall : styles.legRow}>
           <View style={styles.legRail}>{index > 0 ? <View style={[styles.railLine, styles.railFull]} /> : null}</View>
@@ -1276,6 +1303,8 @@ const styles = StyleSheet.create({
   // 카드 타임라인 — 그리드 48 | 1fr, 왼쪽 세로선 2px(가운데)
   legRow: { height: 32, flexDirection: 'row', alignItems: 'center', gap: spacing[2] + spacing[1] },
   // 누르는 이동 칸이 들어가면 높이를 칸에 맡긴다 — 32px 줄에는 테두리 칸이 안 들어간다.
+  // 이동 칸 첫 안내 — 이동 칸과 같은 줄에서 시작해 꼬리가 칸을 가리킨다(세로선 칸만큼 비킨다).
+  legGuide: { marginLeft: RAIL + spacing[2] + spacing[1], marginTop: spacing[2], marginBottom: spacing[1] },
   legRowTall: { minHeight: 32, flexDirection: 'row', alignItems: 'stretch', gap: spacing[2] + spacing[1], paddingVertical: spacing[2] },
   legRail: { width: RAIL, alignSelf: 'stretch' },
   railLine: { position: 'absolute', left: RAIL / 2 - 1, width: 2, backgroundColor: color.surface.field },
