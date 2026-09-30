@@ -634,7 +634,9 @@ public class BaselineCandidateScorer {
 			"부리또", "BURRITO", "부어스트", "굴라쉬", "낙곱새", "PORK", "BEEF", "CHICKEN", "STEAK", "RAMEN",
 			"KATSU",
 			// S15P21E201-1873 — 백반·한정식 업종으로 채식에 새던 고기 밥집. 완당은 돼지고기 만두다.
-			"꼬리곰", "완당");
+			"꼬리곰", "완당",
+			// S15P21E201-1873 — 운영 채식 여행(0abbc25f)에 백반 업종으로 새던 이름. 「육계장」은 육개장의 흔한 오기다.
+			"오돌뼈", "육계장", "해장", "로코모코", "로꼬모꼬");
 
 	/**
 	 * 식당(FOOD) 이름에서만 보는 한 글자 — 「돈」(돼지)·「닭」.
@@ -714,8 +716,14 @@ public class BaselineCandidateScorer {
 	/** 채식이 남기는 간식 업종 — 빵·음료·아이스크림·떡은 고기가 중심일 일이 없다. */
 	private static final Set<String> SWEET_SUBCATEGORIES = Set.of("빵/도넛", "카페", "아이스크림/빙수", "떡/한과");
 
-	/** 반찬으로 한 끼가 되는 업종 — 고기 근거가 없으면 채식·할랄 모두에 남긴다. */
-	private static final Set<String> TABLE_MEAL_SUBCATEGORIES = Set.of("백반/한정식", "토스트/샌드위치/샐러드");
+	/**
+	 * 반찬으로 한 끼가 되는 업종 — 할랄(느슨)은 이 업종만으로 남긴다(돼지고기 근거가 있으면 이 앞에서 빠진다). 채식은 업종만으로는
+	 * 안 남긴다 — 곰탕·오돌뼈 집과 술집이 섞여 있다({@link #hasPlantEvidence}).
+	 */
+	private static final Set<String> TABLE_MEAL_SUBCATEGORIES = Set.of("백반/한정식");
+
+	/** 샐러드·샌드위치 업종 — 채소만으로 고를 메뉴가 늘 있어 채식에 업종만으로 남긴다. */
+	private static final Set<String> SALAD_SUBCATEGORIES = Set.of("토스트/샌드위치/샐러드");
 
 	/** 할랄(느슨)이 남기는 고기 업종 — 돼지가 아닌 고기가 중심이다. */
 	private static final Set<String> HALAL_FRIENDLY_SUBCATEGORIES = Set.of("소고기 구이/찜", "닭/오리고기 구이/찜", "치킨");
@@ -728,7 +736,7 @@ public class BaselineCandidateScorer {
 			"돼지", "삼겹", "목살", "족발", "보쌈", "순대", "수육", "돈까스", "돈가스", "감자탕", "뼈해장", "대패",
 			"항정", "갈매기살", "가브리살", "제육", "김치찜", "짜장", "짬뽕", "탕수육", "라멘", "돈코츠", "차슈", "카츠",
 			"가츠", "베이컨", "소시지", "하몽", "햄버그", "부어스트", "까르니따스", "카르니타스", "CARNITAS", "PORK",
-			"KATSU", "RAMEN", "BACON", "완당");
+			"KATSU", "RAMEN", "BACON", "완당", "오돌뼈");
 
 	/** 채소·두부가 중심인 메뉴 이름과 한정식·백반. 이 낱말이 상호에 있으면 채식 근거로 본다(고기·해산물 근거가 없을 때). */
 	private static final List<String> PLANT_DISH_WORDS = List.of(
@@ -892,21 +900,30 @@ public class BaselineCandidateScorer {
 	}
 
 	/**
-	 * 채식이 남기는 근거 — 채식 가게 이름, 채소·두부 중심 메뉴 이름, 한정식·백반, 인도·네팔 식당, 디저트 업종, 글의 채식
-	 * 낱말. 한정식·백반은 고기 반찬이 있어도 나물·두부·밥이 기본으로 나와 고기 없이 한 끼가 된다(사용자 판단). 고기·해산물
-	 * 근거가 있는 집은 이 앞에서 이미 빠졌다.
+	 * 채식이 남기는 근거 — 채식 가게 이름, 채소·두부 중심 메뉴와 한정식·백반 이름, 인도·네팔 식당, 디저트·샌드위치 업종,
+	 * 대표 메뉴·방문 이유 글의 같은 낱말. 한정식·백반은 고기 반찬이 있어도 나물·두부·밥이 기본으로 나와 고기 없이 한 끼가 된다
+	 * (사용자 판단). 고기·해산물 근거가 있는 집은 이 앞에서 이미 빠졌다.
+	 *
+	 * <p>S15P21E201-1873: 「백반/한정식」 업종이라는 것만으로는 남기지 않는다. 상가정보가 이 업종에 곰탕·육계장·오돌뼈구이
+	 * 집과 술집(광안술잔·파자마바)까지 넣어 두어서, 업종만 믿었더니 운영 채식 여행(0abbc25f)에 그 집들이 들어갔다.
+	 * 이름이나 글에 한정식·백반·나물·두부 같은 근거가 있어야 남는다.
 	 */
 	static boolean hasPlantEvidence(PlaceCandidateResponse.Candidate candidate) {
 		String name = cleaned(candidate.nameKo());
 		String sub = subCategory(candidate);
+		// 주점은 끼니 자리가 아니다 — 방문 이유에 「두부김치」가 있어도 채식 식당으로 앉히지 않는다(운영의 하동상회).
+		if (ALCOHOL_SUBCATEGORIES.contains(sub)) {
+			return false;
+		}
 		if (isExplicitlyPlantBased(candidate) || containsAny(name, PLANT_DISH_WORDS)
 				|| containsAny(name, USUALLY_HAS_VEGETARIAN_DISHES)
-				|| SWEET_SUBCATEGORIES.contains(sub) || TABLE_MEAL_SUBCATEGORIES.contains(sub)
+				|| SWEET_SUBCATEGORIES.contains(sub) || SALAD_SUBCATEGORIES.contains(sub)
 				|| hasFeature(candidate, "CUISINE_TAG", "CAFE_DESSERT")) {
 			return true;
 		}
 		return describedTexts(candidate).values().stream()
-				.anyMatch(text -> containsAny(cleaned(text), PLANT_BASED_NAME_WORDS));
+				.map(BaselineCandidateScorer::cleaned)
+				.anyMatch(text -> containsAny(text, PLANT_BASED_NAME_WORDS) || containsAny(text, PLANT_DISH_WORDS));
 	}
 
 	/**
@@ -917,6 +934,7 @@ public class BaselineCandidateScorer {
 		String name = cleaned(candidate.nameKo());
 		if (isSeafoodCentric(candidate) || hasPlantEvidence(candidate)
 				|| HALAL_FRIENDLY_SUBCATEGORIES.contains(subCategory(candidate))
+				|| TABLE_MEAL_SUBCATEGORIES.contains(subCategory(candidate))
 				|| containsAny(name, HALAL_FRIENDLY_WORDS)) {
 			return true;
 		}
