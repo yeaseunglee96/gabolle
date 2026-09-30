@@ -40,6 +40,15 @@ public class PushProperties {
 	 */
 	private Duration readTimeout = Duration.ofSeconds(5);
 
+	/**
+	 * 연달아 바꾼 편집을 모으는 시간 — 마지막 편집 뒤 이만큼 조용하면 한 통으로 보낸다(S15P21E201-1880).
+	 * 0 이면 모으지 않고 바로 보낸다.
+	 */
+	private Duration editBatchQuiet = Duration.ofSeconds(60);
+
+	/** 계속 고쳐도 첫 편집부터 이만큼 지나면 보낸다 — 알림이 한없이 늦어지지 않게. */
+	private Duration editBatchMax = Duration.ofMinutes(5);
+
 	public boolean isEnabled() {
 		return this.enabled;
 	}
@@ -78,5 +87,21 @@ public class PushProperties {
 
 	public void setReadTimeout(Duration readTimeout) {
 		this.readTimeout = readTimeout;
+	}
+
+	public Duration getEditBatchQuiet() {
+		return this.editBatchQuiet;
+	}
+
+	public void setEditBatchQuiet(Duration editBatchQuiet) {
+		this.editBatchQuiet = editBatchQuiet;
+	}
+
+	public Duration getEditBatchMax() {
+		return this.editBatchMax;
+	}
+
+	public void setEditBatchMax(Duration editBatchMax) {
+		this.editBatchMax = editBatchMax;
 	}
 }

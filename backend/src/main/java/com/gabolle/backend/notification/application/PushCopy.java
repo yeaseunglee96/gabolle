@@ -1,7 +1,11 @@
 package com.gabolle.backend.notification.application;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import com.gabolle.backend.itinerary.domain.ItineraryVersion;
 import com.gabolle.backend.trip.domain.Trip;
@@ -125,6 +129,101 @@ public final class PushCopy {
 			case JA -> "タップして変更を見る";
 			case ZH_HANS -> "点击查看更改";
 			case ZH_HANT -> "點擊查看變更";
+		};
+	}
+
+	// ── 연달아 바꾼 것을 한 통으로 (S15P21E201-1880, 캔버스 ⑰-2) ─────────────────────────
+
+	/** 묶음 제목 — 「수민님이 일정을 5번 바꿨어요」. 작성자를 모르면 「일정이 5번 바뀌었어요」. */
+	public static String groupedEditTitle(String actorName, int count, Lang lang) {
+		boolean named = actorName != null && !actorName.isBlank();
+		String who = named ? actorName.trim() : null;
+		return switch (lang) {
+			case KO -> named ? who + "님이 일정을 " + count + "번 바꿨어요" : "일정이 " + count + "번 바뀌었어요";
+			case EN -> named ? who + " made " + count + " changes to the plan" : "The plan changed " + count + " times";
+			case JA -> named ? who + "さんが旅程を" + count + "回変更しました" : "旅程が" + count + "回変更されました";
+			case ZH_HANS -> named ? who + "修改了" + count + "次行程" : "行程已更改" + count + "次";
+			case ZH_HANT -> named ? who + "修改了" + count + "次行程" : "行程已變更" + count + "次";
+		};
+	}
+
+	/**
+	 * 묶음 본문 — 「부산 바다 2박 3일 · 2곳 빼고 · 1곳 고정 · 순서 2번」. 종류는 늘 같은 차례로 적는다(일어난 순서가 아니라) —
+	 * 사람이 훑어 읽는 줄이라 같은 자리에 같은 말이 있어야 한다.
+	 */
+	public static String groupedEditBody(String tripLabel, List<ItineraryVersion.Operation> operations, Lang lang) {
+		Map<Kind, Integer> counts = new EnumMap<>(Kind.class);
+		for (ItineraryVersion.Operation operation : operations) {
+			counts.merge(kindOf(operation), 1, Integer::sum);
+		}
+		List<String> parts = new ArrayList<>();
+		parts.add(tripLabel);
+		counts.forEach((kind, n) -> parts.add(countPhrase(kind, n, lang)));
+		return String.join(" · ", parts);
+	}
+
+	/** 묶음에서 세는 갈래 — 순서가 곧 적는 차례다. */
+	enum Kind { ADD, REMOVE, LOCK, REORDER, REPLAN, REVERT, CREATE }
+
+	private static Kind kindOf(ItineraryVersion.Operation operation) {
+		return switch (operation) {
+			case ADD_ITEM, REPLACE_ITEM -> Kind.ADD;
+			case REMOVE_ITEM -> Kind.REMOVE;
+			case LOCK_ITEM -> Kind.LOCK;
+			case REORDER -> Kind.REORDER;
+			case REGENERATE, REGENERATE_DAY, REPLAN_DAY -> Kind.REPLAN;
+			case REVERT -> Kind.REVERT;
+			case CREATE -> Kind.CREATE;
+		};
+	}
+
+	private static String countPhrase(Kind kind, int n, Lang lang) {
+		return switch (lang) {
+			case KO -> switch (kind) {
+				case ADD -> n + "곳 더하고";
+				case REMOVE -> n + "곳 빼고";
+				case LOCK -> n + "곳 고정";
+				case REORDER -> "순서 " + n + "번";
+				case REPLAN -> "다시 계획 " + n + "번";
+				case REVERT -> "되돌림 " + n + "번";
+				case CREATE -> "새로 만듦";
+			};
+			case EN -> switch (kind) {
+				case ADD -> n + " added";
+				case REMOVE -> n + " removed";
+				case LOCK -> n + " locked";
+				case REORDER -> "reordered " + n + "×";
+				case REPLAN -> "replanned " + n + "×";
+				case REVERT -> "undone " + n + "×";
+				case CREATE -> "new plan";
+			};
+			case JA -> switch (kind) {
+				case ADD -> n + "か所追加";
+				case REMOVE -> n + "か所削除";
+				case LOCK -> n + "か所固定";
+				case REORDER -> "順番変更" + n + "回";
+				case REPLAN -> "組み直し" + n + "回";
+				case REVERT -> "取り消し" + n + "回";
+				case CREATE -> "新規作成";
+			};
+			case ZH_HANS -> switch (kind) {
+				case ADD -> "添加" + n + "处";
+				case REMOVE -> "移除" + n + "处";
+				case LOCK -> "锁定" + n + "处";
+				case REORDER -> "调整顺序" + n + "次";
+				case REPLAN -> "重新规划" + n + "次";
+				case REVERT -> "撤销" + n + "次";
+				case CREATE -> "新建行程";
+			};
+			case ZH_HANT -> switch (kind) {
+				case ADD -> "新增" + n + "處";
+				case REMOVE -> "移除" + n + "處";
+				case LOCK -> "鎖定" + n + "處";
+				case REORDER -> "調整順序" + n + "次";
+				case REPLAN -> "重新規劃" + n + "次";
+				case REVERT -> "撤銷" + n + "次";
+				case CREATE -> "建立行程";
+			};
 		};
 	}
 
