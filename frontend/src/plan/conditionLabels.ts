@@ -5,17 +5,20 @@
 import { txf } from '@/i18n/format';
 import type { PlanDraft } from '@/plan/PlanProvider';
 import { DIETS } from '@/plan/travelConditions';
+import { effectiveDietCodes } from '@/plan/tasteDiets';
 
 type Tx = (ko: string, en: string) => string;
 
 export function conditionLabels(
-  draft: Pick<PlanDraft, 'dietStatus' | 'dietTypes' | 'maxWalkingDistanceM' | 'slopeConstraint' | 'stairsConstraint' | 'wheelchair' | 'stroller'>,
+  draft: Pick<PlanDraft, 'dietStatus' | 'dietTypes' | 'foods' | 'preferenceAnswerStatus' | 'maxWalkingDistanceM' | 'slopeConstraint' | 'stairsConstraint' | 'wheelchair' | 'stroller'>,
   tx: Tx,
   { withAids = true }: { withAids?: boolean } = {},
 ): string[] {
   const walk = draft.maxWalkingDistanceM;
   return [
-    ...(draft.dietStatus === 'VALUES' ? DIETS.filter(([code]) => draft.dietTypes.includes(code)).map(([, ko, en]) => tx(ko, en)) : []),
+    // 🔴 식단은 서버가 실제로 지키는 것 — 음식 취향의 채식·할랄도 더해진다(S15P21E201-1878, 서버 S15P21E201-1873).
+    //    초안의 식단 칸만 적으면 채식으로 걸러 놓고 「지킨 조건」에는 채식이 없었다.
+    ...(() => { const diets = effectiveDietCodes(draft); return DIETS.filter(([code]) => diets.includes(code)).map(([, ko, en]) => tx(ko, en)); })(),
     ...(typeof walk === 'number' ? [txf(tx, '한 번에 %s까지 걷기', 'Walk up to %s at a time', walk >= 1000 ? `${walk / 1000}km` : `${walk}m`)] : []),
     ...(draft.slopeConstraint === 'AVOID' ? [tx('가파른 경사 피하기', 'Avoid steep slopes')] : []),
     ...(draft.stairsConstraint === 'AVOID' ? [tx('계단 피하기', 'Avoid stairs')] : []),
