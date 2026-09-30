@@ -48,14 +48,12 @@ test('로그인 → 여행 조건 → 추천 요청까지 이어진다', async (
   // 시작하기" 단추는 S15P21E201-1245 에서 걷어냈다 — 시작 바가 그 자리를 대신한다.
   await expect(page.getByRole('button', { name: '일정 물어보기' })).toBeVisible({ timeout: 10_000 });
 
-  // 1.5) 처음 로그인한 사람에게는 홈에 들어오자마자 여행 조건(식단) 모달이
-  //      뜬다(conditionsPromptState.ts의 shouldPromptOnHome — 한 번도 안 물어본
-  //      사람은 상태가 null이다). 여기서 답해 두면 "일정 물어보기"를 눌러도 다시
-  //      안 묻는다 — shouldPromptBeforePlan이 'SAVED'는 다시 안 묻기 때문이다.
-  //      🔴 알레르기는 S15P21E201-1497 에서 창에서 걷어냈다 — 「해당 없음」은 식단 하나뿐이다.
-  await expect(page.getByText('여행 조건 미리 알려주기')).toBeVisible({ timeout: 10_000 });
-  await page.getByRole('checkbox', { name: '해당 없음' }).click(); // 식단
-  await page.getByRole('button', { name: '저장하고 시작' }).click();
+  // 1.5) 🔴 여행 조건(식단) 창은 이제 홈에서 안 뜬다 (S15P21E201-1863, 2026-09-30).
+  //      전에는 처음 로그인한 사람에게 홈에 들어오자마자 떴는데(conditionsPromptState.ts 의
+  //      shouldPromptOnHome), 로그인하자마자 창이 홈 전체를 가려서 그 함수가 항상 false 가 됐다.
+  //      이 시험은 그 창을 여기서 기다리다가 10초 뒤 시간 초과로 계속 빨갰다 — 앱이 아니라 시험이 낡은 것이었다.
+  //      창은 아래 3) 에서 «일정 물어보기» 를 누를 때 뜬다(shouldPromptBeforePlan — 한 번도 안 물어본 사람은
+  //      상태가 null 이라 물어본다).
 
   // 2) 홈의 시작 바 — 출발지 · 날짜. 인원은 기본값 성인 2명이 이미 유효하다
   //    (EMPTY_START_BAR, src/home/startBarValue.ts).
@@ -79,6 +77,14 @@ test('로그인 → 여행 조건 → 추천 요청까지 이어진다', async (
   await page.getByRole('button', { name: '당일치기', exact: true }).click();
 
   await page.getByRole('button', { name: '일정 물어보기', exact: true }).click();
+
+  // 2.5) 처음 일정을 물으면 여행 조건(식단) 창이 뜬다 — 여기서 답해 두면 아래 4) 에서 제출할 때 식단을 모른다고 다시 묻지 않는다
+  //      (questions.tsx 의 hardUnknown 이 false 가 된다). 「저장하고 시작」을 누르면 창이 닫히며 /plan 으로 넘어간다
+  //      (app/index.tsx 의 closeConditions → applyBarAndGo).
+  //      🔴 알레르기는 S15P21E201-1497 에서 창에서 걷어냈다 — 「해당 없음」은 식단 하나뿐이다.
+  await expect(page.getByText('여행 조건 미리 알려주기')).toBeVisible({ timeout: 10_000 });
+  await page.getByRole('checkbox', { name: '해당 없음' }).click(); // 식단
+  await page.getByRole('button', { name: '저장하고 시작' }).click();
 
   // 3) 여행 조건 — 🔴 S15P21E201-1425 부터 «한 번에 한 질문» 이다
   //    (app/(plan)/questions.tsx 가 PLAN_QUESTIONS[index] 하나만 그리고 이전/다음으로 넘긴다).
