@@ -76,12 +76,11 @@ export const PLAN_QUESTIONS: PlanQuestion[] = [
     answered: (draft) => Boolean(draft.paceLevel),
   },
   {
-    // 「짐」을 제목에서도 뺐다 — 묻지 않는 것을 제목이 약속하면 안 된다 (S15P21E201-1855).
-    key: 'aids', ko: '이번 여행 이동 보조', en: 'Mobility aids',
+    key: 'aids', ko: '이번 여행 이동 보조 · 짐', en: 'Mobility aids and luggage',
     hintKo: '여행마다 달라서 계정이 아니라 이 여행에만 저장해요.',
     hintEn: 'Saved for this trip only — it changes trip to trip.',
     skippable: true,
-    answered: (draft) => draft.wheelchair !== null || draft.stroller !== null,
+    answered: (draft) => draft.wheelchair !== null || draft.stroller !== null || draft.luggage !== null,
   },
   {
     key: 'must', ko: '꼭 가고 싶은 장소', en: 'Must-visit places',

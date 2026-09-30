@@ -33,7 +33,7 @@ describe('이동 보조 접근성 안내', () => {
     expect(steps).toMatch(/\{accessibilityCounts \? \(\s*<Text[^>]*>\{txf\(tx, '지금 접근성을 확인한 곳은/);
   });
 
-  it('큰 짐은 여전히 묻지 않는다', () => {
-    expect(steps).not.toContain('큰 짐');
+  it('큰 짐도 묻는다 — 서버가 경사로 가른다(되살림)', () => {
+    expect(steps).toContain("['luggage', '큰 짐', 'Large luggage']");
   });
 });
