@@ -6,7 +6,7 @@
 //
 // 데스크톱과 폰이 같은 부품을 쓴다. 폭과 행 높이만 다르다 — 두 벌로 만들면 항목이 늘 때
 // 한쪽만 늘어나고, 그 차이는 두 화면을 나란히 눌러 봐야만 보인다.
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Animated, BackHandler, Easing, Image, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
@@ -14,6 +14,7 @@ import { GabolleMascot } from '@/components/DongbaekMascot';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { takeScreenGuide } from '@/onboarding/firstRun';
 
 const cameraIcon = require('../../assets/icons/common/camera.png');
 const speakerIcon = require('../../assets/icons/common/speaker.png');
@@ -61,6 +62,17 @@ export function AssistantMenu({
   const router = useRouter();
   const { tx } = useI18n();
   const progress = useRef(new Animated.Value(0)).current;
+  // 처음 열었을 때 한 번 — 셋 중 무엇을 언제 쓰는지(UI 캔버스 ㉔-3, S15P21E201-1885). 고를 게 여럿이라 한 칸만 비추지 않고
+  // 메뉴 맨 위에 한 줄로 둔다. 메뉴를 열 때마다 묻지 않게, 한 번 떴으면 이 화면에 있는 동안은 그대로 둔다.
+  const [guide, setGuide] = useState(false);
+  const asked = useRef(false);
+  useEffect(() => {
+    if (!open || asked.current) return;
+    asked.current = true;
+    let alive = true;
+    void takeScreenGuide('assistant').then((show) => { if (alive && show) setGuide(true); });
+    return () => { alive = false; };
+  }, [open]);
 
   useEffect(() => {
     Animated.timing(progress, {
@@ -111,6 +123,15 @@ export function AssistantMenu({
           },
         ]}
       >
+        {guide ? (
+          <View accessibilityRole="alert" style={styles.guide}>
+            <Text variant="util" weight="bold">{tx('여행 중에 막히면 여기예요', 'Stuck on the road? Start here')}</Text>
+            <Text variant="caption" color={color.text.body}>{tx('식당에서는 메뉴판 번역, 말이 안 통할 땐 통역. 그 밖의 것은 AI 챗봇에게 물어보세요.', 'Menu translation at restaurants, the interpreter when words fail. Ask the AI chat about anything else.')}</Text>
+            <Pressable accessibilityRole="button" onPress={() => setGuide(false)} hitSlop={8} style={({ pressed }) => [styles.guideOk, pressed && styles.itemPressed]}>
+              <Text variant="caption" weight="bold">{tx('알겠어요', 'Got it')}</Text>
+            </Pressable>
+          </View>
+        ) : null}
         {ITEMS.map((item) => (
           <Pressable
             key={item.key}
@@ -185,4 +206,7 @@ const styles = StyleSheet.create({
   icon: { width: 18, height: 18 },
   itemMascot: { width: 30, height: 30 },
   itemText: { flex: 1, minWidth: 0 },
+  // 첫 안내 한 줄 — 연한 동백빛은 현장 도구·AI 화면의 색 표시다(tokens surface.blush). 이 메뉴가 바로 그 셋이다.
+  guide: { gap: spacing[1], marginHorizontal: spacing[2], marginBottom: spacing[2], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.blush },
+  guideOk: { alignSelf: 'flex-end', minHeight: 32, paddingHorizontal: spacing[2], justifyContent: 'center', borderRadius: radius.sm },
 });
