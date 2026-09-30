@@ -612,7 +612,8 @@ export function PlanStartBar({
             <MonthGrid {...monthBase} value={value} today={todayKey} onPick={pickDate} tx={tx} onPressTitle={() => setMonthPickerOpen(true)} maxDate={lastPickable} />
             {wide ? <MonthGrid {...secondMonth} value={value} today={todayKey} onPick={pickDate} tx={tx} maxDate={lastPickable} /> : null}
           </View>}
-      <View style={styles.chipRow}>
+      {/* 🔴 기간 넷은 같은 폭으로 한 줄 — 좁은 카드(넓은 화면의 가운데 칸)에서 3+1 로 꺾여 「3박 4일」 하나만 다음 줄에 남았다. */}
+      <View style={styles.equalChipRow}>
         {[0, 1, 2, 3].map((nights) => (
           <Pressable
             key={nights}
@@ -621,9 +622,9 @@ export function PlanStartBar({
               const start = prev.startDate && prev.startDate >= todayKey ? prev.startDate : todayKey;
               return { ...prev, startDate: start, endDate: addDays(start, nights) };
             })}
-            style={styles.chip}
+            style={[styles.chip, styles.equalChip]}
           >
-            <Text variant="caption" weight="bold">
+            <Text variant="caption" weight="bold" numberOfLines={1}>
               {nights === 0 ? tx('당일치기', 'Day trip') : tx(`${nights}박 ${nights + 1}일`, `${nights} ${nights === 1 ? 'night' : 'nights'}`)}
             </Text>
           </Pressable>
@@ -918,6 +919,8 @@ const styles = StyleSheet.create({
   //    34 인 까닭: 칸 폭이 작은 폰(360)에서 29.4 · 390 에서 33.7 이라, 40 이면 옆 날짜 글자와 3 남짓밖에 안 떨어졌다.
   dot: { position: 'absolute', top: 3, left: '50%', marginLeft: -17, width: 34, height: 34, borderRadius: radius.full, backgroundColor: color.brand.navy },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: spacing[2] },
+  equalChipRow: { flexDirection: 'row', gap: spacing[2] },
+  equalChip: { flex: 1, minWidth: 0, alignItems: 'center', paddingHorizontal: spacing[1] },
   chip: { minHeight: 32, paddingHorizontal: spacing[3], justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.soft },
   counterRow: { minHeight: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   counter: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
