@@ -455,6 +455,72 @@ DELETE FROM gabolle.place_feature
 \copy gabolle.place_feature FROM '/tmp/slope-backup-20260929.csv' CSV HEADER
 ```
 
+## 9. 장소 상세 사실 — 메뉴·편의시설·입장료·가까운 곳·가기 좋은 때 (S15P21E201-1886, 2026-09-30 추가)
+
+장소 상세 화면에 보여 줄 사실을 `place_feature` 에 넣는 적재기다 (`PlaceDetailExtrasLoader` +
+`PlaceDetailExtrasLoaderRunner`). 새 갈래 여섯은 `V20260930210000__place_detail_extras.sql` 이
+`ck_place_feature_type`(**`feature_type` 칸에 들어갈 수 있는 값의 허용 목록 — DB 가 목록 밖 값을 거절한다**)에
+더했다. 🔴 2026-09-22 에 적재기만 머지되고 이 목록이 빠져 운영에서 행이 전부 거절된 적이 있다 — **배포(마이그레이션)가
+먼저, 적재가 나중**이다.
+
+**열쇠는 장소 번호(`place_id`, UUID) 그대로다.** 조사로 짝지은 장소에 OSM 장소가 섞여 있어, 상가·관광공사 번호로
+찾는 다른 적재기로는 못 찾는다. 수집분 버전 인자(`dataset-version`)도 받지 않는다 — 줄마다 `sourceVersion` 을 든다.
+
+🔴 **알레르기는 싣지 않는다.** `ck_place_feature_safety_never_estimated` 가 추정한 알레르기·식단·접근성 행을 일부러
+막는다(틀리면 사람이 다친다). 재료는 `MENU_ITEMS` 안에 글로만 둔다.
+
+### 9-1. 한 줄 모양 (NDJSON — 한 줄에 JSON 하나)
+
+```json
+{"placeId":"<uuid>","featureType":"MENU_ITEMS","value":{…},"evidenceStatus":"VERIFIED","sourceType":"RESEARCH_DETAIL","sourceId":null,"sourceVersion":"place-detail-202609","observedAt":"2026-09-30T12:00:00+09:00"}
+```
+
+- `evidenceStatus` 는 `VERIFIED` 또는 `ESTIMATED` 만. `sourceType`·`sourceVersion` 은 비면 안 된다. `sourceId`·`observedAt` 은 `null` 가능 (`observedAt` 은 시간대가 붙은 ISO-8601 시각)
+- 🔴 **모르는 낱말이 오면 멈춘다.** 모르는 갈래·모르는 칸·모양이 틀린 값은 줄 번호와 함께 멈추고, 파일 전체를 먼저 검사하므로 **한 줄이라도 틀리면 한 행도 안 들어간다**
+
+| `featureType` | `value` |
+|---|---|
+| `MENU_ITEMS` | `{"items":[{"nameKo":글,"nameEn":글\|null,"priceWon":0 이상 정수\|null,"ingredientsKo":글\|null,"ingredientsEn":글\|null,"signature":true\|false}]}` — 1~30개, `nameKo`·`signature` 필수 |
+| `FOREIGN_MENU` | `{"available":true\|false}` |
+| `AMENITIES` | `{"wifi":bool\|null,"parking":bool\|null,"restroom":bool\|null,"reservation":글\|null,"homepage":글\|null}` — 전부 비면 거절 (모르면 줄을 안 만든다) |
+| `ADMISSION_FEE` | `{"raw":원문 글}` |
+| `NEARBY_LANDMARK` | `{"name":글,"distanceM":0 이상 정수}` |
+| `BEST_TIME` | `{"day":정수,"night":정수,"any":정수}` — 설문 응답 수, 셋 다 필수, 합이 0 이면 거절 |
+| `OPENING_HOURS` | `OpeningHoursReader` 가 쓰는 모양 그대로: `{"status":"PARSED"\|"ALWAYS_OPEN","byDay":{…},"seasonal":…,"closedDays":…,"notes":…,"raw":…}` — `status` 필수, 나머지는 있으면 옮긴다. `byDay` 는 객체 |
+| `CHECK_IN_OUT` | `{"status":"LODGING","checkIn":글\|null,"checkOut":글\|null,"notes":…,"raw":…}` — 체크인·체크아웃 둘 다 비면 거절 |
+
+### 9-2. 돌리기
+
+3 절의 `run` 함수를 그대로 쓴다. 넣기만 한다 — 같은 장소에 같은 갈래가 이미 있으면(**출처가 달라도**) 건너뛴다.
+그래서 두 번 돌려도 행이 늘지 않는다.
+
+```bash
+$RUN --gabolle.place.loader.place-detail-extras=/load/place-detail-extras.ndjson
+```
+
+마침 줄: `장소 상세 사실 적재를 마쳤다 — 읽은 줄 N · 넣음 A · 이미 있어 건너뜀 B · 장소가 없어 못 넣음 C`.
+C 가 크면 운영이 아닌 DB 의 장소 번호로 산출물을 만든 것이다.
+
+### 9-3. 확인
+
+```sql
+SELECT feature_type, evidence_status, count(*)
+  FROM place_feature
+ WHERE source_version = 'place-detail-202609'
+ GROUP BY 1, 2 ORDER BY 1, 2;
+```
+
+상세 API(`GET /api/v1/places/{placeId}`)의 `features` 목록에 그 갈래가 실리는지 본다 — 새 칸은 만들지 않았다.
+
+### 9-4. 되돌리기
+
+줄마다 `sourceVersion` 이 찍혀 들어가므로 그 값으로 지운다. 🔴 `OPENING_HOURS`·`CHECK_IN_OUT` 도 같은 판으로 넣었다면
+같이 지워진다 — 그것만 남기려면 `feature_type` 을 함께 건다.
+
+```sql
+DELETE FROM place_feature WHERE source_version = 'place-detail-202609';
+```
+
 ## 되돌리기
 
 전부 출처와 수집분이 찍힌다.

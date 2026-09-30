@@ -71,9 +71,13 @@ class BusinessSubcategoryMigrationTest extends PlacePostgresIntegrationTest {
 				VALUES (?, '시험 식당', 'FOOD', 35.1, 129.0, now(), 'SBIZ', ?, now(), 'test')
 				""", placeId, storeId);
 
-		String alterAndInsert = migrationSql();
-		this.jdbcTemplate.execute(alterAndInsert);
-		this.jdbcTemplate.execute(alterAndInsert);
+		// 🔴 INSERT 부분만 다시 돌린다. 파일 앞의 ALTER(허용 목록 DROP+ADD)까지 돌리면 공유 시험 DB 의
+		//    ck_place_feature_type 이 이 파일 시점의 목록으로 되돌아가, 뒤에 더한 갈래(S15P21E201-1886 의
+		//    MENU_ITEMS 등)를 넣는 다른 시험이 CI 에서 제약 위반으로 깨진다. 목록은 Flyway 가 이미 최신으로 만들었다.
+		String sql = migrationSql();
+		String insertOnly = sql.substring(sql.indexOf("INSERT INTO place_feature"));
+		this.jdbcTemplate.execute(insertOnly);
+		this.jdbcTemplate.execute(insertOnly);
 
 		assertThat(this.jdbcTemplate.queryForList(
 				"SELECT value ->> 'name' FROM place_feature WHERE place_id = ? AND feature_type = 'BUSINESS_SUBCATEGORY'",
