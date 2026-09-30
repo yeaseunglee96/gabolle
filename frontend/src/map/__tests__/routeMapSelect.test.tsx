@@ -83,6 +83,17 @@ describe('웹 지도 — 고른 곳이 바뀔 때', () => {
     expect(calls.panTo[calls.panTo.length - 1]).toEqual({ lat: 35.158, lng: 129.160 });
   });
 
+  it('🔴 위가 가려졌으면 고른 곳을 그만큼 덜 내려 민다 — 위에 뜬 색 범례 밑에 깔리지 않게(S15P21E201-1896)', () => {
+    // 이 시험의 가짜 지도는 좌표를 화면 위치처럼 다룬다(y = 위도) — 민 만큼(위도 차이)이 곧 옮긴 높이다.
+    mount('a', { bottomInset: 200 });
+    const open = calls.panTo[calls.panTo.length - 1];
+    calls.panTo = [];
+    mount('a', { bottomInset: 200, topInset: 100 });
+    const covered = calls.panTo[calls.panTo.length - 1];
+    expect(open.lat - 35.157).toBeCloseTo(100); // 아래 200 이 가려짐 → 200 / 2
+    expect(covered.lat - 35.157).toBeCloseTo(50); // 위 100 도 가려짐 → (200 − 100) / 2
+  });
+
   it('🔴 고른 마커만 커진다 — 풀린 마커는 원래 크기로', () => {
     const { tree, onSelect } = mount('a');
     act(() => { tree.update(<RouteMap stops={stops} routes={routes} selectedId="c" onSelect={onSelect} focusSelected />); });

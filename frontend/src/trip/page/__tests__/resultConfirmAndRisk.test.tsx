@@ -19,8 +19,6 @@ jest.mock('react-native-safe-area-context', () => ({ useSafeAreaInsets: () => ({
 jest.mock('@/auth/AuthProvider', () => ({ useAuth: () => ({ accessToken: 'token', ready: true }) }));
 jest.mock('@/layout/useLayout', () => ({ useLayout: () => ({ kind: 'phone', desktop: false, width: 390, height: 844, isLandscape: false }) }));
 jest.mock('@/map/RouteMap', () => ({ RouteMap: () => null }));
-jest.mock('@/map/MobilityLayerToggle', () => ({ MobilityLayerToggle: () => null }));
-jest.mock('@/map/mobilityLayers', () => ({ ...jest.requireActual('@/map/mobilityLayers'), useMobilityLayer: () => ({ lines: [], basis: null }) }));
 jest.mock('@/trip/TripInvitePanel', () => ({ TripInvitePanel: () => null }));
 jest.mock('@/trip/TripReadLinkPanel', () => ({ TripReadLinkPanel: () => null }));
 jest.mock('@/trip/TripWeatherPanel', () => ({ TripWeatherPanel: () => null }));

@@ -13,17 +13,19 @@ import { useI18n } from '@/i18n';
 import { formatDayHeading } from '@/i18n/datetime';
 import { txf } from '@/i18n/format';
 import { useCourseRoutePaths } from '@/map/courseRoutePaths';
+import { routeLegendOf } from '@/map/routeGrading';
 import { loadItinerary, loadItineraryPace, type ItineraryDto, type ItineraryItemDto, type ItineraryPaceDto } from '@/plan/itinerary';
 import { summarizeItineraryBudget } from '@/plan/itineraryBudget';
 import { totalTravelMinutes } from '@/plan/itinerarySummary';
 import { loadPlacePhotos, type PlacePhoto } from '@/plan/placePhotos';
+import { useOptionalPlanDraft } from '@/plan/PlanProvider';
 import { canConfirmCourse, ensureCourseItinerary, type TripCourse } from '@/plan/tripCourses';
 import { loadTripBudget } from '@/trip/tripBudget';
 import { humanTripTitle, tripNameOrDates, shouldAskTripName, wasTripNameAsked } from '@/trip/tripNaming';
 import { invalidateTripLists, loadTrips } from '@/trip/trips';
 
 import { itineraryFirstPage, loadTripPageCourses, type TripPageCourses, type TripPageSource } from './tripPageData';
-import { dayMap, dayRoutes, formatManwon, itineraryLegs, returnRoute, returnTrip, startTrip } from './tripPageModel';
+import { dayMap, dayRoutes, formatManwon, itineraryLegs, returnRoute, returnTrip, routeGradingOf, startTrip } from './tripPageModel';
 
 export type TripItinerary = { id: string; value: ItineraryDto | null; message: string | null };
 
@@ -176,14 +178,24 @@ export function useTripPage(source: TripPageSource) {
   // 옛 서버(칸 없음)면 빈 객체라 전처럼 전부 받아 온다.
   const known = useMemo(() => itineraryLegs(items, map, dayIndex + 1), [items, map, dayIndex]);
   const legs = useCourseRoutePaths(legDays, accessToken, { walkInto, stepFree, known });
+  // 🔴 걷는 길을 무엇으로 칠하나 — 사용자가 고른 «경사 피하기»·«그늘 우선» 이다(S15P21E201-1896). 서버가 알려 준 값이 먼저이고,
+  //    옛 서버(칸 없음)일 때만 기기의 초안으로 대신한다. 둘 다 안 골랐으면 경로는 자기 색(남색) 한 가지다.
+  //    원시값(불리언 둘)으로 메모한다 — 초안 객체가 다른 화면 입력으로 바뀌어도 지도가 다시 그려지지 않게.
+  const planDraft = useOptionalPlanDraft();
+  const chosen = routeGradingOf(loaded, planDraft);
+  const gradeSlope = chosen.slope;
+  const gradeShade = chosen.shade;
+  const grading = useMemo(() => ({ slope: gradeSlope, shade: gradeShade }), [gradeSlope, gradeShade]);
   const routes = useMemo(
     () => [
       ...(start ? [returnRoute(start, color.brand.navy, legs)] : []),
-      ...dayRoutes(map, dayIndex + 1, color.brand.navy, legs),
+      ...dayRoutes(map, dayIndex + 1, color.brand.navy, legs, grading),
       ...(back ? [returnRoute(back, color.brand.navy, legs)] : []),
     ],
-    [map, dayIndex, legs, back, start],
+    [map, dayIndex, legs, back, start, grading],
   );
+  // 범례 — 조각 색으로 칠한 선이 하나라도 있을 때만(routeGrading.ts). 조건을 안 골랐거나 칠할 조각이 없으면 null.
+  const routeLegend = useMemo(() => routeLegendOf(routes), [routes]);
   const points = useMemo(() => {
     const anchorLabel = (kind: 'LODGING' | 'ORIGIN') => (kind === 'LODGING' ? tx('숙소', 'Stay') : tx('출발지', 'Start'));
     // 숙소에서 나와 숙소로 돌아가는 날은 두 표식이 한 자리다 — 하나만 찍는다.
@@ -258,7 +270,7 @@ export function useTripPage(source: TripPageSource) {
     page, load, courses, course, courseIndex, setCourseIndex, confirmed, setConfirmed, tripId,
     itinerary, setItinerary, loaded, reloadItinerary: () => { shownItineraryId.current = null; setItineraryNonce((n) => n + 1); },
     dayIndex, setDayIndex, items, selectedId, setSelectedId, photos, pace, reloadPace: () => setPaceNonce((n) => n + 1),
-    map, routes, points, anyEstimatedLine, allItems, travelTotal, budget, atRisk, allEstimated,
+    map, routes, routeLegend, points, anyEstimatedLine, allItems, travelTotal, budget, atRisk, allEstimated,
     title, headSub, confirm, confirming,
   };
 }

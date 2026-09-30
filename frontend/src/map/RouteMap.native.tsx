@@ -10,11 +10,12 @@ import { useI18n } from '@/i18n';
 
 import { buildKakaoMapHtml } from './kakaoMapHtml';
 import { fitPadding, focusShiftY } from './mapFocus';
-import { slopeSegments, type SlopePiece } from './slopeGrades';
+import { gradedSegments, type RouteGrading } from './routeGrading';
+import type { SlopePiece } from './slopeGrades';
 
 import type { MapPathPoint, MapStop } from './types';
 
-/** 웹 RouteMap.tsx 의 MapRouteLayer 와 같은 모양 — 경로·어림·굵기·경사 조각(S15P21E201-1658)까지 WebView 로 그대로 넘긴다. */
+/** 웹 RouteMap.tsx 의 MapRouteLayer 와 같은 모양 — 경로·어림·굵기·경사 조각(S15P21E201-1658)·고른 조건(S15P21E201-1896)까지 WebView 로 그대로 넘긴다. */
 export type MapRouteLayer = {
   id: string;
   color: string;
@@ -24,6 +25,7 @@ export type MapRouteLayer = {
   weight?: number;
   opacity?: number;
   pieces?: SlopePiece[];
+  grading?: RouteGrading;
 };
 export type MapPointLayer = { id: string; label: string; color: string; stops: MapStop[] };
 export type CurrentLocation = { latitude: number; longitude: number };
@@ -80,10 +82,11 @@ export function RouteMap({
   const html = useMemo(() => (appKey ? buildKakaoMapHtml(appKey) : ''), [appKey]);
 
   const visibleStops = useMemo(() => [...stops, ...points.flatMap((layer) => layer.stops)], [points, stops]);
-  // 걷는 길의 경사 조각을 잘라 색을 붙여 둔다 — WebView 안의 스크립트는 slopeGrades.ts 를 못 읽는다(S15P21E201-1658).
+  // 걷는 길의 조각을 잘라 고른 조건의 색을 붙여 둔다 — WebView 안의 스크립트는 routeGrading.ts 를 못 읽는다(S15P21E201-1658 · -1896).
+  // 🔴 웹 지도(RouteMap.tsx)와 같은 함수(gradedSegments)를 부른다 — 여행 중 GPS 로 따라갈 때도 이 지도가 같은 선을 그린다.
   const drawnRoutes = useMemo(
     () => (routes ?? [{ id: 'selected', color: color.action.primary, stops }]).map((route) => {
-      const segments = route.weight == null && route.path?.length ? slopeSegments(route.path, route.pieces) : null;
+      const segments = route.weight == null && route.path?.length ? gradedSegments(route.path, route.pieces, route.grading) : null;
       return segments ? { ...route, segments } : route;
     }),
     [routes, stops],
@@ -103,7 +106,7 @@ export function RouteMap({
       fitPadding: fitPadding(bottomInset, height, topInset),
       colors: { navy: color.brand.navy, selected: color.action.secondary, canvas: color.canvas, casing: color.surface.card },
       focus: focusSelected,
-      shiftY: focusShiftY(bottomInset, height),
+      shiftY: focusShiftY(bottomInset, height, topInset),
     };
     webViewRef.current.injectJavaScript(`window.__renderKakaoMap(${JSON.stringify(data)}); true;`);
   };
@@ -112,14 +115,14 @@ export function RouteMap({
   //    지도가 여행 전체로 튀었다. 마커 모양만 바꾸고 지금 화면에서 고른 곳으로 민다.
   const sendSelect = () => {
     if (!sdkReadyRef.current || !webViewRef.current) return;
-    const data = { selectedId, focus: focusSelected, shiftY: focusShiftY(bottomInset, height) };
+    const data = { selectedId, focus: focusSelected, shiftY: focusShiftY(bottomInset, height, topInset) };
     webViewRef.current.injectJavaScript(`window.__selectKakaoMap(${JSON.stringify(data)}); true;`);
   };
 
   // 여백만 새로 보내 같은 범위를 다시 맞춘다(S15P21E201-1754) — «지도 보기»처럼 딱 끊어지는 전환 때만.
   const sendRefit = () => {
     if (!sdkReadyRef.current || !webViewRef.current) return;
-    const data = { fitPadding: fitPadding(bottomInset, height, topInset), shiftY: focusShiftY(bottomInset, height) };
+    const data = { fitPadding: fitPadding(bottomInset, height, topInset), shiftY: focusShiftY(bottomInset, height, topInset) };
     webViewRef.current.injectJavaScript(`window.__fitKakaoMap(${JSON.stringify(data)}); true;`);
   };
 
