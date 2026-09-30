@@ -607,8 +607,18 @@ public class BaselineCandidateScorer {
 		for (String word : SUL_LOOKALIKES) {
 			withoutLookalikes = withoutLookalikes.replace(word, "");
 		}
-		return withoutLookalikes.contains("술");
+		if (withoutLookalikes.contains("술")) {
+			return true;
+		}
+		// S15P21E201-1873: 상가정보가 「백반/한정식」으로 올린 술집(안광·애취·파자마·나수브)이 할랄에 남았다. 방문 이유 글이
+		// 그 집을 주점·포차·바로 부르면 술집으로 본다. 「와인 페어링」처럼 술을 «파는» 말은 여전히 안 본다.
+		String why = describedTexts(candidate).getOrDefault(WHY_VISIT_FEATURE, "");
+		return containsAny(cleaned(why), ALCOHOL_TEXT_WORDS);
 	}
+
+	/** 방문 이유 글에서 술이 중심인 집을 가리키는 말. 술을 곁들이는 말(와인 페어링·하이볼 한 잔)은 넣지 않았다. */
+	private static final List<String> ALCOHOL_TEXT_WORDS = List.of(
+			"주점", "포차", "칵테일", "위스키", "다이닝 바", "와인바", "와인 바", "전통주", "DJ", "바텐더");
 
 	/**
 	 * 상호명에 이 낱말이 있으면 고기가 중심인 집으로 본다. 「오리」는 뺐다(오리지널·오리엔탈).
@@ -736,7 +746,19 @@ public class BaselineCandidateScorer {
 			"돼지", "삼겹", "목살", "족발", "보쌈", "순대", "수육", "돈까스", "돈가스", "감자탕", "뼈해장", "대패",
 			"항정", "갈매기살", "가브리살", "제육", "김치찜", "짜장", "짬뽕", "탕수육", "라멘", "돈코츠", "차슈", "카츠",
 			"가츠", "베이컨", "소시지", "하몽", "햄버그", "부어스트", "까르니따스", "카르니타스", "CARNITAS", "PORK",
-			"KATSU", "RAMEN", "BACON", "완당", "오돌뼈");
+			"KATSU", "RAMEN", "BACON", "완당", "오돌뼈",
+			// S15P21E201-1873 — 운영 할랄 후보에 백반 업종으로 새던 이름과 메뉴. 영양탕·보신탕은 돼지는 아니지만 할랄이 금하는 고기다.
+			"냉삼", "부대찌개", "영양탕", "보신탕", "햄치즈", "잠봉", "프로슈토", "살라미", "초리조", "페퍼로니", "판체타",
+			"관찰레");
+
+	/**
+	 * 부산에서 대개 돼지고기인 낱말 — 국밥(돼지국밥), 가든(갈비·삼겹 고깃집), 석쇠(석쇠불고기). 돼지로 단정하지는 않는다
+	 * (해운대원조할매국밥은 소고기국밥이다). 대신 할랄이 「백반/한정식」 업종만으로 이런 집을 남기지 않게 한다. 이름에 소·닭·오리
+	 * 낱말이 같이 있으면 그 낱말이 근거가 된다(「한우소고기국밥」).
+	 */
+	private static final List<String> PORK_LIKELY_WORDS = List.of("국밥", "가든", "석쇠");
+
+	private static final List<String> NOT_PORK_MEAT_WORDS = List.of("소고기", "쇠고기", "한우", "오리", "닭", "삼계");
 
 	/** 채소·두부가 중심인 메뉴 이름과 한정식·백반. 이 낱말이 상호에 있으면 채식 근거로 본다(고기·해산물 근거가 없을 때). */
 	private static final List<String> PLANT_DISH_WORDS = List.of(
@@ -744,7 +766,10 @@ public class BaselineCandidateScorer {
 			"한정식", "백반", "밥상", "쌈밥",
 			// 샐러드·포케·샌드위치 가게는 채소만으로 고를 수 있는 메뉴를 늘 둔다(사용자 판단 — 서브웨이 같은 곳).
 			// 「연어포케」처럼 해산물이 이름에 있으면 이 앞의 해산물 검사가 먼저 뺀다.
-			"포케", "POKE", "샐러디", "SALADY", "샌드위치", "SANDWICH", "서브웨이", "SUBWAY");
+			"포케", "POKE", "샐러디", "SALADY", "샌드위치", "SANDWICH", "서브웨이", "SUBWAY",
+			// 백반 업종에서 근거 낱말이 없어 빠졌던 채식 가능 식당(운영 사본 실측, S15P21E201-1873). 「죽」 한 글자는
+			// 죽도·죽성 같은 지명에 걸려 뜻이 하나인 낱말만 쓴다. 전복죽처럼 해산물 이름이 붙으면 이 앞에서 빠진다.
+			"본죽", "죽이야기", "죽집", "야채죽", "맷돌", "집밥", "도시락");
 
 	/** 할랄(느슨)이 남기는 이름 낱말 — 할랄·무슬림을 말하거나, 돼지가 아닌 고기·중동·남아시아 음식을 가리킨다. */
 	private static final List<String> HALAL_FRIENDLY_WORDS = List.of(
@@ -934,7 +959,7 @@ public class BaselineCandidateScorer {
 		String name = cleaned(candidate.nameKo());
 		if (isSeafoodCentric(candidate) || hasPlantEvidence(candidate)
 				|| HALAL_FRIENDLY_SUBCATEGORIES.contains(subCategory(candidate))
-				|| TABLE_MEAL_SUBCATEGORIES.contains(subCategory(candidate))
+				|| (TABLE_MEAL_SUBCATEGORIES.contains(subCategory(candidate)) && !containsAny(name, PORK_LIKELY_WORDS))
 				|| containsAny(name, HALAL_FRIENDLY_WORDS)) {
 			return true;
 		}

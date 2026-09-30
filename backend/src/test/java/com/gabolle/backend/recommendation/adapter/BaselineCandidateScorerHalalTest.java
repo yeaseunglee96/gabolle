@@ -67,6 +67,24 @@ class BaselineCandidateScorerHalalTest {
 		}
 		assertThat(reasonOf(score(candidate("해운대 국수", List.of()), halal()))).as("근거 없는 식당")
 				.isEqualTo("NO_HALAL_FRIENDLY_EVIDENCE");
+		// 운영 할랄 후보에 백반 업종으로 새던 돼지고기·금하는 고기 집(S15P21E201-1873).
+		for (String name : List.of("부원냉삼집", "우갑년부대찌개", "영양탕")) {
+			assertThat(reasonOf(score(candidate(name, List.of(subCategory("백반/한정식"))), halal()))).as(name)
+					.isEqualTo("PORK_CENTRIC");
+		}
+		// 국밥·가든·석쇠는 돼지로 단정하지 않되, 백반 업종만으로는 남기지 않는다.
+		for (String name : List.of("수변최고국밥", "오성가든", "바우석쇠")) {
+			assertThat(reasonOf(score(candidate(name, List.of(subCategory("백반/한정식"))), halal()))).as(name)
+					.isEqualTo("NO_HALAL_FRIENDLY_EVIDENCE");
+		}
+		// 소·닭 낱말이 같이 있으면 국밥·가든이어도 돼지로 보지 않는다.
+		assertThat(score(candidate("뚝방국수랑 한우소고기국밥", List.of()), halal()).constraintVerdict())
+				.isEqualTo(ConstraintVerdict.PASS);
+		// 방문 이유 글이 주점·바라고 부르면 술집이다.
+		assertThat(reasonOf(score(candidate("안광", List.of(subCategory("백반/한정식"),
+				new PlaceFeatureView("WHY_VISIT", null, "ESTIMATED",
+						new ObjectMapper().readTree("{\"reasons\":[{\"note\":\"한식 안주를 내는 요리 주점\"}]}"), null, "R"))),
+				halal()))).isEqualTo("ALCOHOL_CENTRIC");
 		// 백반 업종이어도 돼지고기 이름이면 빠진다(S15P21E201-1873, 운영에서 새던 오돌뼈구이).
 		assertThat(reasonOf(score(candidate("누구나오돌뼈구이", List.of(subCategory("백반/한정식"))), halal())))
 				.isEqualTo("PORK_CENTRIC");
