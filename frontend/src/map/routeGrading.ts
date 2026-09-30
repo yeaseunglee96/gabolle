@@ -12,9 +12,21 @@
 // 색을 정하는 규칙(사용자가 고른 조건마다 다르다)
 //
 //   경사만        5% 미만 초록 · 5~8.33% 노랑 · 8.33% 초과 빨강                          (slopeGrades.ts)
-//   그늘만        나쁨 점수 = 1 − 그늘.            0.33 미만 초록 · 0.66 미만 노랑 · 그 이상 빨강
-//   경사 + 그늘   나쁨 점수 = 0.6 × min(경사 ÷ 8.33, 1) + 0.4 × (1 − 그늘).   같은 문턱(0.33 · 0.66)
+//   그늘만        나쁨 점수 = shadeBad(그늘).       0.33 미만 초록 · 0.66 미만 노랑 · 그 이상 빨강
+//   경사 + 그늘   나쁨 점수 = 0.6 × slopeBad(경사) + 0.4 × shadeBad(그늘).   같은 문턱(0.33 · 0.66)
 //   계단          어느 경우든 빨강
+//
+// 🔴 점수는 각 값의 «자기 경계» 가 점수 문턱에 오게 구간별로 바꾼다 (S15P21E201-1898).
+//    slopeBad  — 5% → 0.33, 8.33% → 0.66 바로 아래. 경사만 골랐을 때의 초록·노랑·빨강 경계와 똑같다.
+//    shadeBad  — 그늘 0.30 이상 → 초록 쪽, 0.05 이하 → 빨강 쪽. 부산 길 기준의 상대값이다.
+//    처음(S15P21E201-1896)에는 0.6 × min(경사 ÷ 8.33, 1) + 0.4 × (1 − 그늘) 이었다. 부산 길 그늘(건물 그림자 하루 평균)은
+//    중앙값 0.20 · 상위 10% 0.49 라서, 그늘을 절대값으로 보면 거의 모든 길이 「그늘 없음」이 되고 경사 4%(중앙값)도
+//    0.48 로 노랑이 됐다. 여섯 지역 18,408조각(길이 가중)으로 잰 색 분포:
+//                        초록   노랑   빨강
+//      경사만              58%    17%    22%
+//      그늘만   옛 식        1%    18%    81%     →  새 식  23%  43%  34%
+//      경사+그늘 옛 식       5%    51%    42%     →  새 식  37%  39%  21%
+//    새 식은 빨강 비율이 «경사만» 일 때와 거의 같고, 그늘을 함께 고른 만큼 초록이 노랑으로 옮겨 간다.
 //   한쪽만 안다   아는 쪽을 **그 쪽 자기 기준** 으로 — 경사만 알면 «경사만» 색, 그늘만 알면 «그늘만» 색
 //   둘 다 모른다  회색
 //
@@ -22,7 +34,7 @@
 //    맞았다) 그늘을 모르는 조각이 많다. 그 조각을 합친 점수의 문턱(경사 2.75%·5.5%)으로 칠하면, 같은 길인데 그늘 자료의 유무에
 //    따라 «경사만 골랐을 때» 와 색의 기준이 달라진다. 자료가 없는 곳은 조용히 «경사만 골랐을 때» 의 그림으로 물러난다.
 import type { MapPathPoint } from './types';
-import { GRADE_COLOR, piecesFitPath, slopeGrade, STEEP_SLOPE_PERCENT, type Grade, type SlopePiece } from './slopeGrades';
+import { GRADE_COLOR, MODERATE_SLOPE_PERCENT, piecesFitPath, slopeGrade, STEEP_SLOPE_PERCENT, type Grade, type SlopePiece } from './slopeGrades';
 
 /**
  * 사용자가 고른 조건. slope = «가파른 경사 피하기»(AVOID), shade = «그늘 많은 곳 우선»(PREFER).
@@ -59,13 +71,42 @@ function gradeOfScore(score: number): Grade {
   return 'bad';
 }
 
+/** 그늘이 이만큼 이상이면 초록 쪽 — 부산 길 그늘의 상위 약 25%. */
+export const SHADE_GOOD_AT = 0.3;
+/** 그늘이 이만큼 이하면 빨강 쪽 — 거의 온종일 볕. */
+export const SHADE_BAD_AT = 0.05;
+
+/** 경계 바로 아래 — 경계값 자신이 윗 등급으로 넘어가지 않게 한다(8.33% 자신은 노랑, 그늘 0.30 자신은 초록). */
+const JUST_BELOW = 1e-9;
+
 /**
- * 경사와 그늘을 둘 다 알 때의 나쁨 점수(0 좋음 ~ 1 나쁨) — 0.6 × min(경사 ÷ 8.33, 1) + 0.4 × (1 − 그늘).
- * 경사는 8.33% 에서 1 로 붙는다(그보다 가팔라도 «가장 나쁨» 이상은 없다). 그늘은 0~1 이고 1 이 온통 그늘이다.
+ * 경사 → 나쁨 점수(0~1). 5% 에서 0.33, 8.33% 에서 0.66 바로 아래가 되게 구간마다 곧게 잇는다 —
+ * «경사만» 의 경계(5 · 8.33)와 점수 문턱(0.33 · 0.66)이 같은 자리에 온다. 8.33% 를 넘으면 16.66% 에서 1 로 붙는다.
  */
+export function slopeBad(slopePercent: number): number {
+  const s = Math.max(slopePercent, 0);
+  if (s < MODERATE_SLOPE_PERCENT) return (s / MODERATE_SLOPE_PERCENT) * GOOD_BELOW;
+  if (s <= STEEP_SLOPE_PERCENT) {
+    const t = (s - MODERATE_SLOPE_PERCENT) / (STEEP_SLOPE_PERCENT - MODERATE_SLOPE_PERCENT);
+    return GOOD_BELOW + t * (FAIR_BELOW - GOOD_BELOW - JUST_BELOW);
+  }
+  return Math.min(FAIR_BELOW + ((s - STEEP_SLOPE_PERCENT) / STEEP_SLOPE_PERCENT) * (1 - FAIR_BELOW), 1);
+}
+
+/**
+ * 그늘(0~1) → 나쁨 점수(0~1). {@link SHADE_GOOD_AT} 이상이면 초록 쪽, {@link SHADE_BAD_AT} 이하면 빨강 쪽으로
+ * 구간마다 곧게 잇는다. 절대값(1 − 그늘)으로 보면 부산 길 대부분이 빨강이라(중앙값 0.20) 부산 길 기준으로 잰다.
+ */
+export function shadeBad(shade: number): number {
+  const g = Math.min(Math.max(shade, 0), 1);
+  if (g >= SHADE_GOOD_AT) return (1 - (g - SHADE_GOOD_AT) / (1 - SHADE_GOOD_AT)) * (GOOD_BELOW - JUST_BELOW);
+  if (g > SHADE_BAD_AT) return GOOD_BELOW + ((SHADE_GOOD_AT - g) / (SHADE_GOOD_AT - SHADE_BAD_AT)) * (FAIR_BELOW - GOOD_BELOW);
+  return FAIR_BELOW + ((SHADE_BAD_AT - g) / SHADE_BAD_AT) * (1 - FAIR_BELOW);
+}
+
+/** 경사와 그늘을 둘 다 알 때의 나쁨 점수(0 좋음 ~ 1 나쁨) — 0.6 × slopeBad(경사) + 0.4 × shadeBad(그늘). */
 export function combinedScore(slopePercent: number, shade: number): number {
-  const slopeBad = Math.min(Math.max(slopePercent, 0) / STEEP_SLOPE_PERCENT, 1);
-  return SLOPE_WEIGHT * slopeBad + SHADE_WEIGHT * (1 - shade);
+  return SLOPE_WEIGHT * slopeBad(slopePercent) + SHADE_WEIGHT * shadeBad(shade);
 }
 
 /** 고른 조건으로 본 조각의 등급. */
@@ -76,7 +117,7 @@ export function pieceGrade(piece: SlopePiece, grading: RouteGrading): Grade {
   const slopeKnown = grading.slope && typeof piece.slopePercent === 'number' && Number.isFinite(piece.slopePercent);
   if (slopeKnown && shade !== null) return gradeOfScore(combinedScore(piece.slopePercent as number, shade));
   if (slopeKnown) return slopeGrade(piece);
-  if (shade !== null) return gradeOfScore(1 - shade);
+  if (shade !== null) return gradeOfScore(shadeBad(shade));
   return 'unknown';
 }
 

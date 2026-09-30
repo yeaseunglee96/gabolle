@@ -64,7 +64,9 @@ const { success, warning, danger, muted } = { success: color.state.success, warn
 const EXPECT = {
   slope: [danger, warning, danger, muted], // 9.1% 빨강 · 6% 노랑 · 계단 빨강 · 경사 모름 회색
   shade: [danger, success, danger, success], // 그늘 0 빨강 · 0.9 초록 · 계단 빨강 · 0.8 초록 — 경사는 안 본다
-  both: [danger, warning, danger, success], // 합친 점수: 1.0 빨강 · 0.6·0.72+0.04 = 0.47 노랑 · 계단 빨강 · 경사 모르면 그늘만(0.2 초록)
+  // 합친 점수(S15P21E201-1898): 9.1%·그늘 0 → 0.81 빨강 · 6%·그늘 0.9 → 0.6·0.43+0.4·0.05 = 0.28 초록(경사만 보면 노랑이지만
+  // 그늘이 넉넉하다) · 계단 빨강 · 경사 모르면 그늘만(0.8 → 0.09 초록)
+  both: [danger, success, danger, success],
 };
 
 describe('웹 지도 — 고른 조건대로 칠하기', () => {
@@ -98,7 +100,8 @@ describe('웹 지도 — 고른 조건대로 칠하기', () => {
     expect(routeColors()).toEqual(EXPECT.shade);
   });
 
-  it('🔴 둘 다 골랐으면 합친 점수 — 6%·그늘 0.9 는 노랑(그늘만 보면 초록·경사만 보면 노랑), 경사 모르는 조각은 그늘만으로', () => {
+  it('🔴 둘 다 골랐으면 합친 점수 — 6%·그늘 0.9 는 초록(경사만 보면 노랑), 경사 모르는 조각은 그늘만으로', () => {
+    expect(EXPECT.both).not.toEqual(EXPECT.slope); // 합친 점수가 «경사만» 과 다르게 칠한다
     mount(routeOf({ slope: true, shade: true }));
     expect(routeColors()).toEqual(EXPECT.both);
   });
