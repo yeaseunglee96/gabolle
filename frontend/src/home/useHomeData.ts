@@ -41,7 +41,7 @@ export function festivalWindow(now: Date = new Date()): { startDate: string; end
 }
 
 /** 홈 카드가 쓰는 칸만 — 이름·주소·사진. 장소 검색 결과도 축제도 이 모양으로 그린다. */
-export type HomeCardPlace = Pick<PlaceSearchItem, 'placeId' | 'nameKo' | 'address' | 'photoUrl' | 'photoSource' | 'photoSubject' | 'photoLicense'>;
+export type HomeCardPlace = Pick<PlaceSearchItem, 'placeId' | 'nameKo' | 'nameEn' | 'localNames' | 'address' | 'addressEn' | 'localAddresses' | 'photoUrl' | 'photoSource' | 'photoSubject' | 'photoLicense'>;
 
 /** 축제를 홈 카드로. 같은 장소가 두 번(기간 둘) 오면 앞의 것만 — 한 줄에 같은 카드가 둘 서지 않게. */
 export function festivalCards(festivals: Festival[]): HomeCardPlace[] {
@@ -49,7 +49,7 @@ export function festivalCards(festivals: Festival[]): HomeCardPlace[] {
   return festivals.flatMap((festival) => {
     if (seen.has(festival.placeId)) return [];
     seen.add(festival.placeId);
-    return [{ placeId: festival.placeId, nameKo: festivalDisplayTitle(festival), address: festival.address, photoUrl: festival.photoUrl, photoSource: festival.photoSource, photoSubject: festival.photoSubject, photoLicense: festival.photoLicense }];
+    return [{ placeId: festival.placeId, nameKo: festivalDisplayTitle(festival), nameEn: festival.nameEn ?? null, localNames: festival.localNames, address: festival.address, photoUrl: festival.photoUrl, photoSource: festival.photoSource, photoSubject: festival.photoSubject, photoLicense: festival.photoLicense }];
   });
 }
 

@@ -581,7 +581,7 @@ function ReviewStep({ draft, update, tx, language, styleSkipped, accessibilityCo
           <PassRow label={tx('꼭 가고 싶은 곳', 'Must-visit places')} value={must || tx('없음', 'None')} open={open === 'must'} onPress={() => toggle('must')} />
           {open === 'must' ? (
             <View style={styles.expand}>
-              <MustVisitSearch picked={draft.mustVisitPlaces} onChange={(next) => update({ mustVisitPlaces: next })} tx={tx} ko={language === 'ko'} />
+              <MustVisitSearch picked={draft.mustVisitPlaces} onChange={(next) => update({ mustVisitPlaces: next })} tx={tx} ko={language === 'ko'} language={language} />
             </View>
           ) : null}
         </View>

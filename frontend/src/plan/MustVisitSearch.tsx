@@ -6,10 +6,13 @@ import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { searchPlacesByName, type PlaceSearchItem } from '@/discovery/places';
+import { addressForLanguage } from '@/discovery/localAddress';
+import { localNameFor } from '@/discovery/localNames';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import type { MustVisitPlace } from '@/plan/PlanProvider';
 import { txf } from '@/i18n/format';
+import type { LanguageCode } from '@/i18n/languages';
 import { KOREAN_OR_ENGLISH_HINT, needsKoreanOrEnglishName } from '@/discovery/nameSearchHint';
 
 /** 최대 몇 곳까지 담나. 넘으면 추천이 「이 여행」이 아니라 「이 목록」이 된다. */
@@ -24,12 +27,16 @@ export function MustVisitSearch({
   onChange,
   tx,
   ko,
+  language: languageProp,
 }: {
   picked: MustVisitPlace[];
   onChange: (next: MustVisitPlace[]) => void;
   tx: (koText: string, enText: string) => string;
   ko: boolean;
+  language?: LanguageCode;
 }) {
+  // 이름·주소를 화면 언어로(S15P21E201-1877). 부르는 쪽이 안 주면 예전처럼 ko 로만 가른다.
+  const language: LanguageCode = languageProp ?? (ko ? 'ko' : 'en');
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<PlaceSearchItem[]>([]);
   const [searching, setSearching] = useState(false);
@@ -122,8 +129,8 @@ export function MustVisitSearch({
               >
                 <View style={styles.badge}><Text variant="caption" weight="bold" color={color.text.muted} numberOfLines={1}>{(item.category ?? '').slice(0, 2)}</Text></View>
                 <View style={styles.rowCopy}>
-                  <Text weight="bold" numberOfLines={1}>{ko ? item.nameKo : item.nameEn ?? item.nameKo}</Text>
-                  <Text variant="caption" color={color.text.muted} numberOfLines={1}>{item.address}</Text>
+                  <Text weight="bold" numberOfLines={1}>{ko ? item.nameKo : localNameFor(item.localNames, language) ?? item.nameEn ?? item.nameKo}</Text>
+                  <Text variant="caption" color={color.text.muted} numberOfLines={1}>{addressForLanguage(item, language)}</Text>
                 </View>
                 <Text variant="caption" weight="bold" color={already ? color.state.success : color.brand.navy}>
                   {already ? tx('✓ 담김', '✓ Added') : tx('담기', 'Add')}

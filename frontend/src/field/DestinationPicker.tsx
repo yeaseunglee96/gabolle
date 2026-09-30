@@ -13,6 +13,8 @@ import { busLinesOf, loadTodayTargets, rideSummary, searchDestinations, type Des
 import { formatDuration } from '@/field/routeLegs';
 import { taxiCardHref } from '@/field/taxiDestination';
 import { txf } from '@/i18n/format';
+import { useI18n } from '@/i18n';
+import { addressForLanguage } from '@/discovery/localAddress';
 import { getRouteDirections, type RouteDirections, type RouteDirectionsResult } from '@/map/routeDirections';
 
 type Tx = (ko: string, en: string) => string;
@@ -32,6 +34,7 @@ export function DestinationPicker({ origin, stops, accessToken, tx, onLinesChang
   onAskLocation: () => void;
   askLabel: string;
 }) {
+  const { language } = useI18n();
   const router = useRouter();
   const [targets, setTargets] = useState<TodayTargets | null>(null);
   const [query, setQuery] = useState('');
@@ -157,7 +160,7 @@ export function DestinationPicker({ origin, stops, accessToken, tx, onLinesChang
                   {results.map((item) => (
                     <Pressable key={item.key} accessibilityRole="button" onPress={() => choose(item)} style={({ pressed }) => [styles.resultRow, pressed && styles.pressed]}>
                       <Text weight="bold" numberOfLines={1}>{nameOf(item)}</Text>
-                      {item.address ? <Text variant="caption" color={color.text.muted} numberOfLines={1}>{item.address}</Text> : null}
+                      {item.address ? <Text variant="caption" color={color.text.muted} numberOfLines={1}>{addressForLanguage(item, language)}</Text> : null}
                     </Pressable>
                   ))}
                 </View>

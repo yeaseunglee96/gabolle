@@ -18,6 +18,9 @@ import { useAuth } from '@/auth/AuthProvider';
 import { resolveHomeTripDestination } from './tripNavigation';
 import { HomeRow, homeCardWidth } from './HomeRow';
 import type { HomeCardPlace, HomeFacetRow } from './useHomeData';
+import { addressForLanguage } from '@/discovery/localAddress';
+import { otherNameFor } from '@/discovery/localNames';
+import { placeNameForLanguage } from '@/discovery/romanize';
 import { relativeStoryTime, type StoryDto, storyPlaceName } from '@/social/stories';
 import type { TripSummaryDto } from '@/trip/trips';
 import { humanTripTitle, tripDatesLabel, tripNameOrDates } from '@/trip/tripNaming';
@@ -167,7 +170,9 @@ function PlaceCard({
   onToggleLike: () => void;
 }) {
   const router = useRouter();
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
+  // 🔴 이름·주소가 언어와 상관없이 한국어였다(S15P21E201-1877). 한국어 화면은 그대로 둔다.
+  const shownName = language === 'ko' ? place.nameKo : placeNameForLanguage(place.nameKo, otherNameFor(place.nameEn, place.localNames, language), language);
   return (
     <View style={{ width: cardWidth }}>
       <Pressable
@@ -206,8 +211,8 @@ function PlaceCard({
         </View>
       </Pressable>
 
-      <Text variant="body" weight="bold" color={color.text.heading} numberOfLines={1} style={styles.placeName}>{place.nameKo}</Text>
-      <Text variant="caption" color={color.text.body} numberOfLines={1}>{place.address ?? ''}</Text>
+      <Text variant="body" weight="bold" color={color.text.heading} numberOfLines={1} style={styles.placeName}>{shownName}</Text>
+      <Text variant="caption" color={color.text.body} numberOfLines={1}>{addressForLanguage(place, language)}</Text>
     </View>
   );
 }
