@@ -162,9 +162,10 @@ class BaselineCandidateScorerVegetarianTest {
 	}
 
 	@Test
-	@DisplayName("S15P21E201-1873 — 한정식·백반은 나물·두부·밥으로 한 끼가 되어 남긴다. 고기 근거가 있으면 빠진다")
+	@DisplayName("S15P21E201-1873 — 한정식·백반은 이름이나 글에 근거가 있으면 남긴다. 고기 근거가 있으면 빠진다")
 	void 한정식_백반은_남긴다() {
-		for (PlaceCandidateResponse.Candidate candidate : List.of(candidate("할매밥집", List.of(subCategory("백반/한정식"))),
+		for (PlaceCandidateResponse.Candidate candidate : List.of(
+				candidate("백번집", List.of(subCategory("백반/한정식"), menu("정식백반"))),
 				candidate("청학 한정식", List.of()), candidate("시골쌈밥", List.of()))) {
 			EngineCandidate result = score(candidate, diet("VEGETARIAN"));
 			assertThat(result.constraintVerdict()).as(candidate.nameKo()).isEqualTo(ConstraintVerdict.PASS);
@@ -174,6 +175,19 @@ class BaselineCandidateScorerVegetarianTest {
 				.isEqualTo("MEAT_CENTRIC");
 		assertThat(reasonOf(score(candidate("기사식당", List.of(subCategory("백반/한정식"), menu("제육볶음 9,000원"))),
 				diet("VEGETARIAN")))).isEqualTo("MEAT_CENTRIC");
+	}
+
+	@Test
+	@DisplayName("S15P21E201-1873 — 「백반/한정식」 업종만으로는 채식에 안 남는다. 운영 채식 여행에 곰탕·오돌뼈 집과 술집이 들어갔다")
+	void 백반_업종만으로는_안_남긴다() {
+		for (String name : List.of("누구나오돌뼈구이", "서울육계장", "바로해장")) {
+			assertThat(reasonOf(score(candidate(name, List.of(subCategory("백반/한정식"))), diet("VEGETARIAN")))).as(name)
+					.isEqualTo("MEAT_CENTRIC");
+		}
+		for (String name : List.of("의령식당", "광안술잔", "파자마바")) {
+			assertThat(reasonOf(score(candidate(name, List.of(subCategory("백반/한정식"))), diet("VEGETARIAN")))).as(name)
+					.isEqualTo("NO_PLANT_EVIDENCE");
+		}
 	}
 
 	@Test

@@ -67,6 +67,9 @@ class BaselineCandidateScorerHalalTest {
 		}
 		assertThat(reasonOf(score(candidate("해운대 국수", List.of()), halal()))).as("근거 없는 식당")
 				.isEqualTo("NO_HALAL_FRIENDLY_EVIDENCE");
+		// 백반 업종이어도 돼지고기 이름이면 빠진다(S15P21E201-1873, 운영에서 새던 오돌뼈구이).
+		assertThat(reasonOf(score(candidate("누구나오돌뼈구이", List.of(subCategory("백반/한정식"))), halal())))
+				.isEqualTo("PORK_CENTRIC");
 	}
 
 	@Test
