@@ -205,3 +205,50 @@ export function extraRows(category: string | undefined, features: readonly Place
     amenitiesRow(features, tx),
   ].filter((row): row is ExtraRow => row !== null);
 }
+
+// ─── 공인 표식(RECOGNITION) — S15P21E201-1892 ─────────────────────────────
+//
+// 백엔드 S15P21E201-1891 의 값: {"badges":[{"kind","since","menu","source"}]}.
+//   MODEL_RESTAURANT  구·군이 지정한 모범음식점(부산광역시_구군 모범음식점 현황)
+//   TAXI_DRIVER_PICK  택시기사 추천 식당(부산광역시 택슐랭 선정 식당 2025)
+// 공공기관이 정한 공식 지정이라 추정이 아니다 — 「(추정)」을 붙이지 않는다.
+// 모르는 kind 는 이름을 못 붙이므로 건너뛴다(서버 적재기도 받지 않는다).
+
+export type BadgeKind = 'MODEL_RESTAURANT' | 'TAXI_DRIVER_PICK';
+
+export type RecognitionBadge = { kind: BadgeKind; label: string; menu: string | null; source: string };
+
+/**
+ * 출처 글. 한국어 화면은 서버가 준 원문 그대로, 그 밖의 언어는 종류별 번역 — 한국어 원문을 외국어 화면에 내면 읽을 수 없다.
+ * 이름표는 글자 그대로 tx 에 넣는다(번역 검사가 보도록).
+ */
+function badgeText(kind: BadgeKind, tx: Tx): { label: string; source: string } {
+  return kind === 'MODEL_RESTAURANT'
+    ? { label: tx('모범음식점', 'Model Restaurant'), source: tx('부산광역시 모범음식점 현황', 'Busan Model Restaurant list') }
+    : { label: tx('택시기사 추천', 'Taxi drivers’ pick'), source: tx('부산광역시 택슐랭 선정 식당(2025)', 'Busan “Taxlin” restaurant picks (2025)') };
+}
+
+export function recognitionBadges(features: readonly PlaceFeature[] | undefined, language: LanguageCode, tx: Tx): RecognitionBadge[] {
+  const slot = find(features, 'RECOGNITION');
+  if (!slot || !Array.isArray(slot.value.badges)) return [];
+  const out: RecognitionBadge[] = [];
+  const seen = new Set<BadgeKind>();
+  for (const raw of slot.value.badges as unknown[]) {
+    if (!raw || typeof raw !== 'object') continue;
+    const badge = raw as Obj;
+    const kind = badge.kind;
+    if (kind !== 'MODEL_RESTAURANT' && kind !== 'TAXI_DRIVER_PICK') continue;
+    if (seen.has(kind)) continue;
+    seen.add(kind);
+    const text = badgeText(kind, tx);
+    const menu = str(badge.menu);
+    out.push({
+      kind,
+      label: text.label,
+      // 메뉴 이름은 한국어 그대로 — 가게에서 가리켜 주문할 수 있게.
+      menu: menu ? txf(tx, '추천 메뉴: %s', 'Recommended dish: %s', menu) : null,
+      source: language === 'ko' ? str(badge.source) ?? text.source : text.source,
+    });
+  }
+  return out;
+}

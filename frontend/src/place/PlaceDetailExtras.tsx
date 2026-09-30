@@ -10,7 +10,7 @@ import type { PlaceFeature } from '@/discovery/places';
 import { useI18n } from '@/i18n';
 import { txf } from '@/i18n/format';
 
-import { extraRows, homepageUrl, menuLines, MENU_PREVIEW_COUNT } from './detailExtras';
+import { extraRows, homepageUrl, menuLines, MENU_PREVIEW_COUNT, recognitionBadges } from './detailExtras';
 
 type Props = { category?: string; features?: readonly PlaceFeature[] };
 
@@ -18,6 +18,7 @@ export function PlaceDetailExtras({ category, features }: Props) {
   const { tx, language } = useI18n();
   const [menuOpen, setMenuOpen] = useState(false);
   const rows = extraRows(category, features, tx);
+  const badges = recognitionBadges(features, language, tx);
   const homepage = homepageUrl(features);
   const menu = menuLines(features, language, tx);
   const shownMenu = menuOpen ? menu : menu.slice(0, MENU_PREVIEW_COUNT);
@@ -25,6 +26,23 @@ export function PlaceDetailExtras({ category, features }: Props) {
 
   return (
     <>
+      {badges.length ? (
+        <View testID="place-recognition" style={[styles.card, styles.badgeCard]}>
+          <View style={styles.pills}>
+            {badges.map((badge) => (
+              <View key={badge.kind} testID={`place-badge-${badge.kind}`} style={styles.pill}>
+                <Text variant="caption" weight="bold" color={color.state.success}>{badge.label}</Text>
+              </View>
+            ))}
+          </View>
+          {badges.map((badge) => (badge.menu ? (
+            <Text key={`${badge.kind}-menu`} testID={`place-badge-menu-${badge.kind}`} variant="body">{badge.menu}</Text>
+          ) : null))}
+          <Text testID="place-recognition-source" variant="caption" color={color.text.muted}>
+            {badges.map((badge) => badge.source).join(' · ')}
+          </Text>
+        </View>
+      ) : null}
       {rows.length || homepage ? (
         <View testID="place-detail-extras" style={styles.card}>
           {rows.map((row) => (
@@ -71,6 +89,9 @@ export function PlaceDetailExtras({ category, features }: Props) {
 const styles = StyleSheet.create({
   card: { marginTop: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, overflow: 'hidden' },
   row: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3], paddingHorizontal: spacing[4], paddingVertical: spacing[3], borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: color.surface.border },
+  badgeCard: { gap: spacing[2], paddingHorizontal: spacing[4], paddingVertical: spacing[3] },
+  pills: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
+  pill: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.state.successBg },
   label: { flexShrink: 0 },
   valueBox: { flexShrink: 1, alignItems: 'flex-end' },
   valueText: { flexShrink: 1, textAlign: 'right' },

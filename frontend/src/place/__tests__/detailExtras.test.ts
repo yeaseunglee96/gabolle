@@ -1,6 +1,6 @@
 import {
   admissionFeeRow, amenitiesRow, bestTimeRow, extraRows, foreignMenuRow, formatDistance, formatWon, homepageUrl,
-  menuLines, nearbyLandmarkRow, pickBestTime, walkDifficulty, walkDifficultyRow,
+  menuLines, nearbyLandmarkRow, pickBestTime, recognitionBadges, walkDifficulty, walkDifficultyRow,
 } from '../detailExtras';
 
 const ko = (k: string) => k;
@@ -89,5 +89,41 @@ describe('정보 줄', () => {
 
   it('아무 것도 없으면 줄이 없다(백엔드 !1930 전 서버)', () => {
     expect(extraRows('FOOD', [f('OPENING_HOURS', { raw: 'x' })], ko)).toEqual([]);
+  });
+});
+
+describe('공인 표식(RECOGNITION) — S15P21E201-1892', () => {
+  const both = f('RECOGNITION', { badges: [
+    { kind: 'MODEL_RESTAURANT', since: '2019-05-01', menu: null, source: '부산광역시 모범음식점 현황' },
+    { kind: 'TAXI_DRIVER_PICK', since: null, menu: '선지국밥', source: '부산광역시 택슐랭 선정 식당(2025)' },
+  ] });
+
+  it('한국어: 이름표·추천 메뉴·서버가 준 출처 원문', () => {
+    expect(recognitionBadges([both], 'ko', ko)).toEqual([
+      { kind: 'MODEL_RESTAURANT', label: '모범음식점', menu: null, source: '부산광역시 모범음식점 현황' },
+      { kind: 'TAXI_DRIVER_PICK', label: '택시기사 추천', menu: '추천 메뉴: 선지국밥', source: '부산광역시 택슐랭 선정 식당(2025)' },
+    ]);
+  });
+
+  it('영어: 출처는 번역, 메뉴 이름은 한국어 그대로(가리켜 주문할 수 있게)', () => {
+    const [model, taxi] = recognitionBadges([both], 'en', en);
+    expect(model).toMatchObject({ label: 'Model Restaurant', source: 'Busan Model Restaurant list' });
+    expect(taxi).toMatchObject({ label: 'Taxi drivers’ pick', menu: 'Recommended dish: 선지국밥' });
+  });
+
+  it('🔴 공식 지정이라 ESTIMATED 여도 「(추정)」을 붙이지 않는다', () => {
+    const est = f('RECOGNITION', { badges: [{ kind: 'MODEL_RESTAURANT', source: 'x' }] }, 'ESTIMATED');
+    expect(JSON.stringify(recognitionBadges([est], 'ko', ko))).not.toContain('추정');
+  });
+
+  it('없거나 모양이 틀리면 빈 목록, 모르는 종류·겹친 종류는 뺀다', () => {
+    expect(recognitionBadges(undefined, 'ko', ko)).toEqual([]);
+    expect(recognitionBadges([], 'ko', ko)).toEqual([]);
+    expect(recognitionBadges([f('RECOGNITION', { badges: 'x' })], 'ko', ko)).toEqual([]);
+    expect(recognitionBadges([f('RECOGNITION', { badges: [{ kind: 'MODEL_RESTAURANT', source: 'x' }] }, 'UNKNOWN')], 'ko', ko)).toEqual([]);
+    const odd = f('RECOGNITION', { badges: [
+      { kind: 'MICHELIN', source: 'x' }, { kind: 'TAXI_DRIVER_PICK', source: 'a' }, { kind: 'TAXI_DRIVER_PICK', source: 'b' },
+    ] });
+    expect(recognitionBadges([odd], 'ko', ko).map((b) => b.kind)).toEqual(['TAXI_DRIVER_PICK']);
   });
 });
