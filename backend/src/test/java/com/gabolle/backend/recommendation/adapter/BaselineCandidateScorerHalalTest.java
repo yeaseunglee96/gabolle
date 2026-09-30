@@ -127,6 +127,32 @@ class BaselineCandidateScorerHalalTest {
 		}
 	}
 
+	@Test
+	@DisplayName("할랄 지원 표식이 붙은 집은 고기·술 낱말이 있어도 빼지 않는다 — 목록의 케밥집·삼계탕집")
+	void 할랄_표식이_있으면_낱말로_안뺀다() {
+		for (PlaceCandidateResponse.Candidate candidate : List.of(
+				candidate("사마르칸트", List.of(menu("샤슬릭 꼬치구이 · 카존 케밥"), halalTag())),
+				candidate("원조서울삼계탕", List.of(halalTag())),
+				candidate("발리우드 BAR", List.of(halalTag())))) {
+			EngineCandidate result = score(candidate, halal());
+			assertThat(result.constraintVerdict()).as(candidate.nameKo()).isEqualTo(ConstraintVerdict.PASS);
+			assertThat(result.warningCodes()).as(candidate.nameKo()).doesNotContain("DIET_SUPPORT_UNVERIFIED");
+		}
+	}
+
+	@Test
+	@DisplayName("표식은 그 식단에만 — 할랄 표식이 있는 삼계탕집도 채식에서는 빠진다")
+	void 할랄_표식은_채식_판정을_안푼다() {
+		EngineCandidate result = score(candidate("원조서울삼계탕", List.of(halalTag())), diet("VEGETARIAN"));
+		assertThat(result.constraintVerdict()).isEqualTo(ConstraintVerdict.FAIL);
+		assertThat(result.violations()).anySatisfy(v -> assertThat(v.get("reason")).isEqualTo("MEAT_CENTRIC"));
+	}
+
+	private static PlaceFeatureView halalTag() {
+		return new PlaceFeatureView("DIETARY_SUPPORT_TAG", "HALAL", "VERIFIED", new ObjectMapper().readTree("true"),
+				null, "KTO_MUSLIM_FRIENDLY");
+	}
+
 	private EngineCandidate score(PlaceCandidateResponse.Candidate candidate, TripConstraint constraint) {
 		return this.scorer.score(candidate, null, List.of(constraint), 5000,
 				new BaselineEngineProperties.Weights(0.30, 0.20, 0.15, 0.15, 0.10, 0.10),
