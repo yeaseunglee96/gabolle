@@ -165,7 +165,7 @@ class BaselineCandidateScorerVegetarianTest {
 	@DisplayName("S15P21E201-1873 — 한정식·백반은 이름이나 글에 근거가 있으면 남긴다. 고기 근거가 있으면 빠진다")
 	void 한정식_백반은_남긴다() {
 		for (PlaceCandidateResponse.Candidate candidate : List.of(
-				candidate("백번집", List.of(subCategory("백반/한정식"), menu("정식백반"))),
+				candidate("백번집", List.of(subCategory("백반/한정식"), menu("된장찌개 정식 · 나물 반찬"))),
 				candidate("청학 한정식", List.of()), candidate("시골쌈밥", List.of()))) {
 			EngineCandidate result = score(candidate, diet("VEGETARIAN"));
 			assertThat(result.constraintVerdict()).as(candidate.nameKo()).isEqualTo(ConstraintVerdict.PASS);
@@ -185,6 +185,23 @@ class BaselineCandidateScorerVegetarianTest {
 					.as(name).isEqualTo(ConstraintVerdict.PASS);
 		}
 		assertThat(reasonOf(score(candidate("전복죽 전문", List.of()), diet("VEGETARIAN")))).isEqualTo("SEAFOOD_CENTRIC");
+	}
+
+	@Test
+	@DisplayName("S15P21E201-1873 — 방문 이유 글의 「백반집」「도시락」은 채식 근거가 아니다. 쭈꾸미 집과 시장 백반집이 남았다")
+	void 글의_가게_종류_낱말은_근거가_아니다() {
+		assertThat(reasonOf(score(candidate("양순식당", List.of(subCategory("백반/한정식"),
+				whyVisit("새벽시장 상인과 인근 주민들이 찾는 생활형 백반집"))), diet("VEGETARIAN")))).isEqualTo("NO_PLANT_EVIDENCE");
+		assertThat(reasonOf(score(candidate("열린밥집", List.of(subCategory("백반/한정식"),
+				whyVisit("도시락 및 김밥 등 간편 식사"))), diet("VEGETARIAN")))).isEqualTo("NO_PLANT_EVIDENCE");
+		assertThat(reasonOf(score(candidate("쭈야네", List.of(subCategory("백반/한정식"))), diet("VEGETARIAN"))))
+				.isEqualTo("SEAFOOD_CENTRIC");
+		// 샐러드바가 있어도 스테이크하우스 체인은 고기 쪽이다.
+		assertThat(reasonOf(score(candidate("씨제이푸드빌빕스부산 서면점", List.of(subCategory("패밀리레스토랑"),
+				whyVisit("다양한 샐러드바 메뉴"))), diet("VEGETARIAN")))).isEqualTo("MEAT_CENTRIC");
+		// 음식을 말하는 글은 그대로 근거다.
+		assertThat(score(candidate("미소가", List.of(subCategory("백반/한정식"), whyVisit("정갈한 나물 반찬과 된장찌개"))),
+				diet("VEGETARIAN")).constraintVerdict()).isEqualTo(ConstraintVerdict.PASS);
 	}
 
 	@Test
