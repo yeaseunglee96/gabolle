@@ -813,6 +813,12 @@ class RouteAuthorizationRegistryTest {
 						+ "weather·transit 과 같은 이유 — 우리 인증키로 남이 대신 조회를 돌리는 것(하루 "
 						+ "1000회 한도 소진)을 막기 위해서다.");
 
+		// ── 가까운 병원·약국·경찰 (S15P21E201-1893)
+		put(m, "GET /api/v1/help-places/nearby", Policy.AUTHENTICATED_ONLY,
+				"좌표와 갈래로 답이 정해진다 — 공공 자료(심평원·OSM)라 주인이 없다. 로그인은 다른 조회와 "
+						+ "같은 문이라 요구한다(익명 세션도 된다) — 급할 때 막히지 않게 앱은 서버가 안 되면 "
+						+ "앱에 실은 자료로 물러선다(frontend app/nearby-help.tsx).");
+
 		// ── AI 여행 도우미
 		put(m, "POST /api/v1/assistant/messages", Policy.AUTHENTICATED_ONLY,
 				"자연어 메시지 하나를 AI 업체(Claude)에 대신 물어보는 창구라 우리 자원이 아니라 "
