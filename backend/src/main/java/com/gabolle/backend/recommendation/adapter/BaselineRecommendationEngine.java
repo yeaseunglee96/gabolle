@@ -173,6 +173,8 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 				: this.tripRepository.findSnapshotById(request.preferenceSnapshotId().toString()).orElse(null);
 		List<TripConstraint> constraints = (request.constraintSnapshotId() == null) ? List.of()
 				: this.tripRepository.findConstraintsBySnapshotId(request.constraintSnapshotId().toString());
+		// 음식 취향의 채식(할랄)도 식단 조건과 같은 판정으로 돌린다(S15P21E201-1873) — BaselineCandidateScorer.withTasteDiets.
+		constraints = this.scorer.withTasteDiets(constraints, preferenceSnapshot);
 
 		long candidateGenerationStart = System.nanoTime();
 		PlaceCandidateRequest queryRequest =

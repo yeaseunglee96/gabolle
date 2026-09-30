@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ import com.gabolle.backend.recommendation.domain.CoarseArea;
 import com.gabolle.backend.recommendation.domain.ConstraintVerdict;
 import com.gabolle.backend.recommendation.domain.DistanceBucket;
 import com.gabolle.backend.trip.domain.PreferenceSnapshot;
+import com.gabolle.backend.trip.domain.PersonalizationScope;
 import com.gabolle.backend.trip.domain.TripConstraint;
 
 import tools.jackson.databind.JsonNode;
@@ -113,6 +115,47 @@ public class BaselineCandidateScorer {
 		this.objectMapper = objectMapper;
 		this.maxSlopePercent = maxSlopePercent;
 	}
+
+	/**
+	 * 음식 취향에서 고른 식단 — 식단 조건과 같은 판정으로 돌린다(S15P21E201-1873).
+	 *
+	 * <p>앱은 채식을 두 자리에서 받는다. 여행 조건의 「식단」은 걸러내는 제약이고, 가입 설문·마이페이지의 「음식 취향」은
+	 * 점수만 올리는 취향이었다. 사용자는 둘을 같은 뜻으로 골랐는데 음식 취향의 채식은 한우 집·횟집을 빼지 않았다
+	 * (운영 여행 51bfca7f, 2026-09-30). 그래서 음식 취향에 식단 낱말이 있으면 그 여행의 식단 조건에 같은 것을 더한다.
+	 *
+	 * <p>여행 조건에서 식단을 「없음」으로 답했으면 더하지 않는다 — 이번 여행만은 식단을 안 따지겠다는 답이 계정 취향보다
+	 * 이긴다. 이미 같은 식단 조건이 있으면 그대로 둔다. 더한 조건은 저장하지 않고 이 채점에서만 쓴다.
+	 */
+	public List<TripConstraint> withTasteDiets(List<TripConstraint> constraints, PreferenceSnapshot preferenceSnapshot) {
+		List<String> foods = PreferenceJson.codesFor(preferenceSnapshot, "FOOD_PREFERENCE", this.objectMapper);
+		if (foods.isEmpty()) {
+			return constraints;
+		}
+		boolean dietDeclined = constraints.stream().anyMatch(c -> "DIET".equalsIgnoreCase(c.type())
+				&& c.answerStatus() == TripConstraint.AnswerStatus.NONE);
+		if (dietDeclined) {
+			return constraints;
+		}
+		List<TripConstraint> merged = new ArrayList<>(constraints);
+		for (String code : foods) {
+			String diet = upper(code);
+			if (!TASTE_DIETS.contains(diet)) {
+				continue;
+			}
+			boolean present = merged.stream().anyMatch(c -> "DIET".equalsIgnoreCase(c.type())
+					&& diet.equals(upper(c.constraintKey())) && c.answerStatus() == TripConstraint.AnswerStatus.SELECTED);
+			if (!present) {
+				merged.add(new TripConstraint(UUID.randomUUID().toString(),
+						preferenceSnapshot.tripId(), "DIET", diet, TripConstraint.Severity.HARD, "EXCLUDES", null, null,
+						TripConstraint.EvidenceStatus.VERIFIED, TripConstraint.AnswerStatus.SELECTED,
+						PersonalizationScope.TRIP, TripConstraint.DietRequirement.REQUIRED));
+			}
+		}
+		return merged;
+	}
+
+	/** 음식 취향에 나오면 식단 조건으로도 보는 코드. 지금 음식 취향에 있는 식단은 채식뿐이고 할랄은 자리를 열어 둔다. */
+	static final Set<String> TASTE_DIETS = Set.of("VEGETARIAN", "HALAL");
 
 	/** 사용자가 고른 여행 테마(갈래) — 채점의 관심 항이 읽는 것과 같은 답이다. 안 골랐으면 빈 목록. */
 	List<String> chosenCategories(PreferenceSnapshot preferenceSnapshot) {
