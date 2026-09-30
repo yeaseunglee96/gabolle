@@ -26,6 +26,7 @@ import { txf } from '@/i18n/format';
 import { otherNameFor } from '@/discovery/localNames';
 import { addressForLanguage, koreanAddressLine } from '@/discovery/localAddress';
 import { GuideCallout } from '@/onboarding/GuideCallout';
+import { PlaceDetailExtras } from '@/place/PlaceDetailExtras';
 import { takeScreenGuide } from '@/onboarding/firstRun';
 
 // 데모 3곳·저장 키는 src/discovery/savedPlaces.ts 로 옮겼다 — (tabs)/saved.tsx 도 같은 값을 쓴다.
@@ -301,6 +302,8 @@ export default function Place() {
             {formatSlopePercent(resolved.apiPlace, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted} style={styles.infoLabel}>{tx('경사', 'Slope')}</Text><Text variant="body" style={styles.infoValue}>{formatSlopePercent(resolved.apiPlace, tx)}</Text></View> : null}
           </View>
         ) : null}
+        {/* 대표 메뉴·외국어 메뉴판·편의시설·입장료·가까운 명소·좋은 때·걷기 난이도(S15P21E201-1888). 값이 없으면 아무것도 안 그린다. */}
+        {resolved.apiPlace ? <PlaceDetailExtras category={resolved.apiPlace.category} features={resolved.apiPlace.features} /> : null}
         {/* 관광공사 「무슬림 친화 식당」 목록 — 서버가 2026-09-30 부터 싣는다(S15P21E201-1873). 🔴 「할랄 인증」이라고 하지 않는다:
             목록은 인증·자가 인증·포크프리 등을 한데 모았고 등급은 안 실려 온다. 출처와 기준일을 밝힌다(S15P21E201-1878). */}
         {resolved.apiPlace && isMuslimFriendlyListed(resolved.apiPlace) ? (
