@@ -337,7 +337,8 @@ export default function Generating() {
               : <>
                   <Button label={tx('백그라운드에서 계속', 'Continue in background')} variant="secondary" onPress={() => router.replace('/home')} />
                   {/* 홈에는 아직 「만드는 중」 알림 줄이 없다 — 있다고 말하지 않는다. 완성된 일정이 실제로 보이는 곳(내 여행)을 말한다. */}
-                  <Text variant="caption" color={color.text.muted} style={styles.waitNote}>{tx('화면을 닫아도 작업은 계속돼요 · 완성된 일정은 「내 여행」에서 볼 수 있어요', 'Leaving this screen keeps the job running · the finished trip shows up under My trips')}</Text>
+                  {/* 🔴 한 문장으로 이으면 폭에 따라 마지막 줄에 「볼 수 있어요」만 남았다 — 두 문장을 줄로 나눈다(가독성 점검 2026-09-30). */}
+                  <Text variant="caption" color={color.text.muted} style={styles.waitNote}>{tx('화면을 닫아도 작업은 계속돼요.', 'You can leave this screen — the job keeps running.')}{'\n'}{tx('완성된 일정은 「내 여행」에서 볼 수 있어요.', 'The finished trip shows up under My trips.')}</Text>
                 </>}
           </View>
         </View>

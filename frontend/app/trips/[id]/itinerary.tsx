@@ -1358,10 +1358,8 @@ const styles = StyleSheet.create({ shell: { flex: 1, backgroundColor: color.canv
   budgetSplit: { flexDirection: 'row', gap: 2, height: 6, borderRadius: radius.full, overflow: 'hidden' },
   budgetSliceFood: { backgroundColor: color.action.secondary },
   budgetSliceCafe: { backgroundColor: color.text.muted },
-  // 시안은 #A0A0A6 인데 토큰에 그 값이 없다. 가장 가까운 것이 비활성 탭 글자색(#8B8B8B)이라
-  // 그것을 쓴다 — 화면에 색을 직접 박지 않는 것이 이 저장소의 규칙이고, 그 규칙이 배색
-  // 전환을 값 한 벌 갈아 끼우기로 끝내 준 자리다.
-  budgetSliceAdmission: { backgroundColor: color.text.inactiveTab },
+  // 시안의 #A0A0A6 — 막대 전용 토큰(surface.chartMid). 비활성 탭 글자색을 빌려 쓰다가 그 색이 대비 때문에 짙어져 카페 조각과 구분이 안 됐다.
+  budgetSliceAdmission: { backgroundColor: color.surface.chartMid },
   budgetSliceTransit: { backgroundColor: color.surface.field },
   budgetRows: { gap: spacing[2] },
   budgetRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },

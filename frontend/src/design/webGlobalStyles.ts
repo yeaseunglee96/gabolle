@@ -42,12 +42,20 @@ export const webInputNoOutline: TextStyle | null = Platform.OS === 'web'
  *
  * `line-break: strict` 는 장음 「ー」·작은 가나까지 줄 머리에 못 오게 한다. 기본값(auto)은 이것을
  * 허용해 「ベ / ース」처럼 낱말이 갈렸다(개인정보 화면 · 여행 만들기 칩).
+ *
+ * 일본어는 한 걸음 더 — `word-break: auto-phrase`(브라우저가 문장을 **어절(文節)** 로 나눠 그 사이에서만
+ * 끊는다. 크롬 119+). 글자 사이 아무 데서나 끊으면 「…問い合わせ先が違い / ます。」처럼 끝 두세 글자가
+ * 다음 줄에 혼자 남았다(2026-09-30 전 화면 점검, 일본어 폰 폭에서 40곳 남짓). 모르는 브라우저는
+ * 이 줄을 버리고 위의 normal 로 간다. 중국어에는 이 값이 없다.
  */
 const CJK_LINE_BREAK = `
 html:lang(ja) [style*="word-break: keep-all"],
 html:lang(zh) [style*="word-break: keep-all"] {
   word-break: normal !important;
   line-break: strict;
+}
+html:lang(ja) [style*="word-break: keep-all"] {
+  word-break: auto-phrase !important;
 }
 `;
 

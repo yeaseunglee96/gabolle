@@ -33,6 +33,10 @@ describe('웹 감싸기 힌트 — S15P21E201-1372', () => {
       expect(webLineBreakStyle(1)).not.toHaveProperty('textWrap');
       expect(webLineBreakStyle(2)).toHaveProperty('wordBreak', 'keep-all');
       expect(webLineBreakStyle(undefined)).toHaveProperty('textWrap', 'pretty');
+      // 작은 안내 글은 줄을 고르게 — 끝 낱말 두셋만 넘어가지 않게. 줄 수를 정했으면 여전히 없음
+      expect(webLineBreakStyle(undefined, 'caption')).toHaveProperty('textWrap', 'balance');
+      expect(webLineBreakStyle(undefined, 'body')).toHaveProperty('textWrap', 'pretty');
+      expect(webLineBreakStyle(1, 'caption')).not.toHaveProperty('textWrap');
     } finally {
       Object.defineProperty(Platform, 'OS', { value: original, configurable: true });
     }

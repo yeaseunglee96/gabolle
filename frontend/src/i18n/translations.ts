@@ -3115,6 +3115,8 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '목적지에서 가장 가까운 출구 · 직선 약 %s': { ja: '目的地に最も近い出口 · 直線で約%s', zhHans: '离目的地最近的出口 · 直线约%s', zhHant: '離目的地最近的出口 · 直線約%s' },
   '반대쪽 「%s 방면」을 타면 멀어져요': { ja: '反対側の「%s方面」に乗ると遠ざかります', zhHans: '搭乘反方向「开往%s方向」会越坐越远', zhHant: '搭乘反方向「開往%s方向」會越坐越遠' },
   '출구 번호: © OpenStreetMap 기여자': { ja: '出口番号: © OpenStreetMap 貢献者', zhHans: '出口编号: © OpenStreetMap 贡献者', zhHant: '出口編號: © OpenStreetMap 貢獻者' },
+  '화면을 닫아도 작업은 계속돼요.': { ja: '画面を閉じても作業は続きます。', zhHans: '关闭页面后仍会继续生成。', zhHant: '關閉頁面後仍會繼續生成。' },
+  '완성된 일정은 「내 여행」에서 볼 수 있어요.': { ja: '完成した旅程は「マイ旅行」で見られます。', zhHans: '完成的行程可在“我的旅行”中查看。', zhHant: '完成的行程可在「我的旅行」中查看。' },
 };
 
 export function getTranslation(ko: string, field: 'ja' | 'zhHans' | 'zhHant'): string | null {

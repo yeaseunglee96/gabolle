@@ -526,7 +526,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
             >
               <Text variant="micro" weight="bold" color={color.state.success}>{txf(tx, '✓ 코스 %s 확정', '✓ Course %s confirmed', courseLetter(courseIndex))}</Text>
               {/* 🔴 안이 하나뿐이면 「바꾸기」를 적지 않는다 — 바꿀 곳이 없는데 누르라고 하면 고장으로 읽힌다. */}
-              {courses.length > 1 ? <Text variant="micro" weight="bold" color={color.text.inactiveTab}>{` · ${tx('바꾸기', 'Change')}`}</Text> : null}
+              {courses.length > 1 ? <Text variant="micro" weight="bold" color={color.text.muted}>{` · ${tx('바꾸기', 'Change')}`}</Text> : null}
             </Pressable>
           ) : null}
         </View>
@@ -1049,10 +1049,10 @@ function TimelineStop({ item, name, startKind, index, last, freeBefore, date, ph
               hitSlop={8}
               style={({ pressed }) => [styles.legLink, pressed && styles.pressed]}
             >
-              {leg ? <Text variant="micro" weight="bold" color={color.text.inactiveTab}>{leg}</Text> : null}
+              {leg ? <Text variant="micro" weight="bold" color={color.text.muted}>{leg}</Text> : null}
               <Text variant="micro" weight="bold" color={color.brand.navy}>{tx('길 보기 ›', 'Directions ›')}</Text>
             </Pressable>
-          ) : leg ? <Text variant="micro" weight="bold" color={color.text.inactiveTab}>{leg}</Text> : null}
+          ) : leg ? <Text variant="micro" weight="bold" color={color.text.muted}>{leg}</Text> : null}
         </View>
       ) : null}
       <View style={styles.stopRow}>

@@ -94,10 +94,17 @@ const WEB_LINE_BREAK = { wordBreak: 'keep-all', overflowWrap: 'anywhere', textWr
 //    넣는 white-space: nowrap 을 뒤에 온 text-wrap: pretty 가 도로 풀어 버린다. 그래서 한 줄로
 //    잘라야 할 제목이 네 줄로 늘어졌다(2026-09-21 홈 카드 실측). 줄 수를 정한 글은 감싸기 힌트 없이 간다.
 const WEB_LINE_BREAK_CLAMPED = { wordBreak: 'keep-all', overflowWrap: 'anywhere' } as unknown as RNTextProps['style'];
+// 작은 안내 글(캡션·마이크로·눈썹)은 줄을 고르게 나눈다 — text-wrap: balance. 두 문장짜리 안내가
+// 「…「내 여행」에서 / 볼 수 있어요」처럼 끝 낱말 두셋만 다음 줄로 넘어가던 것(2026-09-30 전 화면 점검).
+// pretty 는 낱말 «하나»만 피해서 두세 낱말 꼬리는 그대로 남았다. 본문·제목은 pretty 그대로 —
+// 긴 글을 고르게 나누면 오른쪽이 비어 보인다. 브라우저는 여섯 줄이 넘으면 balance 를 안 건다.
+const WEB_LINE_BREAK_BALANCED = { wordBreak: 'keep-all', overflowWrap: 'anywhere', textWrap: 'balance' } as unknown as RNTextProps['style'];
+const BALANCED: ReadonlySet<Variant> = new Set<Variant>(['caption', 'micro', 'eyebrow']);
 /** 웹에서만 감싸기 힌트를 준다. 줄 수가 정해진 글은 text-wrap 없이. */
-export function webLineBreakStyle(numberOfLines: number | undefined): RNTextProps['style'] {
+export function webLineBreakStyle(numberOfLines: number | undefined, variant?: Variant): RNTextProps['style'] {
   if (Platform.OS !== 'web') return null;
-  return numberOfLines ? WEB_LINE_BREAK_CLAMPED : WEB_LINE_BREAK;
+  if (numberOfLines) return WEB_LINE_BREAK_CLAMPED;
+  return variant && BALANCED.has(variant) ? WEB_LINE_BREAK_BALANCED : WEB_LINE_BREAK;
 }
 
 export function Text({ variant = 'body', color: colorOverride, weight = 'regular', style, children, ...rest }: TextProps) {
@@ -118,7 +125,7 @@ export function Text({ variant = 'body', color: colorOverride, weight = 'regular
           fontWeight: FONT_WEIGHT[weight],
           color: colorOverride ?? DEFAULT_COLOR[variant],
         },
-        webLineBreakStyle(rest.numberOfLines),
+        webLineBreakStyle(rest.numberOfLines, variant),
         style,
       ]}
     >

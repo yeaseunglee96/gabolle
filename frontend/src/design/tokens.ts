@@ -60,6 +60,8 @@ export const color = {
      * 🔴 창 «바탕» 전용이다. 카드는 그 위에 흰색(card) 그대로 둔다 — 글자가 지도 위에 바로 앉으면 안 읽힌다.
      */
     sheetGlass: 'rgba(245, 245, 247, 0.84)',
+    /** 글자 없는 막대의 가운데 회색(예산 갈래 「입장료」). 🔴 글자색으로 쓰지 않는다 — 흰 바탕 대비 2.6 */
+    chartMid: '#A0A0A6',
   },
 
   action: {
@@ -79,17 +81,17 @@ export const color = {
   text: {
     heading: '#191919',
     body: '#444444',
-    muted: '#6F6F6F',
+    muted: '#666666',
     /** 버튼·이미지 위 글자 */
     onAction: '#FFFFFF',
     /** 어두운 카드 위 보조 글자 */
     onDarkMuted: '#DADADF',
     /** 🔴 눈썹 — **회색이다.** 빨간 눈썹은 「● 진행 중」 같은 실시간 상태에만 직접 준다 */
-    eyebrow: '#6F6F6F',
+    eyebrow: '#666666',
     /** 수치 강조 — 검정 굵게. 빨간 숫자는 경고만 */
     accent: '#191919',
     /** 비활성 탭 글자 */
-    inactiveTab: '#8B8B8B',
+    inactiveTab: '#707070',
   },
 
   state: {
@@ -111,7 +113,8 @@ export const color = {
      * 🔴 사람이 **입력한 뒤에만** 쓴다. 처음 연 빈 칸은 오류가 아니다.
      */
     dangerFieldBg: '#FFFBFB',
-    success: '#2E9E5B',
+    /** 성공 글자 — 2026-09-30 #2E9E5B 에서 짙게. 흰 바탕 3.41 · 연회색 칩 2.81 로 「진행 중」「○만원 남음」이 흐렸다. 지금 흰 5.35 · 연초록 4.75 */
+    success: '#1F7A45',
     successBg: '#E7F5EC',
     warning: '#B06A00',
     warningBg: '#FFF3DC',
