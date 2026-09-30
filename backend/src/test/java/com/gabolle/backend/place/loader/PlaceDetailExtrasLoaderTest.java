@@ -125,4 +125,52 @@ class PlaceDetailExtrasLoaderTest {
 
 		assertThatThrownBy(() -> PlaceDetailExtrasLoader.readAll(file)).hasMessageContaining("3번째 줄");
 	}
+
+	/** 모범음식점과 택시기사 추천을 함께 가진 한 장소의 표식 값. 통합 시험도 이것을 쓴다. */
+	static final String RECOGNITION_VALUE = "{\"badges\":["
+			+ "{\"kind\":\"MODEL_RESTAURANT\",\"since\":\"2019-05-01\",\"menu\":null,\"source\":\"부산광역시 모범음식점 현황\"},"
+			+ "{\"kind\":\"TAXI_DRIVER_PICK\",\"since\":null,\"menu\":\"선지국밥\",\"source\":\"부산광역시 택슐랭 선정 식당(2025)\"}]}";
+
+	@Test
+	@DisplayName("🔴 공인 표식(모범음식점·택시기사 추천) 줄을 읽는다 — S15P21E201-1891")
+	void recognitionLineIsRead() {
+		PlaceDetailExtrasLoader.Row row = PlaceDetailExtrasLoader.parse(line("RECOGNITION", RECOGNITION_VALUE));
+
+		assertThat(row.featureType()).isEqualTo("RECOGNITION");
+		assertThat(row.value()).contains("\"kind\":\"MODEL_RESTAURANT\"")
+				.contains("\"kind\":\"TAXI_DRIVER_PICK\"")
+				.contains("\"menu\":\"선지국밥\"");
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = {
+			// 모르는 종류 — 화면이 이름을 못 붙인다
+			"{\"badges\":[{\"kind\":\"MICHELIN\",\"since\":null,\"menu\":null,\"source\":\"x\"}]}",
+			// 종류가 없다
+			"{\"badges\":[{\"since\":null,\"menu\":null,\"source\":\"x\"}]}",
+			// 출처가 없다 — 공공데이터 표시가 빠진다
+			"{\"badges\":[{\"kind\":\"MODEL_RESTAURANT\",\"since\":null,\"menu\":null}]}",
+			"{\"badges\":[{\"kind\":\"MODEL_RESTAURANT\",\"source\":\"  \"}]}",
+			// 날짜 모양이 틀렸다
+			"{\"badges\":[{\"kind\":\"MODEL_RESTAURANT\",\"since\":\"2019.05.01\",\"source\":\"x\"}]}",
+			// 모르는 칸
+			"{\"badges\":[{\"kind\":\"MODEL_RESTAURANT\",\"source\":\"x\",\"grade\":\"A\"}]}",
+			// 빈 배열·배열 아님·모르는 바깥 칸
+			"{\"badges\":[]}",
+			"{\"badges\":\"MODEL_RESTAURANT\"}",
+			"{\"badges\":[{\"kind\":\"MODEL_RESTAURANT\",\"source\":\"x\"}],\"extra\":1}" })
+	@DisplayName("🔴 표식 모양이 틀리면 멈춘다 — 모르는 종류·출처 없음·날짜 모양")
+	void badRecognitionStops(String value) {
+		assertThatThrownBy(() -> PlaceDetailExtrasLoader.parse(line("RECOGNITION", value)))
+				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	@DisplayName("표식은 5개까지다")
+	void recognitionIsCappedAtFive() {
+		String badge = "{\"kind\":\"MODEL_RESTAURANT\",\"source\":\"x\"}";
+		String badges = String.join(",", java.util.Collections.nCopies(6, badge));
+		assertThatThrownBy(() -> PlaceDetailExtrasLoader.parse(line("RECOGNITION", "{\"badges\":[" + badges + "]}")))
+				.hasMessageContaining("5");
+	}
 }

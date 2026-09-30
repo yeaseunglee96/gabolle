@@ -29,7 +29,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * 장소 상세에 보여 줄 사실(메뉴·외국어 메뉴판·편의시설·입장료·가까운 곳·가기 좋은 때·영업시간·체크인)을
+ * 장소 상세에 보여 줄 사실(공인 표식·메뉴·외국어 메뉴판·편의시설·입장료·가까운 곳·가기 좋은 때·영업시간·체크인)을
  * {@code place_feature} 에 넣는다 — S15P21E201-1886.
  *
  * <p>열쇠는 원천 번호가 아니라 <b>우리 장소 번호({@code place_id}) 그대로</b>다. 조사로 짝지은 장소에 OSM 장소가
@@ -59,9 +59,17 @@ public class PlaceDetailExtrasLoader {
 	/** 메뉴는 이보다 많이 싣지 않는다. 화면이 다 못 보여 주고, 넘치면 산출물이 잘못 만들어진 것이다. */
 	static final int MAX_MENU_ITEMS = 30;
 
+	/** 한 장소의 표식은 이보다 많지 않다. 지금 아는 종류가 둘이라 넘치면 산출물이 잘못 만들어진 것이다. */
+	static final int MAX_BADGES = 5;
+
+	/**
+	 * 공인 표식의 종류. 모범음식점(구·군 지정)과 택시기사 추천(택슐랭). 모르는 종류는 화면이 이름을 못 붙이므로 멈춘다.
+	 */
+	static final Set<String> BADGE_KINDS = Set.of("MODEL_RESTAURANT", "TAXI_DRIVER_PICK");
+
 	/** 이 적재기가 받는 갈래. 목록 밖이면 멈춘다. */
 	static final Set<String> FEATURE_TYPES = Set.of("MENU_ITEMS", "FOREIGN_MENU", "AMENITIES", "ADMISSION_FEE",
-			"NEARBY_LANDMARK", "BEST_TIME", OpeningHoursReader.TYPE_OPENING_HOURS, OpeningHoursReader.TYPE_CHECK_IN_OUT);
+			"NEARBY_LANDMARK", "BEST_TIME", "RECOGNITION", OpeningHoursReader.TYPE_OPENING_HOURS, OpeningHoursReader.TYPE_CHECK_IN_OUT);
 
 	private static final Set<String> LINE_FIELDS = Set.of("placeId", "featureType", "value", "evidenceStatus",
 			"sourceType", "sourceId", "sourceVersion", "observedAt");
@@ -249,6 +257,38 @@ public class PlaceDetailExtrasLoader {
 						+ requiredNonNegativeInt(value, "any");
 				if (total == 0) {
 					throw new IllegalArgumentException("BEST_TIME 의 응답 수가 전부 0 이다 — 모르면 줄을 만들지 않는다");
+				}
+			}
+			case "RECOGNITION" -> {
+				onlyFields(value, Set.of("badges"), featureType);
+				JsonNode badges = value.get("badges");
+				if (badges == null || !badges.isArray() || badges.isEmpty()) {
+					// 표식이 없으면 줄을 만들지 않는다 — 빈 배열은 「확인했는데 없다」로 읽힌다.
+					throw new IllegalArgumentException("RECOGNITION.badges 는 비지 않은 배열이어야 한다");
+				}
+				if (badges.size() > MAX_BADGES) {
+					throw new IllegalArgumentException("RECOGNITION.badges 는 " + MAX_BADGES + "개까지다: " + badges.size());
+				}
+				for (JsonNode badge : badges) {
+					String where = "RECOGNITION.badges[]";
+					requireObject(badge, where);
+					onlyFields(badge, Set.of("kind", "since", "menu", "source"), where);
+					String kind = requiredText(badge, "kind");
+					if (!BADGE_KINDS.contains(kind)) {
+						throw new IllegalArgumentException(where + ".kind 를 모른다: " + kind + " — 받는 것은 " + BADGE_KINDS);
+					}
+					String since = optionalText(badge, "since");
+					if (since != null) {
+						try {
+							java.time.LocalDate.parse(since);
+						}
+						catch (DateTimeParseException ex) {
+							throw new IllegalArgumentException(where + ".since 는 YYYY-MM-DD 여야 한다: " + since, ex);
+						}
+					}
+					optionalText(badge, "menu");
+					// 출처는 화면에 작게 적는다 — 공공데이터를 쓴다는 표시가 빠지면 안 된다.
+					requiredText(badge, "source");
 				}
 			}
 			case OpeningHoursReader.TYPE_OPENING_HOURS -> {

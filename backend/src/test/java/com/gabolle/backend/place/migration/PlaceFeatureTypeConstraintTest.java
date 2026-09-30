@@ -69,7 +69,10 @@ class PlaceFeatureTypeConstraintTest {
 				// 영업시간 적재
 				"OPENING_HOURS", "CHECK_IN_OUT",
 				// 혼밥 안심·시각 사실
-				"SOLO_FRIENDLY", "BREAK_TIME", "LAST_ORDER_TIME");
+				"SOLO_FRIENDLY", "BREAK_TIME", "LAST_ORDER_TIME",
+				// 장소 상세 사실 적재(PlaceDetailExtrasLoader) — 공인 표식까지
+				"MENU_ITEMS", "FOREIGN_MENU", "AMENITIES", "ADMISSION_FEE", "NEARBY_LANDMARK", "BEST_TIME",
+				"RECOGNITION");
 	}
 
 	private record Definition(String fileName, Set<String> values) {

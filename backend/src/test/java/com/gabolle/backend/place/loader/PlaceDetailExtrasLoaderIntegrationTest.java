@@ -133,4 +133,24 @@ class PlaceDetailExtrasLoaderIntegrationTest extends PlacePostgresIntegrationTes
 		assertThat(detail.features()).extracting(view -> view.featureType())
 				.contains("FOREIGN_MENU", "AMENITIES", "ADMISSION_FEE", "NEARBY_LANDMARK", "BEST_TIME");
 	}
+
+	@Test
+	@DisplayName("🔴 공인 표식 RECOGNITION 이 CHECK 제약을 지나 들어가고 장소 상세 features 에 실린다 — S15P21E201-1891")
+	void recognitionIsAcceptedAndServed() {
+		PlaceDetailExtrasLoader.Row row = PlaceDetailExtrasLoader.parse(PlaceDetailExtrasLoaderTest
+				.line("RECOGNITION", PlaceDetailExtrasLoaderTest.RECOGNITION_VALUE)
+				.replace("3f2a1b9c-0000-4000-8000-000000000001", this.placeId.toString()));
+
+		PlaceDetailExtrasLoader.Result result = this.loader.saveChunk(List.of(row), OffsetDateTime.now());
+
+		assertThat(result).isEqualTo(new PlaceDetailExtrasLoader.Result(1, 0, 0));
+		PlaceDetailResponse detail = this.placeDetailService.get(this.placeId, null);
+		assertThat(detail.features())
+				.filteredOn(view -> "RECOGNITION".equals(view.featureType()))
+				.singleElement()
+				.satisfies(view -> {
+					assertThat(view.value().get("badges")).hasSize(2);
+					assertThat(view.value().get("badges").get(1).get("menu").asString()).isEqualTo("선지국밥");
+				});
+	}
 }
