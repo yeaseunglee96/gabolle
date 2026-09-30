@@ -52,7 +52,9 @@ import {
   type DayStart, type ItineraryItemDto, type ItineraryPaceItemDto, stopClock,
 } from '@/plan/itinerary';
 import { formatTravelLabel, totalTravelMinutes } from '@/plan/itinerarySummary';
-import { legRouteParams } from '@/trip/page/legRoute';
+import { LegRow } from '@/trip/page/LegRow';
+import { legRouteParams, type LegRouteParams } from '@/trip/page/legRoute';
+import type { LanguageCode } from '@/i18n/languages';
 import { categoryGlyph, type PlacePhoto } from '@/plan/placePhotos';
 import { pickReasonLine } from '@/plan/recommendations';
 import { canConfirmCourse, type TripCourse } from '@/plan/tripCourses';
@@ -658,11 +660,14 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
                   onArrive={canEdit && todayDay && !arrivedAtOf(progress.outcomes, item.id) ? () => void recordArrival(item) : null}
                   onExclude={() => setExcludeTarget(item)}
                   onOpenPlace={() => router.push(`/place/${item.placeId}`)}
+                  legRoute={legRouteParams(items, index, day?.start, nameOf, tx)}
                   onOpenLeg={(() => {
                     // 들어오는 구간을 경로 상세로 — 대중교통·택시·도보를 나란히 본다(S15P21E201-1831).
                     const params = legRouteParams(items, index, day?.start, nameOf, tx);
                     return params ? () => router.push({ pathname: '/route-detail', params }) : null;
                   })()}
+                  accessToken={accessToken}
+                  language={language}
                   tx={tx}
                   locale={locale}
                 />
@@ -1000,14 +1005,16 @@ function RiskStrip({ atRisk, known, estimated, nameOf, tx }: { atRisk: Itinerary
   );
 }
 
-function TimelineStop({ item, name, startKind, index, last, freeBefore, date, photo, step, aim = false, risky, pace, paceEstimated, expanded, canEdit, busy, excluding, onToggle, onLock, onArrive, onExclude, onOpenPlace, onOpenLeg, tx, locale }: {
+function TimelineStop({ item, name, startKind, index, last, freeBefore, date, photo, step, aim = false, risky, pace, paceEstimated, expanded, canEdit, busy, excluding, onToggle, onLock, onArrive, onExclude, onOpenPlace, onOpenLeg, legRoute, accessToken, language, tx, locale }: {
   item: ItineraryItemDto; /** 화면에 적을 장소 이름 — 영어면 로마자가 붙는다(S15P21E201-1735). */ name: string; startKind: DayStart['kind']; index: number; last: boolean; freeBefore: number | null; date: string | null; photo: PlacePhoto | null; step?: StepState;
   /** 지금 향하는 곳 — 빨간 고리와 「다음」 표. 한 날에 한 곳뿐이다. */ aim?: boolean; risky: boolean;
   pace?: ItineraryPaceItemDto; paceEstimated: boolean; expanded: boolean; canEdit: boolean; busy: boolean; excluding: boolean;
   /** 오늘 방문지이고 아직 도착이 안 적혔을 때만 — 아니면 null 이고 「도착 찍기」를 안 그린다(S15P21E201-1690). */
   onToggle: () => void; onLock: () => void; onArrive: (() => void) | null; onExclude: () => void; onOpenPlace: () => void;
   /** 들어오는 구간을 경로 상세로 연다. 앞 곳이나 이 곳의 좌표를 모르면 null — 누를 수 없는 글자로 둔다(legRoute.ts). */
-  onOpenLeg: (() => void) | null; tx: Tx; locale: string;
+  onOpenLeg: (() => void) | null;
+  /** 들어오는 구간의 좌표 — 펼친 이동 칸이 경로를 물을 때 쓴다(LegRow). */ legRoute: LegRouteParams | null;
+  accessToken: string | null; language: LanguageCode; tx: Tx; locale: string;
 }) {
   const leg = formatTravelLabel(item, tx, index === 0 && startKind);
   const reason = pickReasonLine(item.reasonCodes);
@@ -1039,20 +1046,20 @@ function TimelineStop({ item, name, startKind, index, last, freeBefore, date, ph
       {/* 들어오는 구간 — 카드 사이 32px 줄. 첫 곳은 「출발지에서 …」. */}
       {/* 구간 줄을 누르면 무엇을 타는지·택시로 얼마인지 본다(S15P21E201-1831) — 전에는 「이동 25분」 글자뿐이었다. */}
       {index > 0 || leg || onOpenLeg ? (
-        <View style={styles.legRow}>
+        <View style={onOpenLeg ? styles.legRowTall : styles.legRow}>
           <View style={styles.legRail}>{index > 0 ? <View style={[styles.railLine, styles.railFull]} /> : null}</View>
-          {onOpenLeg ? (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={txf(tx, '%s까지 가는 길 보기', 'Directions to %s', name)}
-              onPress={onOpenLeg}
-              hitSlop={8}
-              style={({ pressed }) => [styles.legLink, pressed && styles.pressed]}
-            >
-              {leg ? <Text variant="micro" weight="bold" color={color.text.muted}>{leg}</Text> : null}
-              <Text variant="micro" weight="bold" color={color.brand.navy}>{tx('길 보기 ›', 'Directions ›')}</Text>
-            </Pressable>
-          ) : leg ? <Text variant="micro" weight="bold" color={color.text.muted}>{leg}</Text> : null}
+          {/* 이동 칸 — 테두리 있는 누르는 칸, 지금 가는 구간은 걸음마다 펼친다(UI 캔버스 ㉓-2b, S15P21E201-1884). */}
+          <LegRow
+            destName={name}
+            label={leg}
+            transit={typeof item.travelFareKrw === 'number' && item.travelFareKrw > 0}
+            route={legRoute}
+            now={aim}
+            onOpen={onOpenLeg}
+            accessToken={accessToken}
+            language={language}
+            tx={tx}
+          />
         </View>
       ) : null}
       <View style={styles.stopRow}>
@@ -1268,6 +1275,8 @@ const styles = StyleSheet.create({
 
   // 카드 타임라인 — 그리드 48 | 1fr, 왼쪽 세로선 2px(가운데)
   legRow: { height: 32, flexDirection: 'row', alignItems: 'center', gap: spacing[2] + spacing[1] },
+  // 누르는 이동 칸이 들어가면 높이를 칸에 맡긴다 — 32px 줄에는 테두리 칸이 안 들어간다.
+  legRowTall: { minHeight: 32, flexDirection: 'row', alignItems: 'stretch', gap: spacing[2] + spacing[1], paddingVertical: spacing[2] },
   legRail: { width: RAIL, alignSelf: 'stretch' },
   railLine: { position: 'absolute', left: RAIL / 2 - 1, width: 2, backgroundColor: color.surface.field },
   railFull: { top: 0, bottom: 0 },
