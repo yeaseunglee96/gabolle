@@ -420,14 +420,20 @@ public class BaselineCandidateScorer {
 		//    (WHY_VISIT) 글도 같은 낱말로 본다. 운영 식당 4,298곳 중 이름 말고 글이 있는 곳이 1,550곳이고,
 		//    실제로 추천된 식당 341곳 중에서는 262곳이다(2026-09-29 실측).
 		String dietKey = upper(constraint.constraintKey());
+		// S15P21E201-1873: 그 식단을 지원한다는 표식이 붙은 집은 아래 낱말 추정으로 빼지 않는다. 표식은 사람이 목록을 보고
+		// 붙인 것이고(관광공사 무슬림 친화 식당 등), 낱말 추정은 그것이 없을 때 쓰는 대용이다. 목록의 케밥집(사마르칸트)과
+		// 삼계탕집이 대표 메뉴 낱말 때문에 할랄에서 빠지던 것이 이 순서 때문이었다.
+		String supportType = hardFilterFeatureType(constraintCodeMap, "DIET").orElse(null);
+		boolean supportTagged = supportType != null
+				&& bucketFor(candidate, supportType, constraint.constraintKey()) == PresenceBucket.PRESENT;
 		// 🔴 S15P21E201-1829: 할랄은 술이 중심인 집(주점·이자카야·포차·펍·맥주집)을 무엇을 팔든 뺀다. 채식 집이어도 술집이면
 		//    뺀다 — 그래서 아래 식물성 이름 검사보다 먼저 본다.
-		if ("HALAL".equals(dietKey) && isAlcoholCentric(candidate)) {
+		if (!supportTagged && "HALAL".equals(dietKey) && isAlcoholCentric(candidate)) {
 			violations.add(Map.of("code", "DIET_NOT_SUPPORTED", "featureKey", constraint.constraintKey(),
 					"reason", "ALCOHOL_CENTRIC", "evidence", "NAME"));
 			return;
 		}
-		if (MEAT_EXCLUDING_DIETS.contains(dietKey) && !isExplicitlyPlantBased(candidate)) {
+		if (!supportTagged && MEAT_EXCLUDING_DIETS.contains(dietKey) && !isExplicitlyPlantBased(candidate)) {
 			DietEvidence evidence = dietExclusionEvidence(candidate, SEAFOOD_EXCLUDING_DIETS.contains(dietKey));
 			if (evidence != null) {
 				violations.add(Map.of("code", "DIET_NOT_SUPPORTED", "featureKey", constraint.constraintKey(),
