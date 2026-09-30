@@ -115,6 +115,9 @@ class RouteControllerTest {
 				.andExpect(jsonPath("$.data.pieces[0].slopePercent").doesNotExist())
 				.andExpect(jsonPath("$.data.pieces[0].stairs").value(false))
 				.andExpect(jsonPath("$.data.pieces[1].slopePercent").value(9.5))
+				// 그늘(S15P21E201-1895) — 칸 이름 shade 가 프론트와의 계약이다. 모르면 없다(0.0 이 아니다).
+				.andExpect(jsonPath("$.data.pieces[1].shade").value(0.7))
+				.andExpect(jsonPath("$.data.pieces[0].shade").doesNotExist())
 				.andExpect(jsonPath("$.data.pieces[2].stairs").value(true));
 	}
 
@@ -212,7 +215,7 @@ class RouteControllerTest {
 					List.of(new double[] { 129.158908, 35.163672 }, new double[] { 129.1589, 35.1635 },
 							new double[] { 129.1595, 35.1600 }, new double[] { 129.159855, 35.158523 }),
 					List.of(), null,
-					List.of(new RouteLeg.Piece(0, 1, null, false), new RouteLeg.Piece(1, 2, 9.5, false),
+					List.of(new RouteLeg.Piece(0, 1, null, false), new RouteLeg.Piece(1, 2, 9.5, false, 0.7),
 							new RouteLeg.Piece(2, 3, null, true))));
 		}
 

@@ -170,10 +170,10 @@ class ItineraryLegPathPersistenceIntegrationTest {
 	// ── 경사·계단 조각 (V20260929120000__itinerary_leg_pieces.sql) ─────────────
 
 	@Test
-	@DisplayName("🔴 경사·계단 조각이 JSONB 를 한 바퀴 돌아 그대로 돌아온다 — 모르는 경사는 null 로 남는다")
+	@DisplayName("🔴 경사·계단·그늘 조각이 JSONB 를 한 바퀴 돌아 그대로 돌아온다 — 모르는 경사·그늘은 null 로 남는다 (S15P21E201-1895)")
 	void piecesSurviveTheRoundTrip() {
-		List<ItineraryLeg.Piece> pieces = List.of(new ItineraryLeg.Piece(0, 1, 9.5, false),
-				new ItineraryLeg.Piece(1, 2, null, true));
+		List<ItineraryLeg.Piece> pieces = List.of(new ItineraryLeg.Piece(0, 1, 9.5, false, 0.4),
+				new ItineraryLeg.Piece(1, 2, null, true, null));
 		ItineraryLeg leg = new ItineraryLeg(UUID.randomUUID().toString(), null, 0, 1,
 				this.fromPlaceId, this.toPlaceId, "WALK", 8_400, 21, 8_400, null, null,
 				ItineraryItem.DataStatus.VERIFIED, null, ROAD, pieces, null,

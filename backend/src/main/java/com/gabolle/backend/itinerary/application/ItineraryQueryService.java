@@ -171,6 +171,9 @@ public class ItineraryQueryService {
 		Integer totalWalkingMeters = sumOrNull(contentLegs.stream()
 				.map(ItineraryLeg::walkingMeters));
 
+		RoutePaintConditions paint = (this.legPlanner == null)
+				? RoutePaintConditions.NONE
+				: this.legPlanner.routePaintConditions(trip);
 		return new ItineraryDetailResponse(
 				id,
 				// 이름은 Trip 이 정한다 — 사용자가 붙인 것이 있으면 그것, 없으면 기간.
@@ -191,7 +194,10 @@ public class ItineraryQueryService {
 				BudgetAllowance.capKrw(trip.budgetKrw()),
 				// 구간을 잴 때와 같은 규칙 한 곳(ItineraryLegPlanner.needsStepFree)에서 센다 — 두 벌이 되면 일정은 계단
 				// 없는 길로 쟀는데 앱이 다시 물은 길은 계단 길이 되는 날이 온다.
-				this.legPlanner != null && this.legPlanner.needsStepFree(trip));
+				this.legPlanner != null && this.legPlanner.needsStepFree(trip),
+				// 지도가 경로 선을 칠할 조건 — 사용자가 추천 단계에서 고른 것만 true (S15P21E201-1895).
+				paint.slopeAvoid(),
+				paint.shadePrefer());
 	}
 
 	/**
@@ -336,7 +342,7 @@ public class ItineraryQueryService {
 				? null
 				: incomingLeg.pieces().stream()
 						.map(piece -> new ItineraryDetailResponse.Piece(piece.from(), piece.to(), piece.slopePercent(),
-								piece.stairs()))
+								piece.stairs(), piece.shade()))
 						.toList();
 
 		return new ItineraryDetailResponse.Item(

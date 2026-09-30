@@ -1,6 +1,6 @@
 {
  "step": "process/walk-graph",
- "format": "GBWG v1 — 머리말 참고",
+ "format": "GBWG v2 — v1(process/walk-graph.mjs 머리말)에 길마다 그늘 한 바이트가 경사 뒤에 더해진 것. 그늘은 shade 칸 참고",
  "builtAt": "2026-09-25",
  "inputs": [
   {
@@ -50,5 +50,63 @@
   "stairsKeptAsWay": true,
   "slope": "p50Slope · 30m 이상 · 다리·터널 제외",
   "nodeKey": "위경도 소수 7자리"
+ },
+ "shade": {
+  "step": "process/walk-graph-shade",
+  "format": "GBWG v2 — 길마다 그늘 한 바이트(0~100 그림자 %, 255 모름)",
+  "builtAt": "2026-09-30",
+  "inputs": [
+   {
+    "path": "walk-graph.bin.gz",
+    "version": "v2",
+    "sha256_16": "ea6e13939df06576",
+    "baseSha256_16": "92830aca41ecea4a"
+   },
+   {
+    "path": "layers/GWANGALLI.json",
+    "sha256_16": "d82c44d2e83a6fb2"
+   },
+   {
+    "path": "layers/HAEUNDAE.json",
+    "sha256_16": "46d0cc717825ac60"
+   },
+   {
+    "path": "layers/NAMPO.json",
+    "sha256_16": "351d901962777e1d"
+   },
+   {
+    "path": "layers/SEOMYEON.json",
+    "sha256_16": "42656a969414818b"
+   },
+   {
+    "path": "layers/SONGJEONG.json",
+    "sha256_16": "8f7ca4494d729b32"
+   },
+   {
+    "path": "layers/YEONGDO.json",
+    "sha256_16": "6b3c7a8d928cdc70"
+   }
+  ],
+  "output": {
+   "path": "walk-graph.bin.gz",
+   "bytes": 4995316,
+   "sha256_16": "ea6e13939df06576"
+  },
+  "counts": {
+   "ways": 67347,
+   "withShade": 14102,
+   "shareWithShade": 0.2094,
+   "layerSegments": 18408,
+   "matchedExact": 13836,
+   "matchedTolerant": 266,
+   "layerSegmentsUnmatched": 1342,
+   "conflicts": 0,
+   "slopeAgreeShare": 0.9959
+  },
+  "rules": {
+   "shadowBasis": "건물 그림자 · 2026-07-15 · 9–18시 평균",
+   "match": "점 줄 통째 같음 → 처음·끝·점 수 같고 사이 점 3m 이내",
+   "unmatched": "모름(255) — 이웃 길 값으로 메우지 않는다"
+  }
  }
 }

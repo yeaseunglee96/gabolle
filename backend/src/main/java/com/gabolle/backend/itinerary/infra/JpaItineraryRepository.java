@@ -472,25 +472,30 @@ public class JpaItineraryRepository implements ItineraryRepository {
 	}
 
 	/**
-	 * 경사·계단 조각을 {@code [{"from":0,"to":3,"slopePercent":2.5,"stairs":false}, …]} JSON 으로 적는다 — 경로 API 의
-	 * {@code pieces} 와 같은 모양이다. 없으면 {@code null}. 선형과 같은 이유로 손으로 잇는다(숫자·참거짓뿐이다).
-	 * 경사가 NaN·무한대면 JSON 이 아니므로 모름({@code null})으로 적는다.
+	 * 경사·계단·그늘 조각을 {@code [{"from":0,"to":3,"slopePercent":2.5,"stairs":false,"shade":0.4}, …]} JSON 으로
+	 * 적는다 — 경로 API 의 {@code pieces} 와 같은 모양이다. 없으면 {@code null}. 선형과 같은 이유로 손으로
+	 * 잇는다(숫자·참거짓뿐이다). 경사·그늘이 NaN·무한대면 JSON 이 아니므로 모름({@code null})으로 적는다.
+	 *
+	 * <p>{@code shade} 칸은 2026-09-30(S15P21E201-1895)에 생겼다. 그 전에 적힌 JSON 에는 이 칸이 없고,
+	 * {@link #decodePieces} 는 없는 칸을 「그늘 모름」으로 읽는다.
 	 */
 	static String encodePieces(List<ItineraryLeg.Piece> pieces) {
 		if (pieces == null || pieces.isEmpty()) {
 			return null;
 		}
-		StringBuilder json = new StringBuilder(pieces.size() * 56).append('[');
+		StringBuilder json = new StringBuilder(pieces.size() * 72).append('[');
 		for (int i = 0; i < pieces.size(); i++) {
 			ItineraryLeg.Piece piece = pieces.get(i);
 			if (i > 0) {
 				json.append(',');
 			}
 			Double slope = piece.slopePercent();
+			Double shade = piece.shade();
 			json.append("{\"from\":").append(piece.from())
 					.append(",\"to\":").append(piece.to())
 					.append(",\"slopePercent\":").append((slope == null || !Double.isFinite(slope)) ? "null" : slope)
 					.append(",\"stairs\":").append(piece.stairs())
+					.append(",\"shade\":").append((shade == null || !Double.isFinite(shade)) ? "null" : shade)
 					.append('}');
 		}
 		return json.append(']').toString();
@@ -515,6 +520,7 @@ public class JpaItineraryRepository implements ItineraryRepository {
 				JsonNode to = node.get("to");
 				JsonNode slope = node.get("slopePercent");
 				JsonNode stairs = node.get("stairs");
+				JsonNode shade = node.get("shade");
 				if (from == null || !from.isInt() || to == null || !to.isInt() || stairs == null
 						|| !stairs.isBoolean() || (slope != null && !slope.isNull() && !slope.isNumber())) {
 					return null;
@@ -523,13 +529,27 @@ public class JpaItineraryRepository implements ItineraryRepository {
 					return null;
 				}
 				pieces.add(new ItineraryLeg.Piece(from.intValue(), to.intValue(),
-						(slope == null || slope.isNull()) ? null : slope.doubleValue(), stairs.booleanValue()));
+						(slope == null || slope.isNull()) ? null : slope.doubleValue(), stairs.booleanValue(),
+						shadeOf(shade)));
 			}
 			return pieces;
 		}
 		catch (JacksonException malformed) {
 			return null;
 		}
+	}
+
+	/**
+	 * 그늘 칸을 읽는다. 칸이 없거나(그늘 칸이 생기기 전에 적은 판) {@code null} 이거나 숫자가 아니거나 0~1 밖이면
+	 * 「그늘 모름」({@code null})이다 — 조각의 다른 값(경사·계단)은 멀쩡하므로 그늘 하나가 틀렸다고 구간 전체의
+	 * 조각을 버리지 않는다. 틀린 그늘을 칠하느니 그늘 없이 경사만 칠하는 편이 낫다.
+	 */
+	private static Double shadeOf(JsonNode shade) {
+		if (shade == null || shade.isNull() || !shade.isNumber()) {
+			return null;
+		}
+		double value = shade.doubleValue();
+		return (Double.isFinite(value) && value >= 0.0 && value <= 1.0) ? value : null;
 	}
 
 	/**

@@ -41,8 +41,17 @@ public record RouteDirectionsResponse(
 		 */
 		Boolean stepFreeHonored) {
 
-	/** 경사 조각 하나. {@code slopePercent} 가 {@code null} 이면 모른다 — 0(평지)과 다르다. */
-	public record Piece(int from, int to, Double slopePercent, boolean stairs) {
+	/**
+	 * 경사 조각 하나. {@code slopePercent} 가 {@code null} 이면 모른다 — 0(평지)과 다르다.
+	 * {@code shade} 는 그늘(0~1, 1 이 하루 종일 그늘, 0.1 단위)이고 {@code null} 이면 모른다 — 0(볕)과 다르다
+	 * (S15P21E201-1895). 지도가 경사·그늘을 합쳐 선을 칠하는 데 쓴다.
+	 */
+	public record Piece(int from, int to, Double slopePercent, boolean stairs, Double shade) {
+
+		/** 그늘 칸이 생기기 전의 모양 — 그늘을 모르는 조각이다. */
+		public Piece(int from, int to, Double slopePercent, boolean stairs) {
+			this(from, to, slopePercent, stairs, null);
+		}
 	}
 
 	/**
@@ -75,7 +84,8 @@ public record RouteDirectionsResponse(
 				steps,
 				leg.transitFareKrw(),
 				leg.pieces().stream()
-						.map(piece -> new Piece(piece.from(), piece.to(), piece.slopePercent(), piece.stairs()))
+						.map(piece -> new Piece(piece.from(), piece.to(), piece.slopePercent(), piece.stairs(),
+								piece.shade()))
 						.toList(),
 				leg.stepFreeHonored());
 	}

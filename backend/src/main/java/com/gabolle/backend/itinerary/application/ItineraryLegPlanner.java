@@ -238,6 +238,21 @@ public class ItineraryLegPlanner {
     }
 
     /**
+     * 사용자가 추천 단계에서 고른 경사·그늘 조건 — 코스 지도가 경로 선을 무엇으로 칠할지 정하는 데 쓴다
+     * (S15P21E201-1895).
+     *
+     * <p>{@link #needsStepFree} 는 이동 <b>제약</b>(휠체어 등)을 읽고 이것은 취향 <b>선호</b>(경사·그늘)를 읽는다 —
+     * 저장된 표가 다르다. 선호도 제약처럼 <b>가장 최신 판</b>을 읽는다: 추천 작업이 읽는 판과 같아야 지도가 추천과 같은
+     * 조건으로 칠한다. 여행 저장소가 없는 슬라이스 컨텍스트에서는 아무것도 안 골랐다고 본다.
+     */
+    public RoutePaintConditions routePaintConditions(Trip trip) {
+        if (this.tripRepository == null || trip == null || trip.tripId() == null) {
+            return RoutePaintConditions.NONE;
+        }
+        return RoutePaintConditions.from(this.tripRepository.findLatestSnapshot(trip.tripId()).orElse(null));
+    }
+
+    /**
      * 대중교통 구간에 직선거리를 "걸은 거리" 로 적지 않는다 — 모드가 {@code WALK} 일 때만 채운다.
      * 지하철 구간에 직선거리를 넣으면 "지하철로 이만큼 걸었다" 처럼 읽혀 틀린 답이 된다.
      * 지금은 {@link #buildLegs} 가 {@code travelMode} 로 항상 {@code "WALK"} 만 넘겨서 이 규칙의

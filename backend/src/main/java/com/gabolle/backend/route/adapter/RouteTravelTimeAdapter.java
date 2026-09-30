@@ -78,7 +78,8 @@ public class RouteTravelTimeAdapter implements TravelTimePort {
 			return null;
 		}
 		return leg.pieces().stream()
-				.map(piece -> new ItineraryLeg.Piece(piece.from(), piece.to(), piece.slopePercent(), piece.stairs()))
+				.map(piece -> new ItineraryLeg.Piece(piece.from(), piece.to(), piece.slopePercent(), piece.stairs(),
+						piece.shade()))
 				.toList();
 	}
 
