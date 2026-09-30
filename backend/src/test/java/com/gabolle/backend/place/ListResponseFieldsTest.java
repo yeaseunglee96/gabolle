@@ -84,10 +84,10 @@ class ListResponseFieldsTest {
 		// 맨 뒤만 보면 가운데를 끼워 넣어도 안 걸리므로 차례를 통째로 고정한다.
 		assertThat(componentNames(PlaceSummaryResponse.class)).containsExactly(
 				"placeId", "nameKo", "nameEn", "category", "address", "lat", "lng", "matchedField",
-				"photoUrl", "photoSource", "addressEn", "photoSubject", "photoLicense", "localNames");
+				"photoUrl", "photoSource", "addressEn", "photoSubject", "photoLicense", "localNames", "localAddresses");
 		assertThat(componentNames(NearbyPlaceItem.class)).containsExactly(
 				"placeId", "nameKo", "nameEn", "category", "address", "lat", "lng", "distanceM", "hasPhoto",
-				"photoUrl", "photoSource", "addressEn", "photoSubject", "photoLicense", "localNames");
+				"photoUrl", "photoSource", "addressEn", "photoSubject", "photoLicense", "localNames", "localAddresses");
 	}
 
 	@Test
@@ -123,6 +123,23 @@ class ListResponseFieldsTest {
 		assertThat(PlaceSummaryResponse.of(place, null).addressEn()).isNull();
 		assertThat(PlaceSummaryResponse.ofFacetMatch(place).addressEn()).isNull();
 		assertThat(NearbyPlaceItem.from(place, 10L).addressEn()).isNull();
+	}
+
+	@Test
+	@DisplayName("🔴 목록 둘이 일본어·중국어 주소를 싣는다 — 이름만 번역되고 주소는 영어·한국어이던 자리(S15P21E201-1876)")
+	void listsCarryLocalAddresses() {
+		Place place = placeWithPhoto(PHOTO, SOURCE);
+		ReflectionTestUtils.setField(place, "addressJa", "釜山広域市 海雲台区 ヘウンデヘビョンロ264");
+		ReflectionTestUtils.setField(place, "addressZhHant", " 釜山廣域市海雲臺區海雲臺海邊路264 ");
+		ReflectionTestUtils.setField(place, "addressZhHans", "  ");
+
+		// 빈 칸은 빠지고, 앞뒤 공백은 뗀다 — 이름(localNames)과 같은 규칙.
+		assertThat(PlaceSummaryResponse.of(place, null).localAddresses()).containsExactly(
+				java.util.Map.entry("ja", "釜山広域市 海雲台区 ヘウンデヘビョンロ264"),
+				java.util.Map.entry("zh-Hant", "釜山廣域市海雲臺區海雲臺海邊路264"));
+		assertThat(PlaceSummaryResponse.ofFacetMatch(place).localAddresses()).containsKeys("ja", "zh-Hant");
+		assertThat(NearbyPlaceItem.from(place, 10L).localAddresses()).containsKeys("ja", "zh-Hant");
+		assertThat(PlaceSummaryResponse.of(placeWithPhoto(PHOTO, SOURCE), null).localAddresses()).isEmpty();
 	}
 
 	/**

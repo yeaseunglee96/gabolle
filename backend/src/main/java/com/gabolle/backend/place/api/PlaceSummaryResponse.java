@@ -55,14 +55,19 @@ public record PlaceSummaryResponse(
 		 * 장소 이름의 일본어·중국어(간체·번체) — 관광공사가 번역해 둔 곳만 있다(V20260930130000, S15P21E201-1859).
 		 * 키는 앱의 언어 코드({@code ja} · {@code zh-Hans} · {@code zh-Hant}), 없는 언어는 빠지고 다 없으면 칸째 빠진다.
 		 */
-		@JsonInclude(JsonInclude.Include.NON_EMPTY) Map<String, String> localNames) {
+		@JsonInclude(JsonInclude.Include.NON_EMPTY) Map<String, String> localNames,
+		/**
+		 * 주소의 일본어·중국어(간체·번체) — 관광공사가 번역해 둔 곳만 있다(V20260930180000, S15P21E201-1876).
+		 * 키는 {@code localNames} 와 같고, 없는 언어는 빠지고 다 없으면 칸째 빠진다. 화면은 없으면 영문 → 한국어 주소로 물러선다.
+		 */
+		@JsonInclude(JsonInclude.Include.NON_EMPTY) Map<String, String> localAddresses) {
 
 	/** 이름 검색 결과 한 줄. 어느 이름 칸이 걸렸는지 서비스 계층의 순위 계산이 정해 준다. */
 	public static PlaceSummaryResponse of(Place place, MatchedField matchedField) {
 		return new PlaceSummaryResponse(place.getPlaceId(), place.getNameKo(), place.getNameEn(),
 				place.getCategory(), place.getAddress(), place.getLat(), place.getLng(), matchedField,
 				place.getPhotoUrl(), place.getPhotoSource(), place.getAddressEn(), place.getPhotoSubject(),
-				place.getPhotoLicense(), place.localNames());
+				place.getPhotoLicense(), place.localNames(), place.localAddresses());
 	}
 
 	/** 갈래 필터 목록 결과 한 줄. 이름 매칭이 아니라 표식으로 골랐으므로 matchedField 가 없다. */
@@ -70,7 +75,7 @@ public record PlaceSummaryResponse(
 		return new PlaceSummaryResponse(place.getPlaceId(), place.getNameKo(), place.getNameEn(),
 				place.getCategory(), place.getAddress(), place.getLat(), place.getLng(), null,
 				place.getPhotoUrl(), place.getPhotoSource(), place.getAddressEn(), place.getPhotoSubject(),
-				place.getPhotoLicense(), place.localNames());
+				place.getPhotoLicense(), place.localNames(), place.localAddresses());
 	}
 
 	/**

@@ -121,7 +121,7 @@ public class PlaceDetailService {
 				RequestLanguage.resolve(acceptLanguageHeader, place.getNameEn() != null),
 				place.getPhotoLicense(),
 				photosOf(place),
-				place.localNames());
+				place.localNames(), place.localAddresses());
 	}
 
 	/**
