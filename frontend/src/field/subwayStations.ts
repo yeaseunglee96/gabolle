@@ -12,6 +12,7 @@
  *    실제 길로 잰 값이 아니므로 화면은 「약」을 붙인다.
  */
 import raw from './busanSubwayStations.json';
+import officialNames from './busanSubwayStationNames.json';
 
 export type SubwayStation = { name: string; lines: number[]; latitude: number; longitude: number };
 export type NearbyStation = SubwayStation & { distanceM: number; walkMin: number };
@@ -39,6 +40,22 @@ export function walkMinutes(distanceM: number): number {
 }
 
 /** 거리 글자 — 1km 아래는 10m 단위, 그 위는 소수 한 자리 km. */
+/**
+ * 부산교통공사가 정한 영문 역명 — 「시청」 → 「City Hall」, 「부산」 → 「Busan Station」(S15P21E201-1874).
+ * 🔴 읽는 법(「Sicheong」)은 역 안내판·안내방송과 달라서 외국인이 역을 못 찾는다. 공식 표기가 있으면 그것을 쓴다.
+ *    한자 역명 칸은 원천에 빠지거나 틀린 값이 섞여 있어 쓰지 않는다(busanSubwayStationNames.json 머리).
+ */
+export function stationEnglishName(name: string): string | null {
+  return (officialNames.names as Record<string, string>)[name] ?? null;
+}
+
+/** 외국어 화면의 역 이름 한 줄 — 공식 영문 역명 + 「Station」(이미 붙어 있으면 그대로). 공식 이름이 없으면 null. */
+export function stationEnglishTitle(name: string): string | null {
+  const english = stationEnglishName(name);
+  if (!english) return null;
+  return / Station$/.test(english) ? english : `${english} Station`;
+}
+
 export function distanceText(distanceM: number): string {
   if (distanceM < 1000) return `${Math.max(10, Math.round(distanceM / 10) * 10)}m`;
   return `${(distanceM / 1000).toFixed(1)}km`;
