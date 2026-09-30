@@ -178,6 +178,16 @@ class BaselineCandidateScorerVegetarianTest {
 	}
 
 	@Test
+	@DisplayName("S15P21E201-1873 — 죽집·맷돌 두부·집밥·도시락 가게는 백반 업종이어도 이름으로 남는다")
+	void 죽_맷돌_집밥_도시락은_남긴다() {
+		for (String name : List.of("본죽 부산용호점", "죽이야기", "거창맷돌", "집밥파는집", "한솥도시락 센텀중앙로점")) {
+			assertThat(score(candidate(name, List.of(subCategory("백반/한정식"))), diet("VEGETARIAN")).constraintVerdict())
+					.as(name).isEqualTo(ConstraintVerdict.PASS);
+		}
+		assertThat(reasonOf(score(candidate("전복죽 전문", List.of()), diet("VEGETARIAN")))).isEqualTo("SEAFOOD_CENTRIC");
+	}
+
+	@Test
 	@DisplayName("S15P21E201-1873 — 「백반/한정식」 업종만으로는 채식에 안 남는다. 운영 채식 여행에 곰탕·오돌뼈 집과 술집이 들어갔다")
 	void 백반_업종만으로는_안_남긴다() {
 		for (String name : List.of("누구나오돌뼈구이", "서울육계장", "바로해장")) {
