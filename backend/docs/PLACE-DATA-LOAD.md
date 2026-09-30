@@ -455,7 +455,7 @@ DELETE FROM gabolle.place_feature
 \copy gabolle.place_feature FROM '/tmp/slope-backup-20260929.csv' CSV HEADER
 ```
 
-## 9. 장소 상세 사실 — 메뉴·편의시설·입장료·가까운 곳·가기 좋은 때 (S15P21E201-1886, 2026-09-30 추가)
+## 9. 장소 상세 사실 — 공인 표식·메뉴·편의시설·입장료·가까운 곳·가기 좋은 때 (S15P21E201-1886, 2026-09-30 추가)
 
 장소 상세 화면에 보여 줄 사실을 `place_feature` 에 넣는 적재기다 (`PlaceDetailExtrasLoader` +
 `PlaceDetailExtrasLoaderRunner`). 새 갈래 여섯은 `V20260930210000__place_detail_extras.sql` 이
@@ -486,6 +486,7 @@ DELETE FROM gabolle.place_feature
 | `ADMISSION_FEE` | `{"raw":원문 글}` |
 | `NEARBY_LANDMARK` | `{"name":글,"distanceM":0 이상 정수}` |
 | `BEST_TIME` | `{"day":정수,"night":정수,"any":정수}` — 설문 응답 수, 셋 다 필수, 합이 0 이면 거절 |
+| `RECOGNITION` | `{"badges":[{"kind":"MODEL_RESTAURANT"\|"TAXI_DRIVER_PICK","since":"YYYY-MM-DD"\|null,"menu":글\|null,"source":글}]}` — 1~5개, `kind`·`source` 필수. **공인 표식**(S15P21E201-1891, `V20260930220000__place_recognition.sql` 이 허용 목록에 더했다). `MODEL_RESTAURANT` = 구·군 지정 모범음식점(「부산광역시_구군 모범음식점 현황」), `TAXI_DRIVER_PICK` = 택시기사 추천 식당(「부산광역시 택슐랭 선정 식당(2025)」). 둘 다 공공데이터포털 자료로 이용허락범위(**어디까지 써도 되는지 정한 조건**)가 「제한 없음」이다. `source` 는 화면에 작게 그대로 적히는 출처 글이다. 모르는 `kind` 는 멈춘다. 한 장소에 한 줄, 표식은 그 안에 다 담는다 |
 | `OPENING_HOURS` | `OpeningHoursReader` 가 쓰는 모양 그대로: `{"status":"PARSED"\|"ALWAYS_OPEN","byDay":{…},"seasonal":…,"closedDays":…,"notes":…,"raw":…}` — `status` 필수, 나머지는 있으면 옮긴다. `byDay` 는 객체 |
 | `CHECK_IN_OUT` | `{"status":"LODGING","checkIn":글\|null,"checkOut":글\|null,"notes":…,"raw":…}` — 체크인·체크아웃 둘 다 비면 거절 |
 
