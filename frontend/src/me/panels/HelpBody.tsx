@@ -27,6 +27,7 @@ const SUPPORT_EMAIL_FALLBACK = 'gabolle.support@gmail.com';
 const GUIDES: ReadonlyArray<{ key: ScreenGuide; title: [string, string]; where: [string, string] }> = [
   { key: 'taxi', title: ['말이 안 통해도 택시를 탈 수 있어요', 'Take a taxi even without Korean'], where: ['장소 정보 · 기사님께 보여주기', 'Place page · Show to driver'] },
   { key: 'assistant', title: ['여행 중에 막히면 여기예요', 'Stuck on the road? Start here'], where: ['오른쪽 아래 동백이 메뉴', 'Dongbaek menu, bottom right'] },
+  { key: 'legs', title: ['장소 사이 이 칸이 길 안내예요', 'This row between places is your directions'], where: ['여행 일정 · 장소 사이 이동 칸', 'Trip plan · row between places'] },
 ];
 
 export function HelpBody() {

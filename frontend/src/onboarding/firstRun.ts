@@ -98,13 +98,14 @@ export async function takeItineraryHint(): Promise<boolean> {
  *
  *   taxi       장소 정보의 「기사님께 보여주기」 — 말이 안 통해도 택시를 탈 수 있다
  *   assistant  동백이 도우미 메뉴 — 식당에선 메뉴판 번역, 말이 막히면 통역
+ *   legs       일정 화면의 이동 칸 — 장소 사이 칸이 길 안내다(UI 캔버스 ㉓-4)
  *
  * 규칙(㉔-5): 화면마다 한 번 · 이미 해 본 사람(택시 카드를 열어 본 사람)에게는 안 띄운다 · 닫으면 다시 안 뜨고
  * 마이페이지 › 도움말에서 다시 켤 수 있다. 일정 첫 힌트와 같이 **앱 소개를 거친 사람에게만** 저절로 뜬다 —
  * 도움말에서 다시 켠 것은 누구에게나 뜬다.
  */
-export type ScreenGuide = 'taxi' | 'assistant';
-export const SCREEN_GUIDES: readonly ScreenGuide[] = ['taxi', 'assistant'];
+export type ScreenGuide = 'taxi' | 'assistant' | 'legs';
+export const SCREEN_GUIDES: readonly ScreenGuide[] = ['taxi', 'assistant', 'legs'];
 const guideKey = (guide: ScreenGuide) => `gabolle:guide-seen:${guide}`;
 /** 도움말에서 다시 켠 표시 — 「봤음」 자리에 이 값을 둔다. */
 const AGAIN = 'again';
