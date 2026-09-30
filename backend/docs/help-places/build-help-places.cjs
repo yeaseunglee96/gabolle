@@ -23,8 +23,8 @@ const table = (file) => {
 const HOSPITAL_TYPES = new Set(['상급종합', '종합병원', '병원', '의원', '보건소', '보건지소', '보건진료소']);
 // 응급실 표시는 병원급 이상만 믿는다 — 세부정보의 응급실 칸이 의원에도 「Y」로 적힌 곳이 있었다(가족보건의원 등)
 const ER_TYPES = new Set(['상급종합', '종합병원', '병원']);
-// 이름으로 거른다 — 의원 중 피부·성형·미용은 급할 때 찾는 곳이 아니다
-const EXCLUDE_NAME = /피부|성형|미용|요양|치과|한의|한방/;
+// 이름으로 거른다 — 의원 중 피부·성형·미용·정신건강의학과는 다치거나 아플 때 찾는 곳이 아니다
+const EXCLUDE_NAME = /피부|성형|미용|요양|치과|한의|한방|정신/;
 
 const phoneOf = (raw) => {
   const digits = String(raw || '').replace(/[^\d-]/g, '');
@@ -96,7 +96,7 @@ for (const line of fs.readFileSync(osmPath, 'utf8').split('\n')) {
 places.sort((a, b) => a.kind.localeCompare(b.kind) || a.name.localeCompare(b.name, 'ko'));
 const counts = places.reduce((acc, p) => { acc[p.kind] = (acc[p.kind] || 0) + 1; return acc; }, {});
 const doc = {
-  source: '병원·의원·약국: 건강보험심사평가원 「전국 병의원 및 약국 현황」 2026년 6월 말 기준(공공누리 제1유형·출처표시). 경찰: © OpenStreetMap 기여자(ODbL 1.0). 요양·정신병원, 치과, 한의원·한방병원, 피부·성형·미용 의원은 뺐다.',
+  source: '병원·의원·약국: 건강보험심사평가원 「전국 병의원 및 약국 현황」 2026년 6월 말 기준(공공누리 제1유형·출처표시). 경찰: © OpenStreetMap 기여자(ODbL 1.0). 요양·정신병원, 치과, 한의원·한방병원, 피부·성형·미용·정신건강의학과 의원은 뺐다.',
   basedOn: '2026-06-30',
   counts,
   places,

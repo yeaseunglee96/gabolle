@@ -53,10 +53,10 @@ class HelpPlaceServiceTest {
 	}
 
 	@Test
-	@DisplayName("🔴 여행자가 아플 때 갈 곳이 아닌 곳은 없다 — 요양·치과·한의원·피부·성형")
+	@DisplayName("🔴 여행자가 아플 때 갈 곳이 아닌 곳은 없다 — 요양·치과·한의원·피부·성형·정신")
 	void excludedTypesAreAbsent() {
 		assertThat(CATALOG.places(HelpKind.HOSPITAL))
-				.noneMatch(place -> place.name().matches(".*(요양|치과|한의|한방|피부|성형|미용).*"));
+				.noneMatch(place -> place.name().matches(".*(요양|치과|한의|한방|피부|성형|미용|정신).*"));
 		assertThat(CATALOG.places(HelpKind.HOSPITAL)).extracting(HelpPlace::type)
 				.allMatch(type -> type.matches("상급종합|종합병원|병원|의원|보건소|보건지소|보건진료소"));
 	}
