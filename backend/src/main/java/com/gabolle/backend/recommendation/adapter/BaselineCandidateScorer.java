@@ -669,7 +669,7 @@ public class BaselineCandidateScorer {
 	private static final Set<String> SWEET_SUBCATEGORIES = Set.of("빵/도넛", "카페", "아이스크림/빙수", "떡/한과");
 
 	/** 반찬으로 한 끼가 되는 업종 — 고기 근거가 없으면 채식·할랄 모두에 남긴다. */
-	private static final Set<String> TABLE_MEAL_SUBCATEGORIES = Set.of("백반/한정식");
+	private static final Set<String> TABLE_MEAL_SUBCATEGORIES = Set.of("백반/한정식", "토스트/샌드위치/샐러드");
 
 	/** 할랄(느슨)이 남기는 고기 업종 — 돼지가 아닌 고기가 중심이다. */
 	private static final Set<String> HALAL_FRIENDLY_SUBCATEGORIES = Set.of("소고기 구이/찜", "닭/오리고기 구이/찜", "치킨");
@@ -687,7 +687,10 @@ public class BaselineCandidateScorer {
 	/** 채소·두부가 중심인 메뉴 이름과 한정식·백반. 이 낱말이 상호에 있으면 채식 근거로 본다(고기·해산물 근거가 없을 때). */
 	private static final List<String> PLANT_DISH_WORDS = List.of(
 			"두부", "보리밥", "비빔밥", "산채", "콩국수", "사찰", "샐러드", "SALAD", "채소", "나물", "곤드레",
-			"한정식", "백반", "밥상", "쌈밥");
+			"한정식", "백반", "밥상", "쌈밥",
+			// 샐러드·포케·샌드위치 가게는 채소만으로 고를 수 있는 메뉴를 늘 둔다(사용자 판단 — 서브웨이 같은 곳).
+			// 「연어포케」처럼 해산물이 이름에 있으면 이 앞의 해산물 검사가 먼저 뺀다.
+			"포케", "POKE", "샐러디", "SALADY", "샌드위치", "SANDWICH", "서브웨이", "SUBWAY");
 
 	/** 할랄(느슨)이 남기는 이름 낱말 — 할랄·무슬림을 말하거나, 돼지가 아닌 고기·중동·남아시아 음식을 가리킨다. */
 	private static final List<String> HALAL_FRIENDLY_WORDS = List.of(

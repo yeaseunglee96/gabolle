@@ -150,6 +150,18 @@ class BaselineCandidateScorerVegetarianTest {
 	}
 
 	@Test
+	@DisplayName("S15P21E201-1873 — 샐러드·포케·샌드위치 가게는 채식에 남는다. 해산물 이름이 붙은 포케는 빠진다")
+	void 샐러드_포케_샌드위치는_남긴다() {
+		for (PlaceCandidateResponse.Candidate candidate : List.of(candidate("서브웨이 서면점", List.of()),
+				candidate("포케올데이 광안점", List.of()), candidate("샐러디 해운대점", List.of()),
+				candidate("모어", List.of(subCategory("토스트/샌드위치/샐러드"))))) {
+			assertThat(score(candidate, diet("VEGETARIAN")).constraintVerdict()).as(candidate.nameKo())
+					.isEqualTo(ConstraintVerdict.PASS);
+		}
+		assertThat(reasonOf(score(candidate("연어포케 전문", List.of()), diet("VEGETARIAN")))).isEqualTo("SEAFOOD_CENTRIC");
+	}
+
+	@Test
 	@DisplayName("S15P21E201-1873 — 한정식·백반은 나물·두부·밥으로 한 끼가 되어 남긴다. 고기 근거가 있으면 빠진다")
 	void 한정식_백반은_남긴다() {
 		for (PlaceCandidateResponse.Candidate candidate : List.of(candidate("할매밥집", List.of(subCategory("백반/한정식"))),
