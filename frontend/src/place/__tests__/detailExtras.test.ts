@@ -2,10 +2,14 @@ import {
   admissionFeeRow, amenitiesRow, bestTimeRow, extraRows, foreignMenuRow, formatDistance, formatWon, homepageUrl,
   menuLines, nearbyLandmarkRow, pickBestTime, recognitionBadges, walkDifficulty, walkDifficultyRow,
 } from '../detailExtras';
+import { formatSlopePercent, type Place } from '@/discovery/places';
+import { slopeGrade } from '@/map/slopeGrades';
 
 const ko = (k: string) => k;
 const en = (_k: string, e: string) => e;
 const f = (featureType: string, value: unknown, evidenceStatus = 'VERIFIED') => ({ featureType, value, evidenceStatus });
+/** 「경사」 줄(formatSlopePercent)이 읽는 장소 — 경사 값 하나만 든 모양. */
+const place = (value: unknown, evidenceStatus: string): Place => ({ features: [{ featureType: 'SLOPE_PERCENT', value, evidenceStatus }] }) as unknown as Place;
 
 describe('대표 메뉴', () => {
   const items = f('MENU_ITEMS', { items: [
@@ -80,15 +84,37 @@ describe('정보 줄', () => {
     expect(row).toMatchObject({ value: '밤', caption: '현지인 설문 14명' });
   });
 
-  it('걷기 난이도 — 5 이하 쉬움 · 10 이하 보통 · 그 위 힘듦, 자연·산책만', () => {
-    expect([5, 5.1, 10, 10.1].map(walkDifficulty)).toEqual(['easy', 'moderate', 'moderate', 'hard']);
+  it('걷기 난이도 — 5 미만 쉬움 · 8.33 까지 보통 · 그 위 힘듦, 자연·산책만', () => {
+    expect([4.99, 5, 8.33, 8.34].map(walkDifficulty)).toEqual(['easy', 'moderate', 'moderate', 'hard']);
     expect(walkDifficultyRow('NATURE_WALK', [f('SLOPE_PERCENT', { score: 12.8 })], ko)?.value).toBe('힘듦');
     expect(walkDifficultyRow('FOOD', [f('SLOPE_PERCENT', { score: 12.8 })], ko)).toBeNull();
     expect(walkDifficultyRow('NATURE_WALK', [], ko)).toBeNull();
   });
 
+  it('🔴 운영 금정산(경사 8.8%) — 「경사」 줄이 가파라요면 걷기 난이도도 힘듦이다 (전에는 보통이라 같은 화면에서 엇갈렸다)', () => {
+    const geumjeongsan = { stat: 'p50', score: 8.8, radiusM: 200, segments: 7, walkLengthM: 6175 };
+    expect(formatSlopePercent(place(geumjeongsan, 'ESTIMATED'), ko)).toBe('가파라요 · 8.8% (추정)');
+    expect(walkDifficultyRow('NATURE_WALK', [f('SLOPE_PERCENT', geumjeongsan, 'ESTIMATED')], ko)?.value).toBe('힘듦 (추정)');
+  });
+
   it('아무 것도 없으면 줄이 없다(백엔드 !1930 전 서버)', () => {
     expect(extraRows('FOOD', [f('OPENING_HOURS', { raw: 'x' })], ko)).toEqual([]);
+  });
+});
+
+// 같은 값을 읽는 세 곳이 같은 말을 한다 — 지도 경사 색(slopeGrades.ts) · 장소 상세 「경사」 줄(places.ts) · 「걷기 난이도」 줄.
+// 문턱을 한 곳만 고치면 이 시험이 깨져서, 다시 셋이 갈라서는 것을 막는다(S15P21E201-1901).
+describe('걷기 난이도 ↔ 경사 줄 ↔ 지도 색 — 같은 문턱', () => {
+  const GRID = [0, 0.9, 2.7, 4.99, 5, 5.01, 6.5, 8.32, 8.33, 8.34, 8.8, 9.7, 10, 10.01, 12.8, 19.5];
+  const gradeToDifficulty = { good: 'easy', fair: 'moderate', bad: 'hard' } as const;
+  const wordToDifficulty: Record<string, string> = { '완만해요': 'easy', '조금 가파라요': 'moderate', '가파라요': 'hard' };
+
+  it.each(GRID)('경사 %s%% — 세 곳의 등급이 같다', (percent) => {
+    const mapGrade = slopeGrade({ slopePercent: percent, stairs: false });
+    const difficulty = walkDifficulty(percent);
+    expect(difficulty).toBe(gradeToDifficulty[mapGrade as 'good' | 'fair' | 'bad']);
+    const slopeWordOnScreen = (formatSlopePercent(place({ score: percent }, 'VERIFIED'), ko) ?? '').split(' · ')[0];
+    expect(wordToDifficulty[slopeWordOnScreen]).toBe(difficulty);
   });
 });
 
