@@ -181,11 +181,11 @@ export function RouteMap({
   if (!appKey) {
     return (
       <View style={[styles.fallback, { minHeight: height }]}>
-        <Text variant="title" weight="bold">{tx('지도 키가 이 빌드에 안 들어갔어요', 'This build was made without a map key')}</Text>
+        <Text variant="title" weight="bold">{tx('지금은 지도를 불러올 수 없어요', 'The map can’t be shown right now')}</Text>
         <Text variant="body" style={styles.description}>
           {tx(
-            '앱 지도를 그리려면 빌드할 때 카카오 지도 키가 함께 들어가야 하는데, 이 빌드에는 빈 값이 들어갔습니다. 방문 순서와 장소 목록은 아래에서 그대로 볼 수 있어요.',
-            'The app map needs a Kakao map key baked in at build time, and this build got an empty one. You can still use the visit order and place list below.',
+            '지도 설정에 문제가 있어 지도를 그리지 못했어요. 방문 순서와 장소 목록은 아래에서 그대로 볼 수 있어요.',
+            'Something is wrong with the map setup, so we couldn’t draw it. You can still use the visit order and place list below.',
           )}
         </Text>
         <Text variant="caption" style={styles.tech}>EXPO_PUBLIC_KAKAO_MAP_JS_KEY = (빈 값) · EAS 빌드 환경 변수로 넣어야 한다</Text>

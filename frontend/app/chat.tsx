@@ -122,7 +122,7 @@ export default function Chat() {
   </Pressable>;
   const tools = <View accessibilityLabel={tx('여행 도구 바로가기', 'Trip tool shortcuts')} style={[styles.toolSection, desktop && styles.toolSectionDesktop]}>
     {emergency}
-    {!desktop ? <View style={styles.sectionHeading}><Text variant="body" weight="bold">{tx('대화 없이 바로 실행', 'Run these without chatting')}</Text><Text variant="caption" color={color.text.body}>{tx('메뉴판 번역·통역은 홈의 동백이 단추에 있어요.', 'Menu translation and interpreter live on the home Dongbaek button.')}</Text></View> : null}
+    {!desktop ? <View style={styles.sectionHeading}><Text variant="body" weight="bold">{tx('대화 없이 바로 실행', 'Run these without chatting')}</Text><Text variant="caption" color={color.text.body}>{tx('메뉴판 번역·통역은 홈 화면 오른쪽 아래 동백이 버튼에 있어요.', 'Menu translation and the interpreter are on the Dongbaek button at the bottom right of the home screen.')}</Text></View> : null}
     <View style={[styles.quickTools, desktop && styles.quickToolsDesktop]}>{QUICK_TOOLS.map((tool) => <Pressable key={tool.key} accessibilityRole="button" accessibilityLabel={`${tx(tool.labelKo, tool.labelEn)}, ${tx(tool.hintKo, tool.hintEn)}`} onPress={() => router.push(tool.href)} style={({ pressed }) => [styles.quickTool, desktop && styles.quickToolDesktop, pressed && styles.quickToolPressed]}>
       <View style={styles.toolIconBox}>{toolIcon(tool.icon)}</View>
       {/* 두 줄까지 — 일본어 「釜山なまり ひとこと」「ヘルプ・お問い合わせ」가 한 줄이면 「…」로 잘렸다(5개 언어 점검 2026-09-29). */}<View style={styles.toolBody}><Text variant="body" weight="bold" numberOfLines={2}>{tx(tool.labelKo, tool.labelEn)}</Text><Text variant="caption" color={color.text.body} numberOfLines={2}>{tx(tool.hintKo, tool.hintEn)}</Text></View>
