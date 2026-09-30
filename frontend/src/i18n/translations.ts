@@ -3117,6 +3117,21 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '출구 번호: © OpenStreetMap 기여자': { ja: '出口番号: © OpenStreetMap 貢献者', zhHans: '出口编号: © OpenStreetMap 贡献者', zhHant: '出口編號: © OpenStreetMap 貢獻者' },
   '화면을 닫아도 작업은 계속돼요.': { ja: '画面を閉じても作業は続きます。', zhHans: '关闭页面后仍会继续生成。', zhHant: '關閉頁面後仍會繼續生成。' },
   '완성된 일정은 「내 여행」에서 볼 수 있어요.': { ja: '完成した旅程は「マイ旅行」で見られます。', zhHans: '完成的行程可在“我的旅行”中查看。', zhHant: '完成的行程可在「我的旅行」中查看。' },
+  '%s까지 걸어서 %s분': { ja: '%sまで徒歩%s分', zhHans: '步行到%s · %s分钟', zhHant: '步行到%s · %s分鐘' },
+  '%s까지 걸어가요': { ja: '%sまで歩きます', zhHans: '步行到%s', zhHant: '步行到%s' },
+  '%s 정류장까지 걸어가요': { ja: '%sバス停まで歩きます', zhHans: '步行到%s站', zhHant: '步行到%s站' },
+  '걸어서 갈아타요': { ja: '歩いて乗り換えます', zhHans: '步行换乘', zhHant: '步行轉乘' },
+  '%s 방면을 타고 %s정거장 · %s에서 내려요': { ja: '%s方面に乗って%s駅 · %sで降ります', zhHans: '乘坐开往%s方向的列车，%s站 · 在%s下车', zhHant: '搭乘往%s方向的列車，%s站 · 在%s下車' },
+  '%s번 버스를 타고 %s에서 내려요': { ja: '%s番バスに乗って%sで降ります', zhHans: '乘坐%s路公交，在%s下车', zhHant: '搭乘%s路公車，在%s下車' },
+  '내려서 %s까지 걸어요': { ja: '降りて%sまで歩きます', zhHans: '下车后步行到%s', zhHant: '下車後步行到%s' },
+  '다음 이동': { ja: '次の移動', zhHans: '下一段行程', zhHant: '下一段行程' },
+  '%s까지 가는 법': { ja: '%sへの行き方', zhHans: '如何前往%s', zhHant: '如何前往%s' },
+  '표지판: %s': { ja: '看板: %s', zhHans: '指示牌：%s', zhHant: '指示牌：%s' },
+  '표지판': { ja: '看板', zhHans: '指示牌', zhHant: '指示牌' },
+  '길 안내 시작': { ja: '道案内を開始', zhHans: '开始导航', zhHant: '開始導航' },
+  '%s까지 길 안내 시작': { ja: '%sまでの道案内を開始', zhHans: '开始导航到%s', zhHant: '開始導航到%s' },
+  '길 안내 ›': { ja: '道案内 ›', zhHans: '导航 ›', zhHant: '導航 ›' },
+  '%s까지': { ja: '%sまで', zhHans: '前往%s', zhHant: '前往%s' },
 };
 
 export function getTranslation(ko: string, field: 'ja' | 'zhHans' | 'zhHant'): string | null {
