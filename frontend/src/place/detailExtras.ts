@@ -15,6 +15,7 @@
 import { txf } from '@/i18n/format';
 import type { LanguageCode } from '@/i18n/languages';
 import type { EvidenceStatus, PlaceFeature } from '@/discovery/places';
+import { MODERATE_SLOPE_PERCENT, STEEP_SLOPE_PERCENT } from '@/map/slopeGrades';
 
 type Tx = (ko: string, en: string) => string;
 type Obj = Record<string, unknown>;
@@ -174,10 +175,17 @@ export function bestTimeRow(features: readonly PlaceFeature[] | undefined, tx: T
 
 export type WalkDifficulty = 'easy' | 'moderate' | 'hard';
 
-/** 평균 경사 % → 걷기 난이도. 5 이하 쉬움 · 10 이하 보통 · 그 위 힘듦. */
+/**
+ * 평균 경사 % → 걷기 난이도. 5% 미만 쉬움 · 8.33% 까지 보통 · 그 위 힘듦.
+ *
+ * 🔴 문턱은 바로 위 「경사」 줄(places.ts 의 slopeWord)과 지도 경사 색(slopeGrades.ts)이 쓰는 값 그대로다 — 새로 정하지 않고
+ *    같은 상수를 가져다 쓴다(S15P21E201-1901). 8.33% 는 휠체어 경사로 기준(1:12)이고 서버의 접근성 판정도 같은 값이다.
+ *    전에는 5 / 10 을 따로 적어서 같은 화면에서 엇갈렸다 — 운영 금정산 상세가 「경사: 가파라요 · 8.8%」 바로 아래
+ *    「걷기 난이도: 보통」이라고 적었다. 5 는 «미만»이 쉬움이다(지도는 5.0 이 노랑이다).
+ */
 export function walkDifficulty(slopePercent: number): WalkDifficulty {
-  if (slopePercent <= 5) return 'easy';
-  if (slopePercent <= 10) return 'moderate';
+  if (slopePercent < MODERATE_SLOPE_PERCENT) return 'easy';
+  if (slopePercent <= STEEP_SLOPE_PERCENT) return 'moderate';
   return 'hard';
 }
 
