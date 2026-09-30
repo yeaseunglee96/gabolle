@@ -129,6 +129,14 @@ export type ItineraryDto = {
    * 지도가 구간 길을 물을 때 stepFree=true 를 싣는다(routeDirections.ts). 옛 서버에는 칸이 없다(undefined) — 보통 길로 묻는다.
    */
   stepFree?: boolean;
+  /**
+   * 이 여행이 「가파른 경사 피하기」를 골랐나 — 서버가 여행의 최신 선호 스냅샷에서 뽑아 준다(S15P21E201-1895). 지도가 걷는 길을
+   * 경사 색으로 칠할지 정한다(routeGrading.ts). 🔴 **옛 서버에는 칸이 없다**(undefined) — 그때만 기기의 초안(slopeConstraint)으로
+   * 대신한다. 서버가 false 라고 답했으면 초안이 무엇이든 false 다.
+   */
+  slopeAvoid?: boolean;
+  /** 이 여행이 「그늘 많은 곳 우선」을 골랐나 — slopeAvoid 와 같은 규칙(초안 대신: shadePreference). */
+  shadePrefer?: boolean;
 };
 
 export type ItineraryVersionEntryDto = {

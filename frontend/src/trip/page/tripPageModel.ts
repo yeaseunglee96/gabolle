@@ -5,10 +5,12 @@
 //    통째로 띄워야만 그 규칙을 볼 수 있다.
 import type { MapRouteLayer } from '@/map/RouteMap';
 import { legKey, type LegPath } from '@/map/courseRoutePaths';
+import type { RouteGrading } from '@/map/routeGrading';
 import { slopeSegments } from '@/map/slopeGrades';
 import type { MapStop } from '@/map/types';
-import type { DayReturnLeg, DayStart, ItineraryItemDto } from '@/plan/itinerary';
+import type { DayReturnLeg, DayStart, ItineraryDto, ItineraryItemDto } from '@/plan/itinerary';
 import { lodgingAreaCodeOf } from '@/plan/origins';
+import type { PlanDraft } from '@/plan/PlanProvider';
 
 /**
  * 두 입구(추천·일정)가 어느 판을 여나 — 넓은 화면(1단계) · 폰(2단계) · 지금까지의 화면.
@@ -190,8 +192,29 @@ export function itineraryLegs(items: ItineraryItemDto[], map: DayMap, dayNumber:
   return legs;
 }
 
-/** 정차지 사이 선 — 받아 온 길이 있으면 그 길, 없으면 곧은 점선(estimated). */
-export function dayRoutes(map: DayMap, dayNumber: number, lineColor: string, legs: Record<string, LegPath>): MapRouteLayer[] {
+/**
+ * 이 여행이 경로 선을 무엇으로 칠하나 — 사용자가 고른 «가파른 경사 피하기»·«그늘 많은 곳 우선» (S15P21E201-1896).
+ *
+ * 🔴 서버가 알려 준 값(일정 응답의 slopeAvoid · shadePrefer)이 **먼저**다. 칸이 없을 때만(옛 서버) 기기의 초안
+ *    (slopeConstraint === 'AVOID' · shadePreference === 'PREFER')으로 대신한다. 서버가 false 라고 답했으면 초안이 무엇이든 false 다 —
+ *    초안은 «지금 만드는 새 여행» 의 답이라, 서버가 아는 이 여행의 답과 다를 수 있다.
+ * 🔴 둘 다 없으면(초안도 없으면) 조건을 안 고른 것이다 — 경로는 자기 색 한 가지로 그린다.
+ */
+export function routeGradingOf(
+  itinerary: Pick<ItineraryDto, 'slopeAvoid' | 'shadePrefer'> | null | undefined,
+  draft: Pick<PlanDraft, 'slopeConstraint' | 'shadePreference'> | null | undefined,
+): RouteGrading {
+  return {
+    slope: typeof itinerary?.slopeAvoid === 'boolean' ? itinerary.slopeAvoid : draft?.slopeConstraint === 'AVOID',
+    shade: typeof itinerary?.shadePrefer === 'boolean' ? itinerary.shadePrefer : draft?.shadePreference === 'PREFER',
+  };
+}
+
+/**
+ * 정차지 사이 선 — 받아 온 길이 있으면 그 길, 없으면 곧은 점선(estimated).
+ * grading = 고른 조건. 걷기로 받은 구간의 조각을 이 조건대로 칠한다(RouteMap 이 routeGrading.ts 로).
+ */
+export function dayRoutes(map: DayMap, dayNumber: number, lineColor: string, legs: Record<string, LegPath>, grading?: RouteGrading): MapRouteLayer[] {
   const routes: MapRouteLayer[] = [];
   for (let i = 0; i + 1 < map.stops.length; i += 1) {
     const leg = legs[legKey(dayNumber, i)];
@@ -201,8 +224,9 @@ export function dayRoutes(map: DayMap, dayNumber: number, lineColor: string, leg
       stops: [map.stops[i], map.stops[i + 1]],
       path: leg?.path,
       estimated: leg ? leg.estimated : true,
-      // 걷기로 받은 구간의 경사 조각(S15P21E201-1658) — 스위치가 꺼져 있으면 늘 없다.
+      // 걷기로 받은 구간의 경사·그늘 조각(S15P21E201-1658 · -1896).
       pieces: leg?.pieces,
+      ...(grading ? { grading } : {}),
     });
   }
   return routes;

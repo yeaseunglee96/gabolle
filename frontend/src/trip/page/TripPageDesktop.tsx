@@ -11,7 +11,7 @@
 //
 // 🔴 편집(순서·고정·제외·다시 계산·되돌리기)은 여기서 안 한다. 시안의 넓은 화면에 그 자리가 없다.
 //    대신 ⋯ 의 「일정 편집」이 지금까지의 일정 화면을 그대로 연다(?classic=1) — 기능을 잃지 않는다.
-import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Image, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 
@@ -49,8 +49,7 @@ import { useTripPage } from './useTripPage';
 import { DayReturnRow } from './DayReturnRow';
 import { DayStartRow } from './DayStartRow';
 import { FreeTimeRow } from './FreeTimeRow';
-import { MobilityLayerToggle } from '@/map/MobilityLayerToggle';
-import { useMobilityLayer, type MobilityLayerKind } from '@/map/mobilityLayers';
+import { RouteColorLegend } from '@/map/RouteColorLegend';
 import { TripOverlay, type TripOverlayKind } from './TripOverlay';
 import { TripInvitePanel } from '@/trip/TripInvitePanel';
 import { TripReadLinkPanel } from '@/trip/TripReadLinkPanel';
@@ -73,6 +72,11 @@ const MAP_WIDTH = 440;
  */
 const CARD_MAX_WIDTH = 260;
 const BIG_LIST_WIDTH = 320;
+/**
+ * 지도 위 왼쪽 위에 요약 칩과 색 범례가 떠 있다. 범례 아래끝이 지도 위에서 약 121 이고, 지도를 맞출 때 위에 60 을 따로 두므로 그만큼을 뺀 값을
+ * 위 여백에 더한다 — 안 더하면 가장 북쪽 정차지가 범례 밑에 숨는다. 범례가 없을 때는 더하지 않는다.
+ */
+const LEGEND_COVER = 80;
 /** 시안의 미끄러짐 — 코스 360ms · 보기 전환 320ms, 같은 곡선. */
 const SLIDE = Easing.bezier(0.2, 0.8, 0.2, 1);
 
@@ -86,7 +90,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
   const {
     page, load, courses, course, courseIndex, setCourseIndex, confirmed, setConfirmed, tripId,
     itinerary, setItinerary, loaded, dayIndex, setDayIndex, items, selectedId, setSelectedId, photos, pace,
-    map, routes, points, anyEstimatedLine, travelTotal, budget, atRisk, allEstimated, title, headSub, confirm, confirming,
+    map, routes, routeLegend, points, anyEstimatedLine, travelTotal, budget, atRisk, allEstimated, title, headSub, confirm, confirming,
   } = useTripPage(source);
   // 추천 노출 — 카드가 실제로 화면에 보일 때만 보낸다(S15P21E201-1696). 확정 전에는 코스를 고르는 중이다.
   const impressions = useImpressionTracker({ accessToken, sourceScreen: confirmed ? 'TRIP_ITINERARY' : 'TRIP_COURSES', active: page?.state === 'ready' });
@@ -104,8 +108,8 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
   //    메뉴를 연 채 「동행 초대」를 누르면 메뉴가 초대 창 위에 남고 Escape 로도 안 닫혔다(넓은 화면 실측).
   //    창 방식은 바깥을 누르거나 Escape(onRequestClose)로 닫히고, 열린 동안 뒤의 알약은 눌리지 않는다.
   const menu = useDropdownMenu();
-  // 지도의 경사·그늘 겹(S15P21E201-1569) — 켜면 정차지 둘레 길을 칠한다. 경로 선 아래 깔린다.
-  const [layerKind, setLayerKind] = useState<MobilityLayerKind | null>(null);
+  // 🔴 지도의 경사·그늘 «겹» 칩은 뺐다(S15P21E201-1896) — 경로 선 자체를 고른 조건(경사 피하기·그늘 우선)의 색으로 칠하고,
+  //    그 색의 뜻은 지도 위 범례(RouteColorLegend)가 알려 준다.
   const [overlay, setOverlay] = useState<TripOverlayKind | null>(null);
   const [naming, setNaming] = useState(askName);
   const [leftHeight, setLeftHeight] = useState(0);
@@ -113,9 +117,6 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
   /** 스크롤 칸이 보여 주는 높이와, 그 안에서 본문이 시작하는 자리 — 지도를 «화면 아래까지» 늘리는 데 쓴다. */
   const [viewportHeight, setViewportHeight] = useState(0);
   const [bodyTop, setBodyTop] = useState(0);
-
-  const mobility = useMobilityLayer(layerKind, map.stops);
-  const mapRoutes = useMemo(() => [...mobility.lines, ...routes], [mobility.lines, routes]);
 
   if (!page) return <LoadingState tx={tx} />;
   if (page.state === 'error') return <ErrorState message={localizeMessage(tx, page.message)} onRetry={() => void load()} tx={tx} />;
@@ -134,12 +135,12 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
   const mapPanel = (height: number) => (
     <View style={[styles.mapPanel, { height }]}>
       {map.stops.length ? (
-        <RouteMap stops={map.stops} selectedId={selectedId} onSelect={setSelectedId} routes={mapRoutes} points={points} height={height} focusSelected />
+        <RouteMap stops={map.stops} selectedId={selectedId} onSelect={setSelectedId} routes={routes} points={points} height={height} focusSelected topInset={routeLegend ? LEGEND_COVER : 0} />
       ) : (
         <View style={styles.mapEmpty}><Text variant="caption" color={color.text.muted}>{tx('장소의 좌표가 아직 없어 지도에 그릴 수 없어요.', 'These places have no coordinates yet, so the map is empty.')}</Text></View>
       )}
       <View pointerEvents="none" style={styles.mapSummary}><Text variant="caption" weight="bold" numberOfLines={1}>{mapSummary}</Text></View>
-      {map.stops.length ? <MobilityLayerToggle value={layerKind} onChange={setLayerKind} layer={mobility} tx={tx} stepFree={loaded?.stepFree === true} style={styles.mapLayers} /> : null}
+      {map.stops.length ? <RouteColorLegend legend={routeLegend} tx={tx} style={styles.mapLayers} /> : null}
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={layout === 'map' ? tx('장소 카드로 보기', 'Show place cards') : tx('큰 지도로 보기', 'Show the big map')}
@@ -594,7 +595,8 @@ const styles = StyleSheet.create({
     position: 'absolute', left: spacing[3], top: spacing[3], paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderRadius: radius.md, backgroundColor: color.surface.card,
     shadowColor: color.brand.navy, shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 2,
   },
-  mapLayers: { position: 'absolute', left: spacing[3], bottom: spacing[3] },
+  // 색 범례 — 요약 칩 아래 왼쪽 위. 🔴 왼쪽 아래에 두지 않는다: 카카오 지도가 그 자리에 로고와 축척을 그리고, 가리면 이용약관을 어긴다.
+  mapLayers: { position: 'absolute', left: spacing[3], right: spacing[3], top: spacing[3] + 34 + spacing[2] },
   mapExpand: {
     position: 'absolute', right: spacing[3], top: spacing[3], width: 40, height: 40, borderRadius: radius.md, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center',
     shadowColor: color.brand.navy, shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 2,

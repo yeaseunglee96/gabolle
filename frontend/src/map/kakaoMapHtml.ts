@@ -214,9 +214,9 @@ export function buildKakaoMapHtml(appKey: string): string {
       if (points.length < 2) continue;
       // 실제 길 좌표가 있고 "추정 아님" 이라고 적혀 있을 때만 진하다. 나머지는 어림이라 옅다.
       var real = !!(route.path && route.path.length) && route.estimated === false;
-      // 걷는 길의 경사 조각 — 앱(RouteMap.native.tsx)이 slopeGrades.ts 로 잘라 색을 붙여 segments 로 보낸다(S15P21E201-1658).
+      // 걷는 길의 조각 — 앱(RouteMap.native.tsx)이 routeGrading.ts 로 고른 조건대로 잘라 색을 붙여 segments 로 보낸다(S15P21E201-1658 · -1896).
       if (route.weight == null) { drawRouteLine(points, route.segments && route.segments.length ? route.segments : [{ points: points, color: route.color }], route.opacity != null ? route.opacity : (real ? REAL_OPACITY : ESTIMATED_OPACITY)); continue; }
-      // 경사·그늘 겹(굵기를 직접 준 선)은 경로 아래 깔리는 옅은 띠라 그대로 그린다.
+      // 굵기를 직접 준 보조 선(전의 경사·그늘 겹)은 경로 아래 깔리는 옅은 띠라 그대로 그린다.
       var line = new maps.Polyline({ path: toPath(points), strokeWeight: route.weight, strokeColor: route.color, strokeOpacity: route.opacity != null ? route.opacity : (real ? 0.9 : 0.75), strokeStyle: real ? 'solid' : 'shortdash' });
       line.setMap(map); overlays.push(line);
     }

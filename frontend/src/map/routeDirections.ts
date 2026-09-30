@@ -28,6 +28,7 @@ export type RouteDirections = {
   /**
    * 걷는 길의 경사 조각(백엔드 !1626, S15P21E201-1630). 우리 보행 길찾기가 찾은 걷기(provider OSM_WALK_GRAPH ·
    * estimated false)에만 차고 나머지는 빈 배열이다. 그 전의 서버는 칸이 없다.
+   * 조각마다 그늘(shade, 0~1, 백엔드 S15P21E201-1895)이 실려 올 수 있다 — 없거나 null 이면 «모른다»(slopeGrades.ts 의 SlopePiece).
    */
   pieces?: SlopePiece[];
 };

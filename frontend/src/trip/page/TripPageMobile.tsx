@@ -75,8 +75,7 @@ import { remainingMeters, stepAway, stepDwell, usableFix, type Away, type Dwell 
 import { ActualTimeSheet } from './ActualTimeSheet';
 import { arrivedAtOf, clockOf, isoWithOffset, startOfLocalDay, stayingStopId } from './actualTime';
 import { useLiveLocation } from './useLiveLocation';
-import { MobilityLayerToggle } from '@/map/MobilityLayerToggle';
-import { useMobilityLayer, type MobilityLayerKind } from '@/map/mobilityLayers';
+import { RouteColorLegend } from '@/map/RouteColorLegend';
 import { DayReturnRow } from './DayReturnRow';
 import { DayStartRow } from './DayStartRow';
 import { FreeTimeRow } from './FreeTimeRow';
@@ -99,6 +98,12 @@ const SHEET_BG = Platform.OS === 'web' ? color.surface.sheetGlass : color.surfac
  *    다만 가로로 돌린 폰처럼 화면이 낮으면 창이 너무 작아지므로 높이의 30% 를 넘기지 않는다.
  */
 const MAP_PEEK = 190;
+/**
+ * 지도 위에 뜨는 색 범례가 요약 칩 아래에서 더 가리는 높이 — 지도를 맞출 때 위 여백에 더한다. 전에 이 자리에 있던 «경사/그늘» 칩 줄(32)과 같은 값이다.
+ * 🔴 범례 실제 높이(폰 폭에서 스와치 한 줄 + 규칙 두 줄 남짓, 약 65)를 다 더하지 않는다. 맞추기(fitPadding)가 이미 위에 60 을 따로 두므로
+ *    더하면 경로 띠가 통째로 내려가 열린 창 뒤로 숨는다(창이 열린 폰에서 지도가 보이는 곳은 위 약 190 뿐이다).
+ */
+const LEGEND_COVER = 32;
 /** 접었을 때 탭바 위에 뜨는 정차지 카드 폭(시안 150). */
 const STRIP_CARD = 150;
 // 🔴 카드 줄이 멈추는 한 칸 = 카드 폭 + 카드 사이 간격(stripInner 의 gap) (S15P21E201-1800).
@@ -147,7 +152,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   const {
     page, load, courses, course, courseIndex, setCourseIndex, confirmed, setConfirmed, tripId,
     itinerary, setItinerary, loaded, reloadItinerary, dayIndex, setDayIndex, items, selectedId, setSelectedId,
-    photos, pace, reloadPace, map, routes, points, budget, atRisk, allEstimated, title, headSub, confirm, confirming,
+    photos, pace, reloadPace, map, routes, routeLegend, points, budget, atRisk, allEstimated, title, headSub, confirm, confirming,
   } = useTripPage(source);
   // 영어(일·중) 화면의 장소 이름 — 「돈반 (Donban)」, 영어 이름이 있으면 영어 먼저(S15P21E201-1735). 한국어는 제목 그대로.
   // 일본어·중국어는 관광공사 번역 이름이 먼저(S15P21E201-1860) — 사진 조회에 함께 실려 온다.
@@ -158,10 +163,8 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   // ⋯ 메뉴는 공용 DropdownMenu(창)다 — 바깥을 누르거나 Escape 로 닫힌다(S15P21E201-1593). 전에는 본문 사이에 끼어드는 판이라
   //    닫는 길이 「⋯ 다시 누르기」뿐이었고, 연 채로 다른 창을 열면 그대로 남았다.
   const menu = useDropdownMenu();
-  // 지도의 경사·그늘 겹(S15P21E201-1569).
-  const [layerKind, setLayerKind] = useState<MobilityLayerKind | null>(null);
-  const mobility = useMobilityLayer(layerKind, map.stops);
-  const mapRoutes = useMemo(() => [...mobility.lines, ...routes], [mobility.lines, routes]);
+  // 🔴 지도의 경사·그늘 «겹» 칩은 뺐다(S15P21E201-1896) — 경로 선 자체를 고른 조건(경사 피하기·그늘 우선)의 색으로 칠하고,
+  //    그 색의 뜻은 아래 범례(RouteColorLegend)가 알려 준다. 여행 중 GPS 로 따라갈 때도 같은 routes 를 같은 지도가 그린다.
   const [overlay, setOverlay] = useState<TripOverlayKind | null>(null);
   const [naming, setNaming] = useState(askName);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -221,9 +224,11 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   const mapCovered = panel === 'trip'
     ? (resizedHeight !== null ? resizedHeight + bottomMargin : height - sheetTop)
     : bottomMargin + TAB_BAR_HEIGHT + spacing[2] + stripHeight;
-  // 지도 위쪽도 가려져 있다 — 상태바, 그 아래 「장소 N곳」 요약(높이 40 자리)과 「경사/그늘」 칩(32). 지도 칸은 모서리를
-  // 숨기려 radius.lg 만큼 화면 위로 올라가 있어 그것도 더한다(S15P21E201-1754). 칩 아래 풀이 줄은 켰을 때만 떠서 셈하지 않는다.
-  const mapTopCovered = radius.lg + insets.top + spacing[2] + 40 + 32;
+  // 지도 위쪽도 가려져 있다 — 상태바, 그 아래 「장소 N곳」 요약(높이 40 자리)과, 칠한 선이 있을 때 뜨는 색 범례(RouteColorLegend).
+  // 지도 칸은 모서리를 숨기려 radius.lg 만큼 화면 위로 올라가 있어 그것도 더한다(S15P21E201-1754).
+  // 🔴 범례는 «칠한 선이 있을 때만» 떠서 그때만 셈한다. 이 값은 다음에 지도를 맞출 때 읽힌다(RouteMap 의 topInsetRef) — 범례가
+  //    나타난다고 지도가 그 자리에서 다시 맞춰지지는 않는다.
+  const mapTopCovered = radius.lg + insets.top + spacing[2] + 40 + (routeLegend ? LEGEND_COVER : 0);
   // 🔴 «지도 보기»로 접는 순간에만 지도를 다시 맞춘다(S15P21E201-1754). 창이 열린 채 맞춘 큰 아래 여백이 남아 경로가
   //    화면 위 15% 에 몰렸다. 창을 열 때는 null 이라 안 맞춘다 — 여닫을 때마다 튀지 않게(S15P21E201-1607).
   //    카드 줄 높이가 재어지면 한 번 더 맞춘다(접은 직후 한 번뿐이다).
@@ -738,7 +743,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
         {map.stops.length ? (
           // 🔴 지도 부품은 둥근 테두리 칸으로 그려진다. 바탕으로 쓰려면 모서리를 화면 밖으로 밀어낸다.
           <View style={styles.mapBleed}>
-            <RouteMap stops={map.stops} selectedId={selectedId} onSelect={setSelectedId} routes={mapRoutes} points={points} currentLocation={usableFix(live.fix) ? { latitude: live.fix.latitude, longitude: live.fix.longitude } : null} height={mapHeight + radius.lg * 2} focusSelected bottomInset={mapCovered} topInset={mapTopCovered} refitKey={mapRefitKey} />
+            <RouteMap stops={map.stops} selectedId={selectedId} onSelect={setSelectedId} routes={routes} points={points} currentLocation={usableFix(live.fix) ? { latitude: live.fix.latitude, longitude: live.fix.longitude } : null} height={mapHeight + radius.lg * 2} focusSelected bottomInset={mapCovered} topInset={mapTopCovered} refitKey={mapRefitKey} />
           </View>
         ) : loaded ? (
           <View style={[styles.mapEmpty, { paddingTop: insets.top }]}>
@@ -752,7 +757,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
         </View>
       ) : null}
       {loaded && map.stops.length ? (
-        <MobilityLayerToggle value={layerKind} onChange={setLayerKind} layer={mobility} tx={tx} stepFree={loaded?.stepFree === true} style={[styles.mapLayers, { top: insets.top + spacing[2] + 40 }]} />
+        <RouteColorLegend legend={routeLegend} tx={tx} style={[styles.mapLayers, { top: insets.top + spacing[2] + 40 }]} />
       ) : null}
 
       {/* ── 접었을 때 — 탭바 위 정차지 카드 줄 (시안 4b) ──────────────────────────── */}
@@ -1212,7 +1217,7 @@ const styles = StyleSheet.create({
 
   // ── 지도 ──
   mapClip: { position: 'absolute', left: 0, right: 0, top: 0, overflow: 'hidden' },
-  mapLayers: { position: 'absolute', left: spacing[4] },
+  mapLayers: { position: 'absolute', left: spacing[4], right: spacing[4] },
   mapBleed: { marginTop: -radius.lg, marginHorizontal: -radius.lg },
   mapEmpty: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[6] },
   mapSummary: { position: 'absolute', left: spacing[4], zIndex: 5, paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderRadius: radius.md, backgroundColor: color.surface.card, ...floating },

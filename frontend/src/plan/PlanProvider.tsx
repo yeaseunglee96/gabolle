@@ -318,3 +318,13 @@ export function usePlan() {
   if (!value) throw new Error(tx('usePlan은 PlanProvider 안에서 사용해야 합니다.', 'usePlan must be used inside PlanProvider.'));
   return value;
 }
+
+/**
+ * 여행 계획 초안 — PlanProvider 밖에서도 부를 수 있고, 밖이면 null 이다(던지지 않는다).
+ *
+ * 여행 페이지가 «서버가 경사·그늘 선택을 아직 안 알려 줄 때» 기기의 초안으로 대신하려고 쓴다(S15P21E201-1896). 여행 페이지는
+ * 초안 없이도 열려야 하므로 usePlan 처럼 던지면 안 된다.
+ */
+export function useOptionalPlanDraft(): PlanDraft | null {
+  return useContext(PlanContext)?.draft ?? null;
+}

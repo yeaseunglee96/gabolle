@@ -10,7 +10,7 @@ const EDGE = 60;
 /**
  * 전체를 맞출 때의 여백 [위, 오른쪽, 아래, 왼쪽]. 아래는 가려진 만큼 더 — 다만 지도에 보일 자리(위아래 120)는 남긴다.
  * 위도 가려진 만큼(topInset — 상태바와 지도 위에 뜬 칩) 더 둔다(S15P21E201-1754). 전에는 위가 늘 60 이라
- * 폰에서 출발지·정차지가 상태바와 「장소 N곳」·「경사/그늘」 칩 밑으로 숨었다.
+ * 폰에서 출발지·정차지가 상태바와 「장소 N곳」·지도 위 칩(지금은 색 범례) 밑으로 숨었다.
  */
 export function fitPadding(bottomInset: number, mapHeight: number, topInset = 0): [number, number, number, number] {
   const top = EDGE + Math.max(0, topInset);
@@ -20,8 +20,15 @@ export function fitPadding(bottomInset: number, mapHeight: number, topInset = 0)
 
 /**
  * 고른 곳을 보이는 부분의 가운데에 두려면 지도 중심을 얼마나 «아래로» 옮기나(px).
- * 보이는 부분의 가운데는 지도 가운데보다 가려진 높이의 절반만큼 위다.
+ * 보이는 부분의 가운데는 지도 가운데보다 (아래 가림 − 위 가림)의 절반만큼 위다.
+ *
+ * 🔴 위 가림(topInset)도 뺀다(S15P21E201-1896). 폰 여행 화면은 위에 요약 칩과 색 범례가 떠 있어서, 아래 가림만 보면 고른 곳이 범례 밑에
+ *    깔렸다(열린 창 위로 보이는 지도가 약 190 뿐이라 가운데가 범례 자리와 겹친다). 음수는 만들지 않는다 — 위만 가려진 넓은 화면은
+ *    전처럼 지도 가운데다.
  */
-export function focusShiftY(bottomInset: number, mapHeight: number): number {
-  return Math.max(0, Math.min(bottomInset, mapHeight - EDGE * 2)) / 2;
+export function focusShiftY(bottomInset: number, mapHeight: number, topInset = 0): number {
+  const room = Math.max(0, mapHeight - EDGE * 2);
+  const bottom = Math.min(Math.max(0, bottomInset), room);
+  const top = Math.min(Math.max(0, topInset), room);
+  return Math.max(0, bottom - top) / 2;
 }

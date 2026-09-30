@@ -8,7 +8,8 @@ import { useI18n } from '@/i18n';
 import type { MapPathPoint, MapStop } from './types';
 import { fitPadding, focusShiftY } from './mapFocus';
 import { simplifyPath } from './simplifyPath';
-import { slopeSegments, type SlopePiece } from './slopeGrades';
+import { gradedSegments, type RouteGrading } from './routeGrading';
+import type { SlopePiece } from './slopeGrades';
 import { txf } from '@/i18n/format';
 
 declare global { interface Window { kakao?: any } }
@@ -69,11 +70,19 @@ export type MapRouteLayer = {
   path?: MapPathPoint[];
   /** 실제 길이 아니라 직선 추정인가. 안 적으면 추정으로 본다. */
   estimated?: boolean;
-  /** 선 굵기·불투명도 — 경사·그늘 겹(S15P21E201-1569)처럼 경로 아래 깔리는 선만 준다. 안 주면 경로 선 그대로. */
+  /**
+   * 선 굵기·불투명도 — 경로 아래 깔리는 보조 선만 준다. 안 주면 경로 선 그대로.
+   * (전에는 경사·그늘 겹 S15P21E201-1569 가 썼다. 그 겹은 S15P21E201-1896 에서 여행 페이지에서 뺐고, 지금 이 값을 주는 곳은 없다.)
+   */
   weight?: number;
   opacity?: number;
-  /** 걷는 길의 경사 조각(S15P21E201-1658) — 있으면 path 를 조각마다 잘라 경사 색으로 긋는다(slopeGrades.ts). */
+  /** 걷는 길의 경사 조각(S15P21E201-1658) — 있으면 path 를 조각마다 잘라 고른 조건의 색으로 긋는다(routeGrading.ts). */
   pieces?: SlopePiece[];
+  /**
+   * 사용자가 고른 조건(S15P21E201-1896) — 이 조건으로 조각을 칠한다. 둘 다 false 면 조각이 있어도 경로 자기 색(color) 한 가지로 그린다.
+   * 🔴 안 주면 전과 같다(경사로 칠한다) — 조건을 모르는 화면(이동 경로 상세)의 동작을 바꾸지 않는다.
+   */
+  grading?: RouteGrading;
 };
 export type MapPointLayer = { id: string; label: string; color: string; stops: MapStop[] };
 
@@ -258,12 +267,12 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
           // 실제 길이라고 적혀 있을 때만 진하다. 나머지는 어림이라 옅다.
           const real = route.path?.length ? route.estimated === false : false;
           if (route.weight == null) {
-            // 걷는 길의 경사 조각이 있으면 조각마다 경사 색(S15P21E201-1658). 조각은 실제 길에만 온다.
-            const segments = route.path?.length ? slopeSegments(route.path, route.pieces) : null;
+            // 걷는 길의 조각이 있고 조건을 골랐으면 조각마다 그 조건의 색(S15P21E201-1658 · -1896). 조각은 실제 길에만 온다.
+            const segments = route.path?.length ? gradedSegments(route.path, route.pieces, route.grading) : null;
             drawRouteLine(points, segments ?? [{ points, color: route.color }], route.opacity ?? (real ? REAL_OPACITY : ESTIMATED_OPACITY));
             return;
           }
-          // 경사·그늘 겹(굵기를 직접 준 선)은 경로 아래 깔리는 옅은 띠라 그대로 그린다.
+          // 굵기를 직접 준 보조 선(전의 경사·그늘 겹)은 경로 아래 깔리는 옅은 띠라 그대로 그린다.
           const line = new maps.Polyline({
             path: points.map((point) => new maps.LatLng(point.latitude, point.longitude)),
             strokeWeight: route.weight,
@@ -291,7 +300,7 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
           if (!selectedStop) return;
           // 보이는 부분의 가운데로 — 지도 중심을 가린 높이의 절반만큼 아래에 둔다(mapFocus.ts).
           const target = new maps.LatLng(selectedStop.latitude, selectedStop.longitude);
-          const shift = focusShiftY(insetRef.current, hostHeight());
+          const shift = focusShiftY(insetRef.current, hostHeight(), topInsetRef.current);
           if (!shift) { map.panTo(target); return; }
           const projection = map.getProjection();
           const point = projection.containerPointFromCoords(target);
