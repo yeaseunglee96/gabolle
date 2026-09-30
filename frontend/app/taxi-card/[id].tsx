@@ -12,6 +12,7 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { getTaxiCard, type TaxiCard } from '@/discovery/taxiCard';
+import { markScreenGuideUsed } from '@/onboarding/firstRun';
 import { useI18n } from '@/i18n';
 import { addressForLanguage } from '@/discovery/localAddress';
 
@@ -31,6 +32,8 @@ export default function TaxiCardScreen() {
   const [state, setState] = useState<State>({ status: 'loading' });
   const [retryCount, setRetryCount] = useState(0);
   const [copied, setCopied] = useState(false);
+  // 택시 카드를 한 번 연 사람에게는 장소 정보의 택시 안내를 다시 띄우지 않는다(UI 캔버스 ㉔-5, S15P21E201-1885).
+  useEffect(() => { void markScreenGuideUsed('taxi'); }, []);
 
   useEffect(() => {
     if (!id) return;

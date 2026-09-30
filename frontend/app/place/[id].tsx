@@ -25,6 +25,8 @@ import { PlacePhraseModal } from '@/components/PlacePhraseModal';
 import { txf } from '@/i18n/format';
 import { otherNameFor } from '@/discovery/localNames';
 import { addressForLanguage, koreanAddressLine } from '@/discovery/localAddress';
+import { GuideCallout } from '@/onboarding/GuideCallout';
+import { takeScreenGuide } from '@/onboarding/firstRun';
 
 // 데모 3곳·저장 키는 src/discovery/savedPlaces.ts 로 옮겼다 — (tabs)/saved.tsx 도 같은 값을 쓴다.
 const PLACES = DEMO_PLACES;
@@ -80,6 +82,14 @@ export default function Place() {
     ? photoLabels({ photoSource: currentPhoto.source, photoLicense: currentPhoto.license, photoSubject: photoIndex === 0 ? resolved.apiPlace.photoSubject : null }, tx)
     : null;
   const taxiPlaceId = resolved?.apiPlace?.placeId ?? null;
+  // 택시 카드 첫 안내(UI 캔버스 ㉔-1, S15P21E201-1885) — 택시 단추가 있는 장소에서 처음 한 번.
+  const [taxiGuide, setTaxiGuide] = useState(false);
+  useEffect(() => {
+    if (!taxiPlaceId) return;
+    let alive = true;
+    void takeScreenGuide('taxi').then((show) => { if (alive && show) setTaxiGuide(true); });
+    return () => { alive = false; };
+  }, [taxiPlaceId]);
 
   useEffect(() => {
     setHeroLoaded(false);
@@ -337,6 +347,15 @@ export default function Place() {
         <View style={styles.actions}>
           {/* 🔴 저장했는지 알기 전에는 누를 수 없다 — 위 savedKnown 의 주석(S15P21E201-1644). */}
           <Button label={isSaved ? tx('후보에서 빼기', 'Unsave') : tx('내 여행 후보에 저장', 'Save')} variant={isSaved ? 'tertiary' : 'primary'} disabled={!savedKnown} onPress={() => void toggleSaved()} containerStyle={styles.actionFull} />
+          {taxiPlaceId && taxiGuide ? (
+            <GuideCallout
+              pointDown
+              title={tx('말이 안 통해도 택시를 탈 수 있어요', 'Take a taxi even without Korean')}
+              body={tx('「기사님께 보여주기」를 누르면 한국어 주소가 크게 떠요. 그 화면을 보여 주면 돼요.', 'Tap “Show to driver” and the Korean address appears in large type. Just show that screen.')}
+              onDone={() => setTaxiGuide(false)}
+              style={styles.actionFull}
+            />
+          ) : null}
           {taxiPlaceId ? <Button label={tx('기사님께 보여주기', 'Show to driver')} variant="tertiary" onPress={() => router.push(`/taxi-card/${taxiPlaceId}`)} containerStyle={styles.actionHalf} /> : null}
           <Button label={tx('한국어로 말하기', 'Speak Korean')} variant="tertiary" onPress={() => setPhraseModalOpen(true)} containerStyle={styles.actionHalf} />
           {taxiPlaceId ? (

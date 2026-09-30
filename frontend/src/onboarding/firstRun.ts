@@ -78,7 +78,8 @@ export async function dismissChecklist(): Promise<void> {
  *    가 다시 켜 주므로, 여기서 비워도 「봐야 할 사람이 못 보는」 일은 없다.
  */
 export async function clearFirstRunMarks(): Promise<void> {
-  for (const key of [CHECKLIST, COACH_PENDING, COACH_SEEN, ITINERARY_HINT_SEEN]) {
+  // 화면별 안내 표시(아래 ScreenGuide)도 — 다음 계정은 앱 소개를 다시 지나며 새로 받는다.
+  for (const key of [CHECKLIST, COACH_PENDING, COACH_SEEN, ITINERARY_HINT_SEEN, ...SCREEN_GUIDES.map(guideKey)]) {
     try { await AsyncStorage.removeItem(key); } catch { /* 못 지워도 안내가 한 번 더 뜰 뿐이다 */ }
   }
 }
@@ -90,4 +91,53 @@ export async function takeItineraryHint(): Promise<boolean> {
   if ((await read(COACH_SEEN)) !== 'true') return false;
   await write(ITINERARY_HINT_SEEN, 'true');
   return true;
+}
+
+/**
+ * 화면별 첫 안내 — UI 캔버스 ㉔(S15P21E201-1885). 여행 중에 막히는 곳에서 한 번씩만 뜬다.
+ *
+ *   taxi       장소 정보의 「기사님께 보여주기」 — 말이 안 통해도 택시를 탈 수 있다
+ *   assistant  동백이 도우미 메뉴 — 식당에선 메뉴판 번역, 말이 막히면 통역
+ *
+ * 규칙(㉔-5): 화면마다 한 번 · 이미 해 본 사람(택시 카드를 열어 본 사람)에게는 안 띄운다 · 닫으면 다시 안 뜨고
+ * 마이페이지 › 도움말에서 다시 켤 수 있다. 일정 첫 힌트와 같이 **앱 소개를 거친 사람에게만** 저절로 뜬다 —
+ * 도움말에서 다시 켠 것은 누구에게나 뜬다.
+ */
+export type ScreenGuide = 'taxi' | 'assistant';
+export const SCREEN_GUIDES: readonly ScreenGuide[] = ['taxi', 'assistant'];
+const guideKey = (guide: ScreenGuide) => `gabolle:guide-seen:${guide}`;
+/** 도움말에서 다시 켠 표시 — 「봤음」 자리에 이 값을 둔다. */
+const AGAIN = 'again';
+
+/** 이 화면에서 안내를 띄워야 하나. 띄우기로 하면 그 자리에서 «봤음»으로 적는다(일정 첫 힌트와 같다). */
+export async function takeScreenGuide(guide: ScreenGuide): Promise<boolean> {
+  const mark = await read(guideKey(guide));
+  if (mark === 'true') return false;
+  if (mark !== AGAIN && (await read(COACH_SEEN)) !== 'true') return false;
+  await write(guideKey(guide), 'true');
+  return true;
+}
+
+/** 이미 해 본 사람 — 가르치려던 것을 이미 한 사람에게는 안내를 안 띄운다. */
+export async function markScreenGuideUsed(guide: ScreenGuide): Promise<void> {
+  if ((await read(guideKey(guide))) === 'true') return;
+  await write(guideKey(guide), 'true');
+}
+
+/** 도움말의 「다시 보기」 — 그 화면에 다음에 들어갈 때 한 번 더. */
+export async function requestScreenGuideAgain(guide: ScreenGuide): Promise<void> {
+  await write(guideKey(guide), AGAIN);
+}
+
+/** 도움말의 「처음 안내 전부 다시 켜기」 — 홈 코치 · 일정 첫 힌트 · 화면별 안내. */
+export async function requestAllGuidesAgain(): Promise<void> {
+  await write(COACH_PENDING, 'true');
+  try { await AsyncStorage.removeItem(ITINERARY_HINT_SEEN); } catch { /* 못 지우면 일정 힌트만 안 뜬다 */ }
+  for (const guide of SCREEN_GUIDES) await write(guideKey(guide), AGAIN);
+}
+
+/** 도움말 목록의 「봤어요 / 아직」. 다시 켠 것은 아직으로 센다. */
+export async function screenGuidesSeen(): Promise<Record<ScreenGuide, boolean>> {
+  const entries = await Promise.all(SCREEN_GUIDES.map(async (guide) => [guide, (await read(guideKey(guide))) === 'true'] as const));
+  return Object.fromEntries(entries) as Record<ScreenGuide, boolean>;
 }
