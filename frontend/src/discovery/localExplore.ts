@@ -7,6 +7,7 @@ import type { PhotoLicense, PhotoSubject } from '@/discovery/places';
 import { apiRequest, ApiClientError, isServerError } from '@/api/client';
 import { UNAVAILABLE_MESSAGE } from '@/api/errorText';
 import { localNameFor, type LocalNames } from '@/discovery/localNames';
+import type { LocalAddresses } from '@/discovery/localAddress';
 
 export type FacetKeyEntry = { featureKey: string; placeCount: number; labelKo: string; labelEn?: string | null };
 // 서버 목록과 순서는 그대로 유지한다. 이 사전은 영문 표기가 없는 기존 응답의 번역만 맡는다.
@@ -78,6 +79,8 @@ export type NearbyPlaceItem = {
   category: string | null;
   address: string | null;
   addressEn?: string;
+  /** 일본어·중국어 주소 — 관광공사가 번역해 둔 곳만(S15P21E201-1876). 화면은 addressForLanguage 로 고른다. */
+  localAddresses?: LocalAddresses;
   lat: number;
   lng: number;
   distanceM: number;

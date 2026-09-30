@@ -24,6 +24,7 @@ import { useLayout } from '@/layout/useLayout';
 import { PlacePhraseModal } from '@/components/PlacePhraseModal';
 import { txf } from '@/i18n/format';
 import { otherNameFor } from '@/discovery/localNames';
+import { addressForLanguage, koreanAddressLine } from '@/discovery/localAddress';
 
 // 데모 3곳·저장 키는 src/discovery/savedPlaces.ts 로 옮겼다 — (tabs)/saved.tsx 도 같은 값을 쓴다.
 const PLACES = DEMO_PLACES;
@@ -62,9 +63,11 @@ export default function Place() {
   //    (S15P21E201-1725 · 번역 함수 쪽 방어 !1720 에 더한 호출부 방어 S15P21E201-1726). 없으면 부제를 비운다.
   const resolved = useMemo(() => (
     demoPlace
-      ? { title: tx(demoPlace.titleKo, demoPlace.titleEn), subtitle: tx(demoPlace.subtitleKo, demoPlace.subtitleEn), apiPlace: null as ApiPlace | null }
+      ? { title: tx(demoPlace.titleKo, demoPlace.titleEn), subtitle: tx(demoPlace.subtitleKo, demoPlace.subtitleEn), koreanAddress: null as string | null, apiPlace: null as ApiPlace | null }
       : remote.status === 'loaded'
-        ? { title: placeNameForLanguage(remote.place.nameKo, otherNameFor(remote.place.nameEn, remote.place.localNames, language), language), subtitle: remote.place.address ? tx(remote.place.address, remote.place.addressEn ?? remote.place.address) : '', apiPlace: remote.place }
+        ? { title: placeNameForLanguage(remote.place.nameKo, otherNameFor(remote.place.nameEn, remote.place.localNames, language), language), subtitle: addressForLanguage(remote.place, language),
+            // 한국어 원문 — 기사에게 보여 주고 지도 앱에 붙여 넣는 것은 한국어 주소다(S15P21E201-1877).
+            koreanAddress: koreanAddressLine(remote.place, language), apiPlace: remote.place }
         : null
   ), [demoPlace, remote, tx]);
   // 사진 목록 — 서버가 photos 를 보내면 그것, 안 보내면 옛 photoUrl 한 장(S15P21E201-1839).
@@ -184,6 +187,7 @@ export default function Place() {
             <View style={styles.heroCopy}>
               <Text variant="display" weight="bold" color={color.text.onAction}>{resolved.title}</Text>
               <Text color={color.text.onAction}>{resolved.subtitle}</Text>
+              {resolved.koreanAddress ? <Text testID="place-korean-address" selectable variant="caption" color={color.text.onAction} style={styles.koreanAddress}>{resolved.koreanAddress}</Text> : null}
             </View>
           </ImageBackground>
         ) : photos.length > 1 ? (
@@ -201,6 +205,7 @@ export default function Place() {
               <View pointerEvents="box-none" style={styles.heroCopy}>
                 <Text variant="display" weight="bold" color={color.text.onAction} style={styles.heroText}>{resolved.title}</Text>
                 <Text color={color.text.onAction} style={styles.heroText}>{resolved.subtitle}</Text>
+                {resolved.koreanAddress ? <Text testID="place-korean-address" selectable variant="caption" color={color.text.onAction} style={[styles.heroText, styles.koreanAddress]}>{resolved.koreanAddress}</Text> : null}
                 {/* 「행사장 사진」 표시·출처 줄의 접근성 라벨이 왜 있는지는 아래 한 장 그림의 주석에 있다. */}
                 <PhotoSubjectBadge photoSubject={photoIndex === 0 ? resolved.apiPlace?.photoSubject : null} style={styles.subjectBadge} />
                 {photoCredit?.credit ? (
@@ -221,6 +226,7 @@ export default function Place() {
                 <View style={styles.heroCopy}>
                   <Text variant="display" weight="bold" color={color.text.onAction} style={styles.heroText}>{resolved.title}</Text>
                   <Text color={color.text.onAction} style={styles.heroText}>{resolved.subtitle}</Text>
+                  {resolved.koreanAddress ? <Text testID="place-korean-address" selectable variant="caption" color={color.text.onAction} style={[styles.heroText, styles.koreanAddress]}>{resolved.koreanAddress}</Text> : null}
                   {/* 사진이 이 장소를 찍은 것이 아니면 그렇게 말한다 — S15P21E201-1206.
                       여태 축제 화면만 말하고 여기는 아무 말도 안 했다.
                   */}
@@ -245,6 +251,7 @@ export default function Place() {
             <View style={styles.heroCopy}>
               <Text variant="display" weight="bold" color={color.text.onAction}>{resolved.title}</Text>
               <Text color={color.text.onAction}>{resolved.subtitle}</Text>
+              {resolved.koreanAddress ? <Text testID="place-korean-address" selectable variant="caption" color={color.text.onAction} style={styles.koreanAddress}>{resolved.koreanAddress}</Text> : null}
             </View>
           </View>
         )}
@@ -372,6 +379,8 @@ const styles = StyleSheet.create({
   shadeLower: { position: 'absolute', left: 0, right: 0, bottom: 0, height: '45%', backgroundColor: 'rgba(8, 27, 53, 0.18)' },
   shadeLowest: { position: 'absolute', left: 0, right: 0, bottom: 0, height: '24%', backgroundColor: 'rgba(8, 27, 53, 0.22)' },
   // 사진이 어떤 색이든 글자 윤곽이 서게 한다. 능짐 안 가리면서 가장 확실하다.
+  // 한국어 원문 줄 — 지도 앱에 붙여 넣거나 보여 줄 수 있게 고를 수 있다(S15P21E201-1877). 위 줄보다 한 단계 흐리게.
+  koreanAddress: { opacity: 0.85, marginTop: 2 },
   heroText: { textShadowColor: 'rgba(8, 27, 53, 0.9)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 },
   heroCopy: { gap: spacing[1], padding: spacing[4] },
   subjectBadge: { marginTop: spacing[2] },

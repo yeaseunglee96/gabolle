@@ -15,6 +15,7 @@ const FULL: Required<PlaceSearchItemDto> = {
   category: 'SEA_BEACH',
   address: '부산 수영구 광안해변로 219',
   addressEn: '219 Gwangan Haebyeon-ro, Suyeong-gu, Busan',
+  localAddresses: { ja: '釜山広域市 水営区 クァンアンヘビョンロ219' },
   lat: 35.1531,
   lng: 129.1186,
   matchedField: 'NAME_KO',

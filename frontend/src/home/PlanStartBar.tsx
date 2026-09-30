@@ -12,6 +12,7 @@ import { isOvernight } from '@/plan/lodgingRequired';
 import { lodgingSnapshotOf, MAJOR_BUSAN_ORIGINS, RECOMMENDED_LODGING_AREAS, attachEnglishNames, searchOrigins, type OriginCandidate, type OriginSearchResult } from '@/plan/origins';
 import { searchPlacesByName, type PlaceSearchItem } from '@/discovery/places';
 import { stopNameForLanguage } from '@/discovery/romanize';
+import { addressForLanguage } from '@/discovery/localAddress';
 import { MonthPicker } from '@/home/MonthPicker';
 import { MAX_MONTH_OFFSET, monthOffsetOf } from '@/home/monthJump';
 import {
@@ -547,7 +548,7 @@ export function PlanStartBar({
       {(results.length ? results : MAJOR_BUSAN_ORIGINS).map((candidate) => (
         <Pressable key={candidate.externalId} onPress={() => pickOrigin(candidate)} accessibilityRole="button" style={styles.originRow}>
           <Text weight="bold">{stopNameForLanguage(candidate.name, candidate.nameEn, language)}</Text>
-          <Text variant="caption" color={color.text.muted}>{candidate.address}</Text>
+          <Text variant="caption" color={color.text.muted}>{addressForLanguage(candidate, language)}</Text>
         </Pressable>
       ))}
     </View>

@@ -13,6 +13,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { getTaxiCard, type TaxiCard } from '@/discovery/taxiCard';
 import { useI18n } from '@/i18n';
+import { addressForLanguage } from '@/discovery/localAddress';
 
 /** 카카오 결과로 연 카드의 자리표시 id — speak.tsx 의 taxiCardHref 가 쓴다. */
 const EXTERNAL_ID = 'external';
@@ -25,7 +26,7 @@ type State =
 
 export default function TaxiCardScreen() {
   const router = useRouter();
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
   const { id, name, address } = useLocalSearchParams<{ id?: string; name?: string; address?: string }>();
   const [state, setState] = useState<State>({ status: 'loading' });
   const [retryCount, setRetryCount] = useState(0);
@@ -59,6 +60,11 @@ export default function TaxiCardScreen() {
     await Clipboard.setStringAsync(address);
     setCopied(true);
   }
+
+  const travelerAddress = state.status === 'loaded'
+    ? (language === 'ko' ? state.card.addressEn ?? null : addressForLanguage({ address: state.card.addressKo, addressEn: state.card.addressEn }, language) || null)
+    : null;
+  const shownTravelerAddress = travelerAddress && travelerAddress !== (state.status === 'loaded' ? state.card.addressKo : null) ? travelerAddress : null;
 
   return (
     <Screen style={styles.screen}>
@@ -101,8 +107,9 @@ export default function TaxiCardScreen() {
           {state.card.addressKo ? (
             <Text testID="taxi-card-address" variant="title" weight="bold" color={color.text.heading}>{state.card.addressKo}</Text>
           ) : null}
-          {state.card.addressEn ? (
-            <Text variant="title" color={color.text.body}>{state.card.addressEn}</Text>
+          {/* 여행자가 읽는 줄 — 한국어 화면은 영문 주소, 그 밖은 화면 언어(S15P21E201-1877). 기사가 읽는 한국어 줄은 위에 그대로다. */}
+          {shownTravelerAddress ? (
+            <Text testID="taxi-card-traveler-address" variant="title" color={color.text.body}>{shownTravelerAddress}</Text>
           ) : null}
           <Text variant="title" weight="medium" color={color.text.heading} style={styles.sentence}>
             {state.card.driverSentence}

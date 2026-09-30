@@ -7,6 +7,7 @@ import { txf } from '@/i18n/format';
 import type { StoryPlaceSnapshot } from '@/social/regionSearch';
 import { decodeHtmlText } from '@/social/htmlText';
 import { localNameFor, type LocalNames } from '@/discovery/localNames';
+import type { LocalAddresses } from '@/discovery/localAddress';
 import type { LanguageCode } from '@/i18n/languages';
 
 export type StoryVisibility = 'PUBLIC' | 'FOLLOWERS' | 'PRIVATE';
@@ -34,7 +35,7 @@ export type StoryDto = {
   body: string;
   region?: string | null;
   /** nameEn·addressEn — 서버가 영문 값이 있을 때만 싣는다(S15P21E201-1189, NON_NULL). 화면에 그릴 이름은 storyPlaceName. */
-  place?: { id: string; name: string; lat: number | null; lng: number | null; address?: string | null; nameEn?: string; addressEn?: string; localNames?: LocalNames } | null;
+  place?: { id: string; name: string; lat: number | null; lng: number | null; address?: string | null; nameEn?: string; addressEn?: string; localNames?: LocalNames; localAddresses?: LocalAddresses } | null;
   tripId?: string | null;
   images: Array<{ url: string; position: number }>;
   visibility: StoryVisibility;
