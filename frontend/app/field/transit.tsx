@@ -29,7 +29,7 @@ import { useLayout } from '@/layout/useLayout';
 import { txf } from '@/i18n/format';
 import { RouteMap, type MapPointLayer, type MapRouteLayer } from '@/map/RouteMap';
 import type { MapStop } from '@/map/types';
-import { distanceText, nearbyStations, straightDistanceM, walkMinutes } from '@/field/subwayStations';
+import { distanceText, nearbyStations, straightDistanceM, walkMinutes, stationEnglishTitle } from '@/field/subwayStations';
 import { DestinationPicker } from '@/field/DestinationPicker';
 
 /** 위치를 모를 때 기준으로 삼는 부산 중심 — explore.tsx 와 같은 자리. */
@@ -48,9 +48,9 @@ type LocationState = 'detecting' | 'granted' | 'denied';
 export default function Bus() {
   const router = useRouter();
   const { tx, language } = useI18n();
-  // 역 이름 — 원천(부산교통공사)에 한글 이름만 있다. 한국어가 아닌 화면에서는 읽는 법으로 적고(「Sicheong Station」),
-  // 역 안내판에서 찾을 수 있게 한글 역 이름을 아래에 같이 둔다(S15P21E201-1867). 전에는 「시청 Station」처럼 섞여 나왔다.
-  const stationTitle = (name: string) => (language === 'ko' ? `${name}역` : txf(tx, '%s역', '%s Station', romanizeKorean(name) ?? name));
+  // 역 이름 — 한국어가 아닌 화면은 부산교통공사 공식 영문 역명(「City Hall Station」, S15P21E201-1874). 역 안내판·안내방송이
+  // 그 이름이라서다. 공식 이름이 없는 역만 읽는 법으로 적는다. 안내판에서 찾을 수 있게 한글 역 이름을 옆에 같이 둔다(1867).
+  const stationTitle = (name: string) => (language === 'ko' ? `${name}역` : stationEnglishTitle(name) ?? txf(tx, '%s역', '%s Station', romanizeKorean(name) ?? name));
   const { preview } = useLocalSearchParams<{ preview?: string }>();
   const { accessToken, ready } = useAuth();
   const locationGate = useLocationGate(accessToken);

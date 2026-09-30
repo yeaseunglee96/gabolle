@@ -1,4 +1,5 @@
-import { distanceText, nearbyStations, STATION_COUNT, straightDistanceM, walkMinutes } from '@/field/subwayStations';
+import { distanceText, nearbyStations, STATION_COUNT, stationEnglishName, stationEnglishTitle, straightDistanceM, walkMinutes } from '@/field/subwayStations';
+import stationsRaw from '@/field/busanSubwayStations.json';
 
 describe('가까운 지하철역 (S15P21E201-1830)', () => {
   it('환승역은 한 번만 — 서면은 1·2호선 한 줄', () => {
@@ -27,5 +28,26 @@ describe('가까운 지하철역 (S15P21E201-1830)', () => {
     expect(distanceText(1234)).toBe('1.2km');
     expect(walkMinutes(10)).toBe(1);
     expect(walkMinutes(700)).toBe(13);
+  });
+});
+
+describe('공식 영문 역명 (S15P21E201-1874)', () => {
+  it('🔴 읽는 법이 아니라 부산교통공사 영문 역명이다 — 안내판·안내방송과 같아야 역을 찾는다', () => {
+    expect(stationEnglishTitle('시청')).toBe('City Hall Station');
+    expect(stationEnglishTitle('서면')).toBe('Seomyeon Station');
+  });
+
+  it('이미 「Station」이 붙은 이름에 한 번 더 붙이지 않는다', () => {
+    expect(stationEnglishName('부산')).toBe('Busan Station');
+    expect(stationEnglishTitle('부산')).toBe('Busan Station');
+  });
+
+  it('앱이 싣는 역은 모두 공식 영문 역명이 있다 — 빠지면 읽는 법으로 물러선다', () => {
+    const names = (stationsRaw.stations as Array<[string, string, number, number]>).map(([name]) => name);
+    expect(names.filter((name) => !stationEnglishName(name))).toEqual([]);
+  });
+
+  it('원천의 따옴표 겹침 오류를 고친 값이다 — 원천은 작은따옴표가 여러 개 겹쳐 있었다', () => {
+    expect(stationEnglishName('부산대')).toBe("Pusan Nat'l Univ.");
   });
 });
