@@ -1,0 +1,80 @@
+{
+  "id": "KTO-323",
+  "name": "원조서울삼계탕",
+  "cat": "삼계탕",
+  "attempts": 1,
+  "geminiTokens": 53836,
+  "researchedAt": "2026-09-30T00:27:07.845Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족·어르신·보양식 선호 관광객 및 현지인",
+    "generations": 2,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "삼계탕",
+      "녹각삼계탕",
+      "옻삼계탕",
+      "전기구이 통닭"
+    ],
+    "yearsClaimed": 66
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "09:30 ~ 22:00 (연중무휴)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "남포동 중심가에 위치하여 현지 단골뿐만 아니라 남포역 접근성이 좋아 부산 방문 관광객들도 자주 찾는 노포 음식점"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "1960년부터 남포동에서 운영을 이어온 노포 삼계탕 전문점으로, 황기·율무 등 약재를 넣어 고아낸 진한 육수와 소면을 곁들여 먹는 방식이 특징입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "1960년부터 운영해 온 전통 있는 삼계탕 전문점입니다. 황기, 율무씨 등의 약재를 넣은 진한 육수에 영계, 찹쌀, 대추, 밤 등을 넣어 조리합니다. 대표 메뉴인 삼계탕 외에도 녹각삼계탕, 옻삼계탕, 전복삼계탕, 전기구이 통닭 등을 판매합니다. 지하철 남포역 1번 출구에서 도보로 약 3분 거리에 있어 접근성이 좋습니다. 영업시간: 09:30 ~ 22:00 (연중무휴)",
+      "url": "https://korean.visitkorea.or.kr"
+    },
+    {
+      "excerpt": "1960년부터 대를 이어 운영 중인 곳으로, 약재를 넣어 진하게 고아 낸 육수와 영계를 사용하며, 삼계탕에 소면을 넣어 먹는 것이 특징으로 알려져 있습니다.",
+      "url": "https://korean.visitkorea.or.kr"
+    }
+  ],
+  "sources": [
+    "https://korean.visitkorea.or.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "1960년부터 이어져 온 60년 이상의 오랜 역사와 대를 잇는 전통 노포 삼계탕 맛집",
+      "sources": [
+        0
+      ],
+      "type": "오랜 역사"
+    },
+    {
+      "note": "약재를 넣고 진하게 고아낸 영계 육수와 소면을 말아먹는 전통적인 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "남포역 1번 출구 도보 3분 거리의 남포동 중심가에 위치한 편리한 접근성",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

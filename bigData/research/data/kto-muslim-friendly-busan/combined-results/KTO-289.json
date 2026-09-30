@@ -1,0 +1,77 @@
+{
+  "id": "KTO-289",
+  "name": "행복을짓는 수향촌밥상",
+  "cat": "한식",
+  "attempts": 1,
+  "geminiTokens": 48342,
+  "researchedAt": "2026-09-30T00:27:01.770Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "주말이나 저녁 식사 시간에 대기가 발생할 수 있음"
+  },
+  "descriptors": {
+    "audience": "가족 단위 및 어르신 동반 손님",
+    "generations": 0,
+    "parking": true,
+    "priceBand": "cheap",
+    "queueing": true,
+    "signatureDishes": [
+      "추어탕",
+      "갈비탕"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "09:00~16:00 / 16:30~22:00 (브레이크타임 16:00~16:30, 명절 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "다대포 해수욕장·낙조분수 인근 관광객 및 가족 외식 현지인 모두 방문"
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 사하구 다대로 592 위치 '행복을 짓는 수향촌밥상' 조사 완료. 직영 미꾸라지 양어장 운영 및 가마솥 추어탕, 갈비탕 중심 식당. 전용 주차장 및 놀이방 구비.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "'행복을 짓는 수향촌밥상'은 부산광역시 사하구 다대로 592에 위치한 추어 요리 전문점이다. 직영 양어장을 운영하는 등 건강하고 좋은 재료를 사용하기 위해 노력하는 곳으로, 가족 단위 손님이 많이 찾는다. 진한 국물의 추어탕이 대표 메뉴이다. 대표 메뉴: 추어탕, 갈비탕. 휴무일: 명절 휴무.",
+      "url": "https://www.visitbusan.net"
+    },
+    {
+      "excerpt": "대표 메뉴는 추어탕이며 갈비탕, 소갈비찜 등도 인기가 많다. 좌석 간격이 넓고 단체석과 룸이 완비되어 있어 가족 모임이나 어르신을 모시고 가기에 좋은 식당으로 알려져 있다. 어린이를 위한 작은 놀이방도 마련되어 있으며, 매장 입구 및 인근에 전용 주차 공간이 마련되어 있다. 주말이나 저녁 식사 시간에는 대기가 발생할 수 있다.",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net",
+    "https://tistory.com",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "직영 양어장 미꾸라지와 전통 가마솥 방식으로 우려낸 진하고 구수한 추어탕 맛",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "전용 주차장과 어린이 놀이방, 넓은 단체석을 갖추어 가족 모임이나 어르신 동반 식사에 적합함",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

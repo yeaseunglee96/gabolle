@@ -1,0 +1,73 @@
+{
+  "id": "KTO-324",
+  "name": "서가네오리",
+  "cat": "오리요리",
+  "attempts": 1,
+  "geminiTokens": 59234,
+  "researchedAt": "2026-09-30T00:27:23.906Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "도심 속 계곡 감성의 대규모 식당으로 가족 외식 및 단체 모임 회식으로 붐빔"
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 단체 모임",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "오리불고기",
+      "오리백숙",
+      "옻백숙"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:30 ~ 22:00 (야외석 등 운영 시간에 차이가 있을 수 있음)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "도심 속 계곡 정취와 대형 주차장, 족구장 및 픽업 서비스로 현지인 모임/회식 장소로 지지받음"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "가야공원 인근 대형 오리 전문점으로 야외석, 족구장, 대형 주차장 완비.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "서가네오리 주소: 부산광역시 부산진구 가야공원로 83-33 (가야동) 영업시간: 매일 10:30 ~ 22:00 (야외석은 마감 시간이 다를 수 있음) 오리 불고기, 오리 백숙, 옻백숙, 도토리묵 등 도심 속에서 계곡 감성을 느낄 수 있는 야외석 및 실내석 운영, 족구장 완비, 대규모 수용(최대 450명) 가능하여 각종 모임, 회식, 가족 외식 장소로 활용 무료 픽업 서비스 및 대형 주차장 보유",
+      "url": "https://nett.kr"
+    }
+  ],
+  "sources": [
+    "https://nett.kr",
+    "https://knn.co.kr",
+    "https://pknu.ac.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "도심 속 계곡 감성과 숲뷰 야외석, 족구장 및 대규모 인원 수용 가능한 단체 편의 시설",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "오리불고기, 오리백숙 등 전통적인 가야공원 오리 요리 전문",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

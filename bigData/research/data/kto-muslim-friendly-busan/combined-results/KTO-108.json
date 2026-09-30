@@ -1,0 +1,73 @@
+{
+  "id": "KTO-108",
+  "name": "뉴리틀인디아 남포점",
+  "cat": "인도음식",
+  "attempts": 1,
+  "geminiTokens": 44272,
+  "researchedAt": "2026-09-30T00:26:30.671Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡도에 관한 구체적인 정보 확인 불가"
+  },
+  "descriptors": {
+    "audience": "내외국인 관광객 및 인근 방문객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "커리",
+      "탄두리 치킨",
+      "난"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:00 ~ 22:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "BIFF 광장 인근 관광지 위치 및 무슬림 친화/관광객 이용 안내 위주"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notFound": null,
+  "notes": "부산 중구 비프광장로 33-1(남포동) 3층에 위치했던 뉴리틀인디아 남포점 정보입니다. 현재는 부산역 인근 매장 위주로 운영/안내되고 있으며, 남포점은 과거 관광공사 및 지자체 다문화/관광 안내 데이터베이스에 등록되어 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 중구 비프광장로 33-1 (남포동), 3층. 영업시간 매일 10:00 ~ 22:00. 탄두리 치킨, 각종 커리, 난(Naan), 비리야니 등 정통 인도 요리를 제공합니다. 무슬림 친화적인 식당으로 소개되기도 합니다.",
+      "url": "https://korean.visitkorea.or.kr"
+    }
+  ],
+  "sources": [
+    "https://korean.visitkorea.or.kr",
+    "https://www.bsjunggu.go.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "남포동 BIFF 광장 인근에서 인도 셰프가 선보이는 탄두리 치킨, 커리 등 정통 인도 요리와 무슬림 친화 식단을 즐기기 위해 방문",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "남포동 비프광장 핵심 관광 상권 내 위치하여 관광 중 식사 접근 편의성 제공",
+      "sources": [
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}
