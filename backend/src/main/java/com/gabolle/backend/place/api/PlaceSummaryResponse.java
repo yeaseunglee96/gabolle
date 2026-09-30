@@ -75,10 +75,12 @@ public record PlaceSummaryResponse(
 
 	/**
 	 * 이름 검색에서 어느 이름 칸이 걸렸는가. 이 값 목록은 자바가 정본이다 — 마이그레이션으로
-	 * 늘어나는 값이 아니라 이 서비스만의 고정된 두 갈래다.
+	 * 늘어나는 값이 아니라 이 서비스만의 고정된 갈래다. {@code NAME_LOCAL} 은 관광공사 일본어·중국어
+	 * 공식 이름(간체·번체) 중 하나가 걸렸다는 뜻이다(S15P21E201-1875).
 	 */
 	public enum MatchedField {
 		NAME_KO,
-		NAME_EN
+		NAME_EN,
+		NAME_LOCAL
 	}
 }
