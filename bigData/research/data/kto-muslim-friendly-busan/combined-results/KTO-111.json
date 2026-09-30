@@ -1,0 +1,74 @@
+{
+  "id": "KTO-111",
+  "name": "용장어요리전문점",
+  "cat": "장어요리",
+  "attempts": 1,
+  "geminiTokens": 101105,
+  "researchedAt": "2026-09-30T00:26:52.499Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "가족 외식 및 단체 모임",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "일본식 장어덮밥",
+      "민물장어구이",
+      "바다장어구이"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "10:00 ~ 22:00 (명절 휴무)"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 강서구 녹산동 진해물산(주)에서 운영하는 장어요리 전문점으로, 특제 소스를 이용한 일본식 장어덮밥과 민물/바다장어 구이, 아나고회 등을 다룸. 대형 주차장과 독립된 룸 시설을 갖추고 있음.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "진해물산에서 운영하는 미식 공간으로, 일본에서 직수입한 소스를 사용하는 일본식 장어덮밥이 유명합니다. 민물장어는 초벌 후 찌고 다시 양념을 발라 굽는 조리 과정을 거쳐 부드러운 식감을 냅니다. 내부에 다수의 개별 룸이 마련되어 있어 가족 외식이나 모임 장소로 인기가 많습니다.",
+      "url": "https://www.visitbusan.net"
+    },
+    {
+      "excerpt": "진해물산(주)에서 운영하는 곳으로, 넓은 주차장과 독립된 룸을 갖추고 있어 가족 외식이나 모임에 적합합니다. 특제 소스를 활용한 바다장어 및 민물장어 구이, 장어덮밥 등이 대표 메뉴입니다. 아나고 회 등 특색 있는 메뉴도 제공합니다.",
+      "url": "https://korean.visitkorea.or.kr"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net",
+    "https://korean.visitkorea.or.kr"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "일본 직수입 특제 소스와 찌고 굽는 정통 조리 방식을 사용한 장어덮밥 및 장어구이의 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "독립된 개별 룸과 넉넉한 주차 시설을 완비하여 가족 외식 및 단체 모임에 최적화됨",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

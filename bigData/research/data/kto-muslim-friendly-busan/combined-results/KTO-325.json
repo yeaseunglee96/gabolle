@@ -1,0 +1,76 @@
+{
+  "id": "KTO-325",
+  "name": "산골애",
+  "cat": "오리요리",
+  "attempts": 1,
+  "geminiTokens": 66918,
+  "researchedAt": "2026-09-30T00:27:51.460Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "조리 시간이 소요되는 백숙 특성상 사전 예약 방문이 권장됨"
+  },
+  "descriptors": {
+    "audience": "가족 및 단체 모임",
+    "generations": 0,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "수제 누룽지 오리백숙",
+      "오리주물럭",
+      "오리소금구이"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30 ~ 22:00 (브레이크타임 15:00 ~ 17:00, 매주 월요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "명지 주민 및 인근 가족 단위 외식·모임 손님 중심"
+  },
+  "menuDiversity": {
+    "dishCount": 5,
+    "found": true
+  },
+  "notes": "수제 찹쌀누룽지 오리백숙 전문점으로 식전 통닭과 식후 홍시 샤베트 제공이 특징인 가족 외식형 식당입니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "찹쌀누룽지를 사용하여 걸쭉하고 깊은 맛을 내는 백숙이 대표적입니다. 식사 전 서비스로 영계 통닭이 제공되며, 식사 후에는 홍시나 홍시 샤베트가 후식으로 나옵니다. 매장 내에 개별 룸과 좌식/테이블석이 마련되어 있어 가족 외식이나 모임, 단체 예약에 적합합니다.",
+      "url": "https://www.siksinhot.com/P/1786797333007005"
+    },
+    {
+      "excerpt": "정갈하고 깔끔하여 부모님을 모시고 가거나 가족 외식 장소로 인기가 많습니다. 조리 시간이 필요한 메뉴 특성상 방문 전 예약이 권장됩니다. 아기의자 및 범보의자 등이 구비되어 있어 아이 동반 가족에게도 편의를 제공합니다. 영업 시간: 11:30 ~ 22:00, 브레이크 타임: 15:00 ~ 17:00, 휴무일: 매주 월요일",
+      "url": "https://tistory.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/1786797333007005",
+    "https://tistory.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "쫀득한 누룽지와 부드러운 오리고기의 조화 및 식전 통닭, 식후 홍시 샤베트 코스 구성",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "개별 룸과 유아용 의자, 건물 주차장이 완비되어 가족 외식 및 단체 모임에 최적화",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

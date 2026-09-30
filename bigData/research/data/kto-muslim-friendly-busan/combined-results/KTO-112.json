@@ -1,0 +1,84 @@
+{
+  "id": "KTO-112",
+  "name": "나마스테 해운대점",
+  "cat": "인도·네팔음식",
+  "attempts": 1,
+  "geminiTokens": 66463,
+  "researchedAt": "2026-09-30T00:27:01.340Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "별도의 대기열이나 심한 줄서기에 대한 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "가족/연인/외국인 관광객",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "치킨 마크니",
+      "탄두리 치킨",
+      "난",
+      "라씨"
+    ],
+    "yearsClaimed": 10
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 23:50 (또는 23:55)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 해수욕장 도보 3분 거리에 위치하고 영어 응대/메뉴를 지원하는 외국인 친화 음식점으로 등록되어 다국적 관광객 방문 비중이 높음"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "부산 해운대 해변 인근에 위치한 정통 인도 요리 전문점으로 현지 출신 셰프들이 다양한 커리와 탄두리 바비큐, 난 세트를 제공함. 건물 뒤편 1시간 무료 주차 가능.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "나마스테 커리 세트 25,000원 / 커플 세트(2인) 50,000원 / 사모사 5,000원",
+    "priceWon": 25000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 해운대구 해운대해변로265번길 7 (우동), 지하 1층. 위치 정보: 해운대 해수욕장에서 도보 3분 거리이며, BMW 매장 바로 옆 건물 지하에 위치해 있습니다. 특징: 현지 셰프가 운영하는 정통 인도 요리 전문점입니다. 건물 뒤편 전용 주차장에서 1시간 무료 주차가 가능합니다.",
+      "url": "https://www.siksinhot.com/P/362634"
+    },
+    {
+      "excerpt": "비짓부산: 나마스테 해운대점. 주요 메뉴: 탄두리, 커리. 주소: 부산광역시 해운대구 해운대해변로 265번길 7, 지하 1층. 외국인 친화 음식점으로, 영어 응대 및 영어 메뉴판 지원 등이 안내되어 있습니다.",
+      "url": "https://www.visitbusan.net/"
+    },
+    {
+      "excerpt": "10년 이상의 경력을 갖춘 3명의 셰프가 매일 신선한 재료로 요리하며, 정통 인도 풍미를 제공하는 곳으로 유명합니다. 치킨 마크니 등 다양한 종류의 인도 커리가 있으며, 입맛에 따라 선택 가능합니다. 화덕에서 구워낸 탄두리 치킨과 탄두리 세트가 인기 메뉴입니다.",
+      "url": "https://www.shuttledelivery.co.kr/"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/362634",
+    "https://www.visitbusan.net/",
+    "https://www.shuttledelivery.co.kr/"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "10년 이상 경력의 인도 현지 셰프들이 화덕과 향신료로 정통 풍미의 커리와 탄두리 치킨을 조리함",
+      "sources": [
+        1,
+        3
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "해운대 해변 도보 3분 거리 입지와 전용 주차장(1시간 무료) 및 영어 메뉴판 지원으로 접근 편의성이 뛰어남",
+      "sources": [
+        1,
+        2
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

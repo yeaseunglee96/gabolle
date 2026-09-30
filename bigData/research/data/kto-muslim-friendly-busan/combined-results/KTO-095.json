@@ -1,0 +1,81 @@
+{
+  "id": "KTO-095",
+  "name": "라마앤바바나 서면점",
+  "cat": "아시아음식",
+  "attempts": 1,
+  "geminiTokens": 81764,
+  "researchedAt": "2026-09-30T00:26:08.935Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "주문 후 조리 시간이 15~20분 정도로 긴 편이라고 언급됨"
+  },
+  "descriptors": {
+    "audience": "데이트 및 이국적인 음식을 찾는 손님",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "나시고랭",
+      "치킨 커리"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "일, 월, 화, 수, 목 11:30 ~ 22:00 (라스트오더 21:00) / 금, 토 11:30 ~ 22:30 (라스트오더 21:30) / 브레이크 타임 16:00 ~ 17:00"
+  },
+  "localVsTourist": {
+    "found": false,
+    "note": null
+  },
+  "menuDiversity": {
+    "dishCount": 18,
+    "found": true
+  },
+  "notes": "부산 서면 엔젤호텔 옆에 위치한 인도·아시아 퓨전 요리 전문점으로 난으로 볶음밥을 감싼 독특한 시그니처 나시고랭으로 유명함. 주차 가능.",
+  "photoUrls": [
+    "https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FcyP7On%2Fbtr1nxo3AhV%2FAAAAAAAAAAAAAAAAAAAAAP0j2vaJ1yBWkc0HC_n80UpxhU-dQnACfIlbh6loq0B_%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1790780399%26allow_ip%3D%26allow_referer%3D%26signature%3DVgxOqEnoWpd2RTBEQdQCQHPk0io%253D",
+    "https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FcUIzAQ%2Fbtr1nxWSMg8%2FAAAAAAAAAAAAAAAAAAAAAN_yaC6pS7GYriWsYdLmB2hV9Ns4VYIZPy3PR2ZVFcCY%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1790780399%26allow_ip%3D%26allow_referer%3D%26signature%3DW8mF9ESqBu0U4FvGS6Nzv9FGXto%253D",
+    "https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FrRIBF%2Fbtr1yAFhP54%2FAAAAAAAAAAAAAAAAAAAAAIVajmbNSD6ZDiJlDV9tunjYXx9mk9xOjrzCOkHffsnf%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1790780399%26allow_ip%3D%26allow_referer%3D%26signature%3D747YUNpTXaYD27dOqgc5tU%252FI2Y8%253D",
+    "https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FdqLt1J%2Fbtr1vrBNZqL%2FAAAAAAAAAAAAAAAAAAAAAFR3c_HH4E5CWQtjqwl6Bji0zgT45LjlLXD-l0e6liTy%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1790780399%26allow_ip%3D%26allow_referer%3D%26signature%3DcocpqLxMXBxngpCFCwvy7Md2xM4%253D",
+    "https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FbD9nLt%2Fbtr1nCYgTYX%2FAAAAAAAAAAAAAAAAAAAAAIMIU2vXlWSSQCaJPkTssjKMcRbrRocnMXAkpf0JL5JN%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1790780399%26allow_ip%3D%26allow_referer%3D%26signature%3DT%252BVN7oIk86i3y%252FcXjDkDN0v9bEA%253D"
+  ],
+  "price": {
+    "found": true,
+    "priceMenu": "나시고랭 15,000원, 치킨 커리 14,000원",
+    "priceWon": 15000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "라마앤바바나 - Rama & Bavana\\n영업시간\\n일, 월, 화, 수, 목 11:30 ~ 22:00 (라스트오더 21:00)\\n금, 토 11:30 ~ 22:30 (라스트오더 21:30)\\n브레이크 타임 16:00 ~ 17:00\\n주소\\n부산 부산진구 중앙대로680번길 45-8 1층\\n전화번호\\n0507-1401-0901\\n주차 O, 단체석, 포장 가능, 예약 가능",
+      "url": "https://wghun5416.tistory.com/entry/Seomyeon-RamaAndBaVana-Review"
+    },
+    {
+      "excerpt": "라마앤바바나의 메뉴판에서는 생전 처음 보는 음식들도 많았습니다.\\n탄두리 파니르, 인디아 퀘사디아, 탄두리띠까, 나시고랭, 커리차오세, 미고랭, 비프 다마타르\\n비프 커리, 치킨 커리, 팔락 파니르 커리, 달 푸하르 커리, 야채 커리, 코코넛 밀크 쉬림프 커리\\n토마토 팔락 피자, 비프 반달루 피자, 피제리아 탄두리 피자, 바이올렛 인디아 피자, 모짜렐라 차파티 피자\\n롤 샐러드, 인디쉬림프 샐러드, 런치 샐러드, 머슈롬 홉 샐러드\\n런치 세트, 비어 세트가 있었습니다.",
+      "url": "https://wghun5416.tistory.com/entry/Seomyeon-RamaAndBaVana-Review"
+    },
+    {
+      "excerpt": "소스에 숨겨진 내부는 난에 둘러 쌓여있는 밥이 들어있었습니다. 맛을 표현하기 애매하지만 이때까지 밥을 이용해 만든 요리 중 제일 맛있었다고 생각됩니다. 제대로 기억나는 맛은 아니지만 소스랑 밥이랑 조화가 잘 되었습니다. 라마앤바바나의 나시고랭은 리뷰와 여러 블로그에서도 추천하는 메뉴였습니다. 왜 그렇게 많은 후기가 남겼는지 정말 알 것 같은 맛이었습니다.",
+      "url": "https://wghun5416.tistory.com/entry/Seomyeon-RamaAndBaVana-Review"
+    },
+    {
+      "excerpt": "주문 후 대충 15분 ~ 20분 정도 지난 것 같은데 요리가 나왔습니다. 다른 식당에 비해 조리 시간이 생각보다 긴 것 같습니다.",
+      "url": "https://wghun5416.tistory.com/entry/Seomyeon-RamaAndBaVana-Review"
+    }
+  ],
+  "sources": [
+    "https://wghun5416.tistory.com/entry/Seomyeon-RamaAndBaVana-Review"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "난으로 볶음밥을 감싼 독특하고 조화로운 맛의 시그니처 나시고랭을 맛보기 위해 찾음",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

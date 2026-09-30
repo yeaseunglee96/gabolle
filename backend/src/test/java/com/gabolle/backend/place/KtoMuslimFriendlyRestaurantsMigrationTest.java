@@ -14,6 +14,8 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.gabolle.backend.place.api.PlacePageResponse;
+import com.gabolle.backend.place.service.OpeningHoursFilterPort;
+import com.gabolle.backend.place.service.OpeningHoursValue;
 import com.gabolle.backend.place.service.PlaceSearchService;
 import com.gabolle.backend.place.support.PlacePostgresIntegrationTest;
 
@@ -21,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * 관광공사 무슬림 친화 식당 14곳을 넣는 마이그레이션(S15P21E201-1857)과 그 목록에 할랄 표식을 붙이는 마이그레이션
- * (S15P21E201-1873)을 본다.
+ * (S15P21E201-1873), 조사 결과를 붙이는 마이그레이션(S15P21E201-1873)을 본다.
  *
  * <p>{@link MoreCuratedLandmarksMigrationIntegrationTest} 와 같은 이유로 검사 직전에 그 SQL 을 다시 돌린다.
  * 통합 시험들이 한 DB 를 같이 쓰고 그중 하나가 {@code TRUNCATE place CASCADE} 를 돌려서, 마이그레이션이 넣은
@@ -205,6 +207,51 @@ class KtoMuslimFriendlyRestaurantsMigrationTest extends PlacePostgresIntegration
 				.isZero();
 		this.jdbcTemplate.update("DELETE FROM place_feature WHERE place_id IN (SELECT place_id FROM place WHERE source_type = 'KAKAO_LOCAL' AND source_id = 'test-heuksiru')");
 		this.jdbcTemplate.update("DELETE FROM place WHERE source_type = 'KAKAO_LOCAL' AND source_id = 'test-heuksiru'");
+	}
+
+	@Test
+	@DisplayName("조사 결과가 적재기와 같은 모양으로 붙는다 — 새로 넣은 14곳 모두 방문 이유와 영업시간")
+	void researchFactsAttachToNewRestaurants() {
+		this.jdbcTemplate.execute(migrationSql("kto_research_facts"));
+
+		List<Map<String, Object>> counts = this.jdbcTemplate.queryForList("""
+				SELECT f.feature_type, count(DISTINCT f.place_id) AS places
+				FROM place_feature f JOIN place p ON p.place_id = f.place_id
+				WHERE p.dataset_version = ? AND f.source_version = 'kto-muslim-friendly-research-20260930'
+				GROUP BY f.feature_type
+				""", DATASET);
+		assertThat(counts).extracting(row -> row.get("feature_type") + "=" + row.get("places"))
+				.containsExactlyInAnyOrder("WHY_VISIT=14", "OPENING_HOURS=14", "MENU_PRICE_WON=3");
+	}
+
+	@Test
+	@DisplayName("정규화한 영업시간을 판정기가 읽는다 — 흙시루는 월요일 휴무, 화요일 낮에는 연다")
+	void openingHoursAreReadableByTheFilter() {
+		this.jdbcTemplate.execute(migrationSql("kto_research_facts"));
+		String value = this.jdbcTemplate.queryForObject("""
+				SELECT f.value::text FROM place_feature f JOIN place p ON p.place_id = f.place_id
+				WHERE p.dataset_version = ? AND p.source_id = '322' AND f.feature_type = 'OPENING_HOURS'
+				""", String.class, DATASET);
+
+		java.time.ZoneOffset kst = java.time.ZoneOffset.ofHours(9);
+		assertThat(OpeningHoursValue.answerAt(value, java.time.OffsetDateTime.of(2026, 10, 5, 13, 0, 0, 0, kst)))
+				.as("월요일 13시").isEqualTo(OpeningHoursFilterPort.Answer.CLOSED);
+		assertThat(OpeningHoursValue.answerAt(value, java.time.OffsetDateTime.of(2026, 10, 6, 13, 0, 0, 0, kst)))
+				.as("화요일 13시").isEqualTo(OpeningHoursFilterPort.Answer.OPEN);
+	}
+
+	@Test
+	@DisplayName("조사 결과 마이그레이션을 두 번 돌려도 종류마다 한 행이다")
+	void researchFactsAreIdempotent() {
+		this.jdbcTemplate.execute(migrationSql("kto_research_facts"));
+		this.jdbcTemplate.execute(migrationSql("kto_research_facts"));
+
+		assertThat(this.jdbcTemplate.queryForObject("""
+				SELECT count(*) FROM (
+				  SELECT place_id, feature_type FROM place_feature
+				  WHERE source_version = 'kto-muslim-friendly-research-20260930'
+				  GROUP BY place_id, feature_type HAVING count(*) > 1) dup
+				""", Integer.class)).isZero();
 	}
 
 	@Test

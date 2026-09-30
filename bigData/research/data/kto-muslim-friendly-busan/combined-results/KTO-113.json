@@ -1,0 +1,55 @@
+{
+  "id": "KTO-113",
+  "name": "베지나랑 부산광안리점",
+  "cat": "채식 한식",
+  "attempts": 1,
+  "geminiTokens": 238176,
+  "researchedAt": "2026-09-30T00:28:39.190Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "외국인 손님, 채식주의자",
+    "priceBand": "mid",
+    "signatureDishes": [
+      "흑미콩까스",
+      "아보카도 롤"
+    ]
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "11:30-15:00 / 17:00-21:00 (14:20, 20:00 라스트 오더) / 명절 휴무"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "비건 식당 특성상 외국인 손님들이 많이 찾는다고 언급됨"
+  },
+  "menuDiversity": {
+    "found": true
+  },
+  "notes": "부산 공식 관광 포털(비짓부산) 공식 등록 페이지 기준 조사 완료",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "매일 준비하는 깨끗한 채수로 맛을 내고 간단한 샐러드부터 일품요리, 코스요리까지 다양하게 준비하는 비건 식당이다. 비건 식당 특성 상 외국인 손님들이 많이 찾는다고 한다. 대표 메뉴 흑미콩까스, 아보카도 롤 주소 수영구 광안해변로370번길 9-32 노블스카이 9층 전화번호 0507-1416-5561 휴무일 명절 휴무 운영요일 및 시간 11:30-15:00 / 17:00-21:00 (14:20, 20:00 라스트 오더)",
+      "url": "https://visitbusan.net/index.do?menuCd=DOM_000000201002001000&uc_seq=212&lang_cd=ko"
+    }
+  ],
+  "sources": [
+    "https://visitbusan.net/index.do?menuCd=DOM_000000201002001000&uc_seq=212&lang_cd=ko"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "매일 준비하는 깨끗한 채수로 맛을 낸 다양한 비건 요리(샐러드, 일품요리, 코스요리)를 선보임",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

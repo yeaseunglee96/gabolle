@@ -1,0 +1,74 @@
+{
+  "id": "KTO-107",
+  "name": "봄베이브로이 광복점",
+  "cat": "인도음식",
+  "attempts": 1,
+  "geminiTokens": 49425,
+  "researchedAt": "2026-09-30T00:26:26.299Z",
+  "confidence": "medium",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "친구, 연인, 가족, 외국인 관광객",
+    "generations": null,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "치킨 티카 마살라",
+      "탄두리 치킨",
+      "버터 난"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 22:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "BIFF 광장, 부산타워 등 광복로 관광지 중심에 위치해 여행객과 외국인 방문객 접근성이 높음"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": false
+  },
+  "notes": "부산 중구 광복로 일대에 위치한 정통 인도 요리 전문점으로 다양한 커리와 탄두리 바비큐, 난 등을 취급함.",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "인도 요리를 전문으로 하는 식당으로, 현지 느낌의 커리, 탄두리 치킨, 난 등을 제공합니다. BIFF 광장, 자갈치 시장, 롯데백화점 광복점 등 남포동의 주요 관광지 및 쇼핑가와 가까워 접근성이 좋습니다. 방문객들은 정갈한 음식과 이국적인 분위기에 대해 긍정적인 평가를 남기는 편입니다. 식당은 오전 11시부터 오후 10시까지 운영하는 것으로 알려져 있습니다.",
+      "url": "https://www.trip.com"
+    },
+    {
+      "excerpt": "정통 인도 요리를 제공하는 레스토랑으로, 부산광역시 중구 광복동에 지점이 위치해 있습니다. 탄두리 치킨, 치킨 티카, 커리, 난 등 인도 현지 스타일의 요리를 맛볼 수 있는 곳으로 알려져 있습니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.trip.com",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "정통 인도 스타일 커리와 탄두리 치킨 등 현지식 풍미와 맛",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "남포동 BIFF 거리 및 광복로 쇼핑가 인근으로 관광 및 쇼핑 중 방문 용이",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}
