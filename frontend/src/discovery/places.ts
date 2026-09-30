@@ -288,16 +288,38 @@ function hasVerifiedFeature(place: Place, featureType: string) {
   );
 }
 
+/**
+ * 관광공사 「무슬림 친화 식당」 목록에 오른 곳인가 — 서버가 목록 식당에 붙인 할랄 지원 표식(S15P21E201-1873,
+ * source KTO_MUSLIM_FRIENDLY). 🔴 목록은 할랄 인증·자가 인증·무슬림 친화·포크프리를 한데 모은 것이고 서버는 등급을
+ * 나누지 않고 붙였다 — 「할랄 인증」이라고 말하면 안 된다(S15P21E201-1878).
+ */
+export const KTO_MUSLIM_FRIENDLY_SOURCE = 'KTO_MUSLIM_FRIENDLY';
+export function isMuslimFriendlyListed(place: Place) {
+  return place.features.some((feature) => feature.featureType === 'DIETARY_SUPPORT_TAG'
+    && String(feature.featureKey ?? '').toUpperCase() === 'HALAL'
+    && feature.evidenceStatus === 'VERIFIED'
+    && feature.sourceType === KTO_MUSLIM_FRIENDLY_SOURCE);
+}
+
+/**
+ * 식단 정보를 가게 단위로 확인했나. 🔴 관광공사 목록 표식은 세지 않는다 — 「할랄 쪽 목록에 있다」는 뜻일 뿐 그 가게의
+ * 식단 정보 전체를 확인한 것이 아니라서, 세면 아래 「확인됨 — 등록된 유발 성분이 없습니다」가 목록 식당에서 켜진다.
+ */
+function hasVerifiedDietInfo(place: Place) {
+  return place.features.some((feature) => feature.featureType === 'DIETARY_SUPPORT_TAG'
+    && feature.evidenceStatus === 'VERIFIED' && feature.sourceType !== KTO_MUSLIM_FRIENDLY_SOURCE);
+}
+
 export function needsFoodSafetyCheck(place: Place) {
   if (!isFoodPlace(place.category)) return false;
-  return !hasVerifiedFeature(place, 'ALLERGEN_TAG') || !hasVerifiedFeature(place, 'DIETARY_SUPPORT_TAG');
+  return !hasVerifiedFeature(place, 'ALLERGEN_TAG') || !hasVerifiedDietInfo(place);
 }
 
 // 「확인 못 함」과 「확인했고 문제 없음」의 구분 — 빈 자리를 사용자는 안전 확인으로 읽는다.
 // 식음료 장소가 아니면 이 표시 자체가 무의미.
 export function hasFoodSafetyConfirmed(place: Place) {
   if (!isFoodPlace(place.category)) return false;
-  return hasVerifiedFeature(place, 'ALLERGEN_TAG') && hasVerifiedFeature(place, 'DIETARY_SUPPORT_TAG');
+  return hasVerifiedFeature(place, 'ALLERGEN_TAG') && hasVerifiedDietInfo(place);
 }
 
 function findFeature(place: Place, featureType: string): PlaceFeature | undefined {

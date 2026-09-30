@@ -110,10 +110,21 @@ export function toCreateTripPayload(draft: PlanDraft): CreateTripPayload {
     //    계속 실패하게 된다. 지우지 않고 안 보내기만 한다 — 다시 열 때 그대로 쓴다.
     //
     //    다시 보내는 조건: ALLERGEN_TAG 가 VERIFIED 로 쌓였을 때. 그때 이 블록을 되살린다.
-    ...draft.dietTypes.map<ConstraintInput>((code) => ({
+    // 「해당 없음」으로 답했으면 초안에 예전 식단 코드가 남아 있어도 고른 것으로 안 보낸다. 그 밖에는 예전 그대로 —
+    // 식단은 안전에 걸리므로, 보내던 것을 조용히 안 보내게 만들지 않는다.
+    ...(draft.dietStatus === 'NONE' ? [] : draft.dietTypes).map<ConstraintInput>((code) => ({
       type: 'DIET', constraintKey: code, severity: 'HARD', operator: 'EXCLUDES',
       value: null, threshold: null, answerStatus: 'SELECTED', dietRequirement: 'REQUIRED',
     })),
+    // 🔴 식단 「해당 없음」도 보낸다 (S15P21E201-1878). 서버가 음식 취향의 채식·할랄을 식단 조건으로 더하는데
+    //    (S15P21E201-1873), 이번 여행 식단을 NONE 으로 답한 여행만은 더하지 않는다 — 그 답을 «DIET 제약의 NONE» 으로
+    //    읽는다. 전에는 고른 식단만 보내서 「이번엔 해당 없음」이라고 해도 계정 취향의 채식이 일정을 걸렀다.
+    //    모양은 서버 시험(TripCreationTest)이 받는 그대로 — 값 없음, SOFT, dietRequirement 없음. 그래서 건강·식이
+    //    동의 검사(isSensitive = 필수 식단)에도 안 걸린다. 키는 필수라 아무 식단 코드나 하나 적는다(읽지 않는다).
+    ...(draft.dietStatus === 'NONE' ? [{
+      type: 'DIET' as const, constraintKey: 'VEGETARIAN', severity: 'SOFT' as const, operator: null,
+      value: null, threshold: null, answerStatus: 'NONE' as const, dietRequirement: null,
+    }] : []),
     ...(draft.maxWalkingDistanceM && draft.maxWalkingDistanceM > 0 ? [{
       type: 'MOBILITY' as const, constraintKey: 'MAX_WALKING_METERS', severity: 'HARD' as const,
       operator: 'LTE' as const, value: null, threshold: draft.maxWalkingDistanceM,

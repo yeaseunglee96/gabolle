@@ -36,6 +36,8 @@ import { useLayout } from '@/layout/useLayout';
 import { usePlan, type ConstraintSelectionStatus, type PlanDraft } from '@/plan/PlanProvider';
 import { COVERAGE_FEATURE, hasNoPlaceData, useConditionCoverage } from '@/plan/conditionCoverage';
 import { conditionsFromDraft, DIETS, saveTravelConditions } from '@/plan/travelConditions';
+import { tasteDietsApplied } from '@/plan/tasteDiets';
+import { txf } from '@/i18n/format';
 
 
 const WALK_LIMITS = [500, 1000, 2000, 0] as const;
@@ -156,6 +158,9 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
   const savable = draft.dietAnswered
     && (draft.dietStatus !== 'VALUES' || draft.dietTypes.length > 0);
 
+  // 음식 취향에서 와서 이번 여행에 더해지는 식단 — 서버 규칙과 같은 셈(tasteDiets.ts).
+  const tasteDiets = tasteDietsApplied(draft).map((code) => { const found = DIETS.find(([c]) => c === code); return found ? tx(found[1], found[2]) : code; });
+
   const statusRow = (
     label: string,
     field: 'dietStatus',
@@ -205,6 +210,13 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
                 <View style={styles.chips}>{DIETS.map(([code, ko, en]) => (
                   <Chip key={code} label={tx(ko, en)} selected={draft.dietTypes.includes(code)} onPress={() => toggle('dietTypes', code)} />
                 ))}</View>
+              ) : null}
+              {/* 🔴 음식 취향의 채식·할랄은 서버가 식단 조건처럼 반드시 지킨다(S15P21E201-1873) — 여기서 안 말하면
+                  「식단: 해당 없음」 칸만 보고 왜 고기집이 빠졌는지 모른다. 이번만 빼는 길(해당 없음)도 같이 말한다(S15P21E201-1878). */}
+              {tasteDiets.length ? (
+                <Text testID="taste-diet-note" variant="caption" color={color.text.body}>
+                  {txf(tx, '음식 취향에서 고른 「%s」도 이번 여행에 반드시 지켜요. 이번만 빼려면 「해당 없음」을 고르세요.', 'The %s you chose in your food preferences also applies to this trip. To leave it out this time, choose “None”.', tasteDiets.join('·'))}
+                </Text>
               ) : null}
             </View>
 

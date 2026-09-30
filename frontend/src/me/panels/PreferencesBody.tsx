@@ -404,6 +404,12 @@ export function PreferencesBody() {
               else setTaste('foods', values);
             }}
           />}
+          {/* 음식 취향의 채식은 서버가 여행 일정에서 반드시 지킨다(S15P21E201-1873) — 켜 둔 사람에게 그렇게 알린다(S15P21E201-1878). */}
+          {question.key === 'foods' && (saved.taste.foods ?? []).includes('VEGETARIAN') ? (
+            <Text testID="taste-vegetarian-note" variant="caption" color={color.text.body}>
+              {tx('채식을 고르면 여행 일정에는 채식 근거가 있는 식당만 넣어요. 여행마다 식단에서 「해당 없음」으로 뺄 수 있어요.', 'If you choose vegetarian, trips only include restaurants with vegetarian options. You can turn it off per trip by setting Diet to “None”.')}
+            </Text>
+          ) : null}
 
           {question.key === 'foods' && accessToken ? <View testID="diet-conditions" style={styles.dietBlock}>
             <Text weight="bold">{tx('식단', 'Diet')} <Text variant="caption" color={color.text.muted}>{tx('· 반드시 지켜요', '· always applied')}</Text></Text>

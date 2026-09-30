@@ -15,7 +15,7 @@ import { PhotoCredit } from '@/components/PhotoCredit';
 import { PlacePhotoGallery } from '@/components/PlacePhotoGallery';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
-import { formatBreakTime, formatCheckInOut, formatFeatureSlot, formatLastOrderTime, formatSlopePercent, formatSoloFriendly, formatStairsPresent, getPlace, hasFoodSafetyConfirmed, needsFoodSafetyCheck, photoLabels, placePhotos, type Place as ApiPlace } from '@/discovery/places';
+import { formatBreakTime, formatCheckInOut, formatFeatureSlot, formatLastOrderTime, formatSlopePercent, formatSoloFriendly, formatStairsPresent, getPlace, hasFoodSafetyConfirmed, isMuslimFriendlyListed, needsFoodSafetyCheck, photoLabels, placePhotos, type Place as ApiPlace } from '@/discovery/places';
 import { placeNameForLanguage } from '@/discovery/romanize';
 import { DEMO_PLACES, loadSavedPlaceIds, setSavedPlace } from '@/discovery/savedPlaces';
 import { useI18n } from '@/i18n';
@@ -291,10 +291,21 @@ export default function Place() {
             {formatSlopePercent(resolved.apiPlace, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted} style={styles.infoLabel}>{tx('경사', 'Slope')}</Text><Text variant="body" style={styles.infoValue}>{formatSlopePercent(resolved.apiPlace, tx)}</Text></View> : null}
           </View>
         ) : null}
+        {/* 관광공사 「무슬림 친화 식당」 목록 — 서버가 2026-09-30 부터 싣는다(S15P21E201-1873). 🔴 「할랄 인증」이라고 하지 않는다:
+            목록은 인증·자가 인증·포크프리 등을 한데 모았고 등급은 안 실려 온다. 출처와 기준일을 밝힌다(S15P21E201-1878). */}
+        {resolved.apiPlace && isMuslimFriendlyListed(resolved.apiPlace) ? (
+          <View testID="muslim-friendly-listing" style={styles.notice} accessibilityRole="text">
+            <Text variant="caption" weight="bold" color={color.text.accent}>{tx('무슬림 친화 식당', 'Muslim-friendly restaurant')}</Text>
+            <Text color={color.text.body}>{tx('한국관광공사 「무슬림 친화 식당」 목록(2021년 12월)에 오른 곳이에요. 할랄 인증·자가 인증·포크프리처럼 기준이 가게마다 달라요.', 'Listed in the Korea Tourism Organization’s Muslim-friendly restaurant guide (Dec 2021). Standards vary by restaurant — certified, self-certified or pork-free.')}</Text>
+          </View>
+        ) : null}
         {resolved.apiPlace && needsFoodSafetyCheck(resolved.apiPlace) ? (
           <View style={styles.safetyNotice} accessibilityRole="alert">
             <Text variant="caption" weight="bold" color={color.state.danger}>{tx('확인 필요', 'Needs confirmation')}</Text>
-            <Text color={color.text.body}>{tx('알레르기·식단 정보가 없어 주문 전 확인이 필요합니다.', 'Allergy and dietary information is not available for this place — please check before ordering.')}</Text>
+            {/* 목록 식당에 「식단 정보가 없다」고 하면 바로 위 표시와 어긋난다 — 무엇이 없는지를 정확히 말한다. */}
+            <Text color={color.text.body}>{isMuslimFriendlyListed(resolved.apiPlace)
+              ? tx('알레르기 정보가 없고 할랄 기준도 가게마다 달라, 주문 전 확인이 필요합니다.', 'Allergy information is not available and halal standards vary — please check before ordering.')
+              : tx('알레르기·식단 정보가 없어 주문 전 확인이 필요합니다.', 'Allergy and dietary information is not available for this place — please check before ordering.')}</Text>
           </View>
         ) : null}
         {/* : "확인 못 함"(위 배너)과 "확인했고 문제 없음"을 다른 표시로 보여준다
