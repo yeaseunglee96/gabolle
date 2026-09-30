@@ -38,23 +38,39 @@ class BaselineCandidateScorerHalalTest {
 			codeMap("DIET", "DIETARY_SUPPORT_TAG", MatchKind.HARD_FILTER));
 
 	@Test
-	@DisplayName("🔴 할랄이면 고기 중심 집은 고기 종류를 가리지 않고 빠진다 — 소고기국밥도, 빠지는 이유는 돼지가 아니다")
-	void 고기_중심_집은_종류와_상관없이_빠진다() {
-		for (String name : List.of("해운대암소갈비집", "밀양돼지국밥", "해운대원조할매국밥", "BBQ치킨 서면점", "양꼬치 전문",
-				"한우명가", "송해와오리백숙", "팔팔대패", "뚱돈")) {
+	@DisplayName("S15P21E201-1873 — 할랄은 돼지고기 집만 뺀다. 소·닭·오리·양고기 집은 남긴다(느슨한 기준)")
+	void 돼지고기_집만_빠진다() {
+		for (String name : List.of("밀양돼지국밥", "팔팔대패", "뚱돈", "원조족발", "돈가스클럽")) {
+			assertThat(reasonOf(score(candidate(name, List.of()), halal()))).as(name).isEqualTo("PORK_CENTRIC");
+		}
+		for (String name : List.of("한우명가", "BBQ치킨 서면점", "송해와오리백숙", "양꼬치 전문")) {
 			EngineCandidate result = score(candidate(name, List.of()), halal());
-			assertThat(result.constraintVerdict()).as(name).isEqualTo(ConstraintVerdict.FAIL);
-			assertThat(result.violations()).as(name).anySatisfy(v -> {
-				assertThat(v.get("code")).isEqualTo("DIET_NOT_SUPPORTED");
-				assertThat(v.get("reason")).isEqualTo("MEAT_CENTRIC");
-			});
-			assertThat(result.violations().toString()).as(name + " — 국밥만 보고 돼지라고 말하지 않는다")
-					.doesNotContain("PORK");
+			assertThat(result.constraintVerdict()).as(name).isEqualTo(ConstraintVerdict.PASS);
+			assertThat(result.warningCodes()).as(name).contains("DIET_SUPPORT_UNVERIFIED");
+		}
+		// 「국밥」「갈비」는 돼지·소가 섞여 뺄 근거도 남길 근거도 없다 — 허용 목록에서 빠진다. 국밥만 보고 돼지라고 말하지 않는다.
+		for (String name : List.of("해운대원조할매국밥", "해운대암소갈비집")) {
+			assertThat(reasonOf(score(candidate(name, List.of()), halal()))).as(name).isEqualTo("NO_HALAL_FRIENDLY_EVIDENCE");
 		}
 	}
 
 	@Test
-	@DisplayName("이름이 고기를 말하지 않아도 대표 메뉴가 고기면 할랄에서 빠진다")
+	@DisplayName("S15P21E201-1873 — 업종 소분류가 판정 근거다. 돼지고기 구이·주점은 빠지고 횟집·한정식·소고기 구이는 남는다")
+	void 업종_소분류로_가른다() {
+		assertThat(reasonOf(score(candidate("OO가든", List.of(subCategory("돼지고기 구이/찜"))), halal())))
+				.isEqualTo("PORK_CENTRIC");
+		assertThat(reasonOf(score(candidate("달빛", List.of(subCategory("요리 주점"))), halal())))
+				.isEqualTo("ALCOHOL_CENTRIC");
+		for (String sub : List.of("횟집", "백반/한정식", "소고기 구이/찜", "빵/도넛")) {
+			assertThat(score(candidate("바다정", List.of(subCategory(sub))), halal()).constraintVerdict()).as(sub)
+					.isEqualTo(ConstraintVerdict.PASS);
+		}
+		assertThat(reasonOf(score(candidate("해운대 국수", List.of()), halal()))).as("근거 없는 식당")
+				.isEqualTo("NO_HALAL_FRIENDLY_EVIDENCE");
+	}
+
+	@Test
+	@DisplayName("이름이 돼지고기를 말하지 않아도 대표 메뉴가 돼지고기면 할랄에서 빠진다")
 	void 대표_메뉴가_고기면_빠진다() {
 		EngineCandidate result = score(candidate("신흥관", List.of(menu("사천짜장 9,500원"))), halal());
 		assertThat(result.constraintVerdict()).isEqualTo(ConstraintVerdict.FAIL);
@@ -88,10 +104,11 @@ class BaselineCandidateScorerHalalTest {
 	@Test
 	@DisplayName("술 낱말 오탐을 막는다 — 스낵바·에스프레소바·PUBLIC·사케동·Bombay Brau·바비큐, 식당이 아닌 미술관")
 	void 술_낱말_오탐_안난다() {
+		// 근거 없는 식당은 허용 목록에서 빠지므로, 오탐이 없다는 것은 «술집으로 읽혀 빠지지 않는다» 로 본다.
 		for (String name : List.of("Turtles Snack Bar", "오엘스에스프레소바", "그린 SALAD BAR", "PUBLIC 카페", "사케동 전문점",
 				"Bombay Brau", "The Barn", "예술밥상")) {
-			assertThat(score(candidate(name, List.of()), halal()).constraintVerdict()).as(name)
-					.isEqualTo(ConstraintVerdict.PASS);
+			assertThat(score(candidate(name, List.of()), halal()).violations()).as(name)
+					.noneSatisfy(v -> assertThat(v.get("reason")).isEqualTo("ALCOHOL_CENTRIC"));
 		}
 		assertThat(score(new PlaceCandidateResponse.Candidate(UUID.randomUUID(), "부산시립미술관", "CULTURE_TEMPLE", 35.1,
 				129.0, 1000L, List.of()), halal()).constraintVerdict()).isEqualTo(ConstraintVerdict.PASS);
@@ -101,8 +118,8 @@ class BaselineCandidateScorerHalalTest {
 	@DisplayName("술 규칙은 할랄에만 — 채식·비건에게 이자카야는 이름만으로는 빠지지 않는다")
 	void 술_규칙은_할랄에만() {
 		for (String code : List.of("VEGETARIAN", "VEGAN", "PESCATARIAN")) {
-			assertThat(score(candidate("이츠키 이자카야", List.of()), diet(code)).constraintVerdict()).as(code)
-					.isEqualTo(ConstraintVerdict.PASS);
+			assertThat(score(candidate("이츠키 이자카야", List.of()), diet(code)).violations()).as(code)
+					.noneSatisfy(v -> assertThat(v.get("reason")).isEqualTo("ALCOHOL_CENTRIC"));
 		}
 	}
 
@@ -146,6 +163,16 @@ class BaselineCandidateScorerHalalTest {
 		EngineCandidate result = score(candidate("원조서울삼계탕", List.of(halalTag())), diet("VEGETARIAN"));
 		assertThat(result.constraintVerdict()).isEqualTo(ConstraintVerdict.FAIL);
 		assertThat(result.violations()).anySatisfy(v -> assertThat(v.get("reason")).isEqualTo("MEAT_CENTRIC"));
+	}
+
+	private static String reasonOf(EngineCandidate result) {
+		assertThat(result.constraintVerdict()).isEqualTo(ConstraintVerdict.FAIL);
+		return String.valueOf(result.violations().get(0).get("reason"));
+	}
+
+	private static PlaceFeatureView subCategory(String name) {
+		return new PlaceFeatureView("BUSINESS_SUBCATEGORY", null, "ESTIMATED",
+				new ObjectMapper().readTree("{\"name\":\"" + name + "\"}"), null, "SBIZ");
 	}
 
 	private static PlaceFeatureView halalTag() {
