@@ -76,6 +76,9 @@ public class BaselineCandidateScorer {
 	 */
 	static final String SLOPE_OVER_LIMIT = "SLOPE_OVER_LIMIT";
 
+	/** 큰 짐 — 접근성 표식 없이 경사로만 가르는 이동 조건({@link #evaluateMobility}). */
+	static final String HEAVY_LUGGAGE = "HEAVY_LUGGAGE";
+
 	/**
 	 * 재 봤더니 이동 조건(휠체어·유아차 등)으로 갈 수 없다고 나온 곳. 「반드시」면 탈락 사유 코드, 「되도록」이면
 	 * 경고 코드로 같은 낱말을 쓴다 — {@link #SLOPE_OVER_LIMIT} 과 같은 방식이다.
@@ -774,8 +777,16 @@ public class BaselineCandidateScorer {
 			}
 			return;
 		}
+		// 큰 짐은 경사로만 가른다. 🔴 접근성 표식(ACCESSIBILITY_TAG:HEAVY_LUGGAGE)을 찾지 않는다 — 원천 자료에 큰 짐을
+		//    가리키는 칸이 없어 그 표식은 한 곳에도 생기지 않는다(BarrierFreeAccessibility). 찾으면 모든 장소가 「미확인」이
+		//    되어, 큰 짐만 고른 여행에도 「휠체어·유아차로 다니기 편한지 확인 안 됨」 경고가 거의 모든 곳에 붙었다.
+		//    경사는 휠체어·유아차와 같은 상한·같은 규칙이다 — 「휠체어·유아차·큰 짐 판정을 경사 하나로 묶는다」(2026-09-25).
+		if (HEAVY_LUGGAGE.equals(key)) {
+			evaluateSlope(candidate, constraint, violations, warnings);
+			return;
+		}
 
-		// 그 밖의 이동 조건(WHEELCHAIR·STROLLER·HEAVY_LUGGAGE 등) — ACCESSIBILITY_TAG:<key>.
+		// 그 밖의 이동 조건(WHEELCHAIR·STROLLER 등) — ACCESSIBILITY_TAG:<key>.
 		String featureType = hardFilterFeatureType(constraintCodeMap, "MOBILITY").orElse(null);
 		if (featureType == null) {
 			unknownFacts.add(Map.of("fact", "ACCESSIBILITY_MAPPING_MISSING", "featureKey", key,
