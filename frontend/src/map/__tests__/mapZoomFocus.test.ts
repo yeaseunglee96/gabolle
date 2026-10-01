@@ -28,6 +28,8 @@ describe('앱 지도 스크립트(kakaoMapHtml)', () => {
   });
   it('🔴 확대·축소 단추가 부르는 함수가 있다', () => {
     expect(html).toContain('window.__zoomKakaoMap = function (delta)');
+    // 보이는 부분의 가운데(가린 만큼 위)를 기준으로 확대한다
+    expect(html).toContain('el.clientHeight / 2 - (shiftNow || 0)');
   });
 });
 
