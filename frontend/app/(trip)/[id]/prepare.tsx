@@ -1,4 +1,5 @@
 // 16 여행 준비·날씨 — Figma 16_여행 준비·날씨 실측 그대로.
+import { storyBodyText } from '@/social/courseLink';
 import { txf } from '@/i18n/format';
 import { localDateKey } from '@/plan/tripProgress';
 import { formatMonthDay } from '@/i18n/datetime';
@@ -135,7 +136,7 @@ function PrepareForTrip({ tripId }: { tripId: string }) {
         .map((story, index) => ({
           id: story.id,
           number: index + 1,
-          name: (story.place ? storyPlaceName(story.place, tx, language) : null) ?? story.body.slice(0, 20),
+          name: (story.place ? storyPlaceName(story.place, tx, language) : null) ?? storyBodyText(story.body).slice(0, 20),
           latitude: story.place!.lat as number,
           longitude: story.place!.lng as number,
           imageUrl: story.images[0]?.url,

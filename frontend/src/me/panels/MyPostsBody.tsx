@@ -1,6 +1,7 @@
 // MyPosts 본문 — 화면과 마이페이지 패널이 같은 것을 쓴다.
 //
 // 제목과 설명은 껍데기가 그린다(myPanels 의 panelTitle). 여기서 또 그리면 두 번 나온다.
+import { storyBodyText } from '@/social/courseLink';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -121,7 +122,7 @@ export function MyPostsBody() {
 
             <View style={styles.cardBody}>
               {story.images.length ? <Image source={{ uri: story.images[0].url }} resizeMode="cover" accessibilityLabel={tx('여행 기록 사진', 'Trip record photo')} style={styles.thumb} /> : null}
-              <Text numberOfLines={3} color={color.text.heading} style={styles.body}>{story.body}</Text>
+              <Text numberOfLines={3} color={color.text.heading} style={styles.body}>{storyBodyText(story.body)}</Text>
             </View>
 
             {askDelete === story.id ? (

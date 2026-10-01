@@ -33,3 +33,11 @@ export function withoutCourseLink(body: string, link: CourseLink | null): string
   if (!link) return body;
   return body.split(link.url).join('').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
 }
+
+/**
+ * 카드·목록에 쓸 본문 — 코스 공유 링크 주소를 뺀다(S15P21E201-1906). 피드·상세만 빼고 홈·내 기록·저장한 기록 카드는
+ * 본문을 그대로 그려 「https://…/s/…」 주소가 글처럼 보였다(팀원 보고).
+ */
+export function storyBodyText(body: string): string {
+  return withoutCourseLink(body, findCourseLink(body));
+}
