@@ -131,6 +131,15 @@ export const RECOMMENDED_LODGING_AREAS: OriginCandidate[] = [
 ];
 
 /**
+ * 서버가 돌려준 숙소·출발지 이름(「해운대」「부산역」)을 화면 언어로 — S15P21E201-1917.
+ * 🔴 위 두 목록의 이름과 **글자 그대로 같을 때만** 바꾼다. 검색해 고른 숙소 이름은 그대로 둔다 — 지어내지 않는다.
+ */
+export function knownPlaceLabel(label: string, tx: (ko: string, en: string) => string): string {
+  const hit = [...RECOMMENDED_LODGING_AREAS, ...MAJOR_BUSAN_ORIGINS].find((candidate) => candidate.name === label);
+  return hit?.nameEn ? tx(hit.name, hit.nameEn) : label;
+}
+
+/**
  * 숙소로 고른 후보를 스냅샷으로 — S15P21E201-1536.
  *
  * 🔴 **추천 동네(위 RECOMMENDED_LODGING_AREAS)는 싣지 않는다** — 실제 숙소(검색 결과)만 싣는다.

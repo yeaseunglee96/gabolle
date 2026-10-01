@@ -9,6 +9,7 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { txf } from '@/i18n/format';
 import type { DayReturnLeg } from '@/plan/itinerary';
+import { knownPlaceLabel } from '@/plan/origins';
 
 type Tx = (ko: string, en: string) => string;
 
@@ -21,7 +22,7 @@ export function DayReturnRow({ leg, tx, style }: { leg: DayReturnLeg | null | un
     : leg.travelDataStatus === 'ESTIMATED'
       ? txf(tx, '%s분 (어림)', '%s min (est.)', minutes)
       : txf(tx, '%s분', '%s min', minutes);
-  const detail = [leg.label, time].filter(Boolean).join(' · ');
+  const detail = [leg.label ? knownPlaceLabel(leg.label, tx) : null, time].filter(Boolean).join(' · ');
   return (
     <View style={[styles.row, style]}>
       <Text weight="bold" color={color.text.muted}>↩</Text>
