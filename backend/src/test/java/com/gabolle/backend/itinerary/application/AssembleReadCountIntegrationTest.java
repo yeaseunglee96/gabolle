@@ -115,9 +115,10 @@ class AssembleReadCountIntegrationTest {
 		this.jdbc.update("INSERT INTO app_user (user_id, display_name, language, personalization_mode, status, "
 				+ "created_at, updated_at) VALUES (?, '조립', 'ko', 'EXPLICIT_ONLY', 'ACTIVE', ?, ?)", this.owner, now, now);
 		this.tripId = UUID.randomUUID();
+		// 🔴 같은 요일(목)의 먼 날짜다(S15P21E201-1905) — 2026-10-01 로 박아 두었더니 그날 「오늘 만든 오늘 여행」 규칙(지금부터 시작)에 걸려 첫날이 11:30 에 시작해 CI 가 빨갰다.
 		this.jdbc.update("INSERT INTO trip (trip_id, owner_user_id, start_date, end_date, party_size, pace, "
 				+ "time_window_start, time_window_end, created_at, updated_at) "
-				+ "VALUES (?, ?, '2026-10-01', '2026-10-08', 4, 'PACKED', '09:00', '21:00', ?, ?)",
+				+ "VALUES (?, ?, '2027-09-30', '2027-10-07', 4, 'PACKED', '09:00', '21:00', ?, ?)",
 				this.tripId, this.owner, now, now);
 		this.jdbc.update("INSERT INTO trip_member (trip_member_id, trip_id, user_id, role, joined_at) "
 				+ "VALUES (?, ?, ?, 'OWNER', now())", UUID.randomUUID(), this.tripId, this.owner);
