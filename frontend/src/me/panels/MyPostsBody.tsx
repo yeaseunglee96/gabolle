@@ -36,6 +36,12 @@ export function MyPostsBody() {
   const [askDelete, setAskDelete] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  // 여러 개 골라 한 번에 지우기 — S15P21E201-1907(팀원 요청). 서버에 묶음 삭제가 없어 하나씩 차례로 지운다.
+  const [selecting, setSelecting] = useState(false);
+  const [picked, setPicked] = useState<string[]>([]);
+  const [askBulk, setAskBulk] = useState(false);
+  const togglePick = (id: string) => setPicked((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  const endSelect = () => { setSelecting(false); setPicked([]); setAskBulk(false); };
 
   const load = useCallback(async () => {
     // 사용자가 없으면 그냥 빠져나가면 안 된다 — loading 이 true 로 남아 뱅글이가 영원히 돈다.
@@ -62,6 +68,24 @@ export function MyPostsBody() {
     }
   }
 
+  async function removeMany(ids: string[]) {
+    if (busy || !ids.length) return;
+    setBusy(true);
+    const gone: string[] = [];
+    for (const id of ids) {
+      const outcome = await deleteStory(id, accessToken);
+      if (outcome.state === 'success') gone.push(id);
+    }
+    setBusy(false);
+    setResult((prev) => (prev.state === 'success' ? { ...prev, items: prev.items.filter((item) => !gone.includes(item.id)) } : prev));
+    const failed = ids.length - gone.length;
+    // 🔴 실패한 것은 고른 채로 남긴다 — 다시 누르면 남은 것만 지운다. 몇 개가 안 지워졌는지 숨기지 않는다.
+    setPicked(ids.filter((id) => !gone.includes(id)));
+    setAskBulk(false);
+    if (!failed) { setSelecting(false); setToast(txf(tx, '기록 %s개를 지웠어요.', 'Deleted %s records.', String(gone.length))); }
+    else setToast(txf(tx, '%s개는 지우지 못했어요. 다시 시도해 주세요.', '%s could not be deleted. Please try again.', String(failed)));
+  }
+
   const items = result.state === 'success' ? result.items : [];
   const shown = items.filter((item) => filter === 'ALL' || item.visibility === filter);
 
@@ -77,6 +101,31 @@ export function MyPostsBody() {
           );
         })}
       </View>
+
+      {items.length ? (
+        <View style={styles.selectBar}>
+          {selecting ? (
+            <>
+              <Text variant="caption" weight="bold" color={color.text.heading} style={styles.selectCount}>{txf(tx, '%s개 골랐어요', '%s selected', String(picked.length))}</Text>
+              <Pressable accessibilityRole="button" onPress={endSelect} style={styles.selectAction}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('취소', 'Cancel')}</Text></Pressable>
+              <Pressable accessibilityRole="button" accessibilityState={{ disabled: !picked.length || busy }} disabled={!picked.length || busy} onPress={() => setAskBulk(true)} style={[styles.selectAction, (!picked.length || busy) && styles.deleteBusy]}><Text variant="caption" weight="bold" color={color.state.danger}>{tx('골라서 지우기', 'Delete selected')}</Text></Pressable>
+            </>
+          ) : (
+            <Pressable accessibilityRole="button" onPress={() => { setSelecting(true); setAskDelete(null); setToast(null); }} style={[styles.selectAction, styles.actionEnd]}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('여러 개 지우기', 'Delete several')}</Text></Pressable>
+          )}
+        </View>
+      ) : null}
+      {askBulk ? (
+        <View style={styles.confirm}>
+          <Text variant="caption" weight="bold" color={color.state.danger}>{txf(tx, '기록 %s개를 지울까요? 지도 핀도 함께 사라지고 되돌릴 수 없어요.', 'Delete %s records? Their map pins go too, and this cannot be undone.', String(picked.length))}</Text>
+          <View style={styles.confirmActions}>
+            <Button label={tx('취소', 'Cancel')} variant="tertiary" disabled={busy} onPress={() => setAskBulk(false)} containerStyle={styles.confirmAction} />
+            <Pressable accessibilityRole="button" disabled={busy} onPress={() => void removeMany(picked)} style={[styles.delete, busy && styles.deleteBusy]}>
+              <Text weight="bold" color={color.state.danger}>{busy ? tx('지우는 중…', 'Deleting…') : tx('지우기', 'Delete')}</Text>
+            </Pressable>
+          </View>
+        </View>
+      ) : null}
 
       {toast ? <View accessibilityRole="alert" style={styles.toast}><Text variant="caption" weight="bold" color={color.state.success}>{toast}</Text></View> : null}
 
@@ -100,7 +149,13 @@ export function MyPostsBody() {
 
       <View style={styles.list}>
         {shown.map((story: StoryDto) => (
-          <View key={story.id} style={styles.card}>
+          <View key={story.id} style={[styles.card, selecting && picked.includes(story.id) && styles.cardPicked]}>
+            {selecting ? (
+              <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: picked.includes(story.id) }} accessibilityLabel={tx('이 기록 고르기', 'Select this record')} onPress={() => togglePick(story.id)} style={styles.pickRow}>
+                <View style={[styles.pickBox, picked.includes(story.id) && styles.pickBoxOn]}>{picked.includes(story.id) ? <Text variant="caption" weight="bold" color={color.text.onAction}>✓</Text> : null}</View>
+                <Text variant="caption" color={color.text.body}>{picked.includes(story.id) ? tx('골랐어요', 'Selected') : tx('누르면 골라요', 'Tap to select')}</Text>
+              </Pressable>
+            ) : null}
             <View style={styles.cardHead}>
               <Text variant="caption" numberOfLines={1} style={styles.cardMeta}>
                 {relativeStoryTime(story.createdAt, tx)}{story.place?.name ? ` · ${storyPlaceName(story.place, tx, language)}` : story.region ? ` · ${regionText(story.region, tx)}` : ''}
@@ -125,7 +180,7 @@ export function MyPostsBody() {
               <Text numberOfLines={3} color={color.text.heading} style={styles.body}>{storyBodyText(story.body)}</Text>
             </View>
 
-            {askDelete === story.id ? (
+            {selecting ? null : askDelete === story.id ? (
               <View style={styles.confirm}>
                 <Text variant="caption" weight="bold" color={color.state.danger}>{tx('이 기록을 지울까요? 지도 핀도 함께 사라져요.', 'Delete this record? Its map pin goes too.')}</Text>
                 <View style={styles.confirmActions}>
@@ -168,6 +223,13 @@ const styles = StyleSheet.create({
   emptyCta: { marginTop: spacing[2], alignSelf: 'center', width: '100%', maxWidth: 320 },
 
   list: { gap: spacing[3] },
+  selectBar: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], marginBottom: spacing[3] },
+  selectCount: { flex: 1 },
+  selectAction: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[2] },
+  cardPicked: { borderWidth: 2, borderColor: color.state.danger },
+  pickRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 44 },
+  pickBox: { width: 24, height: 24, borderRadius: radius.sm, borderWidth: 2, borderColor: color.surface.field, alignItems: 'center', justifyContent: 'center' },
+  pickBoxOn: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
   card: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
   cardHead: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
   cardMeta: { flex: 1, minWidth: 0 },

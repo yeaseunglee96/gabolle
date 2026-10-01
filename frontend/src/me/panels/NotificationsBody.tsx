@@ -14,6 +14,7 @@ import { useI18n } from '@/i18n';
 import { formatDayHeading } from '@/i18n/datetime';
 import { groupLines, groupNotices, hasUnseen, loadActivityFeed, loadSeenAt, markSeenNow, noticeCopy, noticeKind, type ActivityNotice, type NoticeGroup } from '@/notifications/activityFeed';
 import { NoticeIcon } from '@/components/NoticeIcon';
+import { dismissAllUpTo, dismissNotices, loadDismissed, visibleNotices, type DismissedNotices } from '@/notifications/dismissedNotices';
 import { txf } from '@/i18n/format';
 import { relativeStoryTime } from '@/social/stories';
 
@@ -43,6 +44,9 @@ export function NotificationsBody() {
   const { accessToken, user } = useAuth();
   // 🔴 알림은 여행 활동에서 나온다(S15P21E201-1380) — 서버 알림 API 가 없어 늘 비어 있던 화면이었다.
   const [feed, setFeed] = useState<{ state: 'loading' } | { state: 'ready'; items: ActivityNotice[]; seenAt: string | null } | { state: 'error'; message: string }>({ state: 'loading' });
+  // 지운 알림(이 기기·계정) — S15P21E201-1907.
+  const [dismissed, setDismissed] = useState<DismissedNotices>({ clearedBefore: null, ids: [] });
+  useEffect(() => { let alive = true; void loadDismissed(user?.userId).then((d) => { if (alive) setDismissed(d); }); return () => { alive = false; }; }, [user?.userId]);
   useEffect(() => {
     let active = true;
     if (!user) { setFeed({ state: 'ready', items: [], seenAt: null }); return undefined; }
@@ -111,10 +115,18 @@ export function NotificationsBody() {
     return <View style={styles.empty}><ActivityIndicator color={color.action.primary} /></View>;
   }
 
-  if (feed.state === 'ready' && feed.items.length) {
+  const shownItems = feed.state === 'ready' ? visibleNotices(feed.items, dismissed) : [];
+  const removeGroup = (group: NoticeGroup) => { if (user) void dismissNotices(user.userId, dismissed, group.items.map((item) => item.id)).then(setDismissed); };
+  const removeAll = () => {
+    if (!user || !shownItems.length) return;
+    const latest = shownItems.reduce((max, item) => (item.at > max ? item.at : max), shownItems[0].at);
+    void dismissAllUpTo(user.userId, latest).then(setDismissed);
+  };
+
+  if (feed.state === 'ready' && shownItems.length) {
     const unseenFrom = feed.seenAt;
     const isFresh = (item: ActivityNotice) => (unseenFrom ? item.at > unseenFrom : true);
-    const groups = groupNotices(feed.items);
+    const groups = groupNotices(shownItems);
     // 🔴 동행이 바꾼 것 중 아직 안 본 것은 맨 위에 — 「장소가 빠졌어요」 한 줄이면 중요한지 모르고 지나갔다(UI 캔버스 ⑦).
     const companionFresh = groups.filter((group) => !group.latest.isMe && group.latest.operation !== 'CREATE' && group.items.some(isFresh));
     const rest = groups.filter((group) => !companionFresh.includes(group));
@@ -158,7 +170,8 @@ export function NotificationsBody() {
       const lines = many ? groupLines(group, tx) : [];
       const kind = many ? (lines.length === 1 ? lines[0].kind : 'change') : noticeKind(item.operation);
       return (
-        <Pressable key={group.id} accessibilityRole="button" accessibilityLabel={title} onPress={() => open(group)} style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
+        <View key={group.id} style={styles.rowWrap}>
+        <Pressable accessibilityRole="button" accessibilityLabel={title} onPress={() => open(group)} style={({ pressed }) => [styles.row, styles.rowFlex, pressed && styles.pressed]}>
           <View style={[styles.rowIcon, kind === 'created' && styles.rowIconCreate]}>
             <NoticeIcon kind={kind} tint={kind === 'created' ? color.state.success : color.text.heading} />
           </View>
@@ -171,10 +184,19 @@ export function NotificationsBody() {
             <Text variant="micro" color={color.text.muted}>{relativeStoryTime(item.at, tx)}</Text>
           </View>
         </Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 알림 지우기', 'Remove notification: %s', title)} hitSlop={8} onPress={() => removeGroup(group)} style={({ pressed }) => [styles.remove, pressed && styles.pressed]}>
+          <Text variant="body" color={color.text.muted}>✕</Text>
+        </Pressable>
+        </View>
       );
     };
     return (
       <View style={styles.list}>
+        <View style={styles.listHead}>
+          <Pressable accessibilityRole="button" onPress={removeAll} style={({ pressed }) => [styles.clearAll, pressed && styles.pressed]}>
+            <Text variant="caption" weight="bold" color={color.text.muted}>{tx('모두 지우기', 'Clear all')}</Text>
+          </Pressable>
+        </View>
         {companionFresh.length ? <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('동행이 바꾼 일정 · 확인해 주세요', 'Changed by companions · please review')}</Text> : null}
         {companionFresh.map(companionCard)}
         {today.length ? <Text variant="caption" weight="bold" color={color.text.eyebrow} style={companionFresh.length ? styles.sectionGap : undefined}>{tx('오늘', 'Today')}</Text> : null}
@@ -200,6 +222,11 @@ export function NotificationsBody() {
 }
 
 const styles = StyleSheet.create({
+  rowWrap: { flexDirection: 'row', alignItems: 'center', gap: spacing[1] },
+  rowFlex: { flex: 1, minWidth: 0 },
+  remove: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  listHead: { flexDirection: 'row', justifyContent: 'flex-end' },
+  clearAll: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[2] },
   list: { gap: spacing[2], paddingTop: spacing[3] },
   sectionGap: { marginTop: spacing[3] },
   row: { flexDirection: 'row', gap: spacing[3], padding: spacing[3], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
