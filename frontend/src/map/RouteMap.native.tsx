@@ -1,7 +1,8 @@
 // 앱(폰)의 지도 — S15P21E201-1140.
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
+import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
 import { Text } from '@/components/Text';
@@ -76,6 +77,9 @@ export function RouteMap({
   followLocation = false,
 }: RouteMapProps) {
   const { tx } = useI18n();
+  // 🔴 가로 화면에서는 안드로이드 내비 막대가 오른쪽에 서서 +/− 단추를 덮었다(실기기 10/1, S15P21E201-1909).
+  //    공급자가 없는 시험에서도 그려지게 훅 대신 맥락을 읽는다(없으면 0).
+  const rightInset = useContext(SafeAreaInsetsContext)?.right ?? 0;
   const webViewRef = useRef<WebView | null>(null);
   const sdkReadyRef = useRef(false);
   const [scriptFailed, setScriptFailed] = useState(false);
@@ -237,7 +241,7 @@ export function RouteMap({
       />
       {/* 🔴 확대·축소 단추(S15P21E201-1903) — 길 안내처럼 스크롤 안에 든 지도는 두 손가락 확대가 화면 스크롤과 다툰다.
           오른쪽에 둔다 — 왼쪽 아래는 카카오 로고·축척 자리다(아래 backRow 주석). 창에 가려진 높이만큼 올린다. */}
-      <View style={[styles.zoomColumn, { bottom: Math.max(0, Math.min(bottomInset, height - 140)) + spacing[3] }]}>
+      <View style={[styles.zoomColumn, { right: spacing[3] + rightInset, bottom: Math.max(0, Math.min(bottomInset, height - 140)) + spacing[3] }]}>
         {([[-1, '+', tx('지도 확대', 'Zoom in')], [1, '−', tx('지도 축소', 'Zoom out')]] as const).map(([delta, glyph, label]) => (
           <Pressable key={glyph} accessibilityRole="button" accessibilityLabel={label} hitSlop={6} onPress={() => webViewRef.current?.injectJavaScript(`window.__zoomKakaoMap && window.__zoomKakaoMap(${delta}); true;`)} style={({ pressed }) => [styles.zoomButton, pressed && styles.zoomPressed]}>
             <Text variant="title" weight="bold" color={color.text.heading}>{glyph}</Text>

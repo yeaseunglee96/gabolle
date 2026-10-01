@@ -39,6 +39,17 @@ export async function dismissAllUpTo(userId: string, latestAt: string): Promise<
   return save(userId, { clearedBefore: latestAt, ids: [] });
 }
 
+/**
+ * 「모두 지우기」 — 받은 알림 «전부»(이미 하나씩 지운 것 포함)에서 가장 최근 시각까지 지운다(S15P21E201-1909).
+ * 🔴 전에는 화면에 남은 것만 보고 시각을 정했다. 가장 최근 알림을 먼저 ✕ 로 지운 뒤 모두 지우면 기준이 그보다
+ *    앞이 되고 id 목록은 비워져, 지운 알림이 되살아났다(실기기 10/1).
+ */
+export async function dismissAll<T extends { at: string }>(userId: string, items: T[]): Promise<DismissedNotices | null> {
+  if (!items.length) return null;
+  const latest = items.reduce((max, item) => (item.at > max ? item.at : max), items[0].at);
+  return dismissAllUpTo(userId, latest);
+}
+
 /** 지운 것을 뺀 알림. */
 export function visibleNotices<T extends { id: string; at: string }>(items: T[], dismissed: DismissedNotices): T[] {
   return items.filter((item) => (!dismissed.clearedBefore || item.at > dismissed.clearedBefore) && !dismissed.ids.includes(item.id));
