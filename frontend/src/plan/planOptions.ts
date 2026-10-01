@@ -58,6 +58,14 @@ export const PACE_OPTIONS: readonly PlanOption[] = [
   ['PACKED', '알차게', 'Packed', '1시간 반에 한 곳 꼴 · 이동 빠르게', 'About one place every 90 minutes · quick hops'],
 ] as const;
 
+/**
+ * 여행 기분 칸 아래 한 줄 — 설명의 첫 마디. 🔴 번역한 «뒤에» 자른다(S15P21E201-1914).
+ * 먼저 자르면 「3시간에 한 곳 꼴」이 번역표에 없어 일본어·중국어 화면에 영어가 나왔다.
+ */
+export function paceSubtitle(option: PlanOption, tx: (ko: string, en: string) => string): string {
+  return tx(option[3], option[4]).split(' · ')[0];
+}
+
 // 🔴 택시는 없다. 초안의 이동수단 칸이 셋만 받는다 — 화면에만 넣으면 고른 값이 조용히 버려진다.
 export const TRANSPORT_OPTIONS: readonly PlanOption[] = [
   ['TRANSIT', '대중교통', 'Transit', '지하철·버스 환승 최소', 'Fewest subway/bus transfers'],
