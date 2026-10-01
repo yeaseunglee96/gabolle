@@ -106,7 +106,7 @@ class AssembleTimeTableIntegrationTest {
 		this.tripId = UUID.randomUUID();
 		this.jdbc.update("INSERT INTO trip (trip_id, owner_user_id, start_date, end_date, party_size, pace, "
 				+ "time_window_start, time_window_end, created_at, updated_at) "
-				+ "VALUES (?, ?, '2026-10-01', '2026-10-08', 4, 'PACKED', '09:00', '21:00', ?, ?)",
+				+ "VALUES (?, ?, '2027-09-30', '2027-10-07', 4, 'PACKED', '09:00', '21:00', ?, ?)",
 				this.tripId, this.owner, now, now);
 		this.jdbc.update("INSERT INTO trip_member (trip_member_id, trip_id, user_id, role, joined_at) "
 				+ "VALUES (?, ?, ?, 'OWNER', now())", UUID.randomUUID(), this.tripId, this.owner);
