@@ -335,7 +335,7 @@ export function ReplyCard({
 export default function StoryDetail() {
   const router = useRouter();
   const { accessToken, user } = useAuth();
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
   const { id } = useLocalSearchParams<{ id: string }>();
   const [state, setState] = useState<State>({ status: 'loading', cached: null });
   // 어느 글을 신고하는 중인지 — 원글(id)일 수도, 댓글(reply.id)일 수도 있다. 신고 모달은
@@ -695,7 +695,7 @@ export default function StoryDetail() {
               </View>
               <Text variant="caption" color={color.text.muted}>
                 {relativeStoryTime(story.createdAt, tx)}
-                {story.region ? ` · ${regionText(story.region, tx)}` : ''}
+                {story.region ? ` · ${regionText(story.region, tx, story.place ? { ko: story.place.name, shown: storyPlaceName(story.place, tx, language) } : null)}` : ''}
               </Text>
             </View>
             {story.mine && story.visibility !== 'PUBLIC' ? (

@@ -12,6 +12,10 @@ export const BUSAN_DISTRICTS_EN: Readonly<Record<string, string>> = {
 };
 
 /** 동네 이름을 화면 언어로 — 한국어판은 받은 글자 그대로. */
-export function regionText(region: string, tx: (ko: string, en: string) => string): string {
-  return tx(region, BUSAN_DISTRICTS_EN[region] ?? region);
+export function regionText(region: string, tx: (ko: string, en: string) => string, place?: { ko: string; shown: string } | null): string {
+  // 🔴 지역 고르기 칸은 「장소 · 구」를 « · » 로 묶어 저장한다(예: 「감천문화마을 · 사하구」). 통째로는 표에 없어
+  //    영어 화면에 한국어가 그대로 남았다(실기기 10/2, S15P21E201-1912). 우리 묶음 기호로만 나눠 마디마다 바꾼다 —
+  //    마디 안은 여전히 글자 그대로 같을 때만. 장소 마디는 그 기록의 장소 이름(화면 언어)과 같을 때 바꾼다.
+  const one = (part: string) => (place && part === place.ko ? place.shown : tx(part, BUSAN_DISTRICTS_EN[part] ?? part));
+  return region.includes(' · ') ? region.split(' · ').map(one).join(' · ') : one(region);
 }

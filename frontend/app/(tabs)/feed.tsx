@@ -208,7 +208,7 @@ function StoryCard({ story, compact, rank = null, showUnfollow, unfollowBusy, sa
           0 을 하드코딩해 그리지 않는다. 모르는 것을 아는 척하는 것이라, 서버가 칸을 주는 날
  자연히 나타나게 둔다의 백엔드 몫). 지금은 시각과 지역만 말한다. */}
       <Text variant="caption" color={color.text.muted}>
-        {relativeStoryTime(story.createdAt, tx)}{story.region ? ` · ${regionText(story.region, tx)}` : ''}
+        {relativeStoryTime(story.createdAt, tx)}{story.region ? ` · ${regionText(story.region, tx, story.place ? { ko: story.place.name, shown: storyPlaceName(story.place, tx, language) } : null)}` : ''}
       </Text>
     </Pressable>
 
