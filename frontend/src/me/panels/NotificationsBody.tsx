@@ -14,7 +14,7 @@ import { useI18n } from '@/i18n';
 import { formatDayHeading } from '@/i18n/datetime';
 import { groupLines, groupNotices, hasUnseen, loadActivityFeed, loadSeenAt, markSeenNow, noticeCopy, noticeKind, type ActivityNotice, type NoticeGroup } from '@/notifications/activityFeed';
 import { NoticeIcon } from '@/components/NoticeIcon';
-import { dismissAllUpTo, dismissNotices, loadDismissed, visibleNotices, type DismissedNotices } from '@/notifications/dismissedNotices';
+import { dismissAll, dismissNotices, loadDismissed, visibleNotices, type DismissedNotices } from '@/notifications/dismissedNotices';
 import { txf } from '@/i18n/format';
 import { relativeStoryTime } from '@/social/stories';
 
@@ -118,9 +118,8 @@ export function NotificationsBody() {
   const shownItems = feed.state === 'ready' ? visibleNotices(feed.items, dismissed) : [];
   const removeGroup = (group: NoticeGroup) => { if (user) void dismissNotices(user.userId, dismissed, group.items.map((item) => item.id)).then(setDismissed); };
   const removeAll = () => {
-    if (!user || !shownItems.length) return;
-    const latest = shownItems.reduce((max, item) => (item.at > max ? item.at : max), shownItems[0].at);
-    void dismissAllUpTo(user.userId, latest).then(setDismissed);
+    if (!user || !shownItems.length || feed.state !== 'ready') return;
+    void dismissAll(user.userId, feed.items).then((next) => { if (next) setDismissed(next); });
   };
 
   if (feed.state === 'ready' && shownItems.length) {

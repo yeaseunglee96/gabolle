@@ -3,7 +3,7 @@
 // 🔴 이 시험이 지키는 것: 팔로우한 뒤 팔로잉 피드가 한참 「팔로우한 사람의 기록이 없어요」로 남았고,
 //    글을 쓴 뒤 「내 피드」에 방금 쓴 글이 바로 안 떴다. 보관소(30초)가 팔로우·글쓰기 전 목록을 그대로 내줬다.
 import { queryClient } from '@/api/queryClient';
-import { createStory, feedQueryKey, setBlocked, setFollowing } from '../stories';
+import { createStory, deleteStory, feedQueryKey, setBlocked, setFollowing } from '../stories';
 
 const empty = { state: 'success' as const, items: [], nextCursor: null };
 const story = { id: 'st-1', author: { id: 'u', displayName: '진미리' }, body: 'b', images: [], visibility: 'PUBLIC', publishAt: '', createdAt: '', updatedAt: '', mine: true, published: true, replyCount: 0 };
@@ -75,5 +75,17 @@ describe('차단 뒤 피드 보관소', () => {
     const outcome = await setBlocked('x', true, 'token');
     expect(outcome.state).not.toBe('success');
     expect(queryClient.getQueryData(feedQueryKey('ALL', true, 'POPULAR'))).toEqual(empty);
+  });
+
+  it('🔴 글을 쓰거나 지우면 마이페이지 「기록 N」 숫자(프로필)를 다시 받는다 — S15P21E201-1909', async () => {
+    queryClient.setQueryData(['user-profile', 'u'], { state: 'success', profile: { storyCount: 1 } });
+    respond(story);
+    await createStory({ body: 'b', imageUrls: [], accessToken: 'token' });
+    await Promise.resolve();
+    expect(queryClient.getQueryState(['user-profile', 'u'])?.isInvalidated).toBe(true);
+    queryClient.setQueryData(['user-profile', 'u'], { state: 'success', profile: { storyCount: 2 } });
+    globalThis.fetch = jest.fn(async () => new Response(null, { status: 204 })) as unknown as typeof fetch;
+    expect((await deleteStory('st-1', 'token')).state).toBe('success');
+    expect(queryClient.getQueryState(['user-profile', 'u'])?.isInvalidated).toBe(true);
   });
 });

@@ -179,6 +179,8 @@ export async function deleteStory(id: string, accessToken: string | null): Promi
   try {
     await apiRequest<void>(`/api/v1/stories/${encodeURIComponent(id)}`, { method: 'DELETE', accessToken });
     storyCache.delete(id);
+    // 마이페이지 「기록 N」 숫자도 다시 센다(S15P21E201-1909).
+    void defaultQueryClient.invalidateQueries({ queryKey: ['user-profile'] });
     return { state: 'success' };
   } catch (error) {
     return failure(error);
@@ -249,6 +251,8 @@ export function resetFeedAfterPost(client: QueryClient = defaultQueryClient) {
   return Promise.all([
     client.resetQueries({ predicate: (query) => query.queryKey[0] === FEED_QUERY_PREFIX[0] && query.queryKey[1] === 'MINE' }),
     client.resetQueries({ queryKey: ['me', 'stories'] }),
+    // 🔴 마이페이지 「기록 N」 숫자는 프로필(['user-profile', …])에서 온다 — 이것을 안 버려서 글을 올려도 숫자가 그대로였다(실기기 10/1, S15P21E201-1909).
+    client.invalidateQueries({ queryKey: ['user-profile'] }),
     // 다른 갈래(전체·추천)는 새 글이 한 줄 끼는 것뿐이라 옛 목록을 두고 다시 불러온다.
     client.invalidateQueries({ predicate: (query) => query.queryKey[0] === FEED_QUERY_PREFIX[0] && query.queryKey[1] !== 'MINE' }),
   ]);
