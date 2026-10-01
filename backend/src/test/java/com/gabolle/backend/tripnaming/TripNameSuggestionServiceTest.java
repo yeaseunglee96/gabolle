@@ -232,4 +232,44 @@ class TripNameSuggestionServiceTest {
 		assertThatThrownBy(() -> this.service.suggest(TRIP_ID, this.requester, true))
 				.isInstanceOf(TripQueryService.TripNotFoundException.class);
 	}
+
+	// ── 일본어·중국어 화면 — S15P21E201-1916 ─────────────────────────────
+
+	@Test
+	@DisplayName("🔴 일본어 화면이면 일본어 틀 — 영어 「+ 2 more · 2 days」가 안 나온다")
+	void japaneseScreenGetsJapaneseNames() {
+		when(this.vocabulary.placeNamesOf(TRIP_ID, true))
+				.thenReturn(List.of("Haeundae Beach", "광안리 해수욕장", "Gamcheon Culture Village"));
+
+		TripNameSuggestionsResponse response = this.service.suggest(TRIP_ID, this.requester,
+				TripNameSuggestionService.NameLanguage.JA);
+
+		assertThat(response.suggestions()).containsExactly(
+				"Haeundae Beach ほか2か所 · 2日間", "Haeundae Beach 2日間の旅", "2026-09-19 ~ 2026-09-20");
+		verify(this.namer, never()).suggest(any(), anyInt(), anyInt());
+	}
+
+	@Test
+	@DisplayName("🔴 간체·번체 화면이면 각자의 글자로")
+	void chineseScreensGetChineseNames() {
+		when(this.vocabulary.placeNamesOf(TRIP_ID, true)).thenReturn(List.of("Haeundae Beach", "광안리 해수욕장"));
+
+		assertThat(this.service.suggest(TRIP_ID, this.requester, TripNameSuggestionService.NameLanguage.ZH_HANS)
+				.suggestions()).containsExactly("Haeundae Beach 等2处 · 2天", "Haeundae Beach 2日游", "2026-09-19 ~ 2026-09-20");
+		assertThat(this.service.suggest(TRIP_ID, this.requester, TripNameSuggestionService.NameLanguage.ZH_HANT)
+				.suggestions()).containsExactly("Haeundae Beach 等2處 · 2天", "Haeundae Beach 2日遊", "2026-09-19 ~ 2026-09-20");
+	}
+
+	@Test
+	@DisplayName("Accept-Language 첫 태그로 언어를 고른다 — zh-TW 는 번체, zh 는 간체, 모르면 한국어")
+	void readsTheHeader() {
+		assertThat(TripNameSuggestionService.NameLanguage.of("ja")).isEqualTo(TripNameSuggestionService.NameLanguage.JA);
+		assertThat(TripNameSuggestionService.NameLanguage.of("zh-Hans")).isEqualTo(TripNameSuggestionService.NameLanguage.ZH_HANS);
+		assertThat(TripNameSuggestionService.NameLanguage.of("zh")).isEqualTo(TripNameSuggestionService.NameLanguage.ZH_HANS);
+		assertThat(TripNameSuggestionService.NameLanguage.of("zh-Hant")).isEqualTo(TripNameSuggestionService.NameLanguage.ZH_HANT);
+		assertThat(TripNameSuggestionService.NameLanguage.of("zh-TW,en;q=0.5")).isEqualTo(TripNameSuggestionService.NameLanguage.ZH_HANT);
+		assertThat(TripNameSuggestionService.NameLanguage.of("en-US")).isEqualTo(TripNameSuggestionService.NameLanguage.EN);
+		assertThat(TripNameSuggestionService.NameLanguage.of(null)).isEqualTo(TripNameSuggestionService.NameLanguage.KO);
+		assertThat(TripNameSuggestionService.NameLanguage.of("fr")).isEqualTo(TripNameSuggestionService.NameLanguage.KO);
+	}
 }
