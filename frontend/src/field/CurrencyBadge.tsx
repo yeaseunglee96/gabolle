@@ -64,15 +64,59 @@ const INTL_NAME_FIXES: Record<string, Record<string, string>> = {
   ko: { '부루나이 달러': '브루나이 달러' },
 };
 
+/**
+ * 🔴 안드로이드 앱(Hermes)에는 Intl.DisplayNames 가 없다 — 그래서 영어·일본어·중국어 화면에서도 서버가 준 한국어 이름
+ *    (「미국 달러」)이 그대로 나왔다(실기기 10/2, S15P21E201-1913). 깃발이 있는 통화(=수출입은행이 주는 것)만 앱에 이름을 둔다.
+ *    [영어, 일본어, 간체, 번체]
+ */
+const NAMES: Record<string, [string, string, string, string]> = {
+  KRW: ['South Korean Won', '韓国ウォン', '韩元', '韓元'],
+  USD: ['US Dollar', '米ドル', '美元', '美元'],
+  JPY: ['Japanese Yen', '日本円', '日元', '日圓'],
+  CNY: ['Chinese Yuan', '中国人民元', '人民币', '人民幣'],
+  CNH: ['Chinese Yuan (offshore)', '中国人民元（オフショア）', '离岸人民币', '離岸人民幣'],
+  TWD: ['New Taiwan Dollar', '新台湾ドル', '新台币', '新台幣'],
+  HKD: ['Hong Kong Dollar', '香港ドル', '港元', '港幣'],
+  SGD: ['Singapore Dollar', 'シンガポールドル', '新加坡元', '新加坡幣'],
+  MYR: ['Malaysian Ringgit', 'マレーシアリンギット', '马来西亚林吉特', '馬來西亞令吉'],
+  THB: ['Thai Baht', 'タイバーツ', '泰铢', '泰銖'],
+  IDR: ['Indonesian Rupiah', 'インドネシアルピア', '印度尼西亚盾', '印尼盾'],
+  BND: ['Brunei Dollar', 'ブルネイドル', '文莱元', '汶萊元'],
+  AUD: ['Australian Dollar', 'オーストラリアドル', '澳大利亚元', '澳幣'],
+  NZD: ['New Zealand Dollar', 'ニュージーランドドル', '新西兰元', '紐西蘭幣'],
+  EUR: ['Euro', 'ユーロ', '欧元', '歐元'],
+  GBP: ['British Pound', '英国ポンド', '英镑', '英鎊'],
+  CHF: ['Swiss Franc', 'スイスフラン', '瑞士法郎', '瑞士法郎'],
+  DKK: ['Danish Krone', 'デンマーククローネ', '丹麦克朗', '丹麥克朗'],
+  NOK: ['Norwegian Krone', 'ノルウェークローネ', '挪威克朗', '挪威克朗'],
+  SEK: ['Swedish Krona', 'スウェーデンクローナ', '瑞典克朗', '瑞典克朗'],
+  CAD: ['Canadian Dollar', 'カナダドル', '加拿大元', '加幣'],
+  AED: ['UAE Dirham', 'UAEディルハム', '阿联酋迪拉姆', '阿聯酋迪拉姆'],
+  SAR: ['Saudi Riyal', 'サウジアラビアリヤル', '沙特里亚尔', '沙烏地里亞爾'],
+  KWD: ['Kuwaiti Dinar', 'クウェートディナール', '科威特第纳尔', '科威特第納爾'],
+  BHD: ['Bahraini Dinar', 'バーレーンディナール', '巴林第纳尔', '巴林第納爾'],
+};
+
+function tableName(key: string, locale: string): string | null {
+  const row = NAMES[key];
+  if (!row) return null;
+  const tag = locale.toLowerCase();
+  if (tag.startsWith('ko')) return null;
+  if (tag.startsWith('ja')) return row[1];
+  if (tag.startsWith('zh')) return /hant|tw|hk|mo/.test(tag) ? row[3] : row[2];
+  return row[0];
+}
+
 export function currencyDisplayName(code: string, locale: string, fallback: string): string {
+  const fromTable = tableName(currencyKey(code), locale);
   try {
-    if (!Intl.DisplayNames.supportedLocalesOf([locale]).length) return fallback;
+    if (typeof Intl.DisplayNames !== 'function' || !Intl.DisplayNames.supportedLocalesOf([locale]).length) return fromTable ?? fallback;
     const names = new Intl.DisplayNames([locale], { type: 'currency' });
     const name = names.of(currencyKey(code));
-    if (!name) return fallback;
+    if (!name) return fromTable ?? fallback;
     return INTL_NAME_FIXES[locale.split('-')[0].toLowerCase()]?.[name] ?? name;
   } catch {
-    return fallback;
+    return fromTable ?? fallback;
   }
 }
 
