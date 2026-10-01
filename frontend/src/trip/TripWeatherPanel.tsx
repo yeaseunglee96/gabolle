@@ -267,6 +267,16 @@ export function weatherPhase(date: string | null | undefined, today: string): 'b
  * 머리 글(작은 머리 + 제목)을 날짜에 맞춰 고른다 — 여행 페이지 창과 여행 준비 화면(prepare)이 같이 쓴다.
  * 🔴 S15P21E201-1773: 준비 화면은 이 판정을 안 거치고 늘 「여행 전 · … 출발」이라 적었다(지난 여행에도).
  */
+/**
+ * 어느 날 예보를 보일까 — 여행 중(출발일 다음 날 ~ 마지막 날)이면 오늘, 아니면 출발일(S15P21E201-1911).
+ * 🔴 전에는 출발일만 봐서 여행 둘째 날부터 「지난 여행 · 예보 없음」이 떴다 — 정작 지금 필요한 오늘 날씨가 없었다.
+ */
+export function weatherDateFor(first: string | null | undefined, last: string | null | undefined, today: string): string | null | undefined {
+  if (!first) return first;
+  if (last && first < today && today <= last) return today;
+  return first;
+}
+
 export function weatherHeading(
   tx: (ko: string, en: string) => string,
   date: string | null | undefined,
