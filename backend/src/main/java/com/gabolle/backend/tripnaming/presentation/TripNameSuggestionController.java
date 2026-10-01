@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.gabolle.backend.common.api.ApiResponse;
 import com.gabolle.backend.common.security.AuthenticatedUsers;
-import com.gabolle.backend.place.service.RequestLanguage;
 import com.gabolle.backend.trip.application.TripQueryService;
 import com.gabolle.backend.tripnaming.application.TripNameSuggestionService;
 import com.gabolle.backend.tripnaming.presentation.dto.TripNameSuggestionsResponse;
@@ -43,6 +42,6 @@ public class TripNameSuggestionController {
 			@RequestHeader(value = "Accept-Language", required = false) String acceptLanguage) {
 
 		String requester = AuthenticatedUsers.requireId(authentication).toString();
-		return ApiResponse.success(this.service.suggest(tripId, requester, RequestLanguage.prefersEnglish(acceptLanguage)), "req_" + UUID.randomUUID());
+		return ApiResponse.success(this.service.suggest(tripId, requester, TripNameSuggestionService.NameLanguage.of(acceptLanguage)), "req_" + UUID.randomUUID());
 	}
 }
