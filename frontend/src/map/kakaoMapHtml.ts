@@ -264,7 +264,11 @@ export function buildKakaoMapHtml(appKey: string): string {
   window.__zoomKakaoMap = function (delta) {
     if (!map) return;
     var next = Math.max(1, Math.min(14, map.getLevel() + delta));
-    map.setLevel(next, { animate: true });
+    // 🔴 보이는 부분의 가운데를 기준으로 확대한다 — 지도 칸 가운데는 아래 창에 가려진 자리라, 그곳으로 확대하면 보이는 위쪽이 바다로만 찼다(실기기).
+    var el = document.getElementById('map');
+    var anchor = null;
+    try { anchor = map.getProjection().coordsFromContainerPoint(new window.kakao.maps.Point(el.clientWidth / 2, el.clientHeight / 2 - (shiftNow || 0))); } catch (e) { anchor = null; }
+    if (anchor) map.setLevel(next, { animate: true, anchor: anchor }); else map.setLevel(next, { animate: true });
   };
 
   // 현재 위치는 점만 옮긴다 — 움직일 때마다 전체를 다시 맞추면 걷는 내내 지도가 튄다.
