@@ -60,7 +60,7 @@ export default function RouteDetail() {
   const originLng = parseNumber(params.originLng);
   const destLat = parseNumber(params.destLat);
   const destLng = parseNumber(params.destLng);
-  const originName = parseText(params.originName) ?? tx('출발지', 'Origin');
+  const originName = parseText(params.originName) ?? tx('출발지', 'Starting point');
   const destName = parseText(params.destName) ?? tx('도착지', 'Destination');
   const destPlaceId = parseText(params.destPlaceId);
   // 부르는 쪽이 여행의 이동수단을 넘긴다. 안 넘기면 대중교통 — 이제 서버가 노선망으로 찾는다(S15P21E201-1831).

@@ -36,7 +36,7 @@ export function legRouteParams(
   const from = prev
     ? (known(prev.lat) && known(prev.lng) ? { lat: prev.lat, lng: prev.lng, name: nameOf(prev) } : null)
     : start && known(start.lat) && known(start.lng)
-      ? { lat: start.lat, lng: start.lng, name: start.label ?? (start.kind === 'LODGING' ? tx('숙소', 'Your stay') : tx('출발지', 'Origin')) }
+      ? { lat: start.lat, lng: start.lng, name: start.label ?? (start.kind === 'LODGING' ? tx('숙소', 'Your stay') : tx('출발지', 'Starting point')) }
       : null;
   if (!from) return null;
   return {

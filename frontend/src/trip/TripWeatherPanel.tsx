@@ -110,7 +110,9 @@ function HourlyForecast({ hourly, stops }: { hourly: HourlyForecastDto[]; stops:
     const said = describeHour(hour, tx);
     return (
       <View key={hour.time} accessible accessibilityLabel={[label, said.condition, said.temperature, said.spokenChance].filter(Boolean).join(', ')} style={[styles.hourCell, desktop && styles.hourCellWide, numbers && styles.hourCellStop]}>
-        <Text variant="caption" weight="bold" color={numbers ? color.text.heading : color.text.muted} numberOfLines={1}>{label}</Text>
+        {/* 🔴 폰 칸은 좁아 「10시 · 1」이 「10시 · 」로 잘렸다(S15P21E201-1903) — 정차 번호는 아래 줄로 둔다. */}
+        <Text variant="caption" weight="bold" color={numbers ? color.text.heading : color.text.muted} numberOfLines={1}>{Number.isInteger(clock) ? tx(`${clock}시`, `${clock}:00`) : hour.time}</Text>
+        {numbers ? <Text variant="micro" weight="bold" color={color.text.heading} numberOfLines={1}>{numbers.map((n) => `${n}`).join(' · ')}</Text> : null}
         <Text style={styles.hourIcon}>{said.icon ?? UNKNOWN}</Text>
         <Text weight="bold">{said.temperature ?? UNKNOWN}</Text>
         <Text variant="caption" color={said.chance != null && said.chance >= RAIN_HIGHLIGHT ? color.state.info : color.text.muted}>{said.chance != null ? `${said.chance}%` : UNKNOWN}</Text>

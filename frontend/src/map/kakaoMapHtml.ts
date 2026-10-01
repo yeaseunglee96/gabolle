@@ -228,7 +228,12 @@ export function buildKakaoMapHtml(appKey: string): string {
     // 와 같은 이유 — 점이 하나면 bounds 넓이가 0이라 최대 줌으로 튄다.
     // 여백은 앱이 셈해서 보낸다 — 아래가 창에 가려진 만큼 더(S15P21E201-1607, mapFocus.ts). 안 보내면 네 변 60.
     padNow = data.fitPadding || [60, 60, 60, 60];
-    fit = function () { var pad = padNow; if (fitStops.length <= 1) { map.setCenter(new maps.LatLng(fitStops[0].latitude, fitStops[0].longitude)); map.setLevel(5); } else map.setBounds(bounds, pad[0], pad[1], pad[2], pad[3]); focusOn(selectedNow); };
+    fit = function () {
+      // 🔴 여백은 그릴 때의 지도 높이로 셈한 값이다(S15P21E201-1903). 폰을 가로로 돌리면 높이가 확 줄어 그 여백이 지도를 다 덮고, 카카오가 동아시아 전체로 물러났다.
+      //    지금 높이로 다시 줄여 맞출 자리를 60 은 남긴다(mapFocus.fitPadding 과 같은 규칙).
+      var pad = padNow.slice(); var h = document.getElementById('map').clientHeight || 0; var room = Math.max(0, h - 60);
+      if (h > 0 && pad[0] + pad[2] > room) { var k = room / (pad[0] + pad[2]); pad[0] = Math.round(pad[0] * k); pad[2] = Math.round(pad[2] * k); }
+      if (fitStops.length <= 1) { map.setCenter(new maps.LatLng(fitStops[0].latitude, fitStops[0].longitude)); map.setLevel(5); } else map.setBounds(bounds, pad[0], pad[1], pad[2], pad[3]); focusOn(selectedNow); };
     fit();
     // 맞추면 줌이 바뀐다 — 줌 사건이 안 오는 환경도 있어 맞춘 뒤 한 번 더 셈한다.
     resimplify();
