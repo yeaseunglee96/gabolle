@@ -18,7 +18,7 @@ import { useI18n } from '@/i18n';
 import { formatClock, formatDayHeading, formatFullDate } from '@/i18n/datetime';
 import { koreanTopic } from '@/i18n/korean';
 import { LANGUAGE_OPTIONS } from '@/i18n/languages';
-import { browserLanguages, sharedPageInitialLanguage } from '@/share/sharedPageLanguage';
+import { browserLanguages, sentenceStart, sharedPageInitialLanguage } from '@/share/sharedPageLanguage';
 import { stopNameForLanguage } from '@/discovery/romanize';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { PLACE_CATEGORY_LABELS } from '@/discovery/placeCategoryLabels';
@@ -146,7 +146,7 @@ export default function SharedItinerary() {
 
     <View style={styles.notice}>
       <Text variant="caption" weight="bold">{tx('공유되지 않는 정보', 'Not shared')}</Text>
-      <Text variant="caption" color={color.text.body}>{txf(tx, `%s${koreanTopic(notSharedLabels)} 공유되지 않아요.`, '%s are not shared.', notSharedLabels)}</Text>
+      <Text variant="caption" color={color.text.body}>{sentenceStart(txf(tx, `%s${koreanTopic(notSharedLabels)} 공유되지 않아요.`, '%s are not shared.', notSharedLabels))}</Text>
     </View>
 
     {data.days.length === 0 ? (
