@@ -87,5 +87,8 @@ describe('차단 뒤 피드 보관소', () => {
     globalThis.fetch = jest.fn(async () => new Response(null, { status: 204 })) as unknown as typeof fetch;
     expect((await deleteStory('st-1', 'token')).state).toBe('success');
     expect(queryClient.getQueryState(['user-profile', 'u'])?.isInvalidated).toBe(true);
+    // 🔴 마이페이지 격자·내 피드도 다시 받는다 — 지운 글이 남지 않게(S15P21E201-1910).
+    expect(queryClient.getQueryState(['me', 'stories', 'u'])?.isInvalidated).toBe(true);
+    expect(queryClient.getQueryState(feedQueryKey('MINE', true))?.isInvalidated).toBe(true);
   });
 });

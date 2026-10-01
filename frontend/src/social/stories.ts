@@ -181,6 +181,9 @@ export async function deleteStory(id: string, accessToken: string | null): Promi
     storyCache.delete(id);
     // 마이페이지 「기록 N」 숫자도 다시 센다(S15P21E201-1909).
     void defaultQueryClient.invalidateQueries({ queryKey: ['user-profile'] });
+    // 🔴 마이페이지 기록 격자(['me','stories'])와 「내 피드」도 — 안 버리면 지운 글이 격자에 남았다(실기기 10/2, S15P21E201-1910).
+    void defaultQueryClient.invalidateQueries({ queryKey: ['me', 'stories'] });
+    void defaultQueryClient.invalidateQueries({ predicate: (query) => query.queryKey[0] === FEED_QUERY_PREFIX[0] });
     return { state: 'success' };
   } catch (error) {
     return failure(error);
