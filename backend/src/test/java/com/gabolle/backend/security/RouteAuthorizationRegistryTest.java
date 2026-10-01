@@ -489,6 +489,11 @@ class RouteAuthorizationRegistryTest {
 				"이름은 OWNER·EDITOR 만 바꾼다. 보기 전용 동행자가 바꾸면 만든 사람의 목록에서 "
 						+ "자기 여행이 다른 이름으로 보인다 — VIEWER 는 403, 비회원과 없는 여행은 "
 						+ "같은 404. TripTitleTest (-1023)");
+		for (String method : new String[] { "GET", "PUT", "DELETE" }) {
+			put(m, method + " /api/v1/trips/{}/rating", Policy.OWNED,
+					"여행 별점. 구성원만 — TripQueryService.get 을 지나 비회원과 없는 여행은 같은 404. "
+							+ "TripRatingPostgresTest.strangerRejected (-1908)");
+		}
 		put(m, "GET /api/v1/trips/{}/itineraries", Policy.OWNED,
 				"참여자만. 비회원과 없는 여행이 같은 404. TripItineraryListIntegrationTest");
 		put(m, "GET /api/v1/trips/{}/recommendations", Policy.OWNED,
