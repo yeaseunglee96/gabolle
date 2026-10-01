@@ -25,7 +25,7 @@ import { DateRangePicker } from '@/plan/DateRangeCard';
 import { maskTimeInput } from '@/plan/inputMasks';
 import { MustVisitSearch } from '@/plan/MustVisitSearch';
 import { MAJOR_BUSAN_ORIGINS, RECOMMENDED_LODGING_AREAS, lodgingSnapshotOf, type OriginCandidate } from '@/plan/origins';
-import { AREA_OPTIONS, CATEGORY_IMAGES, CATEGORY_OPTIONS, PACE_OPTIONS, TRANSPORT_OPTIONS, effectOf, type PlanOption } from '@/plan/planOptions';
+import { AREA_OPTIONS, CATEGORY_IMAGES, CATEGORY_OPTIONS, PACE_OPTIONS, TRANSPORT_OPTIONS, effectOf, paceSubtitle, type PlanOption } from '@/plan/planOptions';
 import { dayWindowIssue } from '@/plan/planQuestions';
 import type { PlanDraft } from '@/plan/PlanProvider';
 
@@ -440,7 +440,7 @@ function StyleStep({ draft, update, tx }: Pick<PlanStepsProps, 'draft' | 'update
             return (
               <Pressable key={option[0]} accessibilityRole="radio" accessibilityState={{ selected }} onPress={() => update({ paceLevel: option[0] as PlanDraft['paceLevel'] })} style={({ pressed }) => [styles.segmentItem, selected && styles.segmentOn, pressed && styles.pressed]}>
                 <Text variant="caption" weight="bold" color={selected ? color.text.onAction : color.text.heading}>{labelOf(option, tx)}</Text>
-                <Text variant="micro" numberOfLines={1} color={selected ? color.text.onDarkMuted : color.text.body} style={styles.center}>{tx(option[3].split(' · ')[0], option[4].split(' · ')[0])}</Text>
+                <Text variant="micro" numberOfLines={1} color={selected ? color.text.onDarkMuted : color.text.body} style={styles.center}>{paceSubtitle(option, tx)}</Text>
               </Pressable>
             );
           })}
