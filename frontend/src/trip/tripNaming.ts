@@ -2,6 +2,7 @@
 
 import { formatDayHeading } from '@/i18n/datetime';
 import { apiRequest, ApiClientError } from '@/api/client';
+import type { LanguageCode } from '@/i18n/languages';
 
 /** 이름 길이 상한. 서버의 `Trip.TITLE_MAX_LENGTH` 와 같은 값이어야 한다. */
 export const TRIP_TITLE_MAX_LENGTH = 60;
@@ -56,11 +57,13 @@ function failure(error: unknown): TripNamingFailure {
 export async function loadTripNameSuggestions(
   tripId: string,
   accessToken: string | null,
+  language?: LanguageCode,
 ): Promise<TripNameSuggestionsResult> {
   try {
     const dto = await apiRequest<TripNameSuggestionsDto>(
       `/api/v1/trips/${encodeURIComponent(tripId)}/name-suggestions`,
-      { method: 'POST', accessToken },
+      // 🔴 앱 전체 Accept-Language 는 ko/en 뿐이라 일본어·중국어 화면에 영어 이름 틀이 나왔다 — 고른 언어 그대로 보낸다(S15P21E201-1916).
+      { method: 'POST', accessToken, headers: language ? { 'Accept-Language': language } : undefined },
     );
     // 모양이 어긋나면 화면을 죽이지 말고 안내로 떨어뜨린다. 부르는 쪽이 곧바로 개수를
     // 세므로 여기서 안 막으면 화면이 통째로 안 열린다 와 같은 자리다).

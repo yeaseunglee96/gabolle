@@ -39,7 +39,7 @@ export type TripNameSheetProps = {
 };
 
 export function TripNameSheet({ tripId, currentTitle, dateLabel, accessToken, onClose, onSaved }: TripNameSheetProps) {
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
   const { kind } = useLayout();
   // 🔴 안드로이드 탐색 막대 밑으로 버튼이 들어가지 않게(S15P21E201-1765).
   const bottomPad = useSheetBottomPadding(spacing[8]);
@@ -59,7 +59,7 @@ export function TripNameSheet({ tripId, currentTitle, dateLabel, accessToken, on
     if (mode !== 'add') return;
     let alive = true;
     void (async () => {
-      const result = await loadTripNameSuggestions(tripId, accessToken);
+      const result = await loadTripNameSuggestions(tripId, accessToken, language);
       if (!alive) return;
       const next = planNameStep(result);
       setSuggestions(next.suggestions);
