@@ -1,6 +1,6 @@
 // 앱(폰)의 지도 — S15P21E201-1140.
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
 
 import { Button } from '@/components/Button';
@@ -47,6 +47,8 @@ type RouteMapProps = {
   refitKey?: string | number | null;
   /** 고른 곳을 지도 가운데로 옮긴다 — 웹 RouteMap 과 같은 뜻(S15P21E201-1535). 기본은 꺼짐. */
   focusSelected?: boolean;
+  /** 길 안내 중 — 내 위치를 따라가고 처음 한 번 동네가 보이게 확대한다(S15P21E201-1903). */
+  followLocation?: boolean;
 };
 
 /**
@@ -71,6 +73,7 @@ export function RouteMap({
   topInset = 0,
   refitKey = null,
   focusSelected = false,
+  followLocation = false,
 }: RouteMapProps) {
   const { tx } = useI18n();
   const webViewRef = useRef<WebView | null>(null);
@@ -129,7 +132,7 @@ export function RouteMap({
   // 현재 위치는 점만 옮긴다. 위치 객체는 부를 때마다 새것이라 좌표 두 숫자로 본다.
   const sendLocation = () => {
     if (!sdkReadyRef.current || !webViewRef.current) return;
-    webViewRef.current.injectJavaScript(`window.__moveKakaoLocation(${JSON.stringify(currentLocation ?? null)}); true;`);
+    webViewRef.current.injectJavaScript(`window.__moveKakaoLocation(${JSON.stringify(currentLocation ?? null)}, ${followLocation ? 'true' : 'false'}); true;`);
   };
 
   // stops·points·routes 가 바뀔 때마다 이미 떠 있는 지도에 새 데이터를 밀어 넣는다(고른 곳·현재 위치는 아래 따로).
@@ -232,6 +235,15 @@ export function RouteMap({
         javaScriptEnabled
         domStorageEnabled
       />
+      {/* 🔴 확대·축소 단추(S15P21E201-1903) — 길 안내처럼 스크롤 안에 든 지도는 두 손가락 확대가 화면 스크롤과 다툰다.
+          오른쪽에 둔다 — 왼쪽 아래는 카카오 로고·축척 자리다(아래 backRow 주석). 창에 가려진 높이만큼 올린다. */}
+      <View style={[styles.zoomColumn, { bottom: Math.max(0, Math.min(bottomInset, height - 140)) + spacing[3] }]}>
+        {([[-1, '+', tx('지도 확대', 'Zoom in')], [1, '−', tx('지도 축소', 'Zoom out')]] as const).map(([delta, glyph, label]) => (
+          <Pressable key={glyph} accessibilityRole="button" accessibilityLabel={label} hitSlop={6} onPress={() => webViewRef.current?.injectJavaScript(`window.__zoomKakaoMap && window.__zoomKakaoMap(${delta}); true;`)} style={({ pressed }) => [styles.zoomButton, pressed && styles.zoomPressed]}>
+            <Text variant="title" weight="bold" color={color.text.heading}>{glyph}</Text>
+          </Pressable>
+        ))}
+      </View>
       {/* 걷는 길 경사 색의 안내 문구는 뺐다 — 어색하다는 사용자 결정(S15P21E201-1820). 색 선은 그대로 긋는다. */}
       {onBackToList ? (
         <View style={styles.backRow}>
@@ -260,6 +272,9 @@ const styles = StyleSheet.create({
    * 빼면 부르는 화면 넷의 높이 계산이 같이 어긋난다.
    */
   backRow: { position: 'absolute', left: spacing[3], top: spacing[3] },
+  zoomColumn: { position: 'absolute', right: spacing[3], gap: spacing[2] },
+  zoomButton: { width: 44, height: 44, borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center', shadowColor: color.text.heading, shadowOpacity: 0.15, shadowRadius: 6, shadowOffset: { width: 0, height: 2 }, elevation: 3 },
+  zoomPressed: { opacity: 0.7 },
   empty: { width: '100%', borderRadius: radius.lg, backgroundColor: color.surface.soft },
   fallback: {
     width: '100%', borderRadius: radius.lg, backgroundColor: color.surface.soft,

@@ -6,7 +6,7 @@ import { Button } from '@/components/Button';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import type { MapPathPoint, MapStop } from './types';
-import { fitPadding, focusShiftY } from './mapFocus';
+import { FOCUS_LEVEL, fitPadding, fitTargets, focusShiftY } from './mapFocus';
 import { simplifyPath } from './simplifyPath';
 import { gradedSegments, type RouteGrading } from './routeGrading';
 import type { SlopePiece } from './slopeGrades';
@@ -112,6 +112,8 @@ type RouteMapProps = {
    * (S15P21E201-1535). 기본은 꺼짐: 다른 화면은 지금처럼 모든 점이 들어오게만 맞춘다.
    */
   focusSelected?: boolean;
+  /** 길 안내 중 — 내 위치를 따라가고 처음 한 번 동네가 보이게 확대한다(S15P21E201-1903, 앱 지도만). */
+  followLocation?: boolean;
   /**
    * 지도 아래쪽이 창에 가려진 높이(px). 전체를 맞출 때 그만큼 아래 여백을 더 두고, 고른 곳은 보이는 부분의 가운데로
    * 옮긴다(S15P21E201-1607 — 폰 여행 화면은 지도를 줄이지 않고 창을 겹쳐 올린다).
@@ -213,11 +215,13 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
         overlaysRef.current = [];
         const bounds = new maps.LatLngBounds();
         const visibleStops = [...stops, ...points.flatMap((layer) => layer.stops)];
+        // 🔴 맞추는 범위는 번호 장소만(S15P21E201-1903, kakaoMapHtml.ts 와 같다) — 먼 출발지까지 넣으면 장소들이 한 점에 뭉쳤다.
+        const fitStops = fitTargets(stops, visibleStops);
+        fitStops.forEach((stop) => bounds.extend(new maps.LatLng(stop.latitude, stop.longitude)));
         const selectedNow = selectedRef.current;
         markersRef.current = new Map();
         visibleStops.forEach((stop) => {
           const position = new maps.LatLng(stop.latitude, stop.longitude);
-          bounds.extend(position);
           const content = document.createElement('button');
           const pointLayer = points.find((layer) => layer.stops.some((item) => item.id === stop.id));
           const markerColor = pointLayer?.color ?? color.brand.navy;
@@ -286,7 +290,7 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
         // 밀어붙인다 — 고정 34px 마커가 화면 대부분을 덮어 장소 이름을 가린다. 하나일 때는
         // bounds 대신 그 지점을 도시 단위 줌으로 그냥 센터링한다.
         const fit = () => {
-          if (visibleStops.length <= 1) { map.setCenter(center); map.setLevel(5); return; }
+          if (fitStops.length <= 1) { map.setCenter(new maps.LatLng(fitStops[0].latitude, fitStops[0].longitude)); map.setLevel(5); return; }
           const [top, right, bottom, left] = fitPadding(insetRef.current, hostHeight(), topInsetRef.current);
           map.setBounds(bounds, top, right, bottom, left);
         };
@@ -361,6 +365,9 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
     markersRef.current.forEach(({ el, color: markerColor }, id) => styleSelection(el, markerColor, id === selectedId));
     if (appliedSelectionRef.current === selectedId) return;
     appliedSelectionRef.current = selectedId;
+    // 고르면 그 장소가 보일 만큼 확대한다(S15P21E201-1903) — 이미 더 가까이 보고 있으면 그대로 둔다.
+    const map = mapRef.current;
+    if (focusSelected && map && map.getLevel() > FOCUS_LEVEL) map.setLevel(FOCUS_LEVEL);
     focusFnRef.current?.();
   }, [mapReady, selectedId]);
 

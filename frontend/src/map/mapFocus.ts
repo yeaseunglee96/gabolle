@@ -32,3 +32,17 @@ export function focusShiftY(bottomInset: number, mapHeight: number, topInset = 0
   const top = Math.min(Math.max(0, topInset), room);
   return Math.max(0, bottom - top) / 2;
 }
+
+/**
+ * 장소를 고르면 이 줌(카카오 level, 작을수록 가깝다)까지는 확대한다 — S15P21E201-1903. 이미 더 가까우면 그대로 둔다.
+ * 4 는 동네 골목이 보이는 줌이다. 앱의 지도(kakaoMapHtml.ts)도 같은 값을 쓴다.
+ */
+export const FOCUS_LEVEL = 4;
+
+/**
+ * 지도를 맞출 대상 — 번호 장소가 있으면 번호 장소만, 없으면 보이는 점 전부(주변 도움 지도처럼 점 표시만 있는 지도).
+ * 🔴 출발지·숙소 같은 점 표시를 넣으면 먼 출발지(부산역) 때문에 해운대 네 곳이 한 점에 뭉쳤다(S15P21E201-1903, 실기기).
+ */
+export function fitTargets<T>(stops: readonly T[], visible: readonly T[]): readonly T[] {
+  return stops.length ? stops : visible;
+}
