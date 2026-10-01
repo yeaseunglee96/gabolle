@@ -47,6 +47,8 @@ type RouteMapProps = {
   refitKey?: string | number | null;
   /** 고른 곳을 지도 가운데로 옮긴다 — 웹 RouteMap 과 같은 뜻(S15P21E201-1535). 기본은 꺼짐. */
   focusSelected?: boolean;
+  /** 길 안내 중 — 내 위치를 따라가고 처음 한 번 동네가 보이게 확대한다(S15P21E201-1903). */
+  followLocation?: boolean;
 };
 
 /**
@@ -71,6 +73,7 @@ export function RouteMap({
   topInset = 0,
   refitKey = null,
   focusSelected = false,
+  followLocation = false,
 }: RouteMapProps) {
   const { tx } = useI18n();
   const webViewRef = useRef<WebView | null>(null);
@@ -129,7 +132,7 @@ export function RouteMap({
   // 현재 위치는 점만 옮긴다. 위치 객체는 부를 때마다 새것이라 좌표 두 숫자로 본다.
   const sendLocation = () => {
     if (!sdkReadyRef.current || !webViewRef.current) return;
-    webViewRef.current.injectJavaScript(`window.__moveKakaoLocation(${JSON.stringify(currentLocation ?? null)}); true;`);
+    webViewRef.current.injectJavaScript(`window.__moveKakaoLocation(${JSON.stringify(currentLocation ?? null)}, ${followLocation ? 'true' : 'false'}); true;`);
   };
 
   // stops·points·routes 가 바뀔 때마다 이미 떠 있는 지도에 새 데이터를 밀어 넣는다(고른 곳·현재 위치는 아래 따로).
@@ -270,7 +273,7 @@ const styles = StyleSheet.create({
    */
   backRow: { position: 'absolute', left: spacing[3], top: spacing[3] },
   zoomColumn: { position: 'absolute', right: spacing[3], gap: spacing[2] },
-  zoomButton: { width: 44, height: 44, borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.15, shadowRadius: 6, shadowOffset: { width: 0, height: 2 }, elevation: 3 },
+  zoomButton: { width: 44, height: 44, borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center', shadowColor: color.text.heading, shadowOpacity: 0.15, shadowRadius: 6, shadowOffset: { width: 0, height: 2 }, elevation: 3 },
   zoomPressed: { opacity: 0.7 },
   empty: { width: '100%', borderRadius: radius.lg, backgroundColor: color.surface.soft },
   fallback: {

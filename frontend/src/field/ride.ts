@@ -21,6 +21,12 @@ type StepWithStops = RouteStep & { stops?: StopPoint[] | null };
 export const ALERT_M = 500;
 /** 이만큼 가까우면 내린 것으로 본다 — 갈아타는 길이면 다음 구간으로 넘어간다. */
 export const ARRIVED_M = 80;
+/**
+ * 이보다 멀면 «이 노선 위에 있지 않다» 로 본다 — 지금 정류장을 정하지 않는다(S15P21E201-1903).
+ * 🔴 전에는 노선에서 몇 km 떨어져 있어도 가장 가까운 정류장을 「지금 여기」로 찍었고, 그 정류장이 끝에서 둘째면
+ *    타지도 않았는데 「다음 정류장에서 내리세요」로 울렸다(실기기: 강서구에서 연 1003번 안내가 부산역을 「지금 여기」로).
+ */
+export const OFF_ROUTE_M = 400;
 
 export type RideLeg = {
   kind: 'bus' | 'subway';
@@ -92,9 +98,11 @@ export function rideProgress(leg: RideLeg, at: LatLng): RideProgress {
       const d = straightDistanceM(at, { latitude: stop.lat, longitude: stop.lng });
       if (d < best) { best = d; nearest = index; }
     });
-    currentIndex = nearest;
-    remainingStops = leg.stops.length - 1 - nearest;
-    nextStop = remainingStops > 0 ? leg.stops[nearest + 1].name : null;
+    if (best <= OFF_ROUTE_M) {
+      currentIndex = nearest;
+      remainingStops = leg.stops.length - 1 - nearest;
+      nextStop = remainingStops > 0 ? leg.stops[nearest + 1].name : null;
+    }
   }
   const arrived = distanceToAlightM !== null && distanceToAlightM <= ARRIVED_M;
   const alertNow = !arrived && ((remainingStops !== null && remainingStops <= 1) || (distanceToAlightM !== null && distanceToAlightM <= ALERT_M));

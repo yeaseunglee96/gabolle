@@ -268,11 +268,17 @@ export function buildKakaoMapHtml(appKey: string): string {
   };
 
   // 현재 위치는 점만 옮긴다 — 움직일 때마다 전체를 다시 맞추면 걷는 내내 지도가 튄다.
-  window.__moveKakaoLocation = function (loc) {
+  // follow = 길 안내 중(route-detail 의 탑승) — 내 위치를 따라간다(S15P21E201-1903). 처음 한 번은 동네가 보이게 확대한다.
+  var followedOnce = false;
+  window.__moveKakaoLocation = function (loc, follow) {
     if (!map || !window.kakao) return;
     var maps = window.kakao.maps;
-    if (!loc) { if (locationOverlay) { locationOverlay.setMap(null); locationOverlay = null; } return; }
+    if (!loc) { if (locationOverlay) { locationOverlay.setMap(null); locationOverlay = null; } followedOnce = false; return; }
     var curPos = new maps.LatLng(loc.latitude, loc.longitude);
+    if (follow) {
+      if (!followedOnce) { if (map.getLevel() > FOCUS_LEVEL) map.setLevel(FOCUS_LEVEL); map.setCenter(curPos); followedOnce = true; }
+      else map.panTo(curPos);
+    } else followedOnce = false;
     if (locationOverlay) { locationOverlay.setPosition(curPos); return; }
     var curEl = document.createElement('div');
     curEl.setAttribute('aria-label', '현재 위치');

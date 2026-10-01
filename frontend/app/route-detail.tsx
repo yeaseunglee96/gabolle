@@ -134,7 +134,7 @@ export default function RouteDetail() {
   }
 
   const liveFix = riding && live.fix && usableFix(live.fix) ? { latitude: live.fix.latitude, longitude: live.fix.longitude } : null;
-  const map = (height: number) => <RouteMap stops={stops} selectedId="dest" onSelect={() => {}} routes={routes} height={height} refitKey={mode} currentLocation={liveFix} />;
+  const map = (height: number) => <RouteMap stops={stops} selectedId="dest" onSelect={() => {}} routes={routes} height={height} refitKey={mode} currentLocation={liveFix} followLocation={riding} />;
 
   return (
     <Screen scroll wide>
