@@ -53,6 +53,11 @@ export function ProfileBody({ startDeletion = false }: { startDeletion?: boolean
   const profileOwner = user?.userId ?? (visualPreview ? 'preview' : null);
   const [displayName, setDisplayName] = useState(user?.displayName ?? (visualPreview ? '진미리' : ''));
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
+  // 🔴 고른 사진은 「저장」을 누를 때 올린다(S15P21E201-1906) — 전에는 고르는 즉시 계정에 붙어, 이름은 저장해야 바뀌는데
+  //    사진만 저장 전에 바뀌었다(팀원 보고: 「저장 안 눌렀는데 내리니 바뀌어 있음」). 그때까지는 미리보기만 한다.
+  type PendingPhoto = { uri: string; fileName?: string | null; mimeType?: string | null };
+  const [pendingAvatar, setPendingAvatar] = useState<PendingPhoto | null>(null);
+  const [pendingCover, setPendingCover] = useState<PendingPhoto | null>(null);
   const [pickingAvatar, setPickingAvatar] = useState(false);
   const [pickingCover, setPickingCover] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -77,7 +82,7 @@ export function ProfileBody({ startDeletion = false }: { startDeletion?: boolean
 
   const trimmed = displayName.trim();
   const nameValid = trimmed.length >= 1 && trimmed.length <= NAME_MAX;
-  const unchanged = trimmed === (user?.displayName ?? '');
+  const unchanged = trimmed === (user?.displayName ?? '') && !pendingAvatar && !pendingCover;
 
   async function chooseAvatar() {
     if (!profileOwner || pickingAvatar) return;
@@ -94,14 +99,8 @@ export function ProfileBody({ startDeletion = false }: { startDeletion?: boolean
       // 계정에 붙인다(인증 경로가 파일을 직접 받지 않는다). 로그인 안 한 상태(미리보기)면
       // 지금까지처럼 이 기기에만 둔다.
       if (accessToken && !visualPreview) {
-        const uploaded = await uploadStoryImage({ uri: asset.uri, fileName: asset.fileName, mimeType: asset.mimeType }, accessToken);
-        if (uploaded.state !== 'success') {
-          setFeedback({ danger: true, text: uploaded.message });
-          return;
-        }
-        await updateProfile({ avatarUrl: uploaded.imageUrl });
-        setAvatarUri(uploaded.imageUrl);
-        setFeedback({ danger: false, text: tx('프로필 사진을 계정에 저장했어요. 다른 기기에서도 보여요.', 'Saved to your account — it shows on your other devices too.') });
+        setPendingAvatar({ uri: asset.uri, fileName: asset.fileName, mimeType: asset.mimeType });
+        setFeedback({ danger: false, text: tx('「저장」을 누르면 프로필 사진이 바뀌어요.', 'Press Save to apply the new profile photo.') });
         return;
       }
       await AsyncStorage.setItem(deviceAvatarKey(profileOwner), nextUri);
@@ -144,13 +143,8 @@ export function ProfileBody({ startDeletion = false }: { startDeletion?: boolean
       const asset = result.assets[0];
       // 🔴 커버만 줄이지 않고 원본 그대로 올려 수 MB 가 됐다 — 기록 사진과 같이 긴 변 1600px 로 줄인다(S15P21E201-1904). 줄이기에 실패하면 원본.
       const small = await resizeForUpload(asset.uri).catch(() => null);
-      const uploaded = await uploadStoryImage(small ? { uri: small.uri, fileName: 'cover.jpg', mimeType: 'image/jpeg' } : { uri: asset.uri, fileName: asset.fileName, mimeType: asset.mimeType }, accessToken);
-      if (uploaded.state !== 'success') {
-        setFeedback({ danger: true, text: uploaded.message });
-        return;
-      }
-      await updateProfile({ coverUrl: uploaded.imageUrl });
-      setFeedback({ danger: false, text: tx('커버 사진을 바꿨어요.', 'Your cover photo was updated.') });
+      setPendingCover(small ? { uri: small.uri, fileName: 'cover.jpg', mimeType: 'image/jpeg' } : { uri: asset.uri, fileName: asset.fileName, mimeType: asset.mimeType });
+      setFeedback({ danger: false, text: tx('「저장」을 누르면 커버 사진이 바뀌어요.', 'Press Save to apply the new cover photo.') });
     } catch (cause) {
       setFeedback({ danger: true, text: coverErrorText(cause) });
     } finally {
@@ -187,7 +181,20 @@ export function ProfileBody({ startDeletion = false }: { startDeletion?: boolean
     setSaving(true);
     setFeedback(null);
     try {
-      if (user) await updateProfile({ displayName: trimmed });
+      if (user) {
+        const patch: { displayName?: string; avatarUrl?: string; coverUrl?: string } = {};
+        if (trimmed !== (user.displayName ?? '')) patch.displayName = trimmed;
+        for (const [photo, key] of [[pendingAvatar, 'avatarUrl'], [pendingCover, 'coverUrl']] as const) {
+          if (!photo || !accessToken) continue;
+          const uploaded = await uploadStoryImage(photo, accessToken);
+          if (uploaded.state !== 'success') { setFeedback({ danger: true, text: uploaded.message }); return; }
+          patch[key] = uploaded.imageUrl;
+        }
+        if (Object.keys(patch).length) await updateProfile(patch);
+        if (patch.avatarUrl) setAvatarUri(patch.avatarUrl);
+        setPendingAvatar(null);
+        setPendingCover(null);
+      }
       setFeedback({ danger: false, text: visualPreview && !user ? tx('미리보기에서 변경 모습을 확인했어요.', 'Preview changes are displayed.') : tx('프로필을 저장했어요.', 'Your profile was saved.') });
     } catch (cause) {
       setFeedback({ danger: true, text: cause instanceof ApiClientError ? cause.message : tx('프로필을 저장하지 못했어요.', 'Could not save your profile.') });
@@ -244,7 +251,7 @@ export function ProfileBody({ startDeletion = false }: { startDeletion?: boolean
         <View style={styles.coverCard}>
           <View style={styles.coverPreview}>
             <Image
-              source={user.coverUrl ? { uri: user.coverUrl } : DEFAULT_COVER}
+              source={pendingCover ? { uri: pendingCover.uri } : user.coverUrl ? { uri: user.coverUrl } : DEFAULT_COVER}
               resizeMode="cover"
               accessibilityLabel={user.coverUrl ? tx('현재 커버 사진', 'Current cover photo') : tx('기본 커버 사진', 'Default cover photo')}
               style={styles.coverPhoto}

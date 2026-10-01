@@ -424,6 +424,9 @@ function MemoryMap({ items, onOpenStory, sheet = false, onCollapse }: {
   // 목록에서 어디를 보는지 고를 수가 없었다.
   const [selected, setSelected] = useState<string | null>(null);
   const current = selected && stops.some((stop) => stop.id === selected) ? selected : stops[0]?.id ?? null;
+  // 🔴 지도 점도 이름표와 같다(S15P21E201-1906) — 첫 누름은 고르기(그 점이 커지고 지도가 그쪽으로 다가간다), 고른 점을 다시 누르면 그 기록으로.
+  //    전에는 점을 누르면 바로 글로 넘어가 지도에서 무엇을 눌렀는지 볼 틈이 없었다(팀원 보고).
+  const pick = (id: string) => (id === current ? onOpenStory(id) : setSelected(id));
 
   if (!stops.length) return null;
 
@@ -468,7 +471,7 @@ function MemoryMap({ items, onOpenStory, sheet = false, onCollapse }: {
 
       <View style={styles.sheetMap} onLayout={(event) => setMapHeight(Math.round(event.nativeEvent.layout.height))}>
         {mapHeight > 0
-          ? <RouteMap stops={stops} selectedId={current ?? stops[0].id} onSelect={onOpenStory} routes={NO_ROUTES} height={mapHeight} />
+          ? <RouteMap stops={stops} selectedId={current ?? stops[0].id} onSelect={pick} focusSelected routes={NO_ROUTES} height={mapHeight} />
           : null}
       </View>
 
@@ -491,7 +494,7 @@ function MemoryMap({ items, onOpenStory, sheet = false, onCollapse }: {
   return <View style={styles.mapPanel}>
     <Eyebrow>{tx('추억 지도', 'Memory map')}</Eyebrow>
     <View style={styles.mapCard}>
-      <RouteMap stops={stops} selectedId={current ?? stops[0].id} onSelect={onOpenStory} routes={NO_ROUTES} height={360} />
+      <RouteMap stops={stops} selectedId={current ?? stops[0].id} onSelect={pick} focusSelected routes={NO_ROUTES} height={360} />
     </View>
 
     {/* 장소 라벨 — 누르면 지도에서 그 핀이 골라지고, 한 번 더 누르면 그 기록으로 간다.

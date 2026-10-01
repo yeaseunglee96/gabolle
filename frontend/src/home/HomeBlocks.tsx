@@ -2,6 +2,7 @@
 // · 여행 카드의 제목 — TripSummaryDto 에 제목 칸이 없다(날짜·일수·인원·상태뿐)
 // · 장소 카드의 사진 — photoUrl 은 상세의 선택 필드이고 늘 비어 있다. 목록엔 칸도 없다.
 // 채우는 작업이 머지되고 목록 API 에 실리면 그때 넣는다.
+import { storyBodyText } from '@/social/courseLink';
 import { enCount, enPlural, txf } from '@/i18n/format';
 import { useState } from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
@@ -75,7 +76,7 @@ function StoryCard({ story, cardWidth }: { story: StoryDto; cardWidth: number })
   const router = useRouter();
   const { tx, language } = useI18n();
   const where = (story.place ? storyPlaceName(story.place, tx, language) : null) ?? (story.region ? regionText(story.region, tx) : null) ?? '';
-  const body = markdownToPlain(story.body).trim();
+  const body = markdownToPlain(storyBodyText(story.body)).trim();
   const hasImage = story.images.length > 0;
   // 🔴 같은 글자를 두 번 그리지 않는다 — S15P21E201-1372. 예전에는 제목이 장소, 부제가
   //    「2일 전 · 장소」라서 장소가 두 줄에 나란히 두 번 나왔다(2026-09-21 배포본 실측).

@@ -3,6 +3,7 @@
 // 🔴 피드 카드(feed.tsx)와 다른 부품이다. 저쪽은 목록에서 «읽는» 카드라 본문과 반응이
 //    같이 서고, 이쪽은 격자에서 «고르는» 카드라 사진과 이름만 있다. 하나로 합치려다
 //    두 화면 중 하나가 반드시 억지가 된다.
+import { storyBodyText } from '@/social/courseLink';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 
 import { Text } from '@/components/Text';
@@ -36,7 +37,7 @@ export function RecordCard({
         // 🔴 빈 회색 네모를 두지 않는다 — 「사진을 못 불러왔다」로 읽힌다.
         // 실제로는 사진 없이 쓴 글이므로 본문을 대신 보여 준다.
         <View style={[styles.cover, styles.coverEmpty]}>
-          <Text weight="bold" numberOfLines={3} style={styles.coverText}>{story.body}</Text>
+          <Text weight="bold" numberOfLines={3} style={styles.coverText}>{storyBodyText(story.body)}</Text>
         </View>
       )}
       <View style={styles.meta}>
