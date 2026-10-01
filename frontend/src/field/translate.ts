@@ -44,6 +44,25 @@ export function directionForLanguage(language: LanguageCode): TranslationDirecti
   }
 }
 
+/** 번체에만 쓰는 흔한 글자 — 이 가운데 하나라도 있으면 번체로 본다. */
+const TRADITIONAL_ONLY = /[們個來時說對這會國學還與為發見關點電話嗎麼樣請謝買賣東車門開間問題錢吃飯]/;
+
+/**
+ * 입력한 글자를 보고 원문 언어를 고른다(S15P21E201-1904). 앱 언어만 보면 일본어 화면에서 중국어로 치거나
+ * 중국어 화면에서 번체로 쳐도 그 방향으로만 번역해 원문이 그대로 나왔다(팀원 보고).
+ * 가나 → 일본어 · 한자만 → 번체 글자가 있으면 번체, 아니면 간체 · 라틴 글자 → 영어 · 한글뿐 → 번역 안 함(null).
+ * 판단이 안 서면 앱 언어 방향(fallback)을 쓴다.
+ */
+export function directionForText(text: string, fallback: TranslationDirection | null): TranslationDirection | null {
+  // 가나(히라가나·가타카나) U+3040–30FF · 한자 U+4E00–9FFF · 한글 음절 U+AC00–D7A3
+  if (/[぀-ヿ]/.test(text)) return 'JA_TO_KO';
+  const han = /[一-鿿]/.test(text);
+  if (han) return TRADITIONAL_ONLY.test(text) ? 'ZH_HANT_TO_KO' : (fallback === 'ZH_HANT_TO_KO' ? 'ZH_HANT_TO_KO' : 'ZH_HANS_TO_KO');
+  if (/[A-Za-z]/.test(text) && !/[가-힣]/.test(text)) return 'EN_TO_KO';
+  if (/[가-힣]/.test(text)) return null;
+  return fallback;
+}
+
 /** 번역된 문장을 읽을 때 쓸 음성. 영어 문장을 한국어 음성으로 읽으면 알아들을 수 없다. */
 export function speechLanguageFor(direction: TranslationDirection): string {
   return direction === 'KO_TO_EN' ? 'en-US' : 'ko-KR';

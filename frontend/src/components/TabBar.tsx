@@ -5,7 +5,7 @@
 import { useEffect, useRef } from 'react';
 import { Animated, Easing, Image, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useGlobalSearchParams, useRouter } from 'expo-router';
 
 import { color, radius, spacing } from '@/design/tokens';
 import { useLayout } from '@/layout/useLayout';
@@ -102,6 +102,10 @@ export function TabBar({
   hidden?: boolean;
 }) {
   const router = useRouter();
+  // 같은 탭이어도 주소에 덧붙은 것(예: 날씨 칩의 /trips?open=prepare)이 있으면 그 탭의 첫 화면으로 돌린다(S15P21E201-1904).
+  // 시험의 가짜 expo-router 에는 이 함수가 없을 수 있다 — 없으면 덧붙은 것이 없다고 본다.
+  const params: Record<string, unknown> = typeof useGlobalSearchParams === 'function' ? useGlobalSearchParams() : {};
+  const hasQuery = Object.keys(params).length > 0;
   const { tx } = useI18n();
   const { kind, width: layoutWidth, isLandscape } = useLayout();
   const grow = useRef(new Animated.Value(0)).current;
@@ -226,7 +230,7 @@ export function TabBar({
             //
             // `selected` 는 바로 위에서 이미 계산해 둔 값이다 — 쓰기만 하면 됐다.
             onPress={() => {
-              if (tab.route && !selected) router.replace(tab.route);
+              if (tab.route && (!selected || hasQuery)) router.replace(tab.route);
             }}
           >
             {/* 현재 탭 표시는 굵은 글자 + 진한 아이콘뿐이다. 글자 밑의 붉은 점은 글자를 가렸다(2026-09-21 지적, S15P21E201-1390). */}

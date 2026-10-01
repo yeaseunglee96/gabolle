@@ -276,7 +276,11 @@ export default function Trips() {
         </> : null}
       </View> : null}
     </View> : null}
-  </Screen><TabBar active="map" />
+  </Screen>
+    {/* 🔴 안내는 목록 맨 위에만 있어서, 아래쪽 여행을 누르면 화면 밖에 떠 「눌러도 안 열린다」로 보였다(S15P21E201-1904, 팀원 보고).
+        탭바 바로 위에 한 번 더 띄운다. */}
+    {feedback ? <Pressable accessibilityRole="button" accessibilityLabel={tx('안내 닫기', 'Dismiss notice')} onPress={() => setFeedback('')} style={[styles.feedback, styles.feedbackFloat]}><Text variant="caption" weight="bold" color={color.text.onAction} style={styles.feedbackText}>{feedback}</Text><Text variant="caption" color={color.text.onAction}>{tx('닫기', 'Close')}</Text></Pressable> : null}
+    <TabBar active="map" />
 
   {/* ⋯ 메뉴 — 목록 사이에 끼우지 않고 아래 시트로(S15P21E201-1867). 어느 여행인지 제목으로 말한다. */}
   {menuTrip ? <TripActionSheet
@@ -346,6 +350,8 @@ const styles = StyleSheet.create({
   // 넓은 화면은 윗줄 메뉴 아래라 24 를 그대로 두고, 「새 여행」을 제목 덩어리 바닥에 맞춘다(시안).
   headerDesktop: { marginTop: spacing[6], alignItems: 'flex-end' },
   headerCopy: { flex: 1, minWidth: 0 }, title: { marginTop: spacing[1], marginBottom: spacing[2] }, headerActions: { gap: spacing[2] }, newTrip: { width: undefined, minWidth: 96, minHeight: 48, flexShrink: 0 },
+  feedbackFloat: { position: 'absolute', left: spacing[4], right: spacing[4], bottom: 120, marginTop: 0, paddingVertical: spacing[3], zIndex: 10 },
+  feedbackText: { flex: 1 },
   feedback: { minHeight: 48, marginTop: spacing[4], paddingHorizontal: spacing[4], borderRadius: radius.md, backgroundColor: color.brand.navy, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3] }, state: { minHeight: 220, alignItems: 'center', justifyContent: 'center', gap: spacing[3] }, sadMascot: { width: 96, height: 96 }, emptyMascot: { width: 110, height: 110 },
   empty: { minHeight: 320, marginTop: spacing[6], padding: spacing[6], borderRadius: radius.lg, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center', gap: spacing[3] }, emptyMark: { width: 68, height: 68, borderRadius: radius.full, backgroundColor: color.surface.tint, alignItems: 'center', justifyContent: 'center' }, emptyIcon: { width: 32, height: 32, tintColor: color.text.muted }, center: { maxWidth: 300, textAlign: 'center' }, emptyCta: { minWidth: 180, marginTop: spacing[2] },
   cover: { width: '100%', height: 132, borderRadius: radius.md, backgroundColor: color.surface.soft },
