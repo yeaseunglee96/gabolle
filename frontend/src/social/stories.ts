@@ -108,7 +108,7 @@ export function storyMetricLabels(
     labels.push(tx(`조회 ${story.viewCount}`, `${story.viewCount} views`));
   }
   if (typeof story.linkCopyCount === 'number') {
-    labels.push(tx(`인용 ${story.linkCopyCount}`, `${story.linkCopyCount} quotes`));
+    labels.push(tx(`인용 ${story.linkCopyCount}`, story.linkCopyCount === 1 ? '1 quote' : `${story.linkCopyCount} quotes`));
   }
   return labels;
 }

@@ -160,7 +160,7 @@ export function StoryReactionRow({
         >
           <QuoteIcon tint={offTint} />
           <Text variant="util" weight="bold" color={offTint}>
-            {tx(`인용 ${quotes}`, `${quotes} quotes`)}
+            {tx(`인용 ${quotes}`, quotes === 1 ? '1 quote' : `${quotes} quotes`)}
           </Text>
         </Pressable>
       ) : null}
