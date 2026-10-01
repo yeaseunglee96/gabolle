@@ -19,6 +19,7 @@ import { humanTripTitle, tripDatesLabel, tripNameOrDates } from '@/trip/tripNami
 import { leaveTrip } from '@/trip/collaboration';
 import { TripNameSheet } from '@/trip/TripNameSheet';
 import { TripActionSheet } from '@/trip/TripActionSheet';
+import { TripRatingStars } from '@/trip/TripRatingStars';
 import { stopNameForLanguage } from '@/discovery/romanize';
 import { enCount, enPlural, txf } from '@/i18n/format';
 import { localizeMessage } from '@/i18n/messages';
@@ -56,6 +57,11 @@ export function splitTrips(trips: TripSummaryDto[], now: Date = new Date()) {
   upcoming.sort(byStart);
   past.sort((a, b) => (b.endDate ?? b.startDate ?? '').localeCompare(a.endDate ?? a.startDate ?? ''));
   return { live, upcoming, past, failed };
+}
+
+/** 별점을 매길 수 있는 여행 — 끝났고(COMPLETED) 일정이 있었던 것. 일정을 못 만든 PLANNING 은 다녀온 여행이 아니다. */
+export function ended(trip: TripSummaryDto, now: Date = new Date()) {
+  return trip.status !== 'PLANNING' && effectiveTripStatus(trip, now) === 'COMPLETED';
 }
 
 /** 「내일」 · 「D-9」 — 다가오는 여행의 오른쪽 표. 이틀 안이면 진하게. 지난·진행 중이면 null. */
@@ -164,8 +170,9 @@ export default function Trips() {
     const dday = ddayLabel(trip, tx);
     const pending = trip.status === 'PLANNING';
     const sub = [humanTripTitle(trip.title) ? dateLabel(trip, tx, locale) : null, firstStop(trip), txf(tx, '%s명', '%s ' + enPlural(trip.partySize, 'traveler', 'travelers'), trip.partySize), trip.role !== 'OWNER' ? tx('초대받은 여행', 'Invited trip') : null].filter(Boolean).join(' · ');
-    return <View key={trip.tripId}>
-      <View style={styles.row}>
+    const rated = ended(trip) && Boolean(accessToken);
+    return <View key={trip.tripId} style={rated ? styles.rowWithRating : undefined}>
+      <View style={[styles.row, rated && styles.rowNoBorder]}>
         <Pressable accessibilityRole="button" accessibilityState={{ busy: openingTripId === trip.tripId }} accessibilityLabel={txf(tx, '%s 여행 열기', 'Open trip %s', cardTitle(trip, tx, locale))} disabled={openingTripId === trip.tripId || removingTripId === trip.tripId} onPress={() => void openTrip(trip)} style={({ pressed }) => [styles.rowMain, pressed && styles.cardPressed]}>
           {trip.coverImageUrl ? <Image source={{ uri: trip.coverImageUrl }} resizeMode="cover" accessibilityLabel="" style={styles.rowThumb} /> : <View style={[styles.rowThumb, styles.rowThumbBlank]} />}
           <View style={styles.rowCopy}>
@@ -182,6 +189,8 @@ export default function Trips() {
           <Text variant="title" color={color.text.muted}>⋯</Text>
         </Pressable>
       </View>
+      {/* 끝난 여행에만 별점 줄(S15P21E201-1908). 줄 Pressable 의 형제라 별을 눌러도 여행이 안 열린다. */}
+      {rated && accessToken ? <View style={styles.rowRating}><TripRatingStars tripId={trip.tripId} accessToken={accessToken} /></View> : null}
     </View>;
   };
 
@@ -201,6 +210,7 @@ export default function Trips() {
       </View>
       </Pressable>
       {/* 🔴 행동 단추는 카드 Pressable 의 «형제»다. 안에 넣으면 웹에서 <button> 속 <button> 이 되어(RN-web 은 button 역할을 진짜 button 으로 그린다) 안쪽 단추가 안 눌리거나 둘 다 눌린다. */}
+      {ended(trip) && accessToken ? <View style={styles.cardRating}><TripRatingStars tripId={trip.tripId} accessToken={accessToken} /></View> : null}
       <View style={styles.cardActions}>
       {/* VIEWER 만 이름을 못 바꾼다. 서버가 그렇게 정했다(TripTitleService) — OWNER 뿐
           아니라 EDITOR 도 바꿀 수 있다. 여기서 더 좁히면 있는 권한을 화면이 숨기게 된다.
@@ -378,6 +388,10 @@ const styles = StyleSheet.create({
   cardInGrid: { flex: 1, justifyContent: 'space-between' }, cardBody: { gap: spacing[3] }, card: { padding: spacing[4], borderRadius: radius.lg, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card, gap: spacing[3], shadowColor: color.brand.navy, shadowOpacity: 0.06, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 2 }, cardPressed: { opacity: 0.72, transform: [{ scale: 0.99 }] }, cardTop: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] }, cardCopy: { flex: 1, gap: spacing[1] }, meta: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing[2] }, metaPill: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft },
   statusPillLive: { flexDirection: 'row', alignItems: 'center', gap: spacing[1] }, liveDot: { width: 6, height: 6, borderRadius: radius.full, backgroundColor: color.state.success },
   statusPillPending: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.state.dangerBg, borderWidth: 1, borderColor: color.state.danger },
+  cardRating: { paddingHorizontal: spacing[4], paddingBottom: spacing[2] },
+  rowRating: { paddingLeft: spacing[3] + 48 + spacing[3], paddingBottom: spacing[2] },
+  rowNoBorder: { borderBottomWidth: 0 },
+  rowWithRating: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: color.surface.border },
   cardActions: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: spacing[2] },
   removeButton: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[3] }, moreButton: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full }, cardMenu: { alignSelf: 'flex-end', borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card }, cardMenuItem: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4] }, removeButtonPressed: { opacity: 0.6 },
   modalBackdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(25,25,25,0.62)' },
