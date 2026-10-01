@@ -1374,13 +1374,18 @@ public class ItineraryDraftService implements ItineraryDraftPort {
      * {@link #mealSlots} 와 같은 칸을 고르되, 칸마다 맡은 식사 시각대({@code {시작, 끝}})를 낸다 — 밥 칸이 아니면 {@code null}.
      * 시각 깔기({@link DayTimeLayout})가 밥 칸의 밥집을 그 시각대 안에 놓을 때 쓴다(S15P21E201-1667).
      */
-    private static LocalTime[][] mealSlotBands(DayWindow window, int count) {
+    static LocalTime[][] mealSlotBands(DayWindow window, int count) {
         LocalTime[][] meal = new LocalTime[count][];
         for (LocalTime[] band : MEAL_BANDS) {
             int best = -1;
             long bestFirstHour = -1;
             long bestOverlap = -1;
             for (int i = 0; i < count; i++) {
+                // 🔴 이미 다른 식사(점심)를 맡은 칸은 건너뛴다(S15P21E201-1905). 같은 칸이 점심·저녁 모두에서 가장 잘 맞으면
+                //    저녁이 점심을 덮어써 그날 점심이 사라졌다(팀원 보고: 「강제 다이어트」).
+                if (meal[i] != null) {
+                    continue;
+                }
                 Slot slot = slotFor(window, i, count);
                 if (!overlapsBand(slot, band)) {
                     continue;

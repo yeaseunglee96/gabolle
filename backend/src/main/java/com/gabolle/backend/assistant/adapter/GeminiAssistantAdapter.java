@@ -246,6 +246,9 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 			그대로 두되 설명은 간체자로) · pronunciation 등 사용자에게 보여줄 모든 텍스트를 간체자로
 			써라. kind 값과 href 값 자체는 위에서 정한 그대로(navigate/phrase/help,
 			'/plan' 등)를 그대로 쓴다 — 번역하지 않는다.
+
+			🔴 한국 지명·가게·사람 이름 — 한자 표기가 있는 이름(해운대·광안리·자갈치 등)은 소리 나는 대로 음역하지 말고 그 한자로 적어라
+			(해운대→海云台, 광안리→广安里). 한자 표기가 없는 가게 이름은 한글을 그대로 두고 괄호에 읽는 법을 붙여라.
 			""";
 
 	private static final String CHINESE_TRADITIONAL_DIRECTIVE = """
@@ -255,6 +258,8 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 			그대로 두되 설명은 번체자로) · pronunciation 등 사용자에게 보여줄 모든 텍스트를 번체자로
 			써라. kind 값과 href 값 자체는 위에서 정한 그대로(navigate/phrase/help,
 			'/plan' 등)를 그대로 쓴다 — 번역하지 않는다.
+			🔴 한국 지명·가게·사람 이름 — 한자 표기가 있는 이름(해운대·광안리·자갈치 등)은 소리 나는 대로 음역하지 말고 그 한자로 적어라
+			(해운대→海雲臺, 광안리→廣安里). 한자 표기가 없는 가게 이름은 한글을 그대로 두고 괄호에 읽는 법을 붙여라.
 			""";
 
 	private final AssistantProperties properties;
