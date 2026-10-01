@@ -23,7 +23,7 @@ import { issueShareLink } from '@/share/sharedItinerary';
 import { getTripStories, storyPlaceName } from '@/social/stories';
 import { SelectTripFirst } from '@/trip/SelectTripFirst';
 import { loadTripItineraries, loadTrips } from '@/trip/trips';
-import { TripWeatherCard, weatherHeading } from '@/trip/TripWeatherPanel';
+import { TripWeatherCard, weatherDateFor, weatherHeading } from '@/trip/TripWeatherPanel';
 import { localToday } from '@/plan/tripBasics';
 
 // 🔴 한국어면 손으로, 그 밖이면 «무조건 en-US» 였다 (S15P21E201-1355).
@@ -118,6 +118,7 @@ function PrepareForTrip({ tripId }: { tripId: string }) {
   const { accessToken } = useAuth();
   // undefined = 아직 모름(불러오는 중). null = 일정이 없어 알 수 없음.
   const [firstDayDate, setFirstDayDate] = useState<string | null | undefined>(undefined);
+  const [lastDayDate, setLastDayDate] = useState<string | null>(null);
   const [tripTitle, setTripTitle] = useState<string | null>(null);
   const [memoryMap, setMemoryMap] = useState<MemoryMapState>({ status: 'loading' });
   const [tripSummary, setTripSummary] = useState<{ visitCount: number; photoUrl: string | null } | null>(null);
@@ -168,14 +169,16 @@ function PrepareForTrip({ tripId }: { tripId: string }) {
       if (cancelled) return;
       const date = result.state === 'success' ? (result.itinerary.days[0]?.date ?? null) : null;
       setFirstDayDate(date);
+      setLastDayDate(result.state === 'success' ? (result.itinerary.days[result.itinerary.days.length - 1]?.date ?? null) : null);
       setTripTitle(result.state === 'success' ? result.itinerary.title : null);
     });
     return () => { cancelled = true; };
   }, [tripId, accessToken]);
 
   const departure = firstDayDate ? formatDepartureDate(firstDayDate, locale) : null;
-  // 머리 글은 날짜에 맞춘다 — 지난 여행에 「여행 전」이라 적지 않는다(S15P21E201-1773).
-  const heading = weatherHeading(tx, firstDayDate, departure, localToday());
+  // 여행 중이면 오늘 날씨를 보인다(S15P21E201-1911). 머리 글도 그 날짜에 맞춘다(S15P21E201-1773).
+  const weatherDate = weatherDateFor(firstDayDate, lastDayDate, localToday());
+  const heading = weatherHeading(tx, weatherDate, departure, localToday());
 
   return (
     <Screen scroll>
@@ -196,7 +199,7 @@ function PrepareForTrip({ tripId }: { tripId: string }) {
 
       {memoryMap.status === 'ready' && <MemoryMapCard tripId={tripId} stops={memoryMap.stops} />}
 
-      <TripWeatherCard date={firstDayDate} />
+      <TripWeatherCard date={weatherDate} />
 
       {/* : 기념품샵 진입 카드는 최초 배포에서 뺐다 — 기념품샵 갈래 장소가
           0곳이라 눌러도 항상 빈 목록만 나온다. /{tripId}/souvenirs 라우트는 그대로 있다.
