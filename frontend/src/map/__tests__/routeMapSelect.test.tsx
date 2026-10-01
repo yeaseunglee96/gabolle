@@ -27,7 +27,7 @@ const fakeElement = (): FakeElement => {
 const fakeDocument = { createElement: fakeElement, addEventListener() {}, removeEventListener() {}, getElementById: () => ({}), head: { appendChild() {} } };
 (globalThis as unknown as { document: unknown }).document = fakeDocument;
 
-const calls = { setBounds: 0, panTo: [] as Array<{ lat: number; lng: number }>, overlays: 0, lines: 0 };
+const calls = { level: 8, setLevel: [] as number[], setBounds: 0, panTo: [] as Array<{ lat: number; lng: number }>, overlays: 0, lines: 0 };
 class LatLng { constructor(public lat: number, public lng: number) {} }
 class Point { constructor(public x: number, public y: number) {} }
 class LatLngBounds { extend() {} }
@@ -37,7 +37,8 @@ class FakeMap {
   relayout() {}
   setBounds() { calls.setBounds += 1; }
   setCenter() {}
-  setLevel() {}
+  getLevel() { return calls.level; }
+  setLevel(level: number) { calls.level = level; calls.setLevel.push(level); }
   panTo(target: LatLng) { calls.panTo.push({ lat: target.lat, lng: target.lng }); }
   getProjection() { return { containerPointFromCoords: (c: LatLng) => new Point(c.lng, c.lat), coordsFromContainerPoint: (p: Point) => new LatLng(p.y, p.x) }; }
 }
@@ -51,7 +52,7 @@ const stops = [
 const routes = [{ id: 'r', color: '#000', stops }];
 const markerFor = (name: string) => created.filter((el) => (el.attrs['aria-label'] ?? '').includes(name)).pop();
 
-beforeEach(() => { created.length = 0; calls.setBounds = 0; calls.panTo = []; calls.overlays = 0; calls.lines = 0; });
+beforeEach(() => { calls.level = 8; calls.setLevel = []; created.length = 0; calls.setBounds = 0; calls.panTo = []; calls.overlays = 0; calls.lines = 0; });
 
 describe('웹 지도 — 고른 곳이 바뀔 때', () => {
   const originalOs = Platform.OS;
@@ -149,6 +150,17 @@ describe('앱 지도(WebView 안의 HTML) — 고른 곳이 바뀔 때', () => {
     expect(calls.panTo[calls.panTo.length - 1]).toEqual({ lat: 35.158, lng: 129.160 });
     expect(markerFor('해운대')?.style.transform).toBe('scale(1.25)');
     expect(markerFor('서면 숙소')?.style.transform).toBe('scale(1)');
+  });
+
+  it('🔴 멀리서 보고 있으면 고른 곳이 보이게 확대한다(S15P21E201-1903) — 이미 가까우면 줌을 건드리지 않는다', () => {
+    const win = boot();
+    win.__renderKakaoMap(data('a'));
+    calls.level = 8; calls.setLevel = [];
+    win.__selectKakaoMap({ selectedId: 'c', focus: true, shiftY: 0 });
+    expect(calls.setLevel).toEqual([4]);
+    calls.level = 3; calls.setLevel = [];
+    win.__selectKakaoMap({ selectedId: 'b', focus: true, shiftY: 0 });
+    expect(calls.setLevel).toEqual([]);
   });
 
   it('🔴 현재 위치만 움직이면 점만 옮긴다 — 다시 맞추지 않는다', () => {

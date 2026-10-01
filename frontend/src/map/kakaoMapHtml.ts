@@ -21,6 +21,7 @@ export function buildKakaoMapHtml(appKey: string): string {
   var map = null;
   var overlays = [];
   var fit = null;
+  var FOCUS_LEVEL = 4;
   var padNow = [60, 60, 60, 60];
   // 🔴 고른 곳이 바뀌면 다시 그리지 않는다(S15P21E201-1654). 전에는 고를 때마다 마커·선을 전부 새로 그리고
   //    전체 맞추기(setBounds — 순간 이동)를 해서 지도가 여행 전체로 튀었다. 고를 때는 아래 값만 고친다.
@@ -149,11 +150,14 @@ export function buildKakaoMapHtml(appKey: string): string {
     for (var i = 0; i < overlays.length; i++) overlays[i].setMap(null);
     overlays = [];
 
+    // 🔴 맞추는 범위는 번호 장소만이다(S15P21E201-1903) — 출발지·숙소 같은 점 표시까지 넣으면 먼 출발지(부산역) 때문에
+    //    해운대 네 곳이 한 점에 뭉쳤다(김해~기장이 한 화면). 번호 장소가 없을 때만(주변 도움 지도 등) 점 표시로 맞춘다.
+    var fitStops = stops.length ? stops : visible;
     var bounds = new maps.LatLngBounds();
+    for (var fb = 0; fb < fitStops.length; fb++) bounds.extend(new maps.LatLng(fitStops[fb].latitude, fitStops[fb].longitude));
     for (var s = 0; s < visible.length; s++) {
       var stop = visible[s];
       var position = new maps.LatLng(stop.latitude, stop.longitude);
-      bounds.extend(position);
       var layer = null;
       for (var l = 0; l < points.length; l++) {
         for (var k = 0; k < points[l].stops.length; k++) {
@@ -224,7 +228,7 @@ export function buildKakaoMapHtml(appKey: string): string {
     // 와 같은 이유 — 점이 하나면 bounds 넓이가 0이라 최대 줌으로 튄다.
     // 여백은 앱이 셈해서 보낸다 — 아래가 창에 가려진 만큼 더(S15P21E201-1607, mapFocus.ts). 안 보내면 네 변 60.
     padNow = data.fitPadding || [60, 60, 60, 60];
-    fit = function () { var pad = padNow; if (visible.length <= 1) { map.setCenter(center); map.setLevel(5); } else map.setBounds(bounds, pad[0], pad[1], pad[2], pad[3]); focusOn(selectedNow); };
+    fit = function () { var pad = padNow; if (fitStops.length <= 1) { map.setCenter(new maps.LatLng(fitStops[0].latitude, fitStops[0].longitude)); map.setLevel(5); } else map.setBounds(bounds, pad[0], pad[1], pad[2], pad[3]); focusOn(selectedNow); };
     fit();
     // 맞추면 줌이 바뀐다 — 줌 사건이 안 오는 환경도 있어 맞춘 뒤 한 번 더 셈한다.
     resimplify();
@@ -250,7 +254,17 @@ export function buildKakaoMapHtml(appKey: string): string {
     for (var id in markers) styleSelection(markers[id].el, markers[id].color, id === data.selectedId);
     if (selectedNow === data.selectedId) return;
     selectedNow = data.selectedId;
+    // 🔴 고르면 그 장소가 보일 만큼 확대한다(S15P21E201-1903) — 전에는 옮기기만 해서 멀리서 본 채 핀이 겹쳐 있었다.
+    //    이미 더 가까이 보고 있으면 그대로 둔다(사람이 맞춘 줌을 빼앗지 않는다). mapFocus.ts 의 FOCUS_LEVEL 과 같은 값.
+    if (focusNow && map.getLevel() > FOCUS_LEVEL) map.setLevel(FOCUS_LEVEL);
     focusOn(selectedNow);
+  };
+
+  // 확대·축소 단추(RouteMap.native.tsx) — 스크롤 안에 든 지도(길 안내)는 두 손가락 확대가 스크롤과 다툰다.
+  window.__zoomKakaoMap = function (delta) {
+    if (!map) return;
+    var next = Math.max(1, Math.min(14, map.getLevel() + delta));
+    map.setLevel(next, { animate: true });
   };
 
   // 현재 위치는 점만 옮긴다 — 움직일 때마다 전체를 다시 맞추면 걷는 내내 지도가 튄다.
