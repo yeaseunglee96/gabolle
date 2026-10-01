@@ -1,6 +1,6 @@
 // 지도 첫 화면·고를 때 확대·확대축소 단추 — S15P21E201-1903 (2026-10-01 실기기: 해운대 네 곳이 한 점에 뭉치고, 카드를 눌러도 확대되지 않았다).
 import { buildKakaoMapHtml } from '@/map/kakaoMapHtml';
-import { FOCUS_LEVEL, fitTargets } from '@/map/mapFocus';
+import { FOCUS_LEVEL, fitPadding, fitTargets } from '@/map/mapFocus';
 
 describe('지도 맞추기 대상', () => {
   const stop = (id: string) => ({ id });
@@ -28,5 +28,15 @@ describe('앱 지도 스크립트(kakaoMapHtml)', () => {
   });
   it('🔴 확대·축소 단추가 부르는 함수가 있다', () => {
     expect(html).toContain('window.__zoomKakaoMap = function (delta)');
+  });
+});
+
+describe('가로 화면처럼 지도가 낮을 때의 여백', () => {
+  it('🔴 위아래 여백이 지도 높이를 다 먹지 않는다 — 맞출 자리를 60 은 남긴다(전에는 동아시아 전체로 물러났다)', () => {
+    const [top, , bottom] = fitPadding(600, 410, 200);
+    expect(410 - top - bottom).toBeGreaterThanOrEqual(60);
+  });
+  it('지도가 넉넉하면 전과 같다', () => {
+    expect(fitPadding(0, 800, 0)).toEqual([60, 60, 60, 60]);
   });
 });

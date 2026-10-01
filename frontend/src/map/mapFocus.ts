@@ -6,6 +6,8 @@
 //    스크립트라 이 파일을 못 불러서 식을 한 번 더 적었다.
 
 const EDGE = 60;
+/** 전체를 맞출 때 여백을 빼고도 남겨 둘 지도 높이(px) — 이보다 좁게 맞추면 너무 멀리 물러난다. */
+const MIN_FIT_ROOM = EDGE;
 
 /**
  * 전체를 맞출 때의 여백 [위, 오른쪽, 아래, 왼쪽]. 아래는 가려진 만큼 더 — 다만 지도에 보일 자리(위아래 120)는 남긴다.
@@ -13,8 +15,16 @@ const EDGE = 60;
  * 폰에서 출발지·정차지가 상태바와 「장소 N곳」·지도 위 칩(지금은 색 범례) 밑으로 숨었다.
  */
 export function fitPadding(bottomInset: number, mapHeight: number, topInset = 0): [number, number, number, number] {
-  const top = EDGE + Math.max(0, topInset);
-  const bottom = Math.min(EDGE + Math.max(0, bottomInset), Math.max(EDGE, mapHeight - top - EDGE));
+  let top = EDGE + Math.max(0, topInset);
+  let bottom = Math.min(EDGE + Math.max(0, bottomInset), Math.max(EDGE, mapHeight - top - EDGE));
+  // 🔴 위아래 여백이 지도 높이를 다 먹으면 카카오가 범위를 못 맞춰 동아시아 전체로 물러났다(S15P21E201-1903 — 폰을 가로로
+  //    돌렸을 때: 높이 ~410 에 위 칩·범례와 아래 창이 거의 다 덮었다). 맞출 자리를 MIN_FIT_ROOM 만큼은 남기게 여백을 줄인다.
+  const room = Math.max(0, mapHeight - MIN_FIT_ROOM);
+  if (mapHeight > 0 && top + bottom > room) {
+    const scale = room / (top + bottom);
+    top = Math.round(top * scale);
+    bottom = Math.round(bottom * scale);
+  }
   return [top, EDGE, bottom, EDGE];
 }
 
