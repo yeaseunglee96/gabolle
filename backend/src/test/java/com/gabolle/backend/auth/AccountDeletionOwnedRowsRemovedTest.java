@@ -75,7 +75,9 @@ class AccountDeletionOwnedRowsRemovedTest extends AuthPostgresIntegrationTest {
 			// 알레르기·식단이 들어 있는 자리라 반드시 지워져야 한다.
 			new Owned("user_travel_constraint", "user_id"),
 			// 🔴 기기 푸시 토큰. 남으면 탈퇴한 사람의 폰으로 알림이 계속 간다 (S15P21E201-1391).
-			new Owned("push_token", "user_id"));
+			new Owned("push_token", "user_id"),
+			// 남의 여행에 매긴 별점 (S15P21E201-1908).
+			new Owned("trip_rating", "user_id"));
 
 	@Autowired
 	private AccountDeletionService accountDeletionService;
@@ -349,6 +351,8 @@ class AccountDeletionOwnedRowsRemovedTest extends AuthPostgresIntegrationTest {
 		this.jdbc.update("INSERT INTO push_token (push_token_id, user_id, token, platform, created_at, updated_at) "
 				+ "VALUES (?, ?, ?, 'android', now(), now())",
 				UUID.randomUUID(), user, "ExponentPushToken[" + shortId() + "]");
+		this.jdbc.update("INSERT INTO trip_rating (trip_id, user_id, score, created_at, updated_at) "
+				+ "VALUES (?, ?, 4, now(), now())", this.otherTripId, user);
 	}
 
 	private UUID createUser(String address) {
