@@ -42,3 +42,10 @@ describe('가로 화면처럼 지도가 낮을 때의 여백', () => {
     expect(fitPadding(0, 800, 0)).toEqual([60, 60, 60, 60]);
   });
 });
+
+describe('앱 지도 — 화면을 돌린 뒤 다시 맞출 때', () => {
+  it('🔴 지금 지도 높이로 여백을 다시 줄인다 — 가로로 돌리면 동아시아 전체로 물러나던 것(S15P21E201-1903)', () => {
+    const html = buildKakaoMapHtml('key');
+    expect(html).toContain("var h = document.getElementById('map').clientHeight || 0; var room = Math.max(0, h - 60);");
+  });
+});

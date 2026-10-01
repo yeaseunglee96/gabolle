@@ -69,7 +69,7 @@ export function LegRow({ destName, label, transit, route, now, onOpen, accessTok
                     {/* 표지판 딱지 — 외국어 화면에서만. 길에서 보는 글자와 그대로 맞춰 본다 */}
                     {step.sign ? (
                       <View style={styles.sign} accessibilityLabel={txf(tx, '표지판: %s', 'Sign: %s', step.sign)}>
-                        <Text variant="micro" weight="bold" color={color.text.onDarkMuted}>{tx('표지판', 'SIGN')}</Text>
+                        <Text variant="micro" weight="bold" color={color.text.onDarkMuted}>{tx('표지판', 'Sign')}</Text>
                         <Text variant="caption" weight="bold" color={color.text.onAction}>{step.sign}</Text>
                       </View>
                     ) : null}
