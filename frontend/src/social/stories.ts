@@ -365,7 +365,8 @@ export async function uploadStoryVideo(
     const query = typeof asset.durationSec === 'number' ? `?durationSec=${Math.round(asset.durationSec)}` : '';
     const dto = await apiRequest<{ videoId: string; videoUrl: string; contentType: string; byteSize: number; durationSec?: number }>(
       `/api/v1/uploads/story-video${query}`,
-      { method: 'POST', accessToken, body: formData },
+      // 영상도 12초 기본 제한에 걸린다 — 업로드는 길게 기다린다(S15P21E201-1904).
+      { method: 'POST', accessToken, body: formData, timeoutMs: UPLOAD_TIMEOUT_MS },
     );
     return { state: 'success', videoUrl: dto.videoUrl, byteSize: dto.byteSize };
   } catch (error) {
@@ -376,6 +377,7 @@ export async function uploadStoryVideo(
   }
 }
 
+export const UPLOAD_TIMEOUT_MS = 60_000;
 export async function uploadStoryImage(asset: ImagePickResult, accessToken: string | null): Promise<ImageUploadResult> {
   try {
     const name = asset.fileName ?? `story-${Date.now()}.jpg`;
@@ -387,6 +389,8 @@ export async function uploadStoryImage(asset: ImagePickResult, accessToken: stri
       method: 'POST',
       accessToken,
       body: formData,
+      // 🔴 기본 12초 제한에 걸려 모바일 망에서 「서버 응답이 늦어」로 실패했다(S15P21E201-1904, 커버·댓글 사진).
+      timeoutMs: UPLOAD_TIMEOUT_MS,
     });
     return { state: 'success', imageUrl: dto.imageUrl };
   } catch (error) {

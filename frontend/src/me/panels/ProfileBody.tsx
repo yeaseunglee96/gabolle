@@ -13,6 +13,7 @@ import { ApiClientError, APP_WEB_BASE_URL } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
 import { getAccountDeletionPreview, type AccountDeletionPreview } from '@/auth/authApi';
 import { uploadStoryImage } from '@/social/stories';
+import { resizeForUpload } from '@/social/imageResize';
 import { Button } from '@/components/Button';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
@@ -141,7 +142,9 @@ export function ProfileBody({ startDeletion = false }: { startDeletion?: boolean
       const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: true, aspect: [3, 1], quality: 0.7 });
       if (result.canceled) return;
       const asset = result.assets[0];
-      const uploaded = await uploadStoryImage({ uri: asset.uri, fileName: asset.fileName, mimeType: asset.mimeType }, accessToken);
+      // 🔴 커버만 줄이지 않고 원본 그대로 올려 수 MB 가 됐다 — 기록 사진과 같이 긴 변 1600px 로 줄인다(S15P21E201-1904). 줄이기에 실패하면 원본.
+      const small = await resizeForUpload(asset.uri).catch(() => null);
+      const uploaded = await uploadStoryImage(small ? { uri: small.uri, fileName: 'cover.jpg', mimeType: 'image/jpeg' } : { uri: asset.uri, fileName: asset.fileName, mimeType: asset.mimeType }, accessToken);
       if (uploaded.state !== 'success') {
         setFeedback({ danger: true, text: uploaded.message });
         return;

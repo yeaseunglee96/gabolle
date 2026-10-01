@@ -13,7 +13,7 @@ import { PlacePhraseBrowser } from '@/components/PlacePhraseBrowser';
 import { useI18n } from '@/i18n';
 import { toBcp47 } from '@/i18n/languages';
 import { useAuth } from '@/auth/AuthProvider';
-import { directionForLanguage, speechLanguageFor, translateText, TRANSLATE_MAX_LENGTH, type TranslationBlockedReason } from '@/field/translate';
+import { directionForLanguage, directionForText, speechLanguageFor, translateText, TRANSLATE_MAX_LENGTH, type TranslationBlockedReason } from '@/field/translate';
 import { canSearchDestination, destinationSubtitle, searchTaxiDestinations, taxiCardHref, type TaxiDestinationOutcome } from '@/field/taxiDestination';
 import { KOREAN_OR_ENGLISH_HINT, needsKoreanOrEnglishName } from '@/discovery/nameSearchHint';
 import { txf } from '@/i18n/format';
@@ -97,13 +97,15 @@ export default function Speak() {
       return;
     }
     setTranslating(true);
-    const outcome = await translateText(text, direction, accessToken);
+    // 입력 글자로 원문 언어를 고른다 — 앱 언어와 다른 말로 쳐도 한국어로 옮긴다(S15P21E201-1904).
+    const used = directionForText(text, direction) ?? direction;
+    const outcome = await translateText(text, used, accessToken);
     setTranslating(false);
     if (outcome.state === 'translated') {
       setSpokenText(outcome.text);
       // 고른 언어 방향을 서버가 아직 몰라 영어 방향으로 번역했으면 그 사실을 한 줄 남긴다 — 결과가 어색해도 이유를 안다.
       setTranslateNotice(outcome.viaEnglish ? tx('이 언어의 직접 번역은 준비 중이라 영어를 거쳐 번역했어요.', 'Direct translation for this language is on the way — this one went through English.') : null);
-      speakAloud(outcome.text, speechLanguageFor(direction));
+      speakAloud(outcome.text, speechLanguageFor(used));
       return;
     }
     // 번역이 안 되면 막다른 길로 두지 않는다 — 왜 안 되는지 말하고, 원문이라도 읽어 준다.
