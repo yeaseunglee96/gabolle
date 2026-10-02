@@ -20,7 +20,7 @@ import { useHomeData } from '@/home/useHomeData';
 import { AssistantBackdrop, AssistantMenu, assistantSubtitle } from '@/home/AssistantMenu';
 import { useSavedPlaces } from '@/home/useSavedPlaces';
 import { WebFooter } from '@/home/WebFooter';
-import { collapseProgress, searchCollapse, setSearchHandle } from '@/home/stickySearchStore';
+import { collapseProgress, searchCollapse, searchHandleNow, setSearchHandle } from '@/home/stickySearchStore';
 import { color, desktopGutter, radius, spacing } from '@/design/tokens';
 import { LANGUAGE_OPTIONS } from '@/i18n/languages';
 import { FLAG_IMAGES, WelcomeLanguageSheet } from '@/onboarding/WelcomeLanguageSheet';
@@ -242,7 +242,7 @@ export default function Welcome() {
         <Text variant="body" color={color.text.muted} style={styles.headerSubtitle}>{tx('언제, 누구와, 어떻게 다닐지만 알려주세요. 일정은 가볼래가 짜요.', 'Just tell us when, with whom and how you travel — we build the itinerary.')}</Text>
         {/* 큰 검색창 — 내리면 작아지며 흐려진다. 같은 만큼 위쪽 메뉴 알약이 커지며 나타나 「검색창이 위로 접혀 올라간」 것처럼 보인다 */}
         <Animated.View style={[styles.startBar, { opacity: searchCollapse.interpolate({ inputRange: [0, 0.85, 1], outputRange: [1, 0.15, 0] }), transform: [{ scale: searchCollapse.interpolate({ inputRange: [0, 1], outputRange: [1, 0.72] }) }, { translateY: searchCollapse.interpolate({ inputRange: [0, 1], outputRange: [0, -24] }) }] }]} onLayout={(event) => setBarBottom(event.nativeEvent.layout.y + event.nativeEvent.layout.height)}>
-          <PlanStartBar wide accessToken={accessToken} onSubmit={startPlanFromBar} initialSection={editSection} initialValue={editSection ? startBarFromDraft(planDraft) : undefined} />
+          <PlanStartBar wide accessToken={accessToken} onSubmit={startPlanFromBar} onLabelsChange={(labels) => setSearchHandle({ ...searchHandleNow(), labels })} initialSection={editSection} initialValue={editSection ? startBarFromDraft(planDraft) : undefined} />
         </Animated.View>
         {/* 🔴 이 자리에 있던 것 둘이 지금은 없다. 왜 없는지를 남긴다 —
             안 적어 두면 다음 사람이 「빠뜨렸나」 하고 다시 넣는다.

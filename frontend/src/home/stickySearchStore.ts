@@ -9,15 +9,28 @@ import { useSyncExternalStore } from 'react';
 /** 0 = 큰 검색창 그대로, 1 = 위쪽 메뉴 알약으로 다 접힘 */
 export const searchCollapse = new Animated.Value(0);
 
-type Handle = { active: boolean; collapsed: boolean; open: (() => void) | null };
-let handle: Handle = { active: false, collapsed: false, open: null };
+/** 알약에 쓰는 글 — 큰 검색창에서 고른 값. 안 골랐으면 null 이고 알약은 빈 칸 안내(「어디서 출발」)를 쓴다 */
+export type PillLabels = { origin: string | null; dates: string | null; people: string | null };
+type Handle = { active: boolean; collapsed: boolean; open: (() => void) | null; labels?: PillLabels | null };
+let handle: Handle = { active: false, collapsed: false, open: null, labels: null };
 const listeners = new Set<() => void>();
 
 /** 홈이 부른다 — active: 이 화면이 알약을 쓰는가, collapsed: 지금 알약을 누를 수 있나(반 넘게 접혔나) */
 export function setSearchHandle(next: Handle): void {
-  if (next.active === handle.active && next.collapsed === handle.collapsed && next.open === handle.open) return;
-  handle = next;
+  const labels = next.labels === undefined ? handle.labels : next.labels;
+  if (next.active === handle.active && next.collapsed === handle.collapsed && next.open === handle.open && sameLabels(labels, handle.labels)) return;
+  handle = { ...next, labels };
   listeners.forEach((listener) => listener());
+}
+
+function sameLabels(a: PillLabels | null | undefined, b: PillLabels | null | undefined): boolean {
+  if (!a || !b) return !a && !b;
+  return a.origin === b.origin && a.dates === b.dates && a.people === b.people;
+}
+
+/** 지금 값 — 일부만 바꿔 다시 적을 때 */
+export function searchHandleNow(): Handle {
+  return handle;
 }
 
 export function useSearchHandle(): Handle {

@@ -204,6 +204,10 @@ export type PlanStartBarProps = {
   /** 값을 밖에서 들고 있을 때. 알약과 시트가 같은 값을 봐야 해서 홈이 들고 있는다. */
   value?: StartBarValue;
   onChange?: (value: StartBarValue) => void;
+  /** 값을 넘겨받지 않고(안에서 든 채로) 바뀐 것만 알린다 — 웹 홈이 위쪽 메뉴 알약에 고른 값을 적으려고 쓴다 */
+  onValueChange?: (value: StartBarValue) => void;
+  /** 알약 글 — 칸 이름을 붙이는 규칙(segmentLabel)과 같게 만들어 넘긴다. 빈 칸은 null */
+  onLabelsChange?: (labels: { origin: string | null; dates: string | null; people: string | null }) => void;
   /** 시트의 ✕. 값은 그대로 두고 시트만 닫는다. */
   onClose?: () => void;
   /**
@@ -297,7 +301,7 @@ export const COMPACT_CTA_BELOW = 960;
 
 export function PlanStartBar({
   wide, accessToken, onSubmit, today = new Date(), initialSection = null, initialValue,
-  sheet = false, value: controlledValue, onChange, onClose, onOpenSheet, submitLabel,
+  sheet = false, value: controlledValue, onChange, onValueChange, onLabelsChange, onClose, onOpenSheet, submitLabel,
 }: PlanStartBarProps) {
   const { tx, language } = useI18n();
   const insets = useSafeAreaInsets();
@@ -321,6 +325,7 @@ export function PlanStartBar({
     const resolved = typeof next === 'function' ? (next as (prev: StartBarValue) => StartBarValue)(valueRef.current) : next;
     if (onChange) onChange(resolved);
     else setSelfValue(resolved);
+    onValueChange?.(resolved);
   };
   // 시트는 «펼친 채로» 열린다. 빈 카드 세 장을 보여 주고 한 번 더 누르게 하면
   // 시트를 연 사람 눈에는 아무 일도 안 일어난 것이다 — 1350 이 고친 것과 같은 실수다.
@@ -436,6 +441,14 @@ export function PlanStartBar({
     const total = value.adults + value.children;
     return total > 0 ? (value.children ? tx(`성인 ${value.adults} · 어린이 ${value.children}`, `${value.adults} adults · ${value.children} children`) : tx(`성인 ${value.adults}`, `${value.adults} adults`)) : tx('인원 추가', 'Add travelers');
   };
+
+  // 위쪽 메뉴 알약에 고른 값을 적는다(㉖ 시안 「어디서 출발 · 날짜 추가 · 성인 2」). 빈 칸은 null — 알약이 제 안내를 쓴다.
+  const pillOrigin = value.origin ? segmentLabel('origin') : null;
+  const pillDates = value.startDate ? segmentLabel('dates') : null;
+  const pillPeople = segmentLabel('people');
+  useEffect(() => {
+    onLabelsChange?.({ origin: pillOrigin, dates: pillDates, people: pillPeople });
+  }, [pillOrigin, pillDates, pillPeople]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 두 가지가 움직인다.
   // · 고른 칸을 따라다니는 강조 알약 — 칸 사이를 미끄러진다
