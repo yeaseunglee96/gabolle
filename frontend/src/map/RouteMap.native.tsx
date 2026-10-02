@@ -50,6 +50,8 @@ type RouteMapProps = {
   focusSelected?: boolean;
   /** 길 안내 중 — 내 위치를 따라가고 처음 한 번 동네가 보이게 확대한다(S15P21E201-1903). */
   followLocation?: boolean;
+  /** 지도가 좌우로 화면 밖에 걸친 폭(px) — 그만큼 +/− 단추를 안쪽으로 들인다(S15P21E201-1943). */
+  sideBleed?: number;
 };
 
 /**
@@ -75,6 +77,7 @@ export function RouteMap({
   refitKey = null,
   focusSelected = false,
   followLocation = false,
+  sideBleed = 0,
 }: RouteMapProps) {
   const { tx } = useI18n();
   // 🔴 가로 화면에서는 안드로이드 내비 막대가 오른쪽에 서서 +/− 단추를 덮었다(실기기 10/1, S15P21E201-1909).
@@ -241,7 +244,7 @@ export function RouteMap({
       />
       {/* 🔴 확대·축소 단추(S15P21E201-1903) — 길 안내처럼 스크롤 안에 든 지도는 두 손가락 확대가 화면 스크롤과 다툰다.
           오른쪽에 둔다 — 왼쪽 아래는 카카오 로고·축척 자리다(아래 backRow 주석). 창에 가려진 높이만큼 올린다. */}
-      <View style={[styles.zoomColumn, { right: spacing[3] + rightInset, bottom: Math.max(0, Math.min(bottomInset, height - 140)) + spacing[3] }]}>
+      <View style={[styles.zoomColumn, { right: spacing[3] + rightInset + sideBleed, bottom: Math.max(0, Math.min(bottomInset, height - 140)) + spacing[3] }]}>
         {([[-1, '+', tx('지도 확대', 'Zoom in')], [1, '−', tx('지도 축소', 'Zoom out')]] as const).map(([delta, glyph, label]) => (
           <Pressable key={glyph} accessibilityRole="button" accessibilityLabel={label} hitSlop={6} onPress={() => webViewRef.current?.injectJavaScript(`window.__zoomKakaoMap && window.__zoomKakaoMap(${delta}); true;`)} style={({ pressed }) => [styles.zoomButton, pressed && styles.zoomPressed]}>
             <Text variant="title" weight="bold" color={color.text.heading}>{glyph}</Text>

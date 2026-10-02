@@ -25,3 +25,12 @@ it('🔴 오른쪽 안전 영역(가로 화면 내비 막대)만큼 단추를 �
   act(() => { landscape = create(<SafeAreaInsetsContext.Provider value={{ top: 0, bottom: 0, left: 0, right: 48 }}><RouteMap stops={stops} selectedId="a" onSelect={() => {}} routes={[]} height={400} /></SafeAreaInsetsContext.Provider>); });
   expect(zoomRight(landscape) - zoomRight(plain)).toBe(48);
 });
+
+// 🔴 S15P21E201-1943(폴드6 바깥 화면 실기기 10/2) — 여행 화면 바탕 지도는 둥근 모서리를 숨기려고 좌우로
+//    화면 밖에 걸쳐 그린다(TripPageMobile 의 mapBleed). 그만큼 단추를 안쪽으로 들이지 않으면 오른쪽이 잘린다.
+it('🔴 지도가 화면 밖에 걸친 폭(sideBleed)만큼 단추를 안쪽으로 들인다', () => {
+  let plain!: ReactTestRenderer; let bled!: ReactTestRenderer;
+  act(() => { plain = create(<RouteMap stops={stops} selectedId="a" onSelect={() => {}} routes={[]} height={400} />); });
+  act(() => { bled = create(<RouteMap stops={stops} selectedId="a" onSelect={() => {}} routes={[]} height={400} sideBleed={20} />); });
+  expect(zoomRight(bled) - zoomRight(plain)).toBe(20);
+});
