@@ -180,7 +180,7 @@ export function TopNav() {
                 transform: [{ scale: searchCollapse.interpolate({ inputRange: [0, 1], outputRange: [1.12, 1] }) }, { translateY: searchCollapse.interpolate({ inputRange: [0, 1], outputRange: [6, 0] }) }],
               }}
             >
-              <SearchPillButton narrow={width < 1360} labels={search.labels} onPress={() => search.open?.()} />
+              {search.expanded ? null : <SearchPillButton narrow={width < 1360} labels={search.labels} onPress={() => search.open?.()} />}
             </Animated.View>
           </View>
           <Animated.View pointerEvents={search.collapsed ? 'none' : 'box-none'} accessibilityElementsHidden={search.collapsed} style={[styles.menuCentered, { opacity: searchCollapse.interpolate({ inputRange: [0, 0.5], outputRange: [1, 0], extrapolate: 'clamp' }) }]}>
@@ -202,7 +202,7 @@ export function TopNav() {
               transform: [{ scale: searchCollapse.interpolate({ inputRange: [0, 1], outputRange: [1.12, 1] }) }, { translateY: searchCollapse.interpolate({ inputRange: [0, 1], outputRange: [6, 0] }) }],
             }]}
           >
-            <SearchPillButton narrow={width < 1100} labels={search.labels} onPress={() => search.open?.()} />
+            {search.expanded ? null : <SearchPillButton narrow={width < 1100} labels={search.labels} onPress={() => search.open?.()} />}
           </Animated.View>
         </View>
       ) : capsule}

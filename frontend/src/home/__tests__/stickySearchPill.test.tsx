@@ -56,7 +56,7 @@ describe('setSearchHandle — 알약 글을 따로 적어도 나머지는 그대
     const open = () => {};
     setSearchHandle({ active: true, collapsed: false, open, labels: { origin: '부산역', dates: null, people: '성인 2' } });
     setSearchHandle({ active: true, collapsed: true, open });
-    expect(searchHandleNow()).toEqual({ active: true, collapsed: true, open, labels: { origin: '부산역', dates: null, people: '성인 2' } });
+    expect(searchHandleNow()).toEqual({ active: true, collapsed: true, open, labels: { origin: '부산역', dates: null, people: '성인 2' }, expanded: false });
     setSearchHandle({ active: false, collapsed: false, open: null, labels: null });
   });
 });

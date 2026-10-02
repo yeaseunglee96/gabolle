@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, Animated, Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { AccessibilityInfo, Animated, Image, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { Redirect, useIsFocused, useLocalSearchParams, useRouter } from 'expo-router';
 import { PlanStartBar } from '@/home/PlanStartBar';
-import { startBarEditSection, startBarEndDate, startBarFromDraft } from '@/home/startBarValue';
+import { EMPTY_START_BAR, startBarEditSection, startBarEndDate, startBarFromDraft } from '@/home/startBarValue';
 import { ConditionsPromptModal, type ConditionsOutcome } from '@/plan/ConditionsPromptModal';
 import { loadConditionsPrompt, shouldPromptBeforePlan, shouldPromptOnHome, type ConditionsPromptState } from '@/plan/conditionsPromptState';
 import { usePlan } from '@/plan/PlanProvider';
@@ -56,6 +56,11 @@ export default function Welcome() {
   const { draft: planDraft, update: updatePlan } = usePlan();
   // 🔴 열 문항 화면이 「날짜 정하기」로 보낸 사람은 고칠 칸을 열어 둔 채로 받는다 — S15P21E201-1350.
   const editSection = startBarEditSection(useLocalSearchParams().edit);
+  // 🔴 시작 바 값은 홈이 든다 — 큰 검색창과, 위쪽 알약을 눌러 펼친 검색창(아래 dropOpen)이 같은 값을 써야 한다.
+  //    한쪽에서 고른 날짜가 다른 쪽에서 비어 보이면 둘이 다른 검색창이다(㉖ 시안 「고른 값은 그대로 남아요」).
+  const [barValue, setBarValue] = useState<StartBarValue>(() => (editSection ? startBarFromDraft(planDraft) : EMPTY_START_BAR));
+  // 위쪽 알약을 누르면 보던 자리에서 위 막대 아래로 검색창이 펼쳐진다 — 전에는 맨 위로 끌어올렸다(㉖ 시안)
+  const [dropOpen, setDropOpen] = useState(false);
   const [promptState, setPromptState] = useState<ConditionsPromptState>('NEVER');
   const [conditions, setConditions] = useState<{ open: boolean; reprompt: boolean; pending: StartBarValue | null }>({ open: false, reprompt: false, pending: null });
   // 데스크톱 판인가 — 폭만이 아니라 폴드 펼침 가로까지, 판정은 useLayout 한 곳(S15P21E201-1563).
@@ -83,12 +88,20 @@ export default function Welcome() {
     // 동작 줄이기면 중간 없이 — 반을 넘으면 바로 바꾼다
     const progress = reduceMotion ? (raw >= 0.5 ? 1 : 0) : raw;
     searchCollapse.setValue(progress);
+    if (progress < 0.5) setDropOpen(false);
     setSearchHandle({ active: true, collapsed: progress >= 0.5, open: openSearchFromNav });
   };
-  const openSearchFromNav = useRef(() => webScrollRef.current?.scrollTo({ y: 0, animated: true })).current;
+  const openSearchFromNav = useRef(() => setDropOpen(true)).current;
   useEffect(() => { applyCollapse(lastScrollY.current); }, [searchBottom, reduceMotion]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { setSearchHandle({ ...searchHandleNow(), expanded: dropOpen }); }, [dropOpen]);
+  useEffect(() => {
+    if (!dropOpen || Platform.OS !== 'web' || typeof window === 'undefined') return;
+    const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') setDropOpen(false); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [dropOpen]);
   // 홈을 떠나면 위쪽 메뉴를 원래대로 — 다른 화면에서 알약이 남지 않게
-  useEffect(() => () => { searchCollapse.setValue(0); setSearchHandle({ active: false, collapsed: false, open: null }); }, []);
+  useEffect(() => () => { searchCollapse.setValue(0); setSearchHandle({ active: false, collapsed: false, open: null, expanded: false }); }, []);
   const onToggleLike = (placeId: string) => {
     // 로그인 안 한 사람도 기기에 저장된다 — 로그인으로 밀어내지 않는다.
     saved.toggle(placeId);
@@ -242,7 +255,7 @@ export default function Welcome() {
         <Text variant="body" color={color.text.muted} style={styles.headerSubtitle}>{tx('언제, 누구와, 어떻게 다닐지만 알려주세요. 일정은 가볼래가 짜요.', 'Just tell us when, with whom and how you travel — we build the itinerary.')}</Text>
         {/* 큰 검색창 — 내리면 작아지며 흐려진다. 같은 만큼 위쪽 메뉴 알약이 커지며 나타나 「검색창이 위로 접혀 올라간」 것처럼 보인다 */}
         <Animated.View style={[styles.startBar, { opacity: searchCollapse.interpolate({ inputRange: [0, 0.85, 1], outputRange: [1, 0.15, 0] }), transform: [{ scale: searchCollapse.interpolate({ inputRange: [0, 1], outputRange: [1, 0.72] }) }, { translateY: searchCollapse.interpolate({ inputRange: [0, 1], outputRange: [0, -24] }) }] }]} onLayout={(event) => setBarBottom(event.nativeEvent.layout.y + event.nativeEvent.layout.height)}>
-          <PlanStartBar wide accessToken={accessToken} onSubmit={startPlanFromBar} onLabelsChange={(labels) => setSearchHandle({ ...searchHandleNow(), labels })} initialSection={editSection} initialValue={editSection ? startBarFromDraft(planDraft) : undefined} />
+          <PlanStartBar wide accessToken={accessToken} onSubmit={startPlanFromBar} onLabelsChange={(labels) => setSearchHandle({ ...searchHandleNow(), labels })} initialSection={editSection} value={barValue} onChange={setBarValue} />
         </Animated.View>
         {/* 🔴 이 자리에 있던 것 둘이 지금은 없다. 왜 없는지를 남긴다 —
             안 적어 두면 다음 사람이 「빠뜨렸나」 하고 다시 넣는다.
@@ -303,6 +316,15 @@ export default function Welcome() {
         <GabolleMascot state={assistantOpen ? 'thinking' : 'idle'} still style={styles.webAssistantMascot} />
       </Pressable>
     </View>
+    {dropOpen ? (
+      // 위 막대 바로 아래로 펼친 검색창. 뒤는 흐리게 덮고, 덮개를 누르거나 Esc 로 닫는다.
+      <View style={styles.dropLayer}>
+        <Pressable accessibilityRole="button" accessibilityLabel={tx('검색창 닫기', 'Close search')} onPress={() => setDropOpen(false)} style={styles.dropBackdrop} />
+        <View style={styles.dropPanel} accessibilityViewIsModal>
+          <PlanStartBar wide accessToken={accessToken} value={barValue} onChange={setBarValue} onSubmit={(value) => { setDropOpen(false); startPlanFromBar(value); }} />
+        </View>
+      </View>
+    ) : null}
     <ConditionsPromptModal visible={conditions.open} reprompt={conditions.reprompt} onClose={closeConditions} />
   </View>;
 }
@@ -323,6 +345,10 @@ const ASSISTANT_LABEL_FROM = 1100;
 
 const styles = StyleSheet.create({
   webShell: { flex: 1, backgroundColor: color.canvas },
+  // 펼친 검색창 — 화면(위 막대 아래)을 덮는다. 판은 위에 붙고, 아래 칸 목록(출발지·날짜…)은 판 안에서 펼쳐진다
+  dropLayer: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 30 },
+  dropBackdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(25,25,25,0.32)' },
+  dropPanel: { alignItems: 'center', paddingTop: spacing[4], paddingBottom: spacing[6], paddingHorizontal: desktopGutter, backgroundColor: color.surface.card, borderBottomWidth: 1, borderBottomColor: color.surface.border },
   pressed: { opacity: 0.78 }, logoLink: { borderRadius: radius.sm }, mobileScreen: { flex: 1, width: '100%', height: '100%', overflow: 'hidden', backgroundColor: color.brand.navy }, mobileBackgroundImage: { ...StyleSheet.absoluteFill, width: '100%', height: '100%' },
   mobileSafeArea: { flex: 1 },
   mobileContent: { flexGrow: 1, justifyContent: 'space-between', gap: spacing[8], paddingHorizontal: spacing[6], paddingTop: spacing[8], paddingBottom: spacing[6] },
