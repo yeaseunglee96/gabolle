@@ -61,6 +61,7 @@ export default function Festivals() {
   const { tx, locale, language } = useI18n();
   const { width } = useLayout();
   const { accessToken } = useAuth();
+  const [gridWidth, setGridWidth] = useState(0);
   const [from, setFrom] = useState(() => dateInputValue());
   const [to, setTo] = useState(() => dateInputValue(30));
   // 🔴 전에는 「YYYY-MM-DD」 칸 두 개에 숫자를 쳐서 넣고 「이 기간으로 조회」를 눌러야 했다(UI 캔버스 ⑪).
@@ -129,6 +130,10 @@ export default function Festivals() {
     ? a.startDate.localeCompare(b.startDate)
     : festivalDisplayTitle(a).localeCompare(festivalDisplayTitle(b), 'ko')), [festivals, sort]);
 
+  // 카드 폭은 줄 폭을 재서 나눈다 — 48%·32% 로 두면 사이 간격만큼 오른쪽 끝이 비었다
+  const columns = width >= THREE_COLUMNS_FROM ? 3 : isAtLeast(width, 'md') ? 2 : 1;
+  const cardWidth = columns > 1 && gridWidth > 0 ? Math.floor((gridWidth - (columns - 1) * spacing[4]) / columns) : null;
+
   return <Screen scroll wide style={styles.screen}>
     <View style={styles.topBar}>
       <Pressable accessibilityRole="button" accessibilityLabel={tx('이전 화면으로 이동', 'Go back')} onPress={() => router.canGoBack() ? router.back() : router.replace('/home')} style={({ pressed }) => [styles.back, pressed && styles.pressed]}><Text variant="title" weight="bold">‹</Text></Pressable>
@@ -153,7 +158,7 @@ export default function Festivals() {
         <Text weight="bold" style={styles.shrink}>{rangeText}</Text>
       </View>
       {mode === 'custom' && calendarOpen ? (
-        <View style={styles.monthNav}>
+        <View style={[styles.monthNav, isAtLeast(width, 'md') && styles.monthNavWide]}>
           <Pressable accessibilityRole="button" accessibilityLabel={tx('이전 달', 'Previous month')} disabled={monthOffset <= 0} onPress={() => setMonthOffset((n) => Math.max(0, n - 1))} style={[styles.navButton, monthOffset <= 0 && styles.navOff]}>
             <Text weight="bold">‹</Text>
           </Pressable>
@@ -172,18 +177,18 @@ export default function Festivals() {
     </View>
 
     {state === 'loading' && <View accessibilityLiveRegion="polite" style={styles.stateCard}><Text variant="title" weight="bold">{tx('축제를 확인하고 있어요', 'Checking festivals')}</Text><Text color={color.text.body}>{tx('선택한 기간과 부산 지역을 기준으로 조회합니다.', 'Searching based on your selected period and the Busan area.')}</Text></View>}
-    {state === 'error' && <View accessibilityRole="alert" style={styles.stateCard}><Text variant="title" weight="bold">{tx('불러오지 못했습니다', 'Could not load')}</Text><Text color={color.text.body}>{localizeMessage(tx, errorMessage)}</Text><Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} /></View>}
+    {state === 'error' && <View accessibilityRole="alert" style={styles.stateCard}><Text variant="title" weight="bold">{tx('불러오지 못했습니다', 'Could not load')}</Text><Text color={color.text.body}>{localizeMessage(tx, errorMessage)}</Text><View style={isAtLeast(width, 'md') ? styles.retryWide : undefined}><Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void load()} /></View></View>}
     {state === 'ready' && sorted.length === 0 && <View style={styles.stateCard}><Text variant="title" weight="bold">{tx('이 기간에 열리는 축제가 없습니다', 'No festivals run during this period')}</Text><Text color={color.text.body}>{tx('날짜를 바꿔 다시 조회해 보세요. 기간과 무관한 축제는 대신 보여드리지 않아요.', "Try different dates. We don't show festivals outside the period instead.")}</Text>
       {/* 빈 화면에서 나갈 길 — 기간 정보가 없는 축제도 로컬 탐색의 축제 갈래에는 있다(S15P21E201-1372). */}
       <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/explore', params: { facet: 'FESTIVAL' } })} style={({ pressed }) => [styles.exploreLink, pressed && styles.pressed]}>
         <Text weight="bold" color={color.text.accent}>{tx('부산 전체 축제 장소 둘러보기 →', 'Browse all festival places in Busan →')}</Text>
       </Pressable>
     </View>}
-    {state === 'ready' && sorted.length > 0 && <View style={styles.grid}>{sorted.map((festival) => {
+    {state === 'ready' && sorted.length > 0 && <View style={styles.grid} onLayout={(event) => setGridWidth(event.nativeEvent.layout.width)}>{sorted.map((festival) => {
       // 사진이 그 축제를 찍은 것이 아닐 수 있다 — 대부분은 열리는 장소 사진이다.
       // 그대로 두면 「이 축제가 이렇게 생겼구나」로 읽힌다.
       const photo = photoLabels(festival, tx);
-      return <View key={festival.placeId} style={[styles.card, isAtLeast(width, 'md') && styles.cardWide]}>
+      return <View key={festival.placeId} style={[styles.card, cardWidth !== null && { width: cardWidth }]}>
         {festival.photoUrl ? <View>
           <Image source={{ uri: festival.photoUrl }} resizeMode="cover" style={styles.image} />
           {photo.badge && <View style={styles.photoBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>{photo.badge}</Text></View>}
@@ -204,12 +209,21 @@ export default function Festivals() {
   </Screen>;
 }
 
+/** 이 폭부터 축제 카드를 세 줄로 — 두 줄이면 1440 에서 카드 한 장이 680 넘게 늘어난다 */
+const THREE_COLUMNS_FROM = 1200;
+
 const styles = StyleSheet.create({
   screen: { backgroundColor: color.canvas },
   topBar: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   back: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card }, pressed: { opacity: 0.72, transform: [{ scale: 0.96 }] }, logo: { width: 154, height: 28 }, spacer: { width: 44 },
   heading: { gap: spacing[2], marginTop: spacing[4], marginBottom: spacing[6] },
-  filterCard: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card }, filterCardWide: { maxWidth: 520 },
+  filterCard: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card }, 
+  // 🔴 넓으면 판을 줄 끝까지 쓰고 고르는 칩(왼쪽) · 고른 기간(오른쪽)을 한 줄에 — 폭을 520 으로 막아 두면 판이 왼쪽 반쪽만 차지하고
+  //    바로 아래 목록 판은 끝까지 가서 오른쪽이 휑했다(2026-10-02 1440 배치 점검). 달력은 펼치면 아랫줄에 520 폭으로.
+  filterCardWide: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', columnGap: spacing[6] },
+  monthNavWide: { flexBasis: '100%', maxWidth: 520 },
+  // 넓은 화면에서 「다시 시도」가 판 끝에서 끝까지 늘어나지 않게 — 글 아래 왼쪽에 단추 크기로
+  retryWide: { alignSelf: 'flex-start', minWidth: 200 },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
   rangeLine: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] }, shrink: { flexShrink: 1 },
   monthNav: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[1] }, monthBody: { flex: 1 },
@@ -217,7 +231,7 @@ const styles = StyleSheet.create({
   sortRow: { flexDirection: 'row', gap: spacing[2], marginVertical: spacing[4] }, sortButton: { minHeight: 40, justifyContent: 'center', paddingHorizontal: spacing[4], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.full, backgroundColor: color.surface.card }, sortSelected: { borderColor: color.action.secondary, backgroundColor: color.action.secondary },
   stateCard: { gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card },
   exploreLink: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[4] }, card: { width: '100%', overflow: 'hidden', borderRadius: radius.lg, backgroundColor: color.surface.card }, cardWide: { width: '48%' }, image: { width: '100%', height: 180 }, imageFallback: { height: 180, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.soft }, cardBody: { gap: spacing[2], padding: spacing[4] },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[4] }, card: { width: '100%', overflow: 'hidden', borderRadius: radius.lg, backgroundColor: color.surface.card },  image: { width: '100%', height: 180 }, imageFallback: { height: 180, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.soft }, cardBody: { gap: spacing[2], padding: spacing[4] },
   cardTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   photoBadge: { position: 'absolute', top: spacing[2], left: spacing[2], paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: 'rgba(25,25,25,0.78)' },
   addButton: { alignSelf: 'flex-start', minHeight: 36, justifyContent: 'center', paddingHorizontal: spacing[3], marginTop: spacing[1], borderRadius: radius.full, borderWidth: 1, borderColor: color.action.outline },
