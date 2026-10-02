@@ -68,6 +68,10 @@ type Layout = 'cards' | 'map';
 const COURSE_SLOT = 220;
 const VIEW_SLOT = 132;
 const MAP_WIDTH = 440;
+/** 이보다 좁으면 지도를 카드 아래로 쌓는다 — 1100 에서도 일본어 요약 카드가 「分かりませ / ん」으로 꺾였다. 1280 PC 는 옆 그대로 */
+const STACK_BELOW = 1240;
+/** 쌓았을 때 지도 높이 — 카드를 보며 지도도 한눈에 */
+const STACKED_MAP_HEIGHT = 420;
 /**
  * 장소 카드 한 장의 최대 폭. 시안(1440)에서 카드는 약 215 다 — 그보다 조금 넉넉히 두고 거기서 멈춘다.
  * 🔴 상한이 없으면 넓은 모니터(2900)에서 카드가 680 까지 부풀고 지도는 440 에 남아, 지도가 «옆의 작은 띠» 가 된다
@@ -87,6 +91,11 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
   const router = useRouter();
   const { accessToken } = useAuth();
   const { tx, locale, language } = useI18n();
+  // 🔴 좁은 데스크톱(세로로 든 탭 800 · 폴드 펼침 가로)은 지도를 카드 «아래»로 — 옆에 두면 지도가 최소 440 을 지키고
+  //    남는 자리까지 나눠 가져 왼쪽 열이 130 남짓이 됐다. 카드가 한 글자 폭이 되어 「미 / 정」「Cost unk / nown」처럼
+  //    모든 낱말이 꺾였다(전체 점검 2026-10-02 — 1940 이후 세로 탭이 데스크톱 판이 되면서 드러났다).
+  const { width: windowWidth } = useWindowDimensions();
+  const stacked = windowWidth < STACK_BELOW;
   const { height: windowHeight } = useWindowDimensions();
 
   // 불러오기·세기는 폰과 같이 쓴다(useTripPage). 여기 남은 것은 넓은 화면에만 있는 상태다.
@@ -245,8 +254,8 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
           // 🔴 세 갈래(불러오는 중 · 장소 카드 · 큰 지도)에 key 를 따로 준다. 안 주면 React 가 **같은 자리의 같은 View 를
           //    다시 쓰고**, 웹의 onLayout 은 View 가 처음 생길 때만 크기 재기를 건다 — 뼈대 때 onLayout 이 없던 View 를
           //    물려받으면 카드 열 높이가 끝내 안 들어와 지도가 440 에 갇혔다(2026-09-23 사용자 지적, 배포본 재현).
-          <View key="cards" style={styles.body} onLayout={(event) => setBodyTop(Math.round(event.nativeEvent.layout.y))}>
-            <View style={[styles.left, styles.leftCapped]} onLayout={(event) => setLeftHeight(Math.round(event.nativeEvent.layout.height))}>
+          <View key="cards" style={[styles.body, stacked && styles.bodyStacked]} onLayout={(event) => setBodyTop(Math.round(event.nativeEvent.layout.y))}>
+            <View style={[styles.left, stacked ? styles.leftStacked : styles.leftCapped]} onLayout={(event) => setLeftHeight(Math.round(event.nativeEvent.layout.height))}>
               {/* 하루 시작 — 첫날은 출발지, 둘째 날부터는 숙소에서 (S15P21E201-1580) */}
               <DayStartRow start={loaded?.days[dayIndex]?.start} tx={tx} />
               <View style={styles.grid} onLayout={(event) => setGridWidth(Math.round(event.nativeEvent.layout.width))}>
@@ -258,7 +267,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
                     startKind={startKind}
                     index={index}
                     items={items}
-                    width={Math.floor((gridWidth - spacing[3] * 3) / 4)}
+                    width={Math.floor((gridWidth - spacing[3] * (cardColumns(gridWidth, stacked) - 1)) / cardColumns(gridWidth, stacked))}
                     photo={photos[item.placeId] ?? null}
                     selected={item.id === selectedId}
                     risky={pace?.atRiskItemIds.includes(item.id) ?? false}
@@ -319,7 +328,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
               </View>
             </View>
             {/* 지도는 왼쪽 열 높이와 화면 아래까지 중 긴 쪽 — 둘 다 «재서» 맞춘다. 숫자로 박으면 카드가 두 줄일 때 지도가 짧다. */}
-            <View style={styles.mapColumn}>{mapPanel(cardsMapHeight)}</View>
+            <View style={stacked ? styles.mapStacked : styles.mapColumn}>{mapPanel(stacked ? STACKED_MAP_HEIGHT : cardsMapHeight)}</View>
           </View>
         ) : (
           <View key="map" style={styles.body}>
@@ -465,6 +474,13 @@ function ViewSwitch({ layout, onChange, tx }: { layout: Layout; onChange: (next:
   );
 }
 
+/** 한 줄 카드 수 — 넓은 판은 넷. 쌓았을 때는 폭에 맞춰 넷·셋·둘(카드 하나가 150 아래로 줄지 않게) */
+export function cardColumns(gridWidth: number, stacked: boolean): number {
+  if (!stacked) return 4;
+  if (gridWidth >= 640) return 4;
+  return gridWidth >= 460 ? 3 : 2;
+}
+
 function PlaceCard({ item, startKind, index, items, width, photo, selected, risky, onPress, tx, locale }: {
   item: ItineraryItemDto; startKind: DayStart['kind']; index: number; items: ItineraryItemDto[]; width: number; photo: PlacePhoto | null;
   selected: boolean; risky: boolean; onPress: () => void; tx: Tx; locale: string;
@@ -575,6 +591,10 @@ const styles = StyleSheet.create({
   leftCapped: { flexGrow: 1, flexShrink: 1, flexBasis: CARD_MAX_WIDTH * 4 + spacing[3] * 3, maxWidth: CARD_MAX_WIDTH * 4 + spacing[3] * 3 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[3] },
   // 지도는 440 아래로 안 줄고, 카드 열이 멈춘 뒤 남는 폭을 전부 가져간다.
+  bodyStacked: { flexDirection: 'column', alignItems: 'stretch' },
+  // 🔴 flex:1(기본 0) 을 풀어야 한다 — 세로로 쌓으면 그 값이 높이를 0 으로 줄여 지도가 카드 위에 겹쳤다
+  leftStacked: { flexGrow: 0, flexShrink: 0, flexBasis: 'auto', width: '100%' },
+  mapStacked: { width: '100%' },
   mapColumn: { flexGrow: 1, flexShrink: 0, flexBasis: MAP_WIDTH, minWidth: MAP_WIDTH },
 
   // 카드 — 흰색 radius 20 padding 10, 고른 것은 붉은 2px 선(시안). 안 고른 것도 2px 자리를 흰색으로 둬 흔들리지 않게.

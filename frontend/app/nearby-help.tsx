@@ -247,7 +247,10 @@ function HelpRow({ item, number, selected, onSelect, onDirections, onShowDriver,
 }) {
   // 외국어 화면: 읽는 이름을 크게, 간판과 같은 한국어를 아래에 — 길에서 간판과 맞춰 본다.
   const foreign = language !== 'ko';
-  const title = foreign ? item.nameEn ?? romanizeKorean(item.name) ?? item.name : item.name;
+  // 🔴 영어 이름이 없으면 한국어를 굵게, 로마자는 아래 작게 한 줄 — 로마자는 띄어쓰기 없는 긴 한 낱말(「Gangdaesiknaegwauiwon」)이라
+  //    굵게 두면 좁은 폰에서 낱말 중간에서 꺾였다(전체 점검 2026-10-02). 영어 이름은 띄어쓰기가 있어 그대로 굵게.
+  const title = foreign && item.nameEn ? item.nameEn : item.name;
+  const subName = foreign ? (item.nameEn ? item.name : romanizeKorean(item.name)) : null;
   const typeLabel = item.type && item.type !== '약국' && item.type !== '경찰' ? (TYPE_LABEL[item.type] ? tx(...TYPE_LABEL[item.type]) : item.type) : null;
   const status = openLine(item, tx);
   return (
@@ -257,7 +260,7 @@ function HelpRow({ item, number, selected, onSelect, onDirections, onShowDriver,
           <View style={styles.pin}><Text variant="caption" weight="bold" color={color.text.onAction}>{number}</Text></View>
           <View style={styles.grow}>
             <Text variant="body" weight="bold">{title}</Text>
-            {foreign && title !== item.name ? <Text variant="caption" color={color.text.body}>{item.name}</Text> : null}
+            {subName && subName !== title ? <Text variant="caption" color={color.text.body} numberOfLines={1}>{subName}</Text> : null}
             <Text variant="caption" color={color.text.muted}>{[typeLabel, txf(tx, '직선 %s', '%s straight-line', distanceText(item.distanceM))].filter(Boolean).join(' · ')}</Text>
           </View>
         </Pressable>
