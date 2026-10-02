@@ -19,7 +19,9 @@ export const APP_STORE_URL = 'https://apps.apple.com/app/id6811252919';
 const qrAppStore = require('../../assets/brand/qr-appstore.png');
 const brandLogo = require('../../assets/brand/gabolle-logo-hd.png');
 
-type FooterLink = { ko: string; en: string; href: Href; emphasis?: boolean };
+/** href 는 앱 안 화면, mail 은 메일 앱으로 — 「문의하기」는 약관에 적힌 문의처로 바로 메일을 쓴다 */
+type FooterLink = { ko: string; en: string; href?: Href; mail?: string; emphasis?: boolean };
+const SUPPORT_MAIL = 'gabolle.support@gmail.com';
 type FooterGroup = { ko: string; en: string; links: FooterLink[] };
 
 export const FOOTER_GROUPS: FooterGroup[] = [
@@ -33,6 +35,7 @@ export const FOOTER_GROUPS: FooterGroup[] = [
     { ko: '긴급 도움 · 119 112 1330', en: 'Emergency · 119 112 1330', href: '/emergency' },
     { ko: '가까운 병원·약국', en: 'Nearby hospitals & pharmacies', href: '/nearby-help' },
     { ko: '처음 쓰는 분께', en: 'Getting started', href: '/help' },
+    { ko: '문의하기', en: 'Contact us', mail: SUPPORT_MAIL },
   ] },
   { ko: '약관', en: 'Policies', links: [
     { ko: '이용약관', en: 'Terms of service', href: '/legal/terms' },
@@ -92,7 +95,7 @@ export function WebFooter() {
           <View key={group.ko} accessibilityRole="list" accessibilityLabel={tx(group.ko, group.en)} style={[styles.group, narrow && styles.groupNarrow]}>
             <Text variant="caption" weight="bold" color={color.text.heading}>{tx(group.ko, group.en)}</Text>
             {group.links.map((link) => (
-              <Pressable key={link.ko} accessibilityRole="link" onPress={() => router.push(link.href)} style={({ pressed }) => [styles.link, pressed && styles.pressed]}>
+              <Pressable key={link.ko} accessibilityRole="link" onPress={() => { if (link.mail) void Linking.openURL(`mailto:${link.mail}`).catch(() => {}); else if (link.href) router.push(link.href); }} style={({ pressed }) => [styles.link, pressed && styles.pressed]}>
                 {/* 개인정보 처리방침은 굵게 — 개인정보보호법 가이드라인이 다른 약관과 구별해 눈에 띄게 두라고 한다(㉖ 시안) */}
                 <Text color={link.emphasis ? color.text.heading : color.text.body} weight={link.emphasis ? 'bold' : 'regular'}>{tx(link.ko, link.en)}</Text>
               </Pressable>
