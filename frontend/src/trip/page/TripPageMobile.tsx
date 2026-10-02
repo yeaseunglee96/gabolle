@@ -84,6 +84,8 @@ import { TripInvitePanel } from '@/trip/TripInvitePanel';
 import { TripReadLinkPanel } from '@/trip/TripReadLinkPanel';
 import { DropdownMenu, useDropdownMenu, type DropdownMenuItem } from '@/components/DropdownMenu';
 import { TripWeatherPanel } from '@/trip/TripWeatherPanel';
+import { weatherDayFor } from '@/trip/weatherDay';
+import { localToday } from '@/plan/tripBasics';
 import { StoryComposeForm } from '@/social/StoryComposeForm';
 import { otherNameFor } from '@/discovery/localNames';
 
@@ -845,7 +847,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
                 {overlay === 'invite' ? <TripInvitePanel tripId={tripId} onNavigate={() => setOverlay(null)} /> : null}
                 {overlay === 'share' ? <TripReadLinkPanel tripId={tripId} /> : null}
                 {overlay === 'record' ? <StoryComposeForm variant="panel" tripId={tripId} onClose={() => setOverlay(null)} /> : null}
-                {overlay === 'weather' ? <TripWeatherPanel date={loaded ? (loaded.days[0]?.date ?? null) : undefined} items={loaded?.days[0]?.items} /> : null}
+                {overlay === 'weather' ? <TripWeatherPanel date={loaded ? (weatherDayFor(loaded.days, localToday())?.date ?? null) : undefined} items={loaded ? weatherDayFor(loaded.days, localToday())?.items : undefined} /> : null}
               </ScrollView>
             </View>
           ) : tripContent}
