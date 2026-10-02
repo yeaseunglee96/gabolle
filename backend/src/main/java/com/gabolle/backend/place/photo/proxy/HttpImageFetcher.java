@@ -35,8 +35,8 @@ import javax.net.ssl.X509ExtendedTrustManager;
  */
 public class HttpImageFetcher implements ImageFetcher {
 
-	/** resources 안의 추가 신뢰 인증서들. 파일마다 출처·지문·만료일이 머리말에 있다. */
-	static final List<String> EXTRA_TRUST = List.of("proxy-certs/sectigo-public-server-authentication-ca-dv-r36.pem");
+	/** resources 안의 추가 신뢰 인증서들(공개 인증서다 — 비밀이 아니다). 파일마다 출처·지문·만료일이 머리말에 있다. .pem 은 .gitignore 가 비밀 키로 보고 막으므로 .crt 로 둔다. */
+	static final List<String> EXTRA_TRUST = List.of("proxy-certs/sectigo-public-server-authentication-ca-dv-r36.crt");
 
 	private final HttpClient client;
 
