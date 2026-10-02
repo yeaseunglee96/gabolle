@@ -11,6 +11,7 @@ import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { useAuth } from '@/auth/AuthProvider';
+import { GuestSignInNotice } from '@/auth/GuestSignInNotice';
 import { RegionPicker } from '@/components/RegionPicker';
 import { MarkdownBody } from '@/components/MarkdownBody';
 import { PhotoGrid } from '@/components/PhotoGrid';
@@ -53,7 +54,7 @@ export function StoryComposeForm({ tripId, onClose, variant = 'screen' }: {
   onClose: () => void;
   variant?: 'screen' | 'panel';
 }) {
-  const { accessToken } = useAuth();
+  const { accessToken, ready } = useAuth();
   const queryClient = useQueryClient();
   const { tx, locale } = useI18n();
   const [body, setBody] = useState('');
@@ -170,6 +171,10 @@ export function StoryComposeForm({ tripId, onClose, variant = 'screen' }: {
     );
     return variant === 'panel' ? notice : <Screen>{notice}</Screen>;
   }
+
+  // 기록은 피드에 이름이 걸려 계정이 있어야 한다. 비회원도 자기 여행 화면까지는 오므로(S15P21E201-317) 쓰기 전에 알린다 —
+  // 예전엔 다 쓰고 올리기를 누르면 서버의 401 문구가 떴다.
+  if (ready && !accessToken) return variant === 'panel' ? <GuestSignInNotice /> : <Screen><GuestSignInNotice /></Screen>;
 
   const form = <View>
     <TextInput
