@@ -5,7 +5,7 @@ import { stopNameForLanguage } from '@/discovery/romanize';
 import { txf } from '@/i18n/format';
 import { resolveTextLanguage, type LanguageCode } from '@/i18n/languages';
 import { lodgingMissing } from '@/plan/lodgingRequired';
-import type { PlaceSnapshot } from '@/plan/origins';
+import { knownPlaceLocalName, type PlaceSnapshot } from '@/plan/origins';
 
 /**
  * 고른 출발지·숙소의 영어 이름 — S15P21E201-1795(고지혁 QA). **화면에만 쓴다.**
@@ -59,7 +59,8 @@ export function englishNameOf(name: string, english: PlaceEnglishName | null | u
 export function startBarPlaceName(name: string, english: PlaceEnglishName | null | undefined, language?: LanguageCode): string {
   const trimmed = name.trim();
   if (!language || !trimmed) return trimmed;
-  return stopNameForLanguage(trimmed, englishNameOf(name, english), language);
+  // 정해 둔 출발지·동네는 일본어·중국어 이름이 먼저다(S15P21E201-1923) — 「釜山駅 (부산역)」.
+  return stopNameForLanguage(trimmed, knownPlaceLocalName(trimmed, language) ?? englishNameOf(name, english), language);
 }
 
 /**
@@ -70,7 +71,7 @@ export function startBarPlaceName(name: string, english: PlaceEnglishName | null
 export function startBarPlaceShortName(name: string, english: PlaceEnglishName | null | undefined, language?: LanguageCode): string {
   const trimmed = name.trim();
   if (!language || resolveTextLanguage(language) === 'ko') return trimmed;
-  return englishNameOf(name, english) ?? trimmed;
+  return knownPlaceLocalName(trimmed, language) ?? englishNameOf(name, english) ?? trimmed;
 }
 
 export const EMPTY_START_BAR: StartBarValue = {
