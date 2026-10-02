@@ -98,6 +98,9 @@ export async function loadExchangeRates(
 /** 기본 통화를 목록에서 찾는다. 없으면 첫 번째 — 고를 것이 있는데 빈 화면을 주지 않는다. */
 export function pickRate(rates: ExchangeRate[], wantedCode: string): ExchangeRate | null {
   if (!rates.length) return null;
+  const find = (code: string) => rates.find((r) => displayCode(r.currencyCode).toUpperCase() === code);
   const want = displayCode(wantedCode).toUpperCase();
-  return rates.find((r) => displayCode(r.currencyCode).toUpperCase() === want) ?? rates[0];
+  // 서버(수출입은행)는 위안을 CNH 로만 주고 TWD 는 아예 없다. 못 찾았을 때 목록 첫 통화(알파벳순이라 AED)로
+  // 떨어지면 중국어 화면이 디르함으로 시작한다(S15P21E201-1920) — 위안은 CNH 로 잇고, 그래도 없으면 USD.
+  return find(want) ?? (want === 'CNY' ? find('CNH') : undefined) ?? find('USD') ?? rates[0];
 }
