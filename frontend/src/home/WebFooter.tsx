@@ -2,7 +2,8 @@
 // 전에는 웹 홈이 「내 여행」 카드에서 그냥 끝나서 앱을 받을 곳도, 약관·출처를 찾을 곳도 없었다(사용자 의견 2026-10-02).
 //
 // 🔴 로고 그림은 여기 안 둔다 — 위쪽 메뉴에 이미 있다. 한 화면에 로고 둘이면 「두 번 그렸다」로 읽힌다(S15P21E201-1547).
-// 🔴 안드로이드 링크는 넣지 않는다 — 아직 스토어에 없다. 없는 곳으로 가는 단추는 고장으로 보인다.
+// 🔴 안드로이드는 링크가 아니라 「Google Play 심사 중」 표시만 — 아직 스토어에 없다. 없는 곳으로 가는 단추는 고장으로 보이고,
+//    아무 말도 없으면 안드로이드 사용자는 앱이 없는 줄 안다(사용자 의견 2026-10-02). 심사가 끝나면 링크로 바꾼다.
 // 🔴 긴 문장은 문장·쉼표 단위로 줄을 나눈다(\n) — 상자가 아무 데서나 꺾으면 「…여행이 / 그대로」처럼 읽힌다(사용자 지적 2026-10-02).
 import { Image, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { useRouter, type Href } from 'expo-router';
@@ -61,6 +62,10 @@ export function WebFooter() {
           <Text variant="micro" color={color.text.muted}>iPhone</Text>
           <Text weight="bold">{tx('App Store에서 받기', 'Get it on the App Store')}</Text>
         </Pressable>
+        <View accessibilityLabel={tx('안드로이드 앱은 Google Play 심사 중이에요', 'The Android app is in Google Play review')} style={styles.storePending}>
+          <Text variant="micro" color={color.text.onDarkMuted}>Android</Text>
+          <Text weight="bold" color={color.text.onAction}>{tx('Google Play 심사 중', 'Google Play — in review')}</Text>
+        </View>
         <View style={styles.qrBlock}>
           <Image source={qrAppStore} accessibilityLabel={tx('App Store 내려받기 QR 코드', 'QR code to the App Store')} style={styles.qr} />
           <Text variant="micro" color={color.text.onDarkMuted}>{tx('iPhone 카메라로', 'Scan with iPhone')}</Text>
@@ -109,6 +114,8 @@ const styles = StyleSheet.create({
   // 마스코트(72) + 간격(24) 만큼 들여서 글 왼쪽 끝에 맞춘다
   actionsNarrow: { flexBasis: '100%', paddingLeft: 72 + spacing[6] },
   storeButton: { minHeight: 52, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.md, backgroundColor: color.surface.card },
+  // 누를 수 없는 표시라 테두리만 — 채운 단추(App Store)와 모양으로 갈린다
+  storePending: { minHeight: 52, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.md, borderWidth: 1, borderColor: color.text.onDarkMuted },
   qrBlock: { alignItems: 'center', gap: spacing[1] },
   qr: { width: 84, height: 84, borderRadius: radius.sm, backgroundColor: color.surface.card },
   // 안내 단 — 소개 한 칸을 조금 넓게, 메뉴 셋은 같은 폭

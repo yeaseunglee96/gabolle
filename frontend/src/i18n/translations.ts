@@ -3353,6 +3353,8 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '수영구': { ja: '水営区', zhHans: '水营区', zhHant: '水營區' },
   '사상구': { ja: '沙上区', zhHans: '沙上区', zhHant: '沙上區' },
   '기장군': { ja: '機張郡', zhHans: '机张郡', zhHant: '機張郡' },
+  '안드로이드 앱은 Google Play 심사 중이에요': { ja: 'Android アプリは Google Play で審査中です', zhHans: '安卓应用正在 Google Play 审核中', zhHant: 'Android App 正在 Google Play 審核中' },
+  'Google Play 심사 중': { ja: 'Google Play 審査中', zhHans: 'Google Play 审核中', zhHant: 'Google Play 審核中' },
 };
 
 export function getTranslation(ko: string, field: 'ja' | 'zhHans' | 'zhHant'): string | null {
