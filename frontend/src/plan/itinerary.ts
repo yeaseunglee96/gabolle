@@ -1,6 +1,7 @@
 import { apiRequest, ApiClientError } from '@/api/client';
 import { UNAVAILABLE_MESSAGE } from '@/api/errorText';
 import type { SlopePiece } from '@/map/slopeGrades';
+import type { LocalNames } from '@/discovery/localNames';
 
 /** 시각 칸(HH:mm). 시각이 없거나 모양이 다르면 null — 부르는 쪽이 「미정」을 그린다. */
 export function stopClock(startsAt: string | null | undefined): string | null {
@@ -20,6 +21,10 @@ export type ItineraryItemDto = {
    */
   endsAt?: string | null;
   title: string;
+  /** 장소 영어 이름 — 장소 상세의 nameEn 과 같다(S15P21E201-1937). 옛 서버는 안 보낸다. */
+  nameEn?: string | null;
+  /** 일본어·중국어 이름 — 장소 상세의 localNames 와 같다. 없는 언어는 빠져 온다. */
+  localNames?: LocalNames;
   description?: string | null;
   estimatedCostKrw?: number | null;
   /**

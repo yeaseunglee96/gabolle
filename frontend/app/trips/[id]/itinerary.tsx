@@ -57,6 +57,8 @@ import {
 import { nextSyncPollDelay, SYNC_POLL_BASE_MS } from '@/plan/syncPoll';
 import { formatTravelLabel, itineraryStats, totalTravelMinutes } from '@/plan/itinerarySummary';
 import { loadPlaceReviews, submitPlaceReview } from '@/review/placeReviews';
+import { stopNameForLanguage } from '@/discovery/romanize';
+import { itemOtherName } from '@/plan/itineraryItemName';
 import { useI18n } from '@/i18n';
 import { takeItineraryHint } from '@/onboarding/firstRun';
 import { ItineraryHint } from '@/onboarding/ItineraryHint';
@@ -115,6 +117,7 @@ function formatDayHeading(value: string, index: number, tx: (ko: string, en: str
 
 // 지도 대신 노선도 — 디자인 확정안 B안(09-디자인-인계-일정).
 function RouteStrip({ items, times, tx, locale }: { items: ItineraryItemDto[]; times: (string | null)[]; tx: (ko: string, en: string) => string; locale: string }) {
+  const { language } = useI18n();
   if (!items.length) return null;
   return <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.strip}>
     {items.map((item, index) => {
@@ -135,7 +138,7 @@ function RouteStrip({ items, times, tx, locale }: { items: ItineraryItemDto[]; t
         </View> : null}
         <View style={styles.stop}>
           <View style={[styles.node, index === 0 && styles.nodeFirst]}><Text variant="caption" weight="bold" color={color.text.onAction}>{index + 1}</Text></View>
-          <Text variant="caption" weight="bold" numberOfLines={1} style={styles.stopName}>{item.title}</Text>
+          <Text variant="caption" weight="bold" numberOfLines={1} style={styles.stopName}>{stopNameForLanguage(item.title, itemOtherName(item, null, language), language)}</Text>
           <Text variant="caption" color={color.text.muted}>{formatStopTime(times[index] ?? item.startsAt, locale) ?? tx('미정', 'TBD')}</Text>
         </View>
       </View>;
@@ -266,7 +269,7 @@ function StopPhoto({ placeId, wide }: { placeId: string; wide: boolean }) {
 function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExpand, canEdit, lockBusy, excludeBusy, dayBusy, onLock, onExclude, reorderMode, canMoveUp, canMoveDown, moveBusy, onMoveUp, onMoveDown, pace, estimated, actualBusy, onRecordArrival, onRecordDeparture, accessToken, stepState }: { item: ItineraryItemDto; index: number; isLast: boolean; displayTime: string | null; wide: boolean; expanded: boolean; onToggleExpand: () => void; canEdit: boolean; lockBusy: boolean; excludeBusy: boolean; dayBusy: boolean; onLock: () => void; onExclude: () => void; reorderMode: boolean; canMoveUp: boolean; canMoveDown: boolean; moveBusy: boolean; onMoveUp: () => void; onMoveDown: () => void; pace?: ItineraryPaceItemDto; estimated?: boolean; actualBusy?: boolean; onRecordArrival?: () => void; onRecordDeparture?: () => void; accessToken: string | null;
   /** 시안 ⑤ — 다녀옴 · 현재 · 다음 · 이후. 모르면 안 준다(진행을 안 켠 화면). */
   stepState?: 'done' | 'current' | 'next' | 'later' }) {
-  const { tx, locale } = useI18n();
+  const { tx, locale, language } = useI18n();
   const disabled = !canEdit || lockBusy || excludeBusy || dayBusy;
 
   // 다녀오셨나요 평가 — 방문 예정 시각이 지난 칸에만 띄운다.
@@ -355,7 +358,7 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
           */}
           <Pressable accessibilityRole="button" accessibilityState={{ expanded }} accessibilityLabel={(expanded ? txf(tx, '%s 접기', 'Collapse %s', item.title) : txf(tx, '%s 자세히', 'Details for %s', item.title))} onPress={onToggleExpand} style={styles.stopTitle}>
             <View style={styles.titleLine}>
-              <Text variant={wide ? 'title' : 'body'} weight="bold" style={styles.titleText}>{item.title}</Text>
+              <Text variant={wide ? 'title' : 'body'} weight="bold" style={styles.titleText}>{stopNameForLanguage(item.title, itemOtherName(item, null, language), language)}</Text>
               {item.dataStatus ? <View style={[styles.statusChip, STATUS_CHIP[item.dataStatus]]}><Text variant="caption" weight="bold" color={STATUS_COLOR[item.dataStatus]}>{STATUS_LABEL[item.dataStatus]}</Text></View> : null}
               {pace?.atRisk ? <View style={[styles.statusChip, styles.riskChip]}><Text variant="caption" weight="bold" color={color.state.danger}>{tx('하루 넘길 위험', 'May run past the day')}</Text></View> : null}
             </View>

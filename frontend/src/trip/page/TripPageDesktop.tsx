@@ -59,6 +59,7 @@ import { weatherDayFor } from '@/trip/weatherDay';
 import { localToday } from '@/plan/tripBasics';
 import { StoryComposeForm } from '@/social/StoryComposeForm';
 import { ImpressionView, useImpressionTracker } from '@/analytics/impressions';
+import { itemOtherName } from '@/plan/itineraryItemName';
 
 type Tx = (ko: string, en: string) => string;
 type Layout = 'cards' | 'map';
@@ -275,7 +276,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
               {selectedLeg ? (
                 <View style={styles.selectedLeg}>
                   <LegRow
-                    destName={stopNameForLanguage(selectedLeg.item.title, photos[selectedLeg.item.placeId]?.nameEn, language)}
+                    destName={stopNameForLanguage(selectedLeg.item.title, itemOtherName(selectedLeg.item, photos[selectedLeg.item.placeId], language), language)}
                     label={selectedLeg.label}
                     transit={typeof selectedLeg.item.travelFareKrw === 'number' && selectedLeg.item.travelFareKrw > 0}
                     route={selectedLeg.params}
@@ -303,7 +304,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
                   {atRisk.length ? (
                     <Text weight="bold" color={color.state.danger}>
                       {atRisk.length === 1
-                        ? txf(tx, `%s${koreanSubject(atRisk[0].title)} 하루를 넘길 수 있어요`, '%s may run past the day', stopNameForLanguage(atRisk[0].title, photos[atRisk[0].placeId]?.nameEn, language))
+                        ? txf(tx, `%s${koreanSubject(atRisk[0].title)} 하루를 넘길 수 있어요`, '%s may run past the day', stopNameForLanguage(atRisk[0].title, itemOtherName(atRisk[0], photos[atRisk[0].placeId], language), language))
                         : txf(tx, '%s곳이 하루를 넘길 수 있어요', '%s places may run past the day', atRisk.length)}
                     </Text>
                   ) : (
@@ -333,7 +334,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
                     {legParams ? (
                       <View style={styles.bigLeg}>
                         <LegRow
-                          destName={stopNameForLanguage(item.title, photo?.nameEn, language)}
+                          destName={stopNameForLanguage(item.title, itemOtherName(item, photo, language), language)}
                           label={leg}
                           transit={typeof item.travelFareKrw === 'number' && item.travelFareKrw > 0}
                           route={legParams}
@@ -351,7 +352,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
                         {photo?.photoUrl ? <Image source={{ uri: photo.photoUrl }} resizeMode="cover" style={styles.fill} accessibilityLabel="" /> : <Text variant="title">{categoryGlyph(photo?.category)}</Text>}
                       </View>
                       <View style={styles.bigCopy}>
-                        <View style={styles.rowCenter}><NumberDot n={index + 1} size={20} /><StopName weight="bold" title={item.title} nameEn={photo?.nameEn} /></View>
+                        <View style={styles.rowCenter}><NumberDot n={index + 1} size={20} /><StopName weight="bold" title={item.title} nameEn={itemOtherName(item, photo, language)} /></View>
                         <Text variant="caption" color={color.text.muted} numberOfLines={1}>{[stopClock(item.startsAt), legParams ? null : leg].filter(Boolean).join(' · ')}</Text>
                       </View>
                     </Pressable>
