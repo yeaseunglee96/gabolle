@@ -566,9 +566,9 @@ const styles = StyleSheet.create({
   fill: { width: '100%', height: '100%' },
   rowCenter: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
 
-  // 🔴 좁으면 단추 묶음이 다음 줄로 — 제목 칸이 240 아래로 줄지 않는다(S15P21E201-1953).
+  // 🔴 좁으면 단추 묶음이 다음 줄로 — 제목 칸이 360 아래로 줄지 않는다(S15P21E201-1953, 240→360 은 S15P21E201-1965: 탭 세로에서 날짜 제목이 잘렸다).
   head: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing[4], zIndex: 5 },
-  headCopy: { flexGrow: 1, flexShrink: 1, flexBasis: 240, minWidth: 0, gap: 2 },
+  headCopy: { flexGrow: 1, flexShrink: 1, flexBasis: 360, minWidth: 0, gap: 2 },
   headActions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing[4], marginLeft: 'auto' },
   noShrink: { flexShrink: 0 },
   circle44: { width: 44, height: 44, borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },

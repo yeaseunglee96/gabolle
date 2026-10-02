@@ -15,8 +15,9 @@ describe('여행 화면 머리줄', () => {
     expect(style('head')).toMatch(/flexWrap: 'wrap'/);
   });
 
-  it('🔴 제목 칸은 240 아래로 줄지 않는다 — 모자라면 단추 묶음이 다음 줄로 간다', () => {
-    expect(style('headCopy')).toMatch(/flexBasis: 240/);
+  it('🔴 제목 칸은 360 아래로 줄지 않는다 — 모자라면 단추 묶음이 다음 줄로 간다', () => {
+    // 240 이었을 때 탭 세로(753)에서 날짜 제목이 「10월 1일 (목) ...」로 잘렸다 — 단추 여섯이 한 줄에 들어가 버렸다(S15P21E201-1965).
+    expect(style('headCopy')).toMatch(/flexBasis: 360/);
   });
 
   it('단추들은 한 묶음이다 — 하나씩 흩어져 내려가지 않는다', () => {
