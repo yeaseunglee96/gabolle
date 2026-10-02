@@ -33,7 +33,7 @@ class AccountDeletionTableInventoryTest extends AuthPostgresIntegrationTest {
 			// 음식 그림 만든 횟수. dish_image·dish_description 은 사람을 안 가리켜 여기 없다.
 			"dish_image_usage",
 			"feed_build",
-			// itinerary_versions·itinerary_excluded_place·recommendation_place_action 은 V20261002130000 이
+			// itinerary_versions·itinerary_excluded_place·recommendation_place_action 은 V20261002160000 이
 			// 외래키를 뗐다 — 비회원(익명 세션)도 일정을 만들고 고친다. 탈퇴는 app_user 행을 지우지 않아 영향이 없다.
 			"local_credential", "menu_scan_usage", "oauth_signup_ticket", "place_review",
 			"place_visit_verification",
