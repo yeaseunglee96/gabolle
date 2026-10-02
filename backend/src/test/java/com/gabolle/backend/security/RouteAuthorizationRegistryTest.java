@@ -494,6 +494,12 @@ class RouteAuthorizationRegistryTest {
 					"여행 별점. 구성원만 — TripQueryService.get 을 지나 비회원과 없는 여행은 같은 404. "
 							+ "TripRatingPostgresTest.strangerRejected (-1908)");
 		}
+		for (String route : new String[] { "GET /api/v1/trips/{}/expenses", "POST /api/v1/trips/{}/expenses",
+				"DELETE /api/v1/trips/{}/expenses/{}", "PUT /api/v1/trips/{}/budget" }) {
+			put(m, route, Policy.OWNED,
+					"여행 돈. 구성원만 — TripQueryService.get 을 지나 비회원과 없는 여행은 같은 404. 남이 적은 줄 지우기·"
+							+ "보기 전용의 예산 고치기는 403. TripExpensePostgresTest (-1935)");
+		}
 		put(m, "GET /api/v1/trips/{}/itineraries", Policy.OWNED,
 				"참여자만. 비회원과 없는 여행이 같은 404. TripItineraryListIntegrationTest");
 		put(m, "GET /api/v1/trips/{}/recommendations", Policy.OWNED,
