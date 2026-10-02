@@ -11,15 +11,17 @@ export const searchCollapse = new Animated.Value(0);
 
 /** 알약에 쓰는 글 — 큰 검색창에서 고른 값. 안 골랐으면 null 이고 알약은 빈 칸 안내(「어디서 출발」)를 쓴다 */
 export type PillLabels = { origin: string | null; dates: string | null; people: string | null };
-type Handle = { active: boolean; collapsed: boolean; open: (() => void) | null; labels?: PillLabels | null };
+/** expanded: 알약을 눌러 큰 검색창을 위 막대 아래로 펼친 동안 — 알약은 숨는다(같은 검색창을 두 번 그리지 않게) */
+type Handle = { active: boolean; collapsed: boolean; open: (() => void) | null; labels?: PillLabels | null; expanded?: boolean };
 let handle: Handle = { active: false, collapsed: false, open: null, labels: null };
 const listeners = new Set<() => void>();
 
 /** 홈이 부른다 — active: 이 화면이 알약을 쓰는가, collapsed: 지금 알약을 누를 수 있나(반 넘게 접혔나) */
 export function setSearchHandle(next: Handle): void {
   const labels = next.labels === undefined ? handle.labels : next.labels;
-  if (next.active === handle.active && next.collapsed === handle.collapsed && next.open === handle.open && sameLabels(labels, handle.labels)) return;
-  handle = { ...next, labels };
+  const expanded = next.expanded === undefined ? handle.expanded ?? false : next.expanded;
+  if (next.active === handle.active && next.collapsed === handle.collapsed && next.open === handle.open && sameLabels(labels, handle.labels) && expanded === (handle.expanded ?? false)) return;
+  handle = { ...next, labels, expanded };
   listeners.forEach((listener) => listener());
 }
 
