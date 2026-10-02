@@ -55,6 +55,8 @@ import { TripInvitePanel } from '@/trip/TripInvitePanel';
 import { TripReadLinkPanel } from '@/trip/TripReadLinkPanel';
 import { DropdownMenu, useDropdownMenu, type DropdownMenuItem } from '@/components/DropdownMenu';
 import { TripWeatherPanel } from '@/trip/TripWeatherPanel';
+import { weatherDayFor } from '@/trip/weatherDay';
+import { localToday } from '@/plan/tripBasics';
 import { StoryComposeForm } from '@/social/StoryComposeForm';
 import { ImpressionView, useImpressionTracker } from '@/analytics/impressions';
 
@@ -388,7 +390,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
             <Text variant="display" weight="bold" style={styles.recordTitle}>{tx('기록 남기기', 'Write a record')}</Text>
             <StoryComposeForm variant="panel" tripId={tripId} onClose={() => setOverlay(null)} />
           </> : null}
-          {overlay === 'weather' ? <TripWeatherPanel date={loaded ? (loaded.days[0]?.date ?? null) : undefined} items={loaded?.days[0]?.items} /> : null}
+          {overlay === 'weather' ? <TripWeatherPanel date={loaded ? (weatherDayFor(loaded.days, localToday())?.date ?? null) : undefined} items={loaded ? weatherDayFor(loaded.days, localToday())?.items : undefined} /> : null}
         </TripOverlay>
       ) : null}
       <DropdownMenu visible={menu.open} anchor={menu.anchor} items={menuItems} onClose={menu.close} />
