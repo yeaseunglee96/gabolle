@@ -75,6 +75,9 @@ export default function Welcome() {
   const [barBottom, setBarBottom] = useState<number | null>(null);
   const searchBottom = headerY !== null && barBottom !== null ? headerY + HEADER_PADDING_TOP + barBottom : null;
   const [stickySearch, setStickySearch] = useState(false);
+  // 창 크기가 바뀌어 검색창 자리가 다시 재지면 스크롤을 기다리지 않고 다시 판정한다(AI 리뷰 !1980)
+  const lastScrollY = useRef(0);
+  useEffect(() => { setStickySearch(shouldShowStickySearch(lastScrollY.current, searchBottom)); }, [searchBottom]);
   const onToggleLike = (placeId: string) => {
     // 로그인 안 한 사람도 기기에 저장된다 — 로그인으로 밀어내지 않는다.
     saved.toggle(placeId);
@@ -205,7 +208,7 @@ export default function Welcome() {
     </View>;
   }
 
-  return <View style={styles.webShell}><ScrollView ref={webScrollRef} style={styles.webScreen} contentContainerStyle={styles.webContent} scrollEventThrottle={32} onScroll={(event) => { const next = shouldShowStickySearch(event.nativeEvent.contentOffset.y, searchBottom); if (next !== stickySearch) setStickySearch(next); }}>
+  return <View style={styles.webShell}><ScrollView ref={webScrollRef} style={styles.webScreen} contentContainerStyle={styles.webContent} scrollEventThrottle={32} onScroll={(event) => { lastScrollY.current = event.nativeEvent.contentOffset.y; const next = shouldShowStickySearch(lastScrollY.current, searchBottom); if (next !== stickySearch) setStickySearch(next); }}>
     <StatusBar style="dark" />
     {/* 상단 바는 이 파일에 없다. 앱 뼈대(app/_layout.tsx)가 모든 화면에 한 번만 붙인다
          전에는 이 파일 안에 내비가 하나 더 박혀 있어서 내비가 두 벌이었고
