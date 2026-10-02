@@ -32,13 +32,15 @@ class AccountDeletionTableInventoryTest extends AuthPostgresIntegrationTest {
 			"auth_identity", "auth_session", "collection",
 			// 음식 그림 만든 횟수. dish_image·dish_description 은 사람을 안 가리켜 여기 없다.
 			"dish_image_usage",
-			"feed_build", "itinerary_excluded_place",
-			"itinerary_versions", "local_credential", "menu_scan_usage", "oauth_signup_ticket", "place_review",
+			"feed_build",
+			// itinerary_versions·itinerary_excluded_place·recommendation_place_action 은 V20261002160000 이
+			// 외래키를 뗐다 — 비회원(익명 세션)도 일정을 만들고 고친다. 탈퇴는 app_user 행을 지우지 않아 영향이 없다.
+			"local_credential", "menu_scan_usage", "oauth_signup_ticket", "place_review",
 			"place_visit_verification",
 			// 기기 푸시 토큰. 탈퇴 때 AccountDeletionService 가 직접 지운다 — CASCADE 는 안 돈다
 			// (app_user 행을 익명화만 하므로). 안 지우면 탈퇴한 사람 폰에 알림이 계속 간다.
 			"push_token",
-			"recommendation_place_action", "saved_place", "story", "story_coauthor",
+			"saved_place", "story", "story_coauthor",
 			"story_invite", "story_link_copy", "story_reaction",
 			"story_save", "story_view", "trip_invite", "trip_member",
 			"trip_share_link", "uploaded_image",

@@ -40,7 +40,7 @@ public class TripItineraryController {
 	public ApiResponse<TripItineraryResponse> itineraries(@PathVariable String tripId,
 			Authentication authentication) {
 
-		String requester = AuthenticatedUsers.requireId(authentication).toString();
+		String requester = AuthenticatedUsers.requireTripActor(authentication);
 		return ApiResponse.success(this.itineraryService.list(tripId, requester), "req_" + UUID.randomUUID());
 	}
 }

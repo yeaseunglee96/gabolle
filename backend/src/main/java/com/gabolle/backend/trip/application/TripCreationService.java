@@ -243,7 +243,11 @@ public class TripCreationService {
         // 답하지 않은 차원까지 "고른 것" 이 된다. 실제로 만들어졌을 때만 한다 — 같은 키로 다시 온
         // 요청은 여행을 안 만들었으므로 취향도 새로 정한 것이 아니다.
         if (outcome.created()) {
-            preferenceDefaults.carryOver(command.userId(), storedPreferences);
+            // 계정 기본값은 계정이 있어야 담는다. 익명 세션으로 넘기면 계정 단위 스냅샷이 세션
+            // ID 로 쌓이고, 뒤따르는 취향 벡터 접기가 app_user 외래키에 걸려 매번 경고만 남긴다.
+            if (command.ownerType() != Trip.OwnerType.ANONYMOUS) {
+                preferenceDefaults.carryOver(command.userId(), storedPreferences);
+            }
             saveMustVisitPlaces(outcome.trip().tripId(), command.mustVisitPlaceIds(), now);
             saveTravelAreas(outcome.trip().tripId(), command.travelAreas());
             recordExplicitInputs(outcome.trip(), command, storedPreferences, constraints);

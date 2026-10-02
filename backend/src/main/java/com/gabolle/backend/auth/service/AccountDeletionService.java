@@ -351,6 +351,23 @@ public class AccountDeletionService {
 	}
 
 	/** 이 사람이 소유한 여행. 동행자로만 참여한 여행은 여기 없다 — 그건 남의 여행이다. */
+	/**
+	 * 익명 세션이 만든 여행과 그 일정·추천·스냅샷을 지운다 — {@link AnonymousSessionCleanupService} 전용.
+	 *
+	 * <p>탈퇴의 삭제 사슬에서 여행에 매달린 세 칸만 같은 순서로 돈다. 익명 세션에는 취향 벡터·피드·
+	 * 업로드처럼 사람에게 붙는 것이 없다 — 그 표들은 app_user 외래키가 있어 세션 ID 로는 애초에 못
+	 * 들어간다. 순서를 여기서 다시 쓰지 않고 빌려 쓰는 것은, 일정 쪽 표가 늘 때 탈퇴만 고쳐지고 이쪽이
+	 * 남는 일을 막으려는 것이다.
+	 *
+	 * <p>트랜잭션은 부르는 쪽 것이다.
+	 */
+	void deleteAnonymousOwnerData(UUID sessionId) {
+		List<UUID> tripIds = ownedTripIds(sessionId);
+		deleteItineraryAndRecommendations(sessionId, tripIds);
+		deleteSnapshots(sessionId);
+		deleteTripsAndMemberships(sessionId, tripIds);
+	}
+
 	private List<UUID> ownedTripIds(UUID userId) {
 		return this.entityManager
 				.createQuery("SELECT t.tripId FROM TripJpaEntity t WHERE t.ownerUserId = :userId", UUID.class)

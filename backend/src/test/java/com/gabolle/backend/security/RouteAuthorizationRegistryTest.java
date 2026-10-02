@@ -380,6 +380,10 @@ class RouteAuthorizationRegistryTest {
 						+ "보호는 무작위 출입증 자체다 — 서버는 해시만 들고 있고 원본은 이 응답에만 나간다");
 
 		// ── 인증 흐름 — 로그인 상태에서 부른다
+		put(m, "POST /api/v1/auth/anonymous/claim", Policy.OWNED,
+				"로그인한 사람이 이 기기의 익명 출입증으로 만든 여행을 넘겨받는다(-317). 받는 쪽은 언제나 인증 주체 "
+						+ "자신이고(requireId — 익명 세션은 못 부른다), 넘기는 쪽의 증명은 출입증 원본이다. "
+						+ "AnonymousTripJourneyFunctionalTest");
 		put(m, "POST /api/v1/auth/oauth/{}/link", Policy.OWNED,
 				"로그인 상태에서 내 계정에 소셜을 붙인다. 대상은 언제나 인증 주체 자신이라 남의 것을 지정할 자리가 없다. OAuthTwoStepSignupIntegrationTest");
 		put(m, "GET /api/v1/auth/me", Policy.OWNED,
@@ -472,7 +476,9 @@ class RouteAuthorizationRegistryTest {
 		put(m, "POST /api/v1/trips", Policy.AUTHENTICATED_ONLY,
 				"새로 만드는 것이라 기존 자원의 주인 개념이 없다. 소유자는 인증 주체로 박힌다. "
 				+ "S15P21E201-317 — 익명 세션(ROLE_ANONYMOUS)도 이 자리만은 통과한다. 만든 사람이 곧 "
-				+ "소유자가 되므로 익명이라도 남의 것을 건드릴 수 없다 — AuthenticatedUsers.requireOwner");
+				+ "소유자가 되므로 익명이라도 남의 것을 건드릴 수 없다 — AuthenticatedUsers.requireOwner. "
+				+ "그 여행 안의 조회·편집·추천·일정은 requireTripActor 로 익명 세션도 지나지만, 구성원 검사가 "
+				+ "그대로라 자기 세션이 만든 여행만 닿는다. AnonymousTripJourneyFunctionalTest");
 		// 목록은 부를 때 자원을 지목하지 않아 OWNED 가 아니다. 위험은 "남의 것을 부르면
 		// 거부되는가" 가 아니라 "남의 여행이 목록에 섞이는가" 이고, 저장소가 참여 표로 거른다.
 		put(m, "GET /api/v1/trips", Policy.AUTHENTICATED_ONLY,

@@ -67,6 +67,21 @@ class AnonymousSessionAuthenticationFilterTest {
 	}
 
 	@Test
+	void rejectedBearerTokenIsNotReplacedByTheAnonymousSession() throws Exception {
+		// 앞의 JWT 필터가 신원을 못 채웠는데 Bearer 가 실려 있다 = 만료·위조. 여기서 익명으로 받아 주면
+		// 401 이 안 나 화면이 토큰을 새로 받지 않고, 회원의 요청이 익명 세션 것으로 처리된다.
+		when(anonymousSessionService.resolve("valid-token")).thenReturn(Optional.of(anonymousSession()));
+
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("X-Session-Token", "valid-token");
+		request.addHeader("Authorization", "Bearer expired-access-token");
+		filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
+
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+		verify(anonymousSessionService, never()).resolve(org.mockito.ArgumentMatchers.any());
+	}
+
+	@Test
 	void doesNotOverwriteAnAlreadyAuthenticatedRequest() throws Exception {
 		// 실제 로그인 사용자의 요청에는 HmacJwtAuthenticationFilter 가 먼저 SecurityContext 를
 		// 채운다. 이 필터가 그 뒤에서 익명 세션으로 덮어쓰면 안 된다.

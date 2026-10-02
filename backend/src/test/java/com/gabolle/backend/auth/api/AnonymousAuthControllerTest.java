@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.gabolle.backend.auth.service.AnonymousSessionHandoverService;
 import com.gabolle.backend.auth.service.AnonymousSessionService;
 import com.gabolle.backend.auth.service.AnonymousSessionService.IssuedAnonymousSession;
 import java.time.Instant;
@@ -29,7 +30,7 @@ class AnonymousAuthControllerTest {
 		Instant issuedAt = Instant.parse("2026-01-01T00:00:00Z");
 		when(service.issue()).thenReturn(new IssuedAnonymousSession(sessionId, "raw-anonymous-token", issuedAt));
 
-		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new AnonymousAuthController(service)).build();
+		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new AnonymousAuthController(service, mock(AnonymousSessionHandoverService.class))).build();
 
 		String body = mockMvc.perform(post("/api/v1/auth/anonymous"))
 				.andExpect(status().isCreated())
@@ -44,7 +45,7 @@ class AnonymousAuthControllerTest {
 		when(service.issue())
 				.thenReturn(new IssuedAnonymousSession(UUID.randomUUID(), "token-one", Instant.now()))
 				.thenReturn(new IssuedAnonymousSession(UUID.randomUUID(), "token-two", Instant.now()));
-		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new AnonymousAuthController(service)).build();
+		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new AnonymousAuthController(service, mock(AnonymousSessionHandoverService.class))).build();
 
 		String first = mockMvc.perform(post("/api/v1/auth/anonymous")).andReturn().getResponse().getContentAsString();
 		String second = mockMvc.perform(post("/api/v1/auth/anonymous")).andReturn().getResponse().getContentAsString();
