@@ -87,7 +87,7 @@ import { TripWeatherPanel } from '@/trip/TripWeatherPanel';
 import { weatherDayFor } from '@/trip/weatherDay';
 import { localToday } from '@/plan/tripBasics';
 import { StoryComposeForm } from '@/social/StoryComposeForm';
-import { otherNameFor } from '@/discovery/localNames';
+import { itemOtherName } from '@/plan/itineraryItemName';
 
 type Tx = (ko: string, en: string) => string;
 type Panel = 'trip' | 'collapsed';
@@ -158,7 +158,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   } = useTripPage(source);
   // 영어(일·중) 화면의 장소 이름 — 「돈반 (Donban)」, 영어 이름이 있으면 영어 먼저(S15P21E201-1735). 한국어는 제목 그대로.
   // 일본어·중국어는 관광공사 번역 이름이 먼저(S15P21E201-1860) — 사진 조회에 함께 실려 온다.
-  const nameOf = (item: ItineraryItemDto) => stopNameForLanguage(item.title, otherNameFor(photos[item.placeId]?.nameEn, photos[item.placeId]?.localNames, language), language);
+  const nameOf = (item: ItineraryItemDto) => stopNameForLanguage(item.title, itemOtherName(item, photos[item.placeId], language), language);
 
   const [panel, setPanel] = useState<Panel>('trip');
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -782,7 +782,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
                 <View style={styles.numberDot}><Text variant="micro" weight="bold" color={color.text.onAction}>{index + 1}</Text></View>
                 <Text variant="caption" weight="bold" color={color.text.muted}>{stopClock(item.startsAt) ?? tx('미정', 'TBD')}</Text>
               </View>
-              <StopName weight="bold" title={item.title} nameEn={photos[item.placeId]?.nameEn} />
+              <StopName weight="bold" title={item.title} nameEn={itemOtherName(item, photos[item.placeId], language)} />
               {formatTravelLabel(item, tx, index === 0 && startKind) ? <Text variant="micro" color={color.text.muted} numberOfLines={1}>{formatTravelLabel(item, tx, index === 0 && startKind)}</Text> : null}
             </Pressable>
             </ImpressionView>
