@@ -370,16 +370,16 @@ export default function Trips() {
  */
 function TripCover({ uri }: { uri: string | null }) {
   const { desktop } = useLayout();
-  const loadable = useLoadableUri(uri);
+  const { uri: loadable, attempt } = useLoadableUri(uri);
   if (!loadable) return desktop ? <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.cover, styles.coverDesktop, styles.coverBlank]} /> : null;
-  return <Image source={{ uri: loadable }} resizeMode="cover" accessibilityLabel="" onError={() => markBroken(loadable)} style={[styles.cover, desktop && styles.coverDesktop]} />;
+  return <Image key={attempt} source={{ uri: loadable }} resizeMode="cover" accessibilityLabel="" onError={() => markBroken(loadable)} style={[styles.cover, desktop && styles.coverDesktop]} />;
 }
 
 /** 작은 줄의 사진 — 없거나 못 불러오면 연한 빈 판. */
 function RowThumb({ uri }: { uri: string | null }) {
-  const loadable = useLoadableUri(uri);
+  const { uri: loadable, attempt } = useLoadableUri(uri);
   if (!loadable) return <View style={[styles.rowThumb, styles.rowThumbBlank]} />;
-  return <Image source={{ uri: loadable }} resizeMode="cover" accessibilityLabel="" onError={() => markBroken(loadable)} style={styles.rowThumb} />;
+  return <Image key={attempt} source={{ uri: loadable }} resizeMode="cover" accessibilityLabel="" onError={() => markBroken(loadable)} style={styles.rowThumb} />;
 }
 
 /**
@@ -387,21 +387,27 @@ function RowThumb({ uri }: { uri: string | null }) {
  * 🔴 www.visitbusan.net 은 TLS 인증서 중간 고리를 안 보내서 안드로이드에서만 사진을 못 받는다(웹은 받는다).
  *    Image 배경색만 남은 회색 판이 「지금 여행 중」 카드에 떴다. 한 번 실패한 주소는 화면을 다시 그려도 다시 안 부른다.
  */
-const brokenUris = new Set<string>();
+// 🔴 한 번 실패는 다시 불러 본다 — 두 번 실패해야 빈 판(S15P21E201-1967). 전에는 한 번의 실패로 앱을 끌 때까지
+//    그 주소를 안 불러서, 탭을 돌리고 언어를 바꾼 뒤 멀쩡한 커버가 회색 판으로 남았다(서버 사진은 그때도 200).
+const MAX_FAILURES = 2;
+const failures = new Map<string, number>();
 const brokenListeners = new Set<() => void>();
 function markBroken(uri: string) {
-  if (brokenUris.has(uri)) return;
-  brokenUris.add(uri);
+  const count = failures.get(uri) ?? 0;
+  if (count >= MAX_FAILURES) return;
+  failures.set(uri, count + 1);
   brokenListeners.forEach((listener) => listener());
 }
-function useLoadableUri(uri: string | null): string | null {
+/** 불러도 되는 주소와 몇 번째 시도인지 — 시도가 바뀌면 사진 칸을 새로 만들어 다시 부른다. */
+function useLoadableUri(uri: string | null): { uri: string | null; attempt: number } {
   const [, bump] = useState(0);
   useEffect(() => {
     const listener = () => bump((n) => n + 1);
     brokenListeners.add(listener);
     return () => { brokenListeners.delete(listener); };
   }, []);
-  return uri && !brokenUris.has(uri) ? uri : null;
+  const attempt = uri ? failures.get(uri) ?? 0 : 0;
+  return { uri: uri && attempt < MAX_FAILURES ? uri : null, attempt };
 }
 
 const styles = StyleSheet.create({
