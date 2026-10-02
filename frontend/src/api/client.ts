@@ -269,16 +269,92 @@ export function setUnauthorizedHandler(handler: (() => void) | null) { unauthori
 
 // 액세스 토큰이 만료돼 401 을 받으면, 로그아웃시키기 전에 이 핸들러로 한 번 갱신을 시도한다.
 // 여러 요청이 동시에 401 을 받아도 갱신은 한 번만 나가도록 진행 중인 시도를 공유한다.
+// 핸들러는 실패를 삼키지 않고 던진다 — 서버가 세션을 거절한 것(401)과 잠깐 못 닿은 것을
+// 아래 refreshSession 이 갈라 봐야 하기 때문이다.
 type RefreshHandler = () => Promise<string | null>;
 let refreshHandler: RefreshHandler | null = null;
 export function setRefreshHandler(handler: RefreshHandler | null) { refreshHandler = handler; }
 let refreshInFlight: Promise<string | null> | null = null;
-function refreshAccessToken(): Promise<string | null> {
+function runRefresh(): Promise<string | null> {
   if (!refreshHandler) return Promise.resolve(null);
   if (!refreshInFlight) {
-    refreshInFlight = refreshHandler().catch(() => null).finally(() => { refreshInFlight = null; });
+    refreshInFlight = refreshHandler().finally(() => { refreshInFlight = null; });
   }
   return refreshInFlight;
+}
+function refreshAccessToken(): Promise<string | null> {
+  return runRefresh().catch(() => null);
+}
+
+type RefreshOutcome = { kind: 'refreshed'; token: string } | { kind: 'rejected' } | { kind: 'failed' };
+
+/** 서버가 「이 세션은 끝났다」고 답한 것(401)만 거절로 본다. 통신 실패·5xx·nginx 의 503 은 세션 문제가 아니다. */
+async function refreshSession(): Promise<RefreshOutcome> {
+  try {
+    const token = await runRefresh();
+    return token ? { kind: 'refreshed', token } : { kind: 'failed' };
+  } catch (error) {
+    return error instanceof ApiClientError && error.status === 401 ? { kind: 'rejected' } : { kind: 'failed' };
+  }
+}
+
+/**
+ * 지금 쥐고 있는 접속 표(access token)와, 그것이 **이 기기 시계로** 언제 끝나는지.
+ *
+ * 🔴 왜 401 을 기다리지 않고 미리 갱신하나 — 서버는 끝난 접속 표를 401 로 거절하지 않고, 같이 실려 간
+ * 익명 출입증(X-Session-Token)으로 받아 준다. 그래서 장소·글·축제처럼 비회원도 보는 화면은 표가 끝난
+ * 뒤에도 200 이 오고, 갱신이 안 일어나고, 로그인 유지 시간(서버의 refresh-token-ttl, 2시간)도 안
+ * 밀린다. 그렇게 둘러보다 2시간이 지나면 다음 「저장」·「여행 만들기」에서 로그인 화면으로 튕겼다 —
+ * 「쓰는 중에 로그아웃된다」는 신고가 이것이었다(2026-10-01 nginx 기록으로 확인).
+ *
+ * 끝나는 시각을 JWT 의 exp 로 읽지 않는 이유 — exp 는 서버 시계다. 폰 시계가 몇 분 어긋나 있으면
+ * 매 요청마다 갱신하거나 끝날 때까지 안 한다. 「받은 순간 + expiresIn」은 기기 시계 하나로만 잰다.
+ */
+let currentAccess: { token: string; expiresAt: number } | null = null;
+/**
+ * 바로 앞의 접속 표. 갱신 직후에는 화면이 아직 다시 그려지지 않아 옛 표를 들고 요청한다 — 그 표는
+ * 끝났거나 곧 끝나므로, 들고 온 것이 이것이면 새 표로 바꿔 보낸다. 로그아웃하면 같이 지운다.
+ */
+let previousAccessToken: string | null = null;
+
+/** 접속 표가 이만큼 남았으면 다음 요청 앞에서 먼저 갱신한다. 응답이 오가는 동안 끝나지 않을 만큼이면 된다. */
+export const ACCESS_TOKEN_REFRESH_MARGIN_MS = 60_000;
+
+/** 새 접속 표를 받을 때마다 부른다. 로그아웃하면 null. 수명을 모르면 기록하지 않는다 — 그때는 401 뒤 갱신만 남는다. */
+export function trackAccessToken(token: string | null, expiresInSeconds?: number) {
+  previousAccessToken = token ? currentAccess?.token ?? null : null;
+  currentAccess = token && expiresInSeconds && expiresInSeconds > 0
+    ? { token, expiresAt: Date.now() + expiresInSeconds * 1000 }
+    : null;
+}
+
+function isExpiringSoon(token: string | null | undefined): token is string {
+  return !!token && currentAccess?.token === token && Date.now() >= currentAccess.expiresAt - ACCESS_TOKEN_REFRESH_MARGIN_MS;
+}
+
+function sessionEndedMessage() {
+  return apiLanguage === 'en' ? 'Your sign-in has expired. Please sign in again.' : '로그인이 끝났어요. 다시 로그인해 주세요.';
+}
+
+/** 서버가 세션을 거절했다. 한꺼번에 여러 요청이 같은 답을 받아도 로그아웃은 한 번만 일으킨다. */
+function endSession(token: string) {
+  if (currentAccess?.token !== token) return;
+  currentAccess = null;
+  unauthorizedHandler?.();
+}
+
+/**
+ * 앱이 다시 앞에 왔을 때 부른다. 표가 끝났거나 곧 끝나면 지금 갱신한다.
+ *
+ * 세션이 이미 끝났으면 돌아온 그 자리에서 로그인 화면으로 보낸다 — 둘러보다가 「저장」을 누르는
+ * 순간에 튕기는 것보다 낫다. 갱신이 통신 문제로 실패하면 아무것도 하지 않는다. 막 깨어난 폰은
+ * 망이 아직 안 붙어 있는 일이 흔하고, 그것은 세션이 끝난 것이 아니다.
+ */
+export async function refreshIfExpiring(): Promise<void> {
+  const token = currentAccess?.token;
+  if (!isExpiringSoon(token)) return;
+  const outcome = await refreshSession();
+  if (outcome.kind === 'rejected') endSession(token);
 }
 
 /**
@@ -297,8 +373,24 @@ function isSafeToRetryMethod(method: string | undefined): boolean {
   return upper === 'GET' || upper === 'HEAD';
 }
 
-export function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  return performRequest<T>(path, options, false);
+export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  return performRequest<T>(path, await withFreshAccessToken(options), false);
+}
+
+/** 들고 가는 접속 표가 곧 끝나면 보내기 전에 갱신한다. 왜 401 을 기다리지 않는지는 currentAccess 에 있다. */
+async function withFreshAccessToken(options: RequestOptions): Promise<RequestOptions> {
+  if (options.skipUnauthorizedHandling || !options.accessToken) return options;
+  const accessToken = options.accessToken === previousAccessToken && currentAccess ? currentAccess.token : options.accessToken;
+  if (!isExpiringSoon(accessToken)) return accessToken === options.accessToken ? options : { ...options, accessToken };
+  const outcome = await refreshSession();
+  if (outcome.kind === 'refreshed') return { ...options, accessToken: outcome.token };
+  if (outcome.kind === 'rejected') {
+    endSession(accessToken);
+    throw new ApiClientError(sessionEndedMessage(), 'SESSION_EXPIRED', 401);
+  }
+  // 갱신이 통신 문제로 실패했다 — 지금 표로 그대로 보낸다. 아직 몇십 초 남았을 수 있고,
+  // 이미 끝났으면 401 을 받는 자리(performRequest)가 한 번 더 갱신을 시도한다.
+  return { ...options, accessToken };
 }
 
 async function performRequest<T>(path: string, options: RequestOptions, isRetry: boolean, rateLimitAttempt = 0): Promise<T> {
