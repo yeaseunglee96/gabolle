@@ -19,6 +19,9 @@ jest.mock('@/notifications/pushToken', () => ({
   registerPushToken: jest.fn().mockResolvedValue('skipped'),
   unregisterPushToken: jest.fn().mockResolvedValue(undefined),
 }));
+// 로그인 직후 비회원 여행 승계(S15P21E201-317)가 API 를 한 번 부르는데, 그 요청 앞에서도 곧 끝나는 표가
+// 갱신돼 이 시험이 보려는 「다음 요청 앞 갱신」을 먼저 일으킨다. 승계는 이 시험의 대상이 아니라 막는다.
+jest.mock('../guestHandover', () => ({ handOverGuestTrips: jest.fn().mockResolvedValue(0) }));
 
 const mockLogin = jest.fn();
 const mockGetMe = jest.fn();

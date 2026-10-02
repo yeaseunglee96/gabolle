@@ -22,7 +22,7 @@ jest.mock('expo-router', () => ({
   useLocalSearchParams: () => ({}),
   usePathname: () => '/trips',
 }));
-jest.mock('@/auth/AuthProvider', () => ({ useAuth: () => ({ accessToken: 'token', user: { userId: 'me' } }) }));
+jest.mock('@/auth/AuthProvider', () => ({ useAuth: () => ({ accessToken: 'token', user: { userId: 'me' }, ready: true }) }));
 jest.mock('@/layout/useLayout', () => ({
   useLayout: () => ({ desktop: mockDesktop, kind: mockDesktop ? 'tablet' : 'phone', width: mockDesktop ? 1440 : 390, height: 900, isLandscape: false }),
 }));

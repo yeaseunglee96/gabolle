@@ -17,7 +17,6 @@ import { ApiClientError } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
 import { updateMyConsents } from '@/auth/authApi';
 import { Button } from '@/components/Button';
-import { GuestPlanGate } from '@/plan/GuestPlanGate';
 import { ConditionsPromptModal } from '@/plan/ConditionsPromptModal';
 import { COVERAGE_FEATURE, coverageCountsOf, hasScarcePlaceData, useConditionCoverage } from '@/plan/conditionCoverage';
 import { createRecommendationJobAdapter, type RecommendationJobSnapshot } from '@/plan/recommendationJob';
@@ -42,13 +41,11 @@ import { localizeMessage } from '@/i18n/messages';
 type BarSection = 'origin' | 'lodging';
 
 /**
- * 🔴 비회원이면 질문보다 먼저 「로그인이 필요하다」를 알린다 — S15P21E201-1818.
- *    예전엔 일곱 질문을 다 답한 뒤 마지막 버튼에서야 로그인으로 보냈다. 인증을 다 읽기 전(authReady 거짓)엔
- *    로그인한 사람에게 안내가 번쩍이지 않도록 질문 화면을 그대로 둔다(그 화면도 제 로딩 문구를 낸다).
+ * 🔴 비회원도 그대로 만든다 — S15P21E201-317. 서버가 익명 출입증으로 만든 여행을 그 출입증의 것으로 두고,
+ *    로그인하면 계정으로 넘긴다(src/auth/guestHandover.ts). 예전엔 입구에서 로그인부터 요구했다(-1818).
+ *    민감 정보(알레르기·식단) 동의만은 계정에 남겨야 해서 그때만 로그인으로 보낸다 — 아래 grantHealthConsentAndRetry.
  */
 export default function PlanQuestionsRoute() {
-  const { user, ready: authReady } = useAuth();
-  if (authReady && !user) return <GuestPlanGate />;
   return <PlanConditions />;
 }
 
@@ -63,7 +60,7 @@ function PlanConditions() {
   const roomy = !wide && width >= 600;
   const insets = useSafeAreaInsets();
   const { draft, ready, update, completeStep } = usePlan();
-  const { user, accessToken } = useAuth();
+  const { accessToken } = useAuth();
   // 접근성 자료가 얼마나 덮였나 — 「있는데 적을 때」만 이동 보조 칸 아래에 적는다(S15P21E201-1855).
   // 못 물어봤으면(끝점 없는 서버·네트워크 실패) null 이라 아무 말도 안 나간다.
   const coverage = useConditionCoverage();
@@ -169,7 +166,6 @@ function PlanConditions() {
   const submitPlan = async (afterConditions = false) => {
     if (submittingNow.current) return;
     if (hardUnknown && !afterConditions) { setConditionsMode('submit'); return; }
-    if (!user) { router.push({ pathname: '/sign-in', params: { returnTo: '/plan' } }); return; }
     submittingNow.current = true;
     try {
       setJob({ state: 'submitting', jobId: null, progress: null, stage: null, canCancel: false, errorMessage: null, resultRef: null });
@@ -183,7 +179,8 @@ function PlanConditions() {
   };
 
   const grantHealthConsentAndRetry = async () => {
-    if (!accessToken) return;
+    // 동의는 계정에 기록으로 남아야 해서 비회원은 여기서 로그인한다. 답한 조건은 로그인한 계정이 이어받는다(planDraftCarry).
+    if (!accessToken) { router.push({ pathname: '/sign-in', params: { returnTo: '/plan' } }); return; }
     try {
       await updateMyConsents(accessToken, { HEALTH_CONSTRAINTS: true });
       setJob({ state: 'submitting', jobId: null, progress: null, stage: null, canCancel: false, errorMessage: null, resultRef: null });
@@ -228,7 +225,7 @@ function PlanConditions() {
         <View style={styles.consent}>
           <Text accessibilityRole="alert" variant="caption" weight="bold">{tx('알레르기·식단 정보 사용에 동의가 필요해요', 'We need your consent to use allergy/diet info')}</Text>
           <Text variant="caption" color={color.text.body}>{tx('입력하신 조건으로 안전한 곳만 고르려면 이 정보를 써야 해요.', 'We need this information to pick places that are safe for you.')}</Text>
-          <Button label={tx('동의하고 계속', 'Agree and continue')} variant="tertiary" onPress={() => void grantHealthConsentAndRetry()} />
+          <Button label={accessToken ? tx('동의하고 계속', 'Agree and continue') : tx('로그인하고 만들기', 'Sign in and create')} variant="tertiary" onPress={() => void grantHealthConsentAndRetry()} />
         </View>
       ) : null}
       {job?.errorMessage && job.state !== 'consent-required' ? (

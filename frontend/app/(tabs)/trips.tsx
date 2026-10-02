@@ -84,7 +84,7 @@ export default function Trips() {
   const router = useRouter();
   const { open } = useLocalSearchParams<{ open?: string }>();
   const { tx, locale, language } = useI18n();
-  const { accessToken, user } = useAuth();
+  const { accessToken, user, ready: authReady } = useAuth();
   // 넓은 화면은 최대 1200 폭의 3열 카드 격자다(시안 docs/design_handoff_my_trips, S15P21E201-1587).
   // 전에는 카드 한 장이 1440 폭 전체로 늘어진 한 줄 목록이었다.
   const { desktop, width: screenWidth } = useLayout();
@@ -105,8 +105,10 @@ export default function Trips() {
   // 조용히 다시 불러오면서 이전 값을 계속 보여준다.
   const tripsQuery = useQuery({
     queryKey: TRIPS_KEY(user?.userId),
-    queryFn: () => loadTrips(accessToken as string),
-    enabled: Boolean(accessToken),
+    // 비회원도 부른다 — 서버가 이 기기의 출입증으로 만든 여행을 준다(S15P21E201-317). 인증을 다 읽기 전에 부르면
+    // 로그인한 사람도 한 번은 비회원 목록(빈 목록)을 받으므로 그때까지만 기다린다.
+    queryFn: () => loadTrips(accessToken),
+    enabled: authReady,
   });
   const result: TripsLoadResult = tripsQuery.data ?? { state: 'success', trips: [] };
   const loading = tripsQuery.isPending;
@@ -134,13 +136,13 @@ export default function Trips() {
   };
 
   const confirmRemove = async () => {
-    if (!confirmTarget || !accessToken) return;
+    if (!confirmTarget) return;
     const trip = confirmTarget;
     setConfirmTarget(null);
     setRemovingTripId(trip.tripId);
     const outcome = trip.role === 'OWNER'
       ? await deleteTrip(trip.tripId, accessToken)
-      : user?.userId
+      : user?.userId && accessToken
         ? await leaveTrip(trip.tripId, user.userId, accessToken).then(() => ({ state: 'success' as const })).catch((error) => ({ state: 'error' as const, message: error instanceof Error ? error.message : tx('여행에서 나가지 못했어요.', "Couldn't leave the trip.") }))
         : { state: 'error' as const, message: tx('로그인이 필요해요.', 'Please sign in.') };
     setRemovingTripId(null);
@@ -257,23 +259,23 @@ export default function Trips() {
         헤더의 행동은 「새 여행」 하나다(시안 변경 2). */}
     <View style={[styles.header, desktop && styles.headerDesktop]}><View style={styles.headerCopy}><Eyebrow>{open === 'prepare' ? tx('날씨·준비물', 'Weather & packing') : tx('여행 목록', 'My trips')}</Eyebrow><Text variant="display" weight="bold" style={styles.title}>{weatherOnly ? tx('오늘 부산 날씨', 'Busan today') : open === 'prepare' ? tx('확인할 여행을 골라주세요', 'Choose a trip to check') : tx('내 여행', 'My trips')}</Text><Text color={color.text.body}>{weatherOnly ? tx('여행을 만들면 출발일 예보와 준비물도 챙겨드려요.', 'Make a trip and we will also show its departure forecast and packing tips.') : open === 'prepare' ? tx('여행 카드를 누르면 출발일 예보와 준비물을 보여드려요.', 'Tap a trip to see its departure forecast and packing tips.') : tx('내가 만들었거나 초대받은 여행이에요.', "Trips you've created or been invited to.")}</Text></View><View style={styles.headerActions}>{/* 🔴 폭을 96 으로 박으면 일본어 「新しい旅行」이 두 줄로 꺾였다(5개 언어 점검 2026-09-29) — 최소 폭만 둔다. */}<Button label={tx('새 여행', 'New trip')} variant="outline" onPress={() => router.push('/plan')} containerStyle={styles.newTrip} /></View></View>
 
-    {!accessToken ? <View style={styles.state}><Text weight="bold">{tx('로그인하면 내 여행을 여기서 모아 볼 수 있어요.', 'Sign in to see all your trips here.')}</Text><Text color={color.text.body}>{tx('만든 여행은 계정에 저장돼 어느 기기에서든 이어서 볼 수 있어요.', 'Trips are saved to your account, so you can pick them up on any device.')}</Text>{/* 🔴 「여행 만들기 둘러보기」를 뺐다 (S15P21E201-1795). 바로 위 헤더의 「새 여행」이
+    {!accessToken ? <View style={styles.state}><Text weight="bold">{tx('로그인하지 않고 만든 여행은 이 기기에만 있어요.', 'Trips made without signing in live only on this device.')}</Text><Text color={color.text.body}>{tx('30일 넘게 쓰지 않으면 지워질 수 있어요. 로그인하면 계정으로 옮겨져 어느 기기에서든 볼 수 있어요.', 'They may be deleted after 30 days without use. Sign in to move them to your account and open them on any device.')}</Text>{/* 🔴 「여행 만들기 둘러보기」를 뺐다 (S15P21E201-1795). 바로 위 헤더의 「새 여행」이
         같은 /plan 으로 가서, 비회원 화면에만 같은 일을 하는 단추가 둘이었다. 헤더는 로그인
         여부와 상관없이 늘 그려지므로 둘이 «동시에» 보였다. 이 카드가 할 일은 로그인 유도다
         — 문구도 「저장하고 다시 보려면 로그인해 주세요」 이다. */}<Button label={tx('로그인', 'Sign in')} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/trips' } })} containerStyle={styles.emptyCta} /></View> : null}
 
     {feedback ? <Pressable accessibilityRole="button" accessibilityLabel={tx('안내 닫기', 'Dismiss notice')} accessibilityLiveRegion="polite" onPress={() => setFeedback('')} style={styles.feedback}><Text variant="caption" weight="bold" color={color.text.onAction}>{feedback}</Text><Text variant="caption" color={color.text.onAction}>{tx('닫기', 'Close')}</Text></Pressable> : null}
 
-    {accessToken && loading ? <View accessibilityLiveRegion="polite" style={styles.state}><ActivityIndicator color={color.action.primary} /><Text weight="bold">{tx('내 여행을 불러오고 있어요', 'Loading your trips')}</Text></View> : null}
+    {authReady && loading ? <View accessibilityLiveRegion="polite" style={styles.state}><ActivityIndicator color={color.action.primary} /><Text weight="bold">{tx('내 여행을 불러오고 있어요', 'Loading your trips')}</Text></View> : null}
 
-    {accessToken && !loading && result.state !== 'success' ? <View style={styles.state}><GabolleMascot state="sad" style={styles.sadMascot} /><Text weight="bold">{result.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : tx('내 여행을 불러오지 못했어요', 'Could not load your trips')}</Text><Text color={color.text.body}>{localizeMessage(tx, result.message)}</Text><Button compact label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void reload()} /></View> : null}
+    {authReady && !loading && result.state !== 'success' ? <View style={styles.state}><GabolleMascot state="sad" style={styles.sadMascot} /><Text weight="bold">{result.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : tx('내 여행을 불러오지 못했어요', 'Could not load your trips')}</Text><Text color={color.text.body}>{localizeMessage(tx, result.message)}</Text><Button compact label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void reload()} /></View> : null}
 
     {/* 날씨를 보러 왔는데 여행이 없으면 — 오늘 부산 날씨를 바로(고를 여행이 없어 날씨에 못 닿던 것) */}
     {weatherOnly ? <TripWeatherCard date={localDateKey(new Date())} /> : null}
 
-    {accessToken && !loading && result.state === 'success' && trips.length === 0 ? <View style={styles.empty}><GabolleMascot state="open" style={styles.emptyMascot} /><Text variant="title" weight="bold">{tx('아직 만든 여행이 없어요', 'No trips yet')}</Text><Text color={color.text.body} style={styles.center}>{tx('여행을 만들면 이곳에 보여드려요.', "Once you create a trip, it'll show up here.")}</Text><Button label={tx('첫 여행 만들기', 'Create your first trip')} onPress={() => router.push('/plan')} containerStyle={styles.emptyCta} /></View> : null}
+    {authReady && !loading && result.state === 'success' && trips.length === 0 ? <View style={styles.empty}><GabolleMascot state="open" style={styles.emptyMascot} /><Text variant="title" weight="bold">{tx('아직 만든 여행이 없어요', 'No trips yet')}</Text><Text color={color.text.body} style={styles.center}>{tx('여행을 만들면 이곳에 보여드려요.', "Once you create a trip, it'll show up here.")}</Text><Button label={tx('첫 여행 만들기', 'Create your first trip')} onPress={() => router.push('/plan')} containerStyle={styles.emptyCta} /></View> : null}
 
-    {accessToken && !loading && result.state === 'success' && trips.length > 0 ? <View style={styles.sections}>
+    {authReady && !loading && result.state === 'success' && trips.length > 0 ? <View style={styles.sections}>
       {/* 🔴 여행을 «언제»로 나눈다(UI 캔버스 ⑥) — 전에는 만든 순서로 같은 큰 카드가 이어져 한 화면에 1.5개였고,
           진행 중·예정·지난 여행이 섞였다(실계정 31개). 지금 여행 중인 것만 크게, 나머지는 작은 줄로(폰). */}
       {sections.live.length ? <View style={styles.section}>

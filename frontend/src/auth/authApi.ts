@@ -217,6 +217,10 @@ export function getMyConsents(accessToken: string) {
 export function updateMyConsents(accessToken: string, consents: Partial<Record<ConsentName, boolean>>) {
   return apiRequest<MyConsents>('/api/v1/auth/me/consents', { method: 'PATCH', accessToken, body: { consents } });
 }
+/** 이 기기의 비회원 출입증으로 만든 여행을 방금 로그인한 계정으로 넘긴다. 0 도 성공이다. */
+export function claimAnonymousTrips(accessToken: string) {
+  return apiRequest<{ claimedTrips: number }>('/api/v1/auth/anonymous/claim', { method: 'POST', accessToken });
+}
 export function refreshWebSession() { return apiRequest<AuthTokens>('/api/v1/auth/web/refresh', { method: 'POST', skipUnauthorizedHandling: true }); }
 export function refreshMobileSession(refreshToken: string) { return apiRequest<AuthTokens>('/api/v1/auth/refresh', { method: 'POST', body: { refreshToken }, skipUnauthorizedHandling: true }); }
 export function logoutWebSession() { return apiRequest<void>('/api/v1/auth/web/logout', { method: 'POST', skipUnauthorizedHandling: true }); }

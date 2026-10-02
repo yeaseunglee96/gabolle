@@ -224,6 +224,42 @@ async function requestAnonymousSessionToken(): Promise<string | null> {
   }
 }
 
+/**
+ * 지금 출입증을 버린다 — 다음 요청이 새 출입증을 받는다.
+ *
+ * 로그인해서 이 기기의 비회원 여행을 계정으로 넘긴 뒤(서버는 그 출입증을 지운다)와 로그아웃할 때 부른다.
+ * 안 버리면 같은 기기에서 다음 사람이 비회원으로 만든 여행이 앞사람 출입증에 쌓인다.
+ */
+export async function resetAnonymousSession(): Promise<void> {
+  anonymousSessionToken = null;
+  anonymousSessionPromise = null;
+  try {
+    if (Platform.OS === 'web') {
+      if (typeof localStorage !== 'undefined') localStorage.removeItem(ANONYMOUS_SESSION_STORAGE_KEY);
+      return;
+    }
+    await SecureStore.deleteItemAsync(ANONYMOUS_SESSION_STORAGE_KEY);
+  } catch {
+    // 지우지 못해도 메모리는 비웠다. 다음 실행에 옛 출입증을 다시 읽으면 서버가 모르는 값이라
+    // 아래 performRequest 의 401 처리가 버리고 새로 받는다.
+  }
+}
+
+/** {@link apiRequest} 를 안 거치는 요청(진행률 스트림)이 같은 출입증을 싣게 한다. */
+export function getAnonymousSessionToken(): Promise<string | null> {
+  return ensureAnonymousSessionToken();
+}
+
+async function errorCodeOf(response: Response): Promise<string> {
+  if (typeof response.clone !== 'function') return '';
+  try {
+    const envelope = (await response.clone().json()) as ApiEnvelope<unknown>;
+    return envelope.error?.code ?? '';
+  } catch {
+    return '';
+  }
+}
+
 async function ensureAnonymousSessionToken(): Promise<string | null> {
   if (anonymousSessionToken) return anonymousSessionToken;
   if (!anonymousSessionPromise) {
@@ -466,6 +502,14 @@ async function performRequest<T>(path: string, options: RequestOptions, isRetry:
     if (!isRetry) {
       const refreshedToken = await refreshAccessToken();
       if (refreshedToken) return performRequest<T>(path, { ...options, accessToken: refreshedToken }, true);
+    }
+    // 회원 토큰 없이 실어 간 출입증을 서버가 모른다 — 오래 안 써서 정리 배치가 지웠거나, 이 기기에서
+    // 로그인하며 넘긴 뒤 지우지 못한 옛 값이다. 그대로 두면 이 기기는 비회원 여행을 영영 못 만든다.
+    // 서버는 이때 신원을 아예 못 채워 AUTHENTICATION_REQUIRED 를 주고, 살아 있는 출입증으로 회원 전용
+    // 경로를 부른 것은 INVALID_AUTHENTICATION 이라 둘이 갈린다. 버린 출입증의 여행은 이미 없다.
+    if (!accessToken && sessionToken && !isRetry && (await errorCodeOf(response)) === 'AUTHENTICATION_REQUIRED') {
+      await resetAnonymousSession();
+      return performRequest<T>(path, options, true, rateLimitAttempt);
     }
     // — 회원 토큰 없이 부른 요청의 401 은 "세션이 끊겼다"가 아니라 "이 경로는
     // 로그인이 필요하다"는 뜻이다. 서버가 익명 출입증에 401 을 주는 자리가 여럿인데, 그것을

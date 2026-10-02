@@ -4,7 +4,10 @@ import { pickLanguage } from '@/i18n/pick';
 import { AppState, Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import { useRouter } from 'expo-router';
-import { refreshIfExpiring, setRefreshHandler, setUnauthorizedHandler, trackAccessToken } from '@/api/client';
+import { refreshIfExpiring, resetAnonymousSession, setRefreshHandler, setUnauthorizedHandler, trackAccessToken } from '@/api/client';
+import { queryClient } from '@/api/queryClient';
+import { invalidateTripLists } from '@/trip/trips';
+import { handOverGuestTrips } from './guestHandover';
 import { deleteMe, getMe, login, logoutMobileSession, logoutWebSession, refreshMobileSession, refreshWebSession, updateMe, type AuthTokens, type AuthUser, type SignupLanguage, type UpdateMeInput } from './authApi';
 import { clearFirstRunMarks } from '@/onboarding/firstRun';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
@@ -16,6 +19,12 @@ import { registerPushToken, unregisterPushToken } from '@/notifications/pushToke
 const tx = (ko: string, en: string) => pickLanguage(getCurrentLanguage(), { ko, en });
 
 const REFRESH_TOKEN_KEY = 'gabolle.refresh-token';
+// 로그인을 «방금 마쳤을 때»만 부른다(앱을 다시 켜서 세션을 되살릴 때는 안 부른다). 이 기기에서 비회원으로 만든 여행을
+// 계정으로 넘기고, 넘긴 것이 있으면 여행 목록을 다시 읽게 한다 — 목록 키에 사용자가 없는 곳(홈)이 있어서다.
+async function afterSignIn(accessToken: string) {
+  const claimed = await handOverGuestTrips(accessToken);
+  if (claimed > 0) void invalidateTripLists(queryClient);
+}
 type AuthContextValue = { accessToken: string | null; user: AuthUser | null; ready: boolean; signIn: (email: string, password: string) => Promise<void>; acceptTokens: (tokens: AuthTokens) => Promise<void>; updateProfile: (input: UpdateMeInput) => Promise<void>; deleteAccount: (confirmation: string) => Promise<void>; clearSession: () => void; signOut: () => Promise<void> };
 const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -118,13 +127,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [accessToken, user?.userId]);
 
   const value = useMemo<AuthContextValue>(() => ({ accessToken, user, ready, clearSession,
-    signIn: async (email, password) => { const tokens = await login(email, password); const currentUser = await getMe(tokens.accessToken); applyAccess(tokens); setRefreshToken(tokens.refreshToken); applyUser(currentUser); if (Platform.OS !== 'web' && tokens.refreshToken) await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, tokens.refreshToken); },
-    acceptTokens: async (tokens) => { const currentUser = await getMe(tokens.accessToken); applyAccess(tokens); setRefreshToken(tokens.refreshToken); applyUser(currentUser); if (Platform.OS !== 'web' && tokens.refreshToken) await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, tokens.refreshToken); },
+    signIn: async (email, password) => { const tokens = await login(email, password); const currentUser = await getMe(tokens.accessToken); applyAccess(tokens); setRefreshToken(tokens.refreshToken); applyUser(currentUser); if (Platform.OS !== 'web' && tokens.refreshToken) await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, tokens.refreshToken); await afterSignIn(tokens.accessToken); },
+    acceptTokens: async (tokens) => { const currentUser = await getMe(tokens.accessToken); applyAccess(tokens); setRefreshToken(tokens.refreshToken); applyUser(currentUser); if (Platform.OS !== 'web' && tokens.refreshToken) await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, tokens.refreshToken); await afterSignIn(tokens.accessToken); },
     updateProfile: async (input) => { if (!accessToken) throw new Error(tx('로그인이 필요합니다.', 'Please sign in.')); const currentUser = await updateMe(accessToken, input); applyUser(currentUser); },
-    deleteAccount: async (confirmation) => { if (!accessToken) throw new Error(tx('로그인이 필요합니다.', 'Please sign in.')); await deleteMe(accessToken, confirmation); await clearSavedTrips(); await clearFirstRunMarks(); preferences.reset(); clearSession(); router.replace('/'); },
+    deleteAccount: async (confirmation) => { if (!accessToken) throw new Error(tx('로그인이 필요합니다.', 'Please sign in.')); await deleteMe(accessToken, confirmation); await clearSavedTrips(); await clearFirstRunMarks(); await resetAnonymousSession(); preferences.reset(); clearSession(); router.replace('/'); },
     // 로그아웃해도 이 기기에 남는 것들을 정리한다 — 안 그러면 같은 기기에서 다음 사람이
     // 로그인했을 때 앞사람의 여행 목록·언어·이동 성향이 그대로 보인다.
-    signOut: async () => { pushRegisteredFor.current = null; await unregisterPushToken(accessToken); try { if (Platform.OS === 'web') await logoutWebSession(); else if (refreshToken) await logoutMobileSession(refreshToken); } finally { await clearSavedTrips(); await clearFirstRunMarks(); preferences.reset(); clearSession(); router.replace('/sign-in'); } },
+    signOut: async () => { pushRegisteredFor.current = null; await unregisterPushToken(accessToken); try { if (Platform.OS === 'web') await logoutWebSession(); else if (refreshToken) await logoutMobileSession(refreshToken); } finally { await clearSavedTrips(); await clearFirstRunMarks(); await resetAnonymousSession(); preferences.reset(); clearSession(); router.replace('/sign-in'); } },
   }), [accessToken, preferences, ready, refreshToken, router, user]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
