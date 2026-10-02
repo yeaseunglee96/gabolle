@@ -188,7 +188,7 @@ export default function Trips() {
     return <View key={trip.tripId} style={rated ? styles.rowWithRating : undefined}>
       <View style={[styles.row, rated && styles.rowNoBorder]}>
         <Pressable accessibilityRole="button" accessibilityState={{ busy: openingTripId === trip.tripId }} accessibilityLabel={txf(tx, '%s 여행 열기', 'Open trip %s', cardTitle(trip, tx, locale))} disabled={openingTripId === trip.tripId || removingTripId === trip.tripId} onPress={() => void openTrip(trip)} style={({ pressed }) => [styles.rowMain, pressed && styles.cardPressed]}>
-          {trip.coverImageUrl ? <Image source={{ uri: trip.coverImageUrl }} resizeMode="cover" accessibilityLabel="" style={styles.rowThumb} /> : <View style={[styles.rowThumb, styles.rowThumbBlank]} />}
+          <RowThumb uri={trip.coverImageUrl} />
           <View style={styles.rowCopy}>
             {/* 🔴 D-day 표는 제목 줄이 아니라 아래 줄 맨 앞 — 오른쪽에 두니 날짜 제목 「… – 10월 3일 (토)」의 끝이 잘리거나 「(토)」만 둘째 줄로 떨어졌다. */}
             <Text weight="bold" numberOfLines={2}>{cardTitle(trip, tx, locale)}</Text>
@@ -365,8 +365,38 @@ export default function Trips() {
  */
 function TripCover({ uri }: { uri: string | null }) {
   const { desktop } = useLayout();
-  if (!uri) return desktop ? <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.cover, styles.coverDesktop, styles.coverBlank]} /> : null;
-  return <Image source={{ uri }} resizeMode="cover" accessibilityLabel="" style={[styles.cover, desktop && styles.coverDesktop]} />;
+  const loadable = useLoadableUri(uri);
+  if (!loadable) return desktop ? <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.cover, styles.coverDesktop, styles.coverBlank]} /> : null;
+  return <Image source={{ uri: loadable }} resizeMode="cover" accessibilityLabel="" onError={() => markBroken(loadable)} style={[styles.cover, desktop && styles.coverDesktop]} />;
+}
+
+/** 작은 줄의 사진 — 없거나 못 불러오면 연한 빈 판. */
+function RowThumb({ uri }: { uri: string | null }) {
+  const loadable = useLoadableUri(uri);
+  if (!loadable) return <View style={[styles.rowThumb, styles.rowThumbBlank]} />;
+  return <Image source={{ uri: loadable }} resizeMode="cover" accessibilityLabel="" onError={() => markBroken(loadable)} style={styles.rowThumb} />;
+}
+
+/**
+ * 못 불러온 사진은 사진이 없는 것과 같게 그린다 (S15P21E201-1940).
+ * 🔴 www.visitbusan.net 은 TLS 인증서 중간 고리를 안 보내서 안드로이드에서만 사진을 못 받는다(웹은 받는다).
+ *    Image 배경색만 남은 회색 판이 「지금 여행 중」 카드에 떴다. 한 번 실패한 주소는 화면을 다시 그려도 다시 안 부른다.
+ */
+const brokenUris = new Set<string>();
+const brokenListeners = new Set<() => void>();
+function markBroken(uri: string) {
+  if (brokenUris.has(uri)) return;
+  brokenUris.add(uri);
+  brokenListeners.forEach((listener) => listener());
+}
+function useLoadableUri(uri: string | null): string | null {
+  const [, bump] = useState(0);
+  useEffect(() => {
+    const listener = () => bump((n) => n + 1);
+    brokenListeners.add(listener);
+    return () => { brokenListeners.delete(listener); };
+  }, []);
+  return uri && !brokenUris.has(uri) ? uri : null;
 }
 
 const styles = StyleSheet.create({

@@ -6,6 +6,17 @@ export const breakpoint = {
   lg: 1439,
 } as const;
 
+/**
+ * 짧은 변 경계값 (S15P21E201-1940).
+ *   · phoneMax 미만 → 폰. 세로로 잠근다 — 가로로 돌리면 높이가 370dp 남짓이라 하단 메뉴가 내용을 덮는다
+ *   · 그 이상이면서 폭이 tabletPortraitMin 이상인 세로 화면 → 데스크톱 판 (Tab S9 FE+ 세로 800dp)
+ *     폴드 펼침 세로(707·717dp)는 이보다 좁아서 폰 판으로 남는다
+ */
+export const shortSide = {
+  phoneMax: 599,
+  tabletPortraitMin: 768,
+} as const;
+
 export type WidthTier = 'sm' | 'md' | 'lg' | 'xl';
 
 export function widthTier(width: number): WidthTier {
