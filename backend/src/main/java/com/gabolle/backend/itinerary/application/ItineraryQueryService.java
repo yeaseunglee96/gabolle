@@ -372,7 +372,10 @@ public class ItineraryQueryService {
 				// 모르면 null 이고 0 으로 채우지 않는다 — 위도 0·경도 0 은 기니만 한가운데라
 				// 지도에 실제로 점이 찍힌다.
 				place.getLat(),
-				place.getLng());
+				place.getLng(),
+				// 다른 언어 화면이 장소 이름을 고른다 — 장소 상세와 같은 모양(S15P21E201-1937).
+				place.getNameEn(),
+				place.localNames());
 	}
 
 	/** {@code visit_date} + {@code start_time} 을 ISO-8601 로 합친다. 시간대는 항상 Asia/Seoul 이다(API-03). */

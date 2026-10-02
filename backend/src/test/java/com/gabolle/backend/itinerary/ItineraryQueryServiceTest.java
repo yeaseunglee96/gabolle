@@ -122,6 +122,22 @@ class ItineraryQueryServiceTest {
 	}
 
 	@Test
+	@DisplayName("items[] 는 장소의 영어·일본어·중국어 이름을 싣는다 — 다른 언어 화면이 한국어만 보이지 않게(S15P21E201-1937)")
+	void itemCarriesLocalNames() {
+		stubTripMembership(threeDayTrip());
+		when(this.place.getNameEn()).thenReturn("Haeundae Beach");
+		when(this.place.localNames()).thenReturn(Map.of("ja", "海雲台海水浴場", "zh-Hans", "海云台海水浴场"));
+		String itineraryId = seedItinerary(1,
+				List.of(itemOf("itemkey_" + UUID.randomUUID(), 0, LocalDate.of(2026, 9, 10), 1, null, null)));
+
+		ItineraryDetailResponse.Item item = this.service.getDetail(itineraryId, this.requesterId).days().get(0).items().get(0);
+
+		assertThat(item.title()).isEqualTo("해운대 해수욕장");
+		assertThat(item.nameEn()).isEqualTo("Haeundae Beach");
+		assertThat(item.localNames()).containsEntry("ja", "海雲台海水浴場").containsEntry("zh-Hans", "海云台海水浴场");
+	}
+
+	@Test
 	@DisplayName("items[].id 는 item_key 다 — PK 가 아니다")
 	void itemIdIsItemKey() {
 		stubTripMembership(threeDayTrip());
