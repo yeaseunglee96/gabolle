@@ -23,9 +23,11 @@ describe('storyPlaceName', () => {
   it('🔴 일본어는 번역표 → 영어 이름 → 한국어 순', () => {
     expect(storyPlaceName({ name: '감천문화마을', nameEn: 'Gamcheon Culture Village' }, ja, 'ja')).toBe('甘川文化村');
     expect(storyPlaceName({ name: '황령산', nameEn: 'Hwangnyeongsan' }, ja, 'ja')).toBe('Hwangnyeongsan');
-    expect(storyPlaceName({ name: '넉아웃' }, ja, 'ja')).toBe('넉아웃');
+    // 번역도 영어 이름도 없으면 — 외국어 화면은 한글에 읽는 법을 붙인다(2026-10-02, 피드의 「포토오브제 서면점」)
+    expect(storyPlaceName({ name: '넉아웃' }, ja, 'ja')).toBe('넉아웃 (Neokaut)');
+    expect(storyPlaceName({ name: '넉아웃' }, (k: string) => k, 'ko')).toBe('넉아웃');
   });
-  it('빈 영어 이름은 없는 것으로', () => {
-    expect(storyPlaceName({ name: '모모스', nameEn: '  ' }, en, 'en')).toBe('모모스');
+  it('빈 영어 이름은 없는 것으로 — 한글에 읽는 법', () => {
+    expect(storyPlaceName({ name: '모모스', nameEn: '  ' }, en, 'en')).toBe('모모스 (Momoseu)');
   });
 });

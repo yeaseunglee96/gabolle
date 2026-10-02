@@ -37,19 +37,8 @@ jest.mock('react-native-safe-area-context', () => ({
 
 import SignUp from '../(auth)/sign-up';
 
-const HEADING = '회원가입하려면 아래를 마저 채워 주세요';
-const REASONS = [
-  '이메일 형식이 올바르지 않아요',
-  '비밀번호를 8~64자로 입력해 주세요',
-  '비밀번호에 영문을 넣어 주세요',
-  '비밀번호에 숫자를 넣어 주세요',
-  '비밀번호에 특수문자(!@#$% 등)를 넣어 주세요',
-  // 「비밀번호 확인이 일치하지 않아요」는 비밀번호를 쳐야 나온다 — 빈 화면에는 없다
-  '이름을 1~30자로 입력해 주세요',
-  '만 14세 이상인지 확인해 주세요',
-  '이용약관에 동의해 주세요',
-  '개인정보 처리방침에 동의해 주세요',
-];
+const HEADING = '아직 남은 것';
+/** 남은 것은 한 줄에 「 · 」로 — 처음 손댄 직후(이메일만 친 상태)의 모양 */
 const AGREEMENTS = ['만 14세 이상입니다.', '이용약관에 동의합니다. (필수)', '개인정보 처리방침에 동의합니다. (필수)'];
 const mount = () => render(<OnboardingPreferencesProvider><SignUp /></OnboardingPreferencesProvider>);
 type RowStyle = { backgroundColor?: string; borderColor?: string; borderWidth?: number; borderRadius?: number };
@@ -68,10 +57,9 @@ const submitDisabled = (view: ReturnType<typeof mount>) => Boolean(view.getByTes
 beforeEach(() => { mockKind = 'tablet'; });
 
 describe('회원가입 — 넓은 화면', () => {
-  it('처음엔 이유 아홉 줄이 버튼 위에 뜨고, 어느 칸도 빨갛지 않다', () => {
+  it('🔴 처음 연 화면에는 상자가 없다 — 빈 칸은 오류가 아니다(사용자 의견 2026-10-02). 어느 칸도 빨갛지 않다', () => {
     const view = mount();
-    expect(view.getByText(HEADING)).toBeTruthy();
-    for (const reason of REASONS) expect(view.getByText(`○ ${reason}`)).toBeTruthy();
+    expect(view.queryByText(HEADING)).toBeNull();
     expect(submitDisabled(view)).toBe(true);
     for (const id of ['sign-up-email', 'sign-up-password', 'sign-up-confirm', 'sign-up-name']) {
       expect(rowOf(view, id).backgroundColor).toBe(color.surface.card);
@@ -106,18 +94,19 @@ describe('회원가입 — 넓은 화면', () => {
     expect(rowOf(view, 'sign-up-name')).toMatchObject({ borderColor: color.surface.field, borderWidth: 1 });
   });
 
-  it('다 채우면 상자가 사라지고 회원가입이 열린다', () => {
+  it('손대면 남은 것이 한 줄로 뜨고 — 비밀번호는 한 줄, 동의는 개수 — 다 채우면 사라져 회원가입이 열린다', () => {
     const view = mount();
     fireEvent.changeText(view.getByTestId('sign-up-email'), 'me@example.com');
+    expect(view.getByText(HEADING)).toBeTruthy();
+    expect(view.getByText('비밀번호 조건 — 칸 아래 표시 · 이름(1~30자) · 필수 동의 3개')).toBeTruthy();
     fireEvent.changeText(view.getByTestId('sign-up-password'), 'abcd1234!');
     fireEvent.changeText(view.getByTestId('sign-up-confirm'), 'abcd1234!');
     fireEvent.changeText(view.getByTestId('sign-up-name'), '효준');
-    // 동의 셋만 남는다
-    for (const reason of REASONS) {
-      if (REASONS.indexOf(reason) < 6) expect(view.queryByText(`○ ${reason}`)).toBeNull();
-      else expect(view.getByText(`○ ${reason}`)).toBeTruthy();
-    }
-    for (const label of AGREEMENTS) fireEvent.press(view.getByText(label));
+    // 동의만 남는다
+    expect(view.getByText('필수 동의 3개')).toBeTruthy();
+    fireEvent.press(view.getByText(AGREEMENTS[0]));
+    expect(view.getByText('필수 동의 2개')).toBeTruthy();
+    for (const label of AGREEMENTS.slice(1)) fireEvent.press(view.getByText(label));
     expect(view.queryByText(HEADING)).toBeNull();
     expect(submitDisabled(view)).toBe(false);
   });
@@ -131,6 +120,6 @@ describe('회원가입 — 폰', () => {
     for (const label of AGREEMENTS) fireEvent.press(view.getByText(label));
     expect(submitDisabled(view)).toBe(true);
     expect(view.getByText(HEADING)).toBeTruthy();
-    expect(view.getByText('○ 이메일 형식이 올바르지 않아요')).toBeTruthy();
+    expect(view.getByText('이메일 주소 · 비밀번호 조건 — 칸 아래 표시 · 이름(1~30자)')).toBeTruthy();
   });
 });

@@ -38,7 +38,6 @@ import { humanTripTitle, tripDatesLabel, tripNameOrDates } from '@/trip/tripNami
 import { enCount, enPlural, txf } from '@/i18n/format';
 
 const bellIcon = require('../../assets/icons/home/bell.png');
-const heartIcon = require('../../assets/icons/home/heart.png');
 
 /**
  * 폰의 카드 한 변. 한 화면에 두 장이 들어오고 세 번째가 살짝 보이는 크기다 —
@@ -450,12 +449,6 @@ const styles = StyleSheet.create({
   placeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[3] },
   placeCard: { width: '47%', gap: spacing[1] },
   placeThumbWrap: { position: 'relative' },
-  heartButton: { position: 'absolute', top: 0, right: 0, width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  heartBackdrop: { width: 28, height: 28, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
-  heartBackdropOn: { backgroundColor: color.surface.card, shadowColor: color.brand.navy, shadowOpacity: 0.15, shadowRadius: 4, shadowOffset: { width: 0, height: 1 }, elevation: 2 },
-  heartIcon: { width: 16, height: 16 },
-  heartOn: { tintColor: color.action.secondary },
-  heartOff: { tintColor: color.text.muted },
 
   tripCard: { gap: spacing[1], padding: spacing[4], borderRadius: radius.lg, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
   tripSkeleton: { height: 140 },

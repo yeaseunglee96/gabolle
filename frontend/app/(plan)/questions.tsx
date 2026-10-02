@@ -57,8 +57,10 @@ const answeredOf = (key: QuestionKey) => PLAN_QUESTIONS.find((item) => item.key 
 function PlanConditions() {
   const router = useRouter();
   const { tx, language } = useI18n();
-  const { kind } = useLayout();
+  const { kind, width } = useLayout();
   const wide = kind !== 'phone';
+  // 세로로 든 태블릿·펼친 폴드 — 폰 판이지만 폭이 넉넉하다. 단추는 폰처럼 바닥에 두고, 기둥만 가운데로 묶는다(반응형 점검 2026-10-02).
+  const roomy = !wide && width >= 600;
   const insets = useSafeAreaInsets();
   const { draft, ready, update, completeStep } = usePlan();
   const { user, accessToken } = useAuth();
@@ -327,7 +329,7 @@ function PlanConditions() {
   return (
     <View style={styles.shell}>
       <Screen scroll wide={wide} style={styles.canvas} scrollRef={scrollRef}>
-        <View style={[styles.column, wide && styles.columnWide]}>
+        <View style={[styles.column, (wide || roomy) && styles.columnWide]}>
           {head}
           {body}
           {/* 넓은 화면은 단추가 몸 바로 아래 — 화면 바닥에 붙이면 760 기둥과 떨어져 논다. */}
@@ -335,7 +337,7 @@ function PlanConditions() {
         </View>
       </Screen>
       {/* 🔴 폰은 이전/다음을 바닥에 붙인다 — 달력·카드가 길어 단추가 스크롤 아래로 숨으면 「다음」을 찾아 내려가야 한다. */}
-      {wide ? null : <View style={[styles.bottomBar, { paddingBottom: spacing[3] + insets.bottom }]}>{bottom}</View>}
+      {wide ? null : <View style={[styles.bottomBar, { paddingBottom: spacing[3] + insets.bottom }]}>{roomy ? <View style={styles.bottomRoomy}>{bottom}</View> : bottom}</View>}
 
       {/*
         🔴 -1334 — 닫힐 때 무엇을 골랐는지를 반드시 본다. ✕ 로 닫은 것(DISMISSED)만 그 자리에
@@ -399,6 +401,7 @@ const styles = StyleSheet.create({
   sheetLayerWide: { alignItems: 'center', backgroundColor: color.canvas },
   sheetFrame: { flex: 1, width: '100%' },
   sheetFrameWide: { maxWidth: 640 },
+  bottomRoomy: { width: '100%', maxWidth: 640, alignSelf: 'center' },
   dietAsk: { minHeight: 44, justifyContent: 'center' },
   consent: { gap: spacing[2], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.state.warningBg },
 });

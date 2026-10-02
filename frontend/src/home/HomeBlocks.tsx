@@ -11,6 +11,7 @@ import { useRouter, type Href } from 'expo-router';
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { PlaceVisual } from '@/components/PlaceVisual';
 import { Text } from '@/components/Text';
+import { HeartIcon } from '@/components/HeartIcon';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { markdownToPlain } from '@/social/markdown';
@@ -31,7 +32,6 @@ import { effectiveTripStatus, tripStatusLabel } from '@/trip/tripStatus';
 import type { DailyForecastDto } from '@/trip/weather';
 import { regionText } from '@/social/districtNames';
 
-const heartIcon = require('../../assets/icons/home/heart.png');
 
 type Tx = (ko: string, en: string) => string;
 
@@ -196,8 +196,8 @@ function PlaceCard({
         />
       </Pressable>
 
-      {/* 하트는 색만으로 상태를 말하지 않는다 — 켜지면 흰 배경원과 그림자가 함께 켜진다.
-          사진 밝기가 카드마다 달라서 주황 하트만으로는 꺼짐/켜짐이 안 갈린다. */}
+      {/* 하트 — 누르면 빨갛게 찬다(HeartIcon). 전에는 켜지면 흰 원이 생겨 좋아요로 안 읽혔다(사용자 의견 2026-10-02).
+          색만으로 상태를 말하지 않는다 — 꺼짐은 빈 하트(옅은 어둠), 켜짐은 찬 하트로 모양부터 다르다. */}
       <Pressable
         accessibilityRole="button"
         accessibilityState={{ selected: liked }}
@@ -207,9 +207,7 @@ function PlaceCard({
         onPress={onToggleLike}
         style={styles.heartButton}
       >
-        <View style={[styles.heartBackdrop, liked && styles.heartBackdropOn]}>
-          <Image source={heartIcon} resizeMode="contain" accessibilityIgnoresInvertColors style={[styles.heartIcon, liked ? styles.heartOn : styles.heartOff]} />
-        </View>
+        <HeartIcon filled={liked} />
       </Pressable>
 
       <Text variant="body" weight="bold" color={color.text.heading} numberOfLines={1} style={styles.placeName}>{shownName}</Text>
@@ -368,11 +366,6 @@ const styles = StyleSheet.create({
   // 누르는 자리는 44 로 두고 보이는 원은 28 이다 — 손가락은 44 를 필요로 하는데
   // 28 보다 큰 동그라미를 사진 위에 얹으면 사진을 가린다.
   heartButton: { position: 'absolute', top: 0, right: 0, width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  heartBackdrop: { width: 28, height: 28, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
-  heartBackdropOn: { backgroundColor: color.surface.card, shadowColor: color.brand.navy, shadowOpacity: 0.15, shadowRadius: 4, shadowOffset: { width: 0, height: 1 }, elevation: 2 },
-  heartIcon: { width: 16, height: 16 },
-  heartOn: { tintColor: color.action.secondary },
-  heartOff: { tintColor: color.surface.card },
 
   tripBlock: { width: 360, gap: spacing[3] },
   // 시안은 패딩 20 인데 간격 토큰에 20 이 없다(4·8·12·16·24·32). 16 으로 내린다

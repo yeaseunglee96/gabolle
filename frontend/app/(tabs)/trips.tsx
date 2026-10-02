@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, Image, Modal, Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -23,6 +23,8 @@ import { TripRatingStars } from '@/trip/TripRatingStars';
 import { stopNameForLanguage } from '@/discovery/romanize';
 import { enCount, enPlural, txf } from '@/i18n/format';
 import { localizeMessage } from '@/i18n/messages';
+import { localDateKey } from '@/plan/tripProgress';
+import { TripWeatherCard } from '@/trip/TripWeatherPanel';
 
 /** 보관소에서 이 목록을 찾는 열쇠. 사람이 바뀌면 남의 목록을 보면 안 되므로 사용자 id 를 넣는다. */
 const TRIPS_KEY = (userId: string | undefined) => ['trips', userId ?? 'anonymous'] as const;
@@ -155,6 +157,18 @@ export default function Trips() {
   const [showPast, setShowPast] = useState(false);
   const [showFailed, setShowFailed] = useState(false);
   const sections = splitTrips(trips);
+  // 🔴 날씨·준비물로 왔는데 고를 것이 하나뿐이면 고르게 하지 않는다 — 홈의 날씨를 누르면 여행 목록이 먼저 떠서
+  //    「날씨를 눌렀는데 내 여행이 나온다」였다(사용자 지적 2026-10-02). 지금 여행 중이면 그 여행, 아니면 다가오는
+  //    여행이 하나일 때 그 여행으로 바로 간다. 둘 이상이면 고르는 화면 그대로.
+  const prepareTarget = open === 'prepare' && result.state === 'success' && !loading
+    ? sections.live[0] ?? (sections.upcoming.filter((trip) => trip.status !== 'PLANNING').length === 1 ? sections.upcoming.find((trip) => trip.status !== 'PLANNING') : undefined)
+    : undefined;
+  // 고를 여행이 없으면 「골라주세요」가 아니라 오늘 날씨를 제목으로 — 고를 것이 없는데 고르라고 하지 않는다
+  const weatherOnly = open === 'prepare' && (!accessToken || (!loading && result.state === 'success' && trips.length === 0));
+  useEffect(() => {
+    if (prepareTarget) router.replace(`/${prepareTarget.tripId}/prepare`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prepareTarget?.tripId]);
   const menuTrip = menuTripId ? trips.find((item) => item.tripId === menuTripId) ?? null : null;
 
   // 첫 방문지 — 이름 없는 여행은 제목이 날짜뿐이라 같은 날짜 여행 둘을 못 가렸다. 이름을 지어 붙이지 않고(1738) 아래 줄에 적는다.
@@ -238,7 +252,7 @@ export default function Trips() {
   return <View style={styles.shell}><Screen scroll wide withTabBar style={[styles.canvas, desktop && styles.canvasDesktop]}>
     {/* 🔴 폰은 헤더 위 여백을 따로 안 준다 — Screen 이 이미 24 를 주고, 헤더의 24 가 겹쳐 48 이 비어 있었다(시안 변경 3).
         헤더의 행동은 「새 여행」 하나다(시안 변경 2). */}
-    <View style={[styles.header, desktop && styles.headerDesktop]}><View style={styles.headerCopy}><Eyebrow>{open === 'prepare' ? tx('날씨·준비물', 'Weather & packing') : tx('여행 목록', 'My trips')}</Eyebrow><Text variant="display" weight="bold" style={styles.title}>{open === 'prepare' ? tx('확인할 여행을 골라주세요', 'Choose a trip to check') : tx('내 여행', 'My trips')}</Text><Text color={color.text.body}>{open === 'prepare' ? tx('여행 카드를 누르면 출발일 예보와 준비물을 보여드려요.', 'Tap a trip to see its departure forecast and packing tips.') : tx('내가 만들었거나 초대받은 여행이에요.', "Trips you've created or been invited to.")}</Text></View><View style={styles.headerActions}>{/* 🔴 폭을 96 으로 박으면 일본어 「新しい旅行」이 두 줄로 꺾였다(5개 언어 점검 2026-09-29) — 최소 폭만 둔다. */}<Button label={tx('새 여행', 'New trip')} variant="outline" onPress={() => router.push('/plan')} containerStyle={styles.newTrip} /></View></View>
+    <View style={[styles.header, desktop && styles.headerDesktop]}><View style={styles.headerCopy}><Eyebrow>{open === 'prepare' ? tx('날씨·준비물', 'Weather & packing') : tx('여행 목록', 'My trips')}</Eyebrow><Text variant="display" weight="bold" style={styles.title}>{weatherOnly ? tx('오늘 부산 날씨', 'Busan today') : open === 'prepare' ? tx('확인할 여행을 골라주세요', 'Choose a trip to check') : tx('내 여행', 'My trips')}</Text><Text color={color.text.body}>{weatherOnly ? tx('여행을 만들면 출발일 예보와 준비물도 챙겨드려요.', 'Make a trip and we will also show its departure forecast and packing tips.') : open === 'prepare' ? tx('여행 카드를 누르면 출발일 예보와 준비물을 보여드려요.', 'Tap a trip to see its departure forecast and packing tips.') : tx('내가 만들었거나 초대받은 여행이에요.', "Trips you've created or been invited to.")}</Text></View><View style={styles.headerActions}>{/* 🔴 폭을 96 으로 박으면 일본어 「新しい旅行」이 두 줄로 꺾였다(5개 언어 점검 2026-09-29) — 최소 폭만 둔다. */}<Button label={tx('새 여행', 'New trip')} variant="outline" onPress={() => router.push('/plan')} containerStyle={styles.newTrip} /></View></View>
 
     {!accessToken ? <View style={styles.state}><Text weight="bold">{tx('로그인하면 내 여행을 여기서 모아 볼 수 있어요.', 'Sign in to see all your trips here.')}</Text><Text color={color.text.body}>{tx('만든 여행은 계정에 저장돼 어느 기기에서든 이어서 볼 수 있어요.', 'Trips are saved to your account, so you can pick them up on any device.')}</Text>{/* 🔴 「여행 만들기 둘러보기」를 뺐다 (S15P21E201-1795). 바로 위 헤더의 「새 여행」이
         같은 /plan 으로 가서, 비회원 화면에만 같은 일을 하는 단추가 둘이었다. 헤더는 로그인
@@ -250,6 +264,9 @@ export default function Trips() {
     {accessToken && loading ? <View accessibilityLiveRegion="polite" style={styles.state}><ActivityIndicator color={color.action.primary} /><Text weight="bold">{tx('내 여행을 불러오고 있어요', 'Loading your trips')}</Text></View> : null}
 
     {accessToken && !loading && result.state !== 'success' ? <View style={styles.state}><GabolleMascot state="sad" style={styles.sadMascot} /><Text weight="bold">{result.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : tx('내 여행을 불러오지 못했어요', 'Could not load your trips')}</Text><Text color={color.text.body}>{localizeMessage(tx, result.message)}</Text><Button compact label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void reload()} /></View> : null}
+
+    {/* 날씨를 보러 왔는데 여행이 없으면 — 오늘 부산 날씨를 바로(고를 여행이 없어 날씨에 못 닿던 것) */}
+    {weatherOnly ? <TripWeatherCard date={localDateKey(new Date())} /> : null}
 
     {accessToken && !loading && result.state === 'success' && trips.length === 0 ? <View style={styles.empty}><GabolleMascot state="open" style={styles.emptyMascot} /><Text variant="title" weight="bold">{tx('아직 만든 여행이 없어요', 'No trips yet')}</Text><Text color={color.text.body} style={styles.center}>{tx('여행을 만들면 이곳에 보여드려요.', "Once you create a trip, it'll show up here.")}</Text><Button label={tx('첫 여행 만들기', 'Create your first trip')} onPress={() => router.push('/plan')} containerStyle={styles.emptyCta} /></View> : null}
 
