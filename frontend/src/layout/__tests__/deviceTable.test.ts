@@ -1,6 +1,8 @@
 // 전시에 쓰는 세 기기의 실제 화면 크기(dp)로 판과 회전 잠금을 고정한다 (S15P21E201-1940).
 //   · Galaxy Z Fold6 바깥·펼침 — 실기기 `wm size`(968×2376, 1856×2160 @420dpi)에서 잰 값
-//   · Galaxy S24+ · Galaxy Tab S9 FE+ — 삼성 공개 사양에서 계산한 값
+//   · Galaxy Tab S9 FE+ — 실기기(SM-X610, 안드로이드 16) `wm size` 1600×2560 @340dpi 에서 잰 값 (S15P21E201-1947)
+//     🔴 전에는 사양 추정 800×1280 으로 적었다 — 실제는 753×1205 라 「폭 768 이상」 기준에 못 미쳐 폰 판이 늘어났다
+//   · Galaxy S24+ — 삼성 공개 사양에서 계산한 값
 // 정한 것: 폰(짧은 변 600 미만)은 세로로 잠근다 · 태블릿 세로는 데스크톱 판 · 폴드 펼침 세로는 폰 판.
 //
 // 🔴 세로 잠금은 app.json 의 orientation: "portrait" 한 줄로 한다. 회전 모듈(expo-screen-orientation)을
@@ -23,9 +25,13 @@ describe('전시 기기 표', () => {
     ['Fold6 펼침 가로', 823, 707, true, false],
     ['S24+ 세로', 384, 832, false, true],
     ['S24+ 가로', 832, 384, false, true],
-    ['Tab S9 FE+ 세로', 800, 1280, true, false],
-    ['Tab S9 FE+ 가로', 1280, 800, true, false],
+    ['Tab S9 FE+ 세로', 753, 1205, true, false],
+    ['Tab S9 FE+ 가로', 1205, 753, true, false],
+    // 디스플레이 「화면 크기」를 키우면 dp 가 줄어든다 — 화면비는 그대로라 판도 그대로여야 한다
+    ['Tab S9 FE+ 세로 · 화면 크게', 640, 1024, true, false],
+    ['Fold6 펼침 세로 · 화면 크게', 618, 720, false, false],
     ['PC 브라우저', 1440, 900, true, false],
+    ['PC 브라우저 작게', 1280, 800, true, false],
   ])('%s (%d×%d) → 데스크톱 %s · 세로 잠금 %s', (_name, width, height, desktop, lock) => {
     expect(isDesktopWindow(width, height)).toBe(desktop);
     expect(lockedPortrait(width, height)).toBe(lock);
