@@ -1,5 +1,5 @@
 // 여행 돈 정산(S15P21E201-1935) — 누가 누구에게 얼마. 틀리면 동행끼리 돈 얘기가 꼬인다.
-import { settle, totalsByCategory, type Expense } from '../expenses';
+import { approxForeignText, settle, totalsByCategory, type Expense } from '../expenses';
 
 const line = (paidBy: string, amountKrw: number, splitEven = true, category: Expense['category'] = 'FOOD'): Expense => ({
   expenseId: `${paidBy}-${amountKrw}`, createdBy: paidBy, paidBy, amountKrw, category, placeName: null, note: null, splitEven, spentAt: '2026-10-03T12:00:00+09:00',
@@ -37,5 +37,17 @@ describe('totalsByCategory', () => {
     expect(totalsByCategory([line('a', 1000, true, 'CAFE'), line('a', 18000), line('a', 9000), line('a', 3000, true, 'TRANSPORT')])).toEqual([
       { category: 'FOOD', amountKrw: 27000 }, { category: 'TRANSPORT', amountKrw: 3000 }, { category: 'CAFE', amountKrw: 1000 },
     ]);
+  });
+});
+
+describe('approxForeignText', () => {
+  it('엔·대만 달러는 정수, 달러는 소수 둘째 자리', () => {
+    expect(approxForeignText(48800, 'JPY', 9.18)).toBe('≈ ¥5,316');
+    expect(approxForeignText(48800, 'TWD', 43.1)).toBe('≈ NT$1,132');
+    expect(approxForeignText(48800, 'USD', 1380)).toBe('≈ $35.36');
+  });
+  it('모르는 통화는 코드를 뒤에 · 환율이 이상하면 안 그린다', () => {
+    expect(approxForeignText(10000, 'EUR', 1500)).toBe('≈ 6.67 EUR');
+    expect(approxForeignText(10000, 'USD', 0)).toBeNull();
   });
 });

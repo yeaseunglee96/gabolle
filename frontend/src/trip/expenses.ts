@@ -107,3 +107,20 @@ export function settle(items: Expense[], memberIds: string[]): Transfer[] {
   return transfers;
 }
 
+
+const CURRENCY_SIGN: Record<string, string> = { JPY: '¥', CNY: '¥', CNH: '¥', TWD: 'NT$', USD: '$' };
+
+/**
+ * 원을 그 나라 돈으로 어림한 글 — 「≈ ¥5,312」. 외국어 화면에서 합계 아래 한 줄로만 쓴다(S15P21E201-1935).
+ * 작은 단위가 없는 통화(엔·대만 달러)와 큰 금액은 정수로, 그 밖(달러·위안)은 소수 둘째 자리까지 — 「≈ $36.41」.
+ */
+export function approxForeignText(krw: number, code: string, perUnitKrw: number): string | null {
+  if (!Number.isFinite(krw) || !(perUnitKrw > 0)) return null;
+  const amount = krw / perUnitKrw;
+  const whole = code === 'JPY' || code === 'TWD' || amount >= 1000;
+  const number = whole
+    ? Math.round(amount).toLocaleString('en-US')
+    : amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const sign = CURRENCY_SIGN[code];
+  return sign ? `≈ ${sign}${number}` : `≈ ${number} ${code}`;
+}

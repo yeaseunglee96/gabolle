@@ -17,6 +17,7 @@ import { useI18n } from '@/i18n';
 import { txf } from '@/i18n/format';
 import { localizeMessage } from '@/i18n/messages';
 import { formatWon } from '@/place/detailExtras';
+import { defaultCurrencyFor, displayCode, loadExchangeRates, pickRate, unitsPerQuote } from '@/field/exchangeRates';
 import { SelectTripFirst } from '@/trip/SelectTripFirst';
 import { listTripMembers, type TripMember } from '@/trip/collaboration';
 import { stopNameForLanguage } from '@/discovery/romanize';
@@ -24,7 +25,7 @@ import { loadItinerary } from '@/plan/itinerary';
 import { localDateKey } from '@/plan/tripProgress';
 import { planPlacesFor, type PlanPlace } from '@/trip/planPlaces';
 import { loadTripItineraries } from '@/trip/trips';
-import { addExpense, EXPENSE_CATEGORIES, loadLedger, removeExpense, saveBudget, settle, totalsByCategory, type Expense, type ExpenseCategory, type Ledger } from '@/trip/expenses';
+import { approxForeignText, addExpense, EXPENSE_CATEGORIES, loadLedger, removeExpense, saveBudget, settle, totalsByCategory, type Expense, type ExpenseCategory, type Ledger } from '@/trip/expenses';
 
 type Tx = (ko: string, en: string) => string;
 
@@ -84,6 +85,20 @@ function TripMoneyForTrip({ tripId }: { tripId: string }) {
   }, [members, tx]);
   const won = (amount: number) => formatWon(amount, language);
 
+  // 외국어 화면은 합계를 내 나라 돈으로도 한 줄(오늘 환율) — 「4만 8천 원이 얼마지?」를 따로 계산하지 않게.
+  // 환율은 로그인해야 받는다. 못 받으면 그 줄만 안 그린다
+  const [rate, setRate] = useState<{ code: string; perUnitKrw: number } | null>(null);
+  useEffect(() => {
+    if (language === 'ko' || !accessToken) { setRate(null); return; }
+    let alive = true;
+    void loadExchangeRates(accessToken).then((outcome) => {
+      if (!alive || outcome.state !== 'ready') return;
+      const picked = pickRate(outcome.rates, defaultCurrencyFor(language));
+      if (picked) setRate({ code: displayCode(picked.currencyCode).toUpperCase(), perUnitKrw: picked.baseRate / unitsPerQuote(picked.currencyCode) });
+    });
+    return () => { alive = false; };
+  }, [language, accessToken]);
+
   const transfers = useMemo(() => (ledger ? settle(ledger.items, members.map((member) => member.userId)) : []), [ledger, members]);
   const categories = useMemo(() => (ledger ? totalsByCategory(ledger.items) : []), [ledger]);
   const days = useMemo(() => groupByDay(ledger?.items ?? []), [ledger]);
@@ -120,6 +135,7 @@ function TripMoneyForTrip({ tripId }: { tripId: string }) {
         </View>
         {/* 🔴 색을 적는다 — hero 의 기본색은 흰색이라(사진 위에 얹던 시절) 흰 카드에서는 금액이 통째로 안 보인다 */}
         <Text variant="hero" weight="bold" color={color.text.heading} testID="money-total">{ledger ? won(total) : '…'}</Text>
+        {ledger && rate && total > 0 ? <Text variant="caption" color={color.text.body} testID="money-foreign">{txf(tx, '%s · 오늘 환율', '%s · today’s rate', approxForeignText(total, rate.code, rate.perUnitKrw) ?? '')}</Text> : null}
         {budget ? (
           <>
             <View style={styles.bar}><View style={[styles.barFill, { width: `${Math.round(ratio * 100)}%` }, total > budget && styles.barOver]} /></View>
