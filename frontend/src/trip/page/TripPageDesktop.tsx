@@ -183,6 +183,8 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
           {tripId ? <HeadPill label={tx('공유', 'Share')} active={overlay === 'share'} onPress={() => setOverlay('share')} /> : null}
           {tripId ? <HeadPill label={tx('기록 남기기', 'Write a record')} active={overlay === 'record'} onPress={() => setOverlay('record')} /> : null}
           {tripId ? <HeadPill label={tx('날씨', 'Weather')} active={overlay === 'weather'} onPress={() => setOverlay('weather')} /> : null}
+          {/* 여행 돈(S15P21E201-1935) — 화면으로 연다 */}
+          {tripId ? <HeadPill label={tx('여행 돈', 'Trip money')} active={false} onPress={() => router.push(`/${tripId}/money` as never)} /> : null}
           <Pressable ref={menu.buttonRef} accessibilityRole="button" accessibilityLabel={tx('더 보기', 'More')} accessibilityState={{ expanded: menu.open }} onPress={menu.openMenu} style={({ pressed }) => [styles.circle40, pressed && styles.pressed]}>
             <Text weight="bold">⋯</Text>
           </Pressable>

@@ -5,7 +5,7 @@
 //    달라지므로 PencilIcon · NoticeIcon 과 같이 선 그림으로 둔다.
 import Svg, { Circle, Path } from 'react-native-svg';
 
-export type TripActionKind = 'map' | 'invite' | 'share' | 'record' | 'weather';
+export type TripActionKind = 'map' | 'invite' | 'share' | 'record' | 'weather' | 'money';
 
 export function TripActionIcon({ kind, tint, size = 22 }: { kind: TripActionKind; tint: string; size?: number }) {
   const line = { stroke: tint, strokeWidth: 2, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
@@ -35,6 +35,12 @@ export function TripActionIcon({ kind, tint, size = 22 }: { kind: TripActionKind
         <Circle cx={8} cy={8} r={3} {...line} />
         <Path d="M8 2v1.5M2 8h1.5M3.8 3.8l1 1M12.2 3.8l-1 1" {...line} />
         <Path d="M9 20h9a3.5 3.5 0 0 0 0-7 5 5 0 0 0-9.6 1.2A3 3 0 0 0 9 20z" {...line} />
+      </> : null}
+      {kind === 'money' ? <>
+        {/* 지갑 — 여행 돈(S15P21E201-1935). 동전(원) 그림은 나라마다 읽는 법이 달라 지갑으로 둔다 */}
+        <Path d="M4 7h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a1 1 0 0 1-1-1V7z" {...line} />
+        <Path d="M4 7l11-3v3" {...line} />
+        <Path d="M16 13h4" {...line} />
       </> : null}
     </Svg>
   );
