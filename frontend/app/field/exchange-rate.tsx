@@ -1,5 +1,5 @@
 // 환율 계산기 — S15P21E201-1137.
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -91,6 +91,13 @@ export default function Exchange() {
   // "외화 → 원" 으로 시작한다. 이 화면에 오는 사람 대부분이 한국 가격표를 보고 있는 것이
   // 아니라, 자기 돈이 여기서 얼마인지를 먼저 궁금해한다. 한국어 사용자만 반대다.
   const [fromKrw, setFromKrw] = useState(language === 'ko');
+  // 🔴 웹에서는 고른 언어가 저장소에서 늦게 온다 — 첫 그림의 언어(영어)로 정한 USD 가 중국어 화면에 남았다
+  //    (운영 웹 10/2, S15P21E201-1941). 사람이 직접 고르거나 바꾸기 전까지는 언어가 바뀌면 기본값을 다시 맞춘다.
+  const touched = useRef({ code: false, direction: false });
+  useEffect(() => {
+    if (!touched.current.code) setCode(defaultCurrencyFor(language));
+    if (!touched.current.direction) setFromKrw(language === 'ko');
+  }, [language]);
   const [amount, setAmount] = useState('');
 
   // 화면 상태를 눈으로 확인하기 위한 자리 — (plan)/confirm.tsx 의 preview=api-error 와 같은
@@ -189,7 +196,7 @@ export default function Exchange() {
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel={tx('바꾸는 방향 뒤집기', 'Swap direction')}
-                onPress={() => setFromKrw((v) => !v)}
+                onPress={() => { touched.current.direction = true; setFromKrw((v) => !v); }}
                 style={({ pressed }) => [styles.swap, pressed && styles.pressed]}
               >
                 <Text variant="caption" weight="bold" color={color.brand.navy}>{tx('방향 바꾸기 ⇅', 'Swap ⇅')}</Text>
@@ -234,7 +241,7 @@ export default function Exchange() {
                   accessibilityRole="radio"
                   accessibilityState={{ selected }}
                   accessibilityLabel={`${quotedCode(item.currencyCode)} ${name}`}
-                  onPress={() => setCode(item.currencyCode)}
+                  onPress={() => { touched.current.code = true; setCode(item.currencyCode); }}
                   style={({ pressed }) => [styles.currencyRow, selected && styles.currencyRowSelected, pressed && styles.pressed]}
                 >
                   <CurrencyBadge code={item.currencyCode} size="large" />

@@ -113,7 +113,8 @@ export function currencyDisplayName(code: string, locale: string, fallback: stri
     if (typeof Intl.DisplayNames !== 'function' || !Intl.DisplayNames.supportedLocalesOf([locale]).length) return fromTable ?? fallback;
     const names = new Intl.DisplayNames([locale], { type: 'currency' });
     const name = names.of(currencyKey(code));
-    if (!name) return fromTable ?? fallback;
+    // 브라우저가 모르는 코드(CNH)는 코드를 그대로 돌려준다 — 이름 칸이 비었다(운영 웹 10/2, S15P21E201-1941).
+    if (!name || name.toUpperCase() === currencyKey(code)) return fromTable ?? fallback;
     return INTL_NAME_FIXES[locale.split('-')[0].toLowerCase()]?.[name] ?? name;
   } catch {
     return fromTable ?? fallback;
