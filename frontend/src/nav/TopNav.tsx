@@ -163,7 +163,31 @@ export function TopNav() {
     <View style={styles.nav}>
       <BrandLogoLink href="/" imageStyle={styles.logo} inTopNav />
 
-      {morphSearch ? (
+      {morphSearch && width >= KEEP_MENU_FROM ? (
+        // 🔴 넓으면(1200 이상) 메뉴를 없애지 않는다 — ㉖ 시안. 내린 뒤에도 「피드」로 바로 간다(사용자 확인 2026-10-02).
+        //    가운데 메뉴는 흐려지고, 같은 메뉴가 로고 옆에 나타나며, 알약은 그 사이 빈 가운데에 선다.
+        <>
+          <Animated.View pointerEvents={search.collapsed ? 'auto' : 'none'} accessibilityElementsHidden={!search.collapsed} importantForAccessibility={search.collapsed ? 'auto' : 'no-hide-descendants'} style={[styles.menuBeside, { opacity: searchCollapse.interpolate({ inputRange: [0.5, 1], outputRange: [0, 1], extrapolate: 'clamp' }) }]}>
+            {capsule}
+          </Animated.View>
+          <View style={styles.pillCenter} pointerEvents="box-none">
+            <Animated.View
+              pointerEvents={search.collapsed ? 'box-none' : 'none'}
+              accessibilityElementsHidden={!search.collapsed}
+              importantForAccessibility={search.collapsed ? 'auto' : 'no-hide-descendants'}
+              style={{
+                opacity: searchCollapse.interpolate({ inputRange: [0.4, 1], outputRange: [0, 1], extrapolate: 'clamp' }),
+                transform: [{ scale: searchCollapse.interpolate({ inputRange: [0, 1], outputRange: [1.12, 1] }) }, { translateY: searchCollapse.interpolate({ inputRange: [0, 1], outputRange: [6, 0] }) }],
+              }}
+            >
+              <SearchPillButton narrow={width < 1360} labels={search.labels} onPress={() => search.open?.()} />
+            </Animated.View>
+          </View>
+          <Animated.View pointerEvents={search.collapsed ? 'none' : 'box-none'} accessibilityElementsHidden={search.collapsed} style={[styles.menuCentered, { opacity: searchCollapse.interpolate({ inputRange: [0, 0.5], outputRange: [1, 0], extrapolate: 'clamp' }) }]}>
+            {capsule}
+          </Animated.View>
+        </>
+      ) : morphSearch ? (
         <View style={styles.centerSlot}>
           <Animated.View pointerEvents={search.collapsed ? 'none' : 'auto'} accessibilityElementsHidden={search.collapsed} style={{ opacity: searchCollapse.interpolate({ inputRange: [0, 0.5], outputRange: [1, 0], extrapolate: 'clamp' }) }}>
             {capsule}
@@ -178,7 +202,7 @@ export function TopNav() {
               transform: [{ scale: searchCollapse.interpolate({ inputRange: [0, 1], outputRange: [1.12, 1] }) }, { translateY: searchCollapse.interpolate({ inputRange: [0, 1], outputRange: [6, 0] }) }],
             }]}
           >
-            <SearchPillButton narrow={width < 1100} onPress={() => search.open?.()} />
+            <SearchPillButton narrow={width < 1100} labels={search.labels} onPress={() => search.open?.()} />
           </Animated.View>
         </View>
       ) : capsule}
@@ -197,6 +221,8 @@ export function TopNav() {
   </SafeAreaView>;
 }
 
+/** 이 폭부터 홈을 내려도 메뉴를 남긴다 — 로고 · 메뉴 · 알약 · 날씨 · CTA 가 한 줄에 들어가는 폭 */
+const KEEP_MENU_FROM = 1200;
 const UTIL_HEIGHT = 36;
 const NAV_HEIGHT = 60;
 const CTA_HEIGHT = 40;
@@ -231,6 +257,10 @@ const styles = StyleSheet.create({
   capsule: { flexDirection: 'row', alignItems: 'center', gap: spacing[1], padding: spacing[1] },
   // 가운데 칸과 알약이 같은 자리를 나눠 쓴다 — 알약은 그 위에 겹쳐 가운데에 선다(폭이 칸보다 넓어도 가운데 기준)
   centerSlot: { alignItems: 'center', justifyContent: 'center' },
+  // 넓은 화면 홈의 세 겹(KEEP_MENU_FROM) — 로고 옆 메뉴 · 가운데 알약 · 접히기 전 가운데 메뉴(겹쳐 그린다)
+  menuBeside: { marginLeft: spacing[6] },
+  pillCenter: { flex: 1, minWidth: 0, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[4] },
+  menuCentered: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, alignItems: 'center', justifyContent: 'center' },
   pillSlot: { position: 'absolute', top: 0, bottom: 0, left: -240, right: -240, alignItems: 'center', justifyContent: 'center' },
   // 🔴 좁으면 양옆으로 덜 넓힌다 — 768 폭에서 이 칸(보이지 않아도 자리는 차지한다)이 화면 오른쪽 끝을 넘어 페이지에
   //    가로 스크롤이 9~48px 생겼다(2026-10-02 전체 점검, 세로 아이패드 미니). 좁을 때의 알약은 「인원」이 빠져 메뉴 폭 안팎이다.

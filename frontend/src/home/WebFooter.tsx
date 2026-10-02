@@ -17,8 +17,9 @@ import { useLayout } from '@/layout/useLayout';
 /** 가볼래 iOS 앱 — 앱스토어 심사를 통과한 주소(포스터·팸플릿 QR 과 같다) */
 export const APP_STORE_URL = 'https://apps.apple.com/app/id6811252919';
 const qrAppStore = require('../../assets/brand/qr-appstore.png');
+const brandLogo = require('../../assets/brand/gabolle-logo-hd.png');
 
-type FooterLink = { ko: string; en: string; href: Href };
+type FooterLink = { ko: string; en: string; href: Href; emphasis?: boolean };
 type FooterGroup = { ko: string; en: string; links: FooterLink[] };
 
 export const FOOTER_GROUPS: FooterGroup[] = [
@@ -35,7 +36,7 @@ export const FOOTER_GROUPS: FooterGroup[] = [
   ] },
   { ko: '약관', en: 'Policies', links: [
     { ko: '이용약관', en: 'Terms of service', href: '/legal/terms' },
-    { ko: '개인정보 처리방침', en: 'Privacy policy', href: '/legal/privacy' },
+    { ko: '개인정보 처리방침', en: 'Privacy policy', href: '/legal/privacy', emphasis: true },
     { ko: '자료 출처', en: 'Data sources', href: '/legal/data-sources' },
     { ko: '계정 삭제', en: 'Delete account', href: '/legal/account-deletion' },
   ] },
@@ -83,7 +84,7 @@ export function WebFooter() {
 
       <View style={styles.columns}>
         <View style={[styles.about, narrow && styles.aboutNarrow]}>
-          <Text variant="title" weight="bold">{tx('가볼래', 'GABOLLE')}</Text>
+          <Image source={brandLogo} resizeMode="contain" accessibilityLabel="GABOLLE" accessibilityIgnoresInvertColors style={styles.brandLogo} />
           <Text color={color.text.body} style={styles.aboutText}>{tx('언제, 누구와, 어떻게 다닐지만 알려 주면\n부산 일정을 짜 드려요.\n경사·그늘까지 따져 길을 고르고,\n여행 중에는 통역과 긴급 도움을 바로 열 수 있어요.', 'Tell us when, with whom and how you travel,\nand we plan your Busan days.\nRoutes weigh slopes and shade,\nand interpreting and emergency help are one tap away.')}</Text>
           <Text variant="caption" color={color.text.muted}>한국어 · English · 日本語 · 简体中文 · 繁體中文</Text>
         </View>
@@ -92,7 +93,8 @@ export function WebFooter() {
             <Text variant="caption" weight="bold" color={color.text.heading}>{tx(group.ko, group.en)}</Text>
             {group.links.map((link) => (
               <Pressable key={link.ko} accessibilityRole="link" onPress={() => router.push(link.href)} style={({ pressed }) => [styles.link, pressed && styles.pressed]}>
-                <Text color={color.text.body}>{tx(link.ko, link.en)}</Text>
+                {/* 개인정보 처리방침은 굵게 — 개인정보보호법 가이드라인이 다른 약관과 구별해 눈에 띄게 두라고 한다(㉖ 시안) */}
+                <Text color={link.emphasis ? color.text.heading : color.text.body} weight={link.emphasis ? 'bold' : 'regular'}>{tx(link.ko, link.en)}</Text>
               </Pressable>
             ))}
           </View>
@@ -137,6 +139,7 @@ const styles = StyleSheet.create({
   aboutNarrow: { flexBasis: '100%' },
   groupNarrow: { flexBasis: 0, minWidth: 0 },
   link: { minHeight: 36, justifyContent: 'center', alignSelf: 'flex-start' },
+  brandLogo: { width: 132, height: 24, alignSelf: 'flex-start' },
   // 맨 아래 줄 — 안내 단 바로 밑에. 바닥에 붙이면 그 사이가 통째로 빈다(시안 점검 2026-10-02).
   bottomRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: spacing[3], marginTop: spacing[8] + spacing[4], paddingTop: spacing[4], borderTopWidth: 1, borderTopColor: color.surface.border },
   sources: { flexShrink: 1 },

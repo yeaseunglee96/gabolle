@@ -2,7 +2,7 @@
 import { fireEvent, render } from '@testing-library/react-native';
 
 import { SearchPillButton, shouldShowStickySearch } from '../StickySearchPill';
-import { collapseProgress } from '../stickySearchStore';
+import { collapseProgress, searchHandleNow, setSearchHandle } from '../stickySearchStore';
 
 jest.mock('@/i18n', () => ({ useI18n: () => ({ tx: (ko: string) => ko, language: 'ko' }) }));
 
@@ -35,5 +35,28 @@ describe('SearchPillButton', () => {
     const view = render(<SearchPillButton onPress={onPress} />);
     fireEvent.press(view.getByTestId('sticky-search'));
     expect(onPress).toHaveBeenCalledTimes(1);
+  });
+
+  it('🔴 큰 검색창에서 고른 값을 쓴다 — ㉖ 시안 「날짜 · 성인 2」', () => {
+    const view = render(<SearchPillButton onPress={() => {}} labels={{ origin: null, dates: '10.3(토) – 10.5(월) · 3일', people: '성인 2' }} />);
+    expect(view.getByText('어디서 출발')).toBeTruthy();
+    expect(view.getByText('10.3(토) – 10.5(월) · 3일')).toBeTruthy();
+    expect(view.getByText('성인 2')).toBeTruthy();
+  });
+
+  it('안 골랐으면 빈 칸 안내', () => {
+    const view = render(<SearchPillButton onPress={() => {}} />);
+    expect(view.getByText('날짜 추가')).toBeTruthy();
+    expect(view.getByText('인원')).toBeTruthy();
+  });
+});
+
+describe('setSearchHandle — 알약 글을 따로 적어도 나머지는 그대로', () => {
+  it('labels 를 빼고 적으면 전에 적은 글이 남는다', () => {
+    const open = () => {};
+    setSearchHandle({ active: true, collapsed: false, open, labels: { origin: '부산역', dates: null, people: '성인 2' } });
+    setSearchHandle({ active: true, collapsed: true, open });
+    expect(searchHandleNow()).toEqual({ active: true, collapsed: true, open, labels: { origin: '부산역', dates: null, people: '성인 2' } });
+    setSearchHandle({ active: false, collapsed: false, open: null, labels: null });
   });
 });
