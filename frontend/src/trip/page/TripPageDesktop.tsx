@@ -185,6 +185,9 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
             <Text variant="title" weight="bold" numberOfLines={1}>{title}</Text>
             {headSub ? <Text variant="caption" color={color.text.muted} numberOfLines={1}>{headSub}</Text> : null}
           </View>
+          {/* 단추 묶음 — 좁은 데스크톱 판(갤럭시 탭 세로 753 · 일본어처럼 단추 글이 긴 언어)에서는 묶음째 다음 줄로 내려간다.
+              전에는 한 줄에 다 넣으려고 제목이 「햇살 가…」로 줄었다(S15P21E201-1953). */}
+          <View style={styles.headActions}>
           {/* 화면을 옮기지 않고 창으로 연다 — 동행 초대는 가운데 창, 날씨는 오른쪽 서랍(S15P21E201-1561). */}
           {tripId ? <HeadPill label={tx('동행 초대', 'Invite')} active={overlay === 'invite'} onPress={() => setOverlay('invite')} /> : null}
           {/* 「공유」는 동행 초대 창 맨 아래에 숨어 있던 읽기 전용 링크만 담은 창, 「기록 남기기」는 이 여행을 단 글쓰기(S15P21E201-1593).
@@ -197,11 +200,12 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
           <Pressable ref={menu.buttonRef} accessibilityRole="button" accessibilityLabel={tx('더 보기', 'More')} accessibilityState={{ expanded: menu.open }} onPress={menu.openMenu} style={({ pressed }) => [styles.circle40, pressed && styles.pressed]}>
             <Text weight="bold">⋯</Text>
           </Pressable>
+          </View>
         </View>
 
         {/* ── 코스 줄 — 추천 코스 알약 · 확정 · (오른쪽) 장소 카드 | 큰 지도 ───────── */}
         <View style={styles.courseRow}>
-          <Text variant="caption" weight="bold" color={color.text.muted}>{tx('추천 코스', 'Courses')}</Text>
+          <Text variant="caption" weight="bold" color={color.text.muted} style={styles.noShrink}>{tx('추천 코스', 'Courses')}</Text>
           {confirmed && course ? (
             <>
               <View style={styles.confirmedPill}>
@@ -562,14 +566,18 @@ const styles = StyleSheet.create({
   fill: { width: '100%', height: '100%' },
   rowCenter: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
 
-  head: { flexDirection: 'row', alignItems: 'center', gap: spacing[4], zIndex: 5 },
-  headCopy: { flex: 1, minWidth: 0, gap: 2 },
+  // 🔴 좁으면 단추 묶음이 다음 줄로 — 제목 칸이 240 아래로 줄지 않는다(S15P21E201-1953).
+  head: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing[4], zIndex: 5 },
+  headCopy: { flexGrow: 1, flexShrink: 1, flexBasis: 240, minWidth: 0, gap: 2 },
+  headActions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing[4], marginLeft: 'auto' },
+  noShrink: { flexShrink: 0 },
   circle44: { width: 44, height: 44, borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
   circle40: { width: 40, height: 40, borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
   headPill: { minHeight: 40, paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
   headPillOn: { backgroundColor: color.action.secondary },
 
-  courseRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], paddingTop: spacing[2] },
+  // 좁으면 줄을 바꾼다 — 안 바꾸면 「おすすめコース」가 한 글자씩 세로로 찌그러졌다(S15P21E201-1953).
+  courseRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing[2], paddingTop: spacing[2] },
   track: { flexDirection: 'row', padding: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft },
   courseIndicator: { position: 'absolute', top: spacing[1], bottom: spacing[1], left: spacing[1], width: COURSE_SLOT, borderRadius: radius.full, backgroundColor: color.brand.navy },
   courseSlot: { width: COURSE_SLOT, minHeight: 40, paddingHorizontal: spacing[3], alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
