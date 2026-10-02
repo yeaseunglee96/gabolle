@@ -296,7 +296,9 @@ export default function Welcome() {
       >
         {/* 부제는 메뉴에 실제로 있는 것을 적는다. 전에는 「일정 · 통역 · 여행 도움」이라고
             적어 두고 챗봇 한 곳으로만 갔다 — 셋을 약속하고 하나만 줬다. */}
-        <View style={styles.webAssistantLabel}><Text variant="body" weight="bold">{tx('AI에게 물어보기', 'Ask AI')}</Text><Text variant="caption" color={color.text.muted}>{assistantSubtitle(tx)}</Text></View>
+        {/* 🔴 좁은 데스크톱 판(세로 탭 768~1099)에서는 꽃만 둔다. 말풍선까지 두면 카드 줄 오른쪽 끝과 줄 화살표를 덮었다
+            (사용자 요청 2026-10-02 — 아이패드 미니·프로·서피스 「가독성」). 이름은 accessibilityLabel 이 읽는다. */}
+        {width < ASSISTANT_LABEL_FROM ? null : <View style={styles.webAssistantLabel}><Text variant="body" weight="bold">{tx('AI에게 물어보기', 'Ask AI')}</Text><Text variant="caption" color={color.text.muted}>{assistantSubtitle(tx)}</Text></View>}
         {/* 메뉴가 열린 동안 >.< — 폰과 같은 규칙(S15P21E201-1430). 흔들리지 않는다. */}
         <GabolleMascot state={assistantOpen ? 'thinking' : 'idle'} still style={styles.webAssistantMascot} />
       </Pressable>
@@ -315,6 +317,9 @@ function GlobeIcon() {
   );
 }
 function NavItem({ label, onPress }: { label: string; onPress: () => void }) { return <Pressable accessibilityRole="link" onPress={onPress} style={styles.navItem}><Text variant="caption" weight="medium">{label}</Text></Pressable>; }
+
+/** 이 폭부터 AI 단추에 「AI에게 물어보기」 말풍선을 붙인다 */
+const ASSISTANT_LABEL_FROM = 1100;
 
 const styles = StyleSheet.create({
   webShell: { flex: 1, backgroundColor: color.canvas },

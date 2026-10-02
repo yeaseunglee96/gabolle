@@ -13,9 +13,23 @@ import { useI18n } from '@/i18n';
 const arrowLeft = require('../../assets/icons/home/arrow-left.png');
 const arrowRight = require('../../assets/icons/home/arrow-right.png');
 
-/** 한 줄에 일곱 장이 보이는 카드 폭. 시안 1440 에서 184 가 나오는 식이다. */
+/** 시안의 카드 폭 — 1440 에서 일곱 장이 184 로 나온다. */
+const DESIGN_CARD = 184;
+
+/**
+ * 한 줄에 보이는 카드 수. 시안 폭(184)이 몇 장 들어가는지로 정하고 3~7 장 사이에 둔다.
+ * 🔴 늘 일곱 장으로 나누면 세로로 세운 탭(아이패드 미니 768 · 프로 1032 · 서피스 960)에서 카드가 100 남짓으로 작아져
+ *    장소 이름이 잘리고 글이 안 읽혔다(사용자 요청 2026-10-02 — 「가독성 너무 안 좋다」). 1440 은 그대로 일곱 장이다.
+ */
+export function homeCardColumns(width: number) {
+  const room = width - desktopGutter * 2 + spacing[3];
+  return Math.min(7, Math.max(3, Math.floor(room / (DESIGN_CARD + spacing[3]))));
+}
+
+/** 한 줄에 `homeCardColumns` 장이 꽉 차는 카드 폭. */
 export function homeCardWidth(width: number) {
-  return Math.max(120, Math.floor((width - desktopGutter * 2 - 6 * spacing[3]) / 7));
+  const columns = homeCardColumns(width);
+  return Math.max(120, Math.floor((width - desktopGutter * 2 - (columns - 1) * spacing[3]) / columns));
 }
 
 /** 32짜리 원형 단추 — 줄 제목 옆의 「전체 보기」와 좌우 이동에 같이 쓴다. */

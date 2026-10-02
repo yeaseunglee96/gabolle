@@ -55,7 +55,7 @@ function skyLabel(sky: DailyForecastDto['skyCondition'], tx: Tx) {
  * 그 문구를 만들던 weatherHint 도 쓰는 곳이 없어져 걷어냈다. 되살릴 일이 생기면
  * 이 커밋을 보면 된다.
  */
-export function TopNavWeather({ forecast }: { forecast: DailyForecastDto | null }) {
+export function TopNavWeather({ forecast, compact = false }: { forecast: DailyForecastDto | null; compact?: boolean }) {
   const { tx } = useI18n();
   if (!forecast) return null;
   // 최고기온을 쓰고, 없으면 최저라도 보여준다. 둘 다 없으면 아무것도 안 그린다 —
@@ -65,7 +65,8 @@ export function TopNavWeather({ forecast }: { forecast: DailyForecastDto | null 
   return (
     <View style={styles.weatherRow}>
       <Text variant="title" weight="bold">{`${Math.round(temp)}°`}</Text>
-      <Text variant="caption" color={color.text.body}>{`${skyLabel(forecast.skyCondition, tx)} · ${tx('부산 지금', 'Busan now')}`}</Text>
+      {/* 좁으면 기온만 — 「晴れ · 今の釜山」이 메뉴 「マイ旅行」에 붙어 버렸다(768 세로 탭) */}
+      {compact ? null : <Text variant="caption" color={color.text.body}>{`${skyLabel(forecast.skyCondition, tx)} · ${tx('부산 지금', 'Busan now')}`}</Text>}
     </View>
   );
 }
