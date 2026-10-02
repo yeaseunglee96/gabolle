@@ -33,6 +33,7 @@ public class ImageProxyService {
 
 	private final ImageFetcher fetcher;
 
+	/** 없을 수 있다(저장소 빈이 없는 시험용 축소 앱). 없으면 저장하지 않는다. */
 	private final StoragePort storage;
 
 	private final ImageProxyProperties properties;
@@ -78,6 +79,9 @@ public class ImageProxyService {
 	}
 
 	private Optional<Outcome.Image> findStored(String hash, String etag) {
+		if (this.storage == null) {
+			return Optional.empty();
+		}
 		for (ImageKind kind : ImageKind.values()) {
 			try {
 				Optional<StoragePort.StoredObject> hit = this.storage.get(key(hash, kind));
@@ -136,7 +140,9 @@ public class ImageProxyService {
 				return new Outcome.Failed("사진이 아니다");
 			}
 			try {
-				this.storage.put(key(hash, kind.get()), kind.get().contentType(), response.body());
+				if (this.storage != null) {
+					this.storage.put(key(hash, kind.get()), kind.get().contentType(), response.body());
+				}
 			}
 			catch (StoragePort.StorageException e) {
 				// 저장을 못 해도 이번 사진은 내보낸다. 다음 요청이 다시 받아 간다.

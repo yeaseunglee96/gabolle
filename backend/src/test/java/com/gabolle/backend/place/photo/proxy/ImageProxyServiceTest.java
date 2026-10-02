@@ -182,4 +182,18 @@ class ImageProxyServiceTest {
 		// 응답을 하나도 넣지 않으면 가짜 서버가 「닿지 못했다」를 던진다.
 		assertThat(this.service.load(URL)).isInstanceOf(ImageProxyService.Outcome.Failed.class);
 	}
+
+	@Test
+	void worksWithoutStorage() {
+		// 저장소 빈이 없는 축소 앱에서도 뜬다 — 저장 없이 매번 받아 넘긴다.
+		ImageProxyService noStorage = new ImageProxyService(
+				new ImageUrlGuard(this.properties.getAllowedHosts(), (h) -> new InetAddress[] { InetAddress.getByName("211.252.1.10") }),
+				this.fetcher, null, this.properties);
+		this.fetcher.responses.add(ok("", JPEG));
+		this.fetcher.responses.add(ok("", JPEG));
+
+		assertThat(noStorage.load(URL)).isInstanceOf(ImageProxyService.Outcome.Image.class);
+		assertThat(noStorage.load(URL)).isInstanceOf(ImageProxyService.Outcome.Image.class);
+		assertThat(this.fetcher.calls).hasSize(2);
+	}
 }
