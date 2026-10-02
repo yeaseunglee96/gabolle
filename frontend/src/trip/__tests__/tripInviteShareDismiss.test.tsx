@@ -13,6 +13,8 @@ jest.mock('@/trip/collaboration', () => ({
   createCompanionInvite: jest.fn().mockResolvedValue({ inviteUrl: 'https://x/invite/abc', expiresAt: '2026-10-09T00:00:00Z' }),
 }));
 
+// CI 의 Node 는 navigator 가 없다(로컬 Node 24 는 있다) — 시험용으로 하나 둔다.
+if (!(globalThis as { navigator?: unknown }).navigator) Object.defineProperty(globalThis, 'navigator', { value: {}, configurable: true, writable: true });
 const nav = globalThis.navigator as unknown as Record<string, unknown>;
 const realOS = Platform.OS;
 const realShare = nav.share;

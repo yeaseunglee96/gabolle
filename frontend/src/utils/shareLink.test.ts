@@ -2,6 +2,8 @@
 import { Platform, Share } from 'react-native';
 import { shareLink } from './shareLink';
 
+// CI 의 Node 는 navigator 가 없다(로컬 Node 24 는 있다) — 시험용으로 하나 둔다.
+if (!(globalThis as { navigator?: unknown }).navigator) Object.defineProperty(globalThis, 'navigator', { value: {}, configurable: true, writable: true });
 const nav = globalThis.navigator as unknown as Record<string, unknown>;
 const original = { share: nav.share, clipboard: nav.clipboard };
 const realOS = Platform.OS;
