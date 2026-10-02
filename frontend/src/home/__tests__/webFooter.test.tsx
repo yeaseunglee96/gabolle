@@ -16,8 +16,13 @@ function screenFileExists(href: string): boolean {
 }
 
 describe('WebFooter', () => {
-  it.each(FOOTER_GROUPS.flatMap((group) => group.links.map((link) => [link.ko, String(link.href)])))('%s → %s 화면이 있다', (_label, href) => {
+  it.each(FOOTER_GROUPS.flatMap((group) => group.links.filter((link) => link.href).map((link) => [link.ko, String(link.href)])))('%s → %s 화면이 있다', (_label, href) => {
     expect(screenFileExists(href)).toBe(true);
+  });
+
+  it('🔴 문의하기는 약관에 적힌 문의처로 메일을 쓴다 — 화면이 없어 빈 링크로 두지 않는다', () => {
+    const contact = FOOTER_GROUPS.flatMap((group) => group.links).find((link) => link.ko === '문의하기');
+    expect(contact?.mail).toBe('gabolle.support@gmail.com');
   });
 
   it('앱 받기는 심사를 통과한 App Store 주소로 간다 — 포스터·팸플릿 QR 과 같다', () => {
