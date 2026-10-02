@@ -361,6 +361,9 @@ public class JpaTripRepository implements TripRepository {
 	 * <p>여행마다 trip → trip_member(OWNER 행) → preference_snapshot → constraint_snapshot 순으로
 	 * 옮긴다. 뒤의 두 스냅샷 표는 도메인에 없는 인프라 칸이라 여기서 빠뜨리면 승계된 여행의
 	 * 취향·제약이 사라진 익명 세션 UUID 를 계속 가리킨다.
+	 *
+	 * <p>비회원도 일정을 만들고 고치므로 일정 판·제외 목록·추천 판단·추천 작업의 요청자 칸도 함께
+	 * 옮긴다. 비회원에게 새 자리를 열면서 그 자리가 세션 ID 를 적는 표가 생기면 여기에 더한다.
 	 */
 	@Override
 	@Transactional
@@ -396,7 +399,47 @@ public class JpaTripRepository implements TripRepository {
 					"UPDATE constraint_snapshot SET user_id = ?1 WHERE trip_id = ?2 AND user_id = ?3")
 					.setParameter(1, newOwner).setParameter(2, tripId).setParameter(3, session)
 					.executeUpdate();
+
+			// 아래 셋은 일정·추천 쪽 표다. 여행이 그 표를 모르게 두는 것이 원칙이지만, 승계는 한
+			// 트랜잭션에서 끝나야 해서 여기 모은다. 안 옮기면 일정 이력의 「내가 고친 것」과 추천
+			// 판단의 「누가 정했나」가 사라진 세션 ID 를 가리킨다.
+			entityManager.createNativeQuery("""
+					UPDATE itinerary_versions SET created_by = ?1
+					WHERE created_by = ?3 AND itinerary_id IN (SELECT itinerary_id FROM itineraries WHERE trip_id = ?2)
+					""")
+					.setParameter(1, newOwner).setParameter(2, tripId).setParameter(3, session)
+					.executeUpdate();
+
+			entityManager.createNativeQuery("""
+					UPDATE itinerary_excluded_place SET excluded_by = ?1
+					WHERE excluded_by = ?3 AND itinerary_version_id IN (
+						SELECT v.itinerary_version_id FROM itinerary_versions v
+						JOIN itineraries i ON i.itinerary_id = v.itinerary_id WHERE i.trip_id = ?2)
+					""")
+					.setParameter(1, newOwner).setParameter(2, tripId).setParameter(3, session)
+					.executeUpdate();
+
+			entityManager.createNativeQuery(
+					"UPDATE recommendation_place_action SET decided_by_user_id = ?1 WHERE trip_id = ?2 AND decided_by_user_id = ?3")
+					.setParameter(1, newOwner).setParameter(2, tripId).setParameter(3, session)
+					.executeUpdate();
 		}
+
+		// 추천 작업의 주인. 작업 조회·진행률·결과가 이 칸으로 주인을 가리므로(RecommendationJobController#isOwner)
+		// 안 옮기면 로그인한 순간 자기 일정 생성 화면이 404 가 된다. 아직 도는 작업도 같이 옮겨진다 —
+		// 작업기는 끝날 때 이 칸을 다시 쓰지 않는다.
+		entityManager.createNativeQuery("UPDATE recommendation_job SET user_id = ?1 WHERE user_id = ?2")
+				.setParameter(1, newOwner).setParameter(2, session)
+				.executeUpdate();
+
+		// 재시도 키는 옮기지 않고 지운다. (사람, 키) 가 기본키라 옮기면 회원 쪽 키와 부딪칠 수 있고,
+		// 로그인한 뒤의 재시도는 새 신원으로 오므로 세션의 키가 다시 쓰일 일이 없다.
+		entityManager.createNativeQuery("DELETE FROM trip_idempotency WHERE user_id = ?1")
+				.setParameter(1, session)
+				.executeUpdate();
+		entityManager.createNativeQuery("DELETE FROM recommendation_job_idempotency WHERE user_id = ?1")
+				.setParameter(1, session)
+				.executeUpdate();
 
 		return anonymousTrips.size();
 	}

@@ -50,7 +50,7 @@ public class ItineraryQueryController {
 
 		// 요청자를 X-User-Id 헤더가 아니라 인증 주체에서 정한다. 헤더는 부르는 쪽이 정하는
 		//    값이라 여행 참여 검사가 그 주장 위에서 돌고, 앱은 그 헤더를 보내지도 않는다.
-		String requester = AuthenticatedUsers.requireId(authentication).toString();
+		String requester = AuthenticatedUsers.requireTripActor(authentication);
 		ItineraryDetailResponse response = this.queryService.getDetail(itineraryId, requester);
 		return ApiResponse.success(response, "req_" + UUID.randomUUID());
 	}
@@ -70,7 +70,7 @@ public class ItineraryQueryController {
 			@RequestParam(required = false) Integer size,
 			Authentication authentication) {
 
-		String requester = AuthenticatedUsers.requireId(authentication).toString();
+		String requester = AuthenticatedUsers.requireTripActor(authentication);
 		// 기본 쪽 크기를 아는 곳은 서비스 하나뿐이다 — 안 준 값은 null 그대로 넘긴다.
 		ItineraryVersionsResponse response = this.queryService.listVersions(itineraryId, requester, page, size);
 		return ApiResponse.success(response, "req_" + UUID.randomUUID());

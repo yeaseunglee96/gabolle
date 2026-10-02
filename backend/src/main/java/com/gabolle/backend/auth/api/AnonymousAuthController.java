@@ -1,11 +1,15 @@
 package com.gabolle.backend.auth.api;
 
+import com.gabolle.backend.auth.config.AnonymousSessionAuthenticationFilter;
+import com.gabolle.backend.auth.service.AnonymousSessionHandoverService;
 import com.gabolle.backend.auth.service.AnonymousSessionService;
 import com.gabolle.backend.common.api.ApiResponse;
+import com.gabolle.backend.common.security.AuthenticatedUsers;
 import java.util.UUID;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,9 +28,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class AnonymousAuthController {
 
 	private final AnonymousSessionService anonymousSessionService;
+	private final AnonymousSessionHandoverService handoverService;
 
-	public AnonymousAuthController(AnonymousSessionService anonymousSessionService) {
+	public AnonymousAuthController(AnonymousSessionService anonymousSessionService,
+			AnonymousSessionHandoverService handoverService) {
 		this.anonymousSessionService = anonymousSessionService;
+		this.handoverService = handoverService;
 	}
 
 	@PostMapping("/anonymous")
@@ -34,6 +41,23 @@ public class AnonymousAuthController {
 			@RequestHeader(value = "X-Request-Id", required = false) String requestId) {
 		AnonymousSessionResponse body = AnonymousSessionResponse.from(anonymousSessionService.issue());
 		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(body, resolveRequestId(requestId)));
+	}
+
+	/**
+	 * 로그인한 사람이 이 기기의 출입증을 넘긴다. 그 출입증으로 만든 여행이 계정으로 옮겨지고 출입증은
+	 * 못 쓰게 된다 — 화면은 이 응답을 받은 뒤 새 출입증을 받는다.
+	 *
+	 * <p>로그인이 필요하다. 익명 세션 자신은 부를 수 없다({@code requireId}). 출입증 원본을 아는 것이
+	 * 곧 그 여행의 주인이라는 증명이라, 다른 확인은 두지 않는다.
+	 */
+	@PostMapping("/anonymous/claim")
+	public ApiResponse<AnonymousClaimResponse> claim(
+			@RequestHeader(value = AnonymousSessionAuthenticationFilter.HEADER_NAME, required = false) String sessionToken,
+			@RequestHeader(value = "X-Request-Id", required = false) String requestId,
+			Authentication authentication) {
+		UUID userId = AuthenticatedUsers.requireId(authentication);
+		int claimed = handoverService.handOver(sessionToken, userId);
+		return ApiResponse.success(new AnonymousClaimResponse(claimed), resolveRequestId(requestId));
 	}
 
 	private String resolveRequestId(String requestId) {

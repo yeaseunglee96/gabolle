@@ -56,13 +56,21 @@ public class AnonymousSessionAuthenticationFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		if (SecurityContextHolder.getContext().getAuthentication() == null) {
+		// 로그인 토큰을 실어 왔는데 앞의 JWT 필터가 신원을 못 채웠다면 만료·위조다. 그때 익명 세션으로
+		// 받아 주면 401 이 안 나서 화면이 토큰을 새로 받지 않고, 회원이 만든 여행이 익명 세션 것으로
+		// 저장된다(그 회원의 목록에 안 보인다). 그래서 Bearer 가 있으면 익명으로 대신하지 않는다.
+		if (SecurityContextHolder.getContext().getAuthentication() == null && !carriesBearer(request)) {
 			String token = request.getHeader(HEADER_NAME);
 			if (token != null && !token.isBlank()) {
 				anonymousSessionService.resolve(token).ifPresent(session -> authenticate(request, session));
 			}
 		}
 		filterChain.doFilter(request, response);
+	}
+
+	private static boolean carriesBearer(HttpServletRequest request) {
+		String authorization = request.getHeader("Authorization");
+		return authorization != null && authorization.startsWith("Bearer ");
 	}
 
 	private void authenticate(HttpServletRequest request, AnonymousSession session) {

@@ -104,7 +104,7 @@ public class ItineraryEditController {
 			@Valid @RequestBody AddItemRequest request,
 			Authentication authentication) {
 
-		String editor = AuthenticatedUsers.requireId(authentication).toString();
+		String editor = AuthenticatedUsers.requireTripActor(authentication);
 		ItineraryAccess.Access access = this.itineraryAccess.requireEditor(itineraryId, editor);
 
 		requireDayInsideTrip(access, request.dayIndex());
@@ -134,7 +134,7 @@ public class ItineraryEditController {
 			@Valid @RequestBody ReorderDayRequest request,
 			Authentication authentication) {
 
-		String editor = AuthenticatedUsers.requireId(authentication).toString();
+		String editor = AuthenticatedUsers.requireTripActor(authentication);
 		ItineraryAccess.Access access = this.itineraryAccess.requireEditor(itineraryId, editor);
 
 		requireDayInsideTrip(access, dayIndex);
@@ -165,7 +165,7 @@ public class ItineraryEditController {
 			@RequestParam(value = "baseVersion", required = false) Integer baseVersionParam,
 			Authentication authentication) {
 
-		String editor = AuthenticatedUsers.requireId(authentication).toString();
+		String editor = AuthenticatedUsers.requireTripActor(authentication);
 		this.itineraryAccess.requireEditor(itineraryId, editor);
 
 		Integer baseVersion = baseVersionParam != null ? baseVersionParam : parseIfMatch(ifMatch);
@@ -252,7 +252,7 @@ public class ItineraryEditController {
 			@PathVariable String itineraryId,
 			@Valid @RequestBody RevertRequest request,
 			Authentication authentication) {
-		String editor = AuthenticatedUsers.requireId(authentication).toString();
+		String editor = AuthenticatedUsers.requireTripActor(authentication);
 		this.itineraryAccess.requireEditor(itineraryId, editor);
 		ItineraryVersion saved = this.editService.revert(itineraryId, request.baseVersion(), request.toVersion(),
 				editor);
@@ -268,7 +268,7 @@ public class ItineraryEditController {
 
 		// 요청자를 X-User-Id 헤더가 아니라 인증 주체에서 정한다. 헤더는 부르는 쪽이 정하는 값이라
 		//    검사가 그 주장 위에서 돌고, 앱은 그 헤더를 보내지도 않는다(Authorization 만 싣는다).
-		String editor = AuthenticatedUsers.requireId(authentication).toString();
+		String editor = AuthenticatedUsers.requireTripActor(authentication);
 
 		// 편집 전에 막는다. 회원이 아니면 404(존재를 감춘다), 회원이지만 VIEWER 면 403.
 		//    이 호출이 없으면 인증만 되면 남의 일정도 고칠 수 있다.

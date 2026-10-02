@@ -44,7 +44,7 @@ public class RecommendationActionController {
 	public ApiResponse<RecommendationActionResponse.Page> list(@PathVariable String tripId,
 			Authentication authentication) {
 
-		String requester = AuthenticatedUsers.requireId(authentication).toString();
+		String requester = AuthenticatedUsers.requireTripActor(authentication);
 		return ApiResponse.success(RecommendationActionResponse.Page.of(this.service.list(tripId, requester)),
 				"req_" + UUID.randomUUID());
 	}
@@ -53,7 +53,7 @@ public class RecommendationActionController {
 	public ApiResponse<RecommendationActionResponse> put(@PathVariable String tripId, @PathVariable String placeId,
 			@RequestBody PutRequest request, Authentication authentication) {
 
-		String requester = AuthenticatedUsers.requireId(authentication).toString();
+		String requester = AuthenticatedUsers.requireTripActor(authentication);
 		if (request == null || request.action() == null) {
 			// 판단 없는 요청을 받아 주면 무엇으로 적혔는지 아무도 모르는 행이 생긴다.
 			throw new IllegalArgumentException("action 은 필수다 (SAVED 또는 EXCLUDED)");
@@ -68,7 +68,7 @@ public class RecommendationActionController {
 	public ResponseEntity<Void> remove(@PathVariable String tripId, @PathVariable String placeId,
 			Authentication authentication) {
 
-		String requester = AuthenticatedUsers.requireId(authentication).toString();
+		String requester = AuthenticatedUsers.requireTripActor(authentication);
 		this.service.remove(tripId, requester, placeId);
 		return ResponseEntity.noContent().build();
 	}

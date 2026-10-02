@@ -41,7 +41,7 @@ public class TripNameSuggestionController {
 			@PathVariable String tripId, Authentication authentication,
 			@RequestHeader(value = "Accept-Language", required = false) String acceptLanguage) {
 
-		String requester = AuthenticatedUsers.requireId(authentication).toString();
+		String requester = AuthenticatedUsers.requireTripActor(authentication);
 		return ApiResponse.success(this.service.suggest(tripId, requester, TripNameSuggestionService.NameLanguage.of(acceptLanguage)), "req_" + UUID.randomUUID());
 	}
 }

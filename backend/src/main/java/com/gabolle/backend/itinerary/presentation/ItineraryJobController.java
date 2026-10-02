@@ -58,7 +58,7 @@ public class ItineraryJobController {
 			@Valid @RequestBody ItineraryEditJobRequest request,
 			Authentication authentication) {
 
-		String requester = AuthenticatedUsers.requireId(authentication).toString();
+		String requester = AuthenticatedUsers.requireTripActor(authentication);
 
 		RecommendationJob job = this.recalculationService.removeItem(itineraryId, itemId,
 				request.baseVersion(), request.operationalReason(), requester);
@@ -78,7 +78,7 @@ public class ItineraryJobController {
 			@Valid @RequestBody ItineraryEditJobRequest request,
 			Authentication authentication) {
 
-		String requester = AuthenticatedUsers.requireId(authentication).toString();
+		String requester = AuthenticatedUsers.requireTripActor(authentication);
 		if (!request.hasFromItem() && request.dayIndex() == null) {
 			throw new MissingRecalculationTargetException();
 		}

@@ -61,8 +61,9 @@ public class TripController {
             Authentication authentication) {
 
         String requestId = "req_" + UUID.randomUUID();
-        // 여기만 익명 세션을 허용한다. 만든 사람이 곧 소유자가 되는 자리라 회원 전용
-        // 자원이 뚫리지 않는다 — list·get·delete 는 여전히 requireId 다.
+        // 익명 세션도 여행을 만든다. 만든 사람이 곧 소유자가 되는 자리라 회원 전용 자원이
+        // 뚫리지 않는다. list·get·delete 는 requireTripActor 라 익명 세션도 쓰지만,
+        // 구성원 검사(trip_member)를 지나야 하므로 자기 세션이 만든 여행만 보인다.
         AuthenticatedUsers.Owner owner = AuthenticatedUsers.requireOwner(authentication);
         String creator = owner.id().toString();
         Trip.OwnerType ownerType = owner.anonymous() ? Trip.OwnerType.ANONYMOUS : Trip.OwnerType.USER;
@@ -98,7 +99,7 @@ public class TripController {
      */
     @GetMapping
     public ApiResponse<List<TripSummaryResponse>> list(Authentication authentication) {
-        String requester = AuthenticatedUsers.requireId(authentication).toString();
+        String requester = AuthenticatedUsers.requireTripActor(authentication);
 
         List<TripSummaryResponse> trips =
                 queryService.listWithCovers(requester, TripQueryService.MAX_LIST_SIZE).stream()
@@ -117,7 +118,7 @@ public class TripController {
             @PathVariable String tripId,
             Authentication authentication) {
 
-        String requester = AuthenticatedUsers.requireId(authentication).toString();
+        String requester = AuthenticatedUsers.requireTripActor(authentication);
         TripQueryService.View view = queryService.get(tripId, requester);
 
         return ApiResponse.success(
@@ -137,7 +138,7 @@ public class TripController {
             @PathVariable String tripId,
             Authentication authentication) {
 
-        String requester = AuthenticatedUsers.requireId(authentication).toString();
+        String requester = AuthenticatedUsers.requireTripActor(authentication);
         deletionService.delete(tripId, requester);
 
         return ResponseEntity.noContent().build();
