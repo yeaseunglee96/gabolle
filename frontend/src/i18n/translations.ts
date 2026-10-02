@@ -3290,7 +3290,7 @@ export const TRANSLATIONS: Record<string, Translation> = {
   'App Store에서 가볼래 받기': { ja: 'App Store で GABOLLE を入手', zhHans: '在 App Store 获取 GABOLLE', zhHant: '在 App Store 取得 GABOLLE' },
   'App Store에서 받기': { ja: 'App Store で入手', zhHans: '在 App Store 下载', zhHant: '在 App Store 下載' },
   'App Store 내려받기 QR 코드': { ja: 'App Store ダウンロード用 QR コード', zhHans: 'App Store 下载二维码', zhHant: 'App Store 下載 QR 碼' },
-  'iPhone 카메라로': { ja: 'iPhone のカメラで', zhHans: '用 iPhone 相机扫码', zhHant: '用 iPhone 相機掃描' },
+  'iPhone 카메라로 찍어 받기': { ja: 'iPhone のカメラで読み取り', zhHans: '用 iPhone 相机扫码下载', zhHant: '用 iPhone 相機掃描下載' },
   '가볼래': { ja: 'GABOLLE', zhHans: 'GABOLLE', zhHant: 'GABOLLE' },
   '언제, 누구와, 어떻게 다닐지만 알려 주면\n부산 일정을 짜 드려요.\n경사·그늘까지 따져 길을 고르고,\n여행 중에는 통역과 긴급 도움을 바로 열 수 있어요.': { ja: 'いつ、誰と、どう回るかを教えてくれれば、\n釜山の日程を組みます。\n坂や日陰まで考えて道を選び、\n旅行中は通訳と緊急ヘルプをすぐ開けます。', zhHans: '只要告诉我们何时、和谁、怎么玩，\n就为你安排釜山行程。\n选路时会考虑坡度和树荫，\n旅途中还能随时打开翻译和紧急求助。', zhHant: '只要告訴我們何時、和誰、怎麼玩，\n就為你安排釜山行程。\n選路時會考慮坡度和樹蔭，\n旅途中還能隨時打開翻譯和緊急求助。' },
   '장소·축제: 한국관광공사 · 병원·약국: 건강보험심사평가원 · 지도: © OpenStreetMap 기여자': { ja: 'スポット・祭り：韓国観光公社 · 病院・薬局：健康保険審査評価院 · 地図：© OpenStreetMap 寄稿者', zhHans: '景点·节庆：韩国观光公社 · 医院·药店：健康保险审查评估院 · 地图：© OpenStreetMap 贡献者', zhHant: '景點·節慶：韓國觀光公社 · 醫院·藥局：健康保險審查評估院 · 地圖：© OpenStreetMap 貢獻者' },
