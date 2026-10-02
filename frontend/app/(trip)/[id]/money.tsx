@@ -19,6 +19,11 @@ import { localizeMessage } from '@/i18n/messages';
 import { formatWon } from '@/place/detailExtras';
 import { SelectTripFirst } from '@/trip/SelectTripFirst';
 import { listTripMembers, type TripMember } from '@/trip/collaboration';
+import { stopNameForLanguage } from '@/discovery/romanize';
+import { loadItinerary } from '@/plan/itinerary';
+import { localDateKey } from '@/plan/tripProgress';
+import { planPlacesFor, type PlanPlace } from '@/trip/planPlaces';
+import { loadTripItineraries } from '@/trip/trips';
 import { addExpense, EXPENSE_CATEGORIES, loadLedger, removeExpense, saveBudget, settle, totalsByCategory, type Expense, type ExpenseCategory, type Ledger } from '@/trip/expenses';
 
 type Tx = (ko: string, en: string) => string;
@@ -56,6 +61,19 @@ function TripMoneyForTrip({ tripId }: { tripId: string }) {
     if (people.state === 'success') { setMembers(people.members); setCanEdit(people.canEdit); setMyRole(people.myRole); }
   }, [tripId, accessToken]);
   useEffect(() => { void reload(); }, [reload]);
+
+  // 「일정에서 고르기」 — 이 여행 일정의 장소. 못 받아도 손으로 적을 수 있으니 조용히 넘어간다
+  const [planPlaces, setPlanPlaces] = useState<PlanPlace[]>([]);
+  useEffect(() => {
+    let alive = true;
+    void loadTripItineraries(tripId, accessToken).then(async (refs) => {
+      const itineraryId = refs.state === 'success' ? refs.itineraries[0]?.itineraryId : undefined;
+      if (!itineraryId) return;
+      const loaded = await loadItinerary(itineraryId, accessToken);
+      if (alive && loaded.state === 'success') setPlanPlaces(planPlacesFor(loaded.itinerary, localDateKey(new Date())));
+    });
+    return () => { alive = false; };
+  }, [tripId, accessToken]);
 
   const me = members.find((member) => member.isMe);
   const nameOf = useCallback((userId: string) => {
@@ -159,7 +177,7 @@ function TripMoneyForTrip({ tripId }: { tripId: string }) {
       <Button label={tx('쓴 돈 적기', 'Add an expense')} onPress={() => setAdding(true)} testID="money-add" />
     </View>
 
-    <AddExpenseSheet visible={adding} members={members} meId={me?.userId ?? null} nameOf={nameOf} tx={tx}
+    <AddExpenseSheet visible={adding} planPlaces={planPlaces} placeLabel={(place) => stopNameForLanguage(place.title, place.nameEn, language)} members={members} meId={me?.userId ?? null} nameOf={nameOf} tx={tx}
       onClose={() => setAdding(false)}
       onSubmit={async (expense) => { const ok = apply(await addExpense(tripId, expense, accessToken)); if (ok) setAdding(false); return ok; }} />
     <BudgetSheet visible={editingBudget} initial={budget} tx={tx} onClose={() => setEditingBudget(false)}
@@ -188,8 +206,8 @@ function ExpenseRow({ item, payer, won, tx, canDelete, onDelete }: { item: Expen
   );
 }
 
-function AddExpenseSheet({ visible, members, meId, nameOf, tx, onClose, onSubmit }: {
-  visible: boolean; members: TripMember[]; meId: string | null; nameOf: (id: string) => string; tx: Tx;
+function AddExpenseSheet({ visible, planPlaces, placeLabel, members, meId, nameOf, tx, onClose, onSubmit }: {
+  visible: boolean; planPlaces: PlanPlace[]; placeLabel: (place: PlanPlace) => string; members: TripMember[]; meId: string | null; nameOf: (id: string) => string; tx: Tx;
   onClose: () => void; onSubmit: (expense: { amountKrw: number; category: ExpenseCategory; paidBy?: string; placeName?: string | null; splitEven: boolean }) => Promise<boolean>;
 }) {
   const [amount, setAmount] = useState('');
@@ -227,8 +245,17 @@ function AddExpenseSheet({ visible, members, meId, nameOf, tx, onClose, onSubmit
               </Pressable>
             ))}
           </View>
-          <Text variant="caption" weight="bold" color={color.text.muted}>{tx('어디서 (선택)', 'Where (optional)')}</Text>
-          <TextInput accessibilityLabel={tx('어디서', 'Where')} value={place} onChangeText={setPlace} maxLength={120} placeholder={tx('광안리 밀면집', 'Gwangalli noodle shop')} placeholderTextColor={color.text.muted} style={styles.textInput} />
+          <Text variant="caption" weight="bold" color={color.text.muted}>{planPlaces.length ? tx('어디서 — 일정에서 고르거나 적기', 'Where — pick from the plan or type') : tx('어디서 (선택)', 'Where (optional)')}</Text>
+          {planPlaces.length ? (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.placeChips} testID="money-plan-places">
+              {planPlaces.map((each) => (
+                <Pressable key={each.title} accessibilityRole="radio" accessibilityState={{ selected: place === each.title }} onPress={() => setPlace(place === each.title ? '' : each.title)} style={[styles.placeChip, place === each.title && styles.placeChipOn]}>
+                  <Text variant="util" weight="bold" numberOfLines={1}>{placeLabel(each)}</Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+          ) : null}
+          <TextInput accessibilityLabel={tx('어디서', 'Where')} value={place} onChangeText={setPlace} maxLength={120} placeholder={planPlaces.length ? tx('직접 적기', 'Or type it') : tx('광안리 밀면집', 'Gwangalli noodle shop')} placeholderTextColor={color.text.muted} style={styles.textInput} />
           {members.length > 1 ? (
             <>
               <Text variant="caption" weight="bold" color={color.text.muted}>{tx('누가 냈어요', 'Who paid')}</Text>
@@ -328,4 +355,8 @@ const styles = StyleSheet.create({
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
   choice: { minHeight: 40, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.tint },
   choiceOn: { backgroundColor: color.action.secondary },
+  // 일정 장소 — 고르면 굵은 테두리(칸에 이름이 들어가 다시 보인다). 한국어 이름을 그대로 적는다 — 동행이 같은 이름을 본다
+  placeChips: { gap: spacing[2] },
+  placeChip: { maxWidth: 280, minHeight: 40, justifyContent: 'center', paddingHorizontal: spacing[3], borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card },
+  placeChipOn: { borderWidth: 2, borderColor: color.text.heading },
 });

@@ -3332,6 +3332,8 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '예산 (원)': { ja: '予算（ウォン）', zhHans: '预算（韩元）', zhHant: '預算（韓元）' },
   '예산 없애기': { ja: '予算を削除', zhHans: '取消预算', zhHant: '取消預算' },
   '내가 냄': { ja: '自分が支払い', zhHans: '我付的', zhHant: '我付的' },
+  '어디서 — 일정에서 고르거나 적기': { ja: 'どこで — 日程から選ぶか入力', zhHans: '在哪里 — 从行程中选择或输入', zhHant: '在哪裡 — 從行程中選擇或輸入' },
+
 };
 
 export function getTranslation(ko: string, field: 'ja' | 'zhHans' | 'zhHant'): string | null {
