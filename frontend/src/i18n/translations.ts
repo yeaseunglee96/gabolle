@@ -3335,6 +3335,22 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '어디서 — 일정에서 고르거나 적기': { ja: 'どこで — 日程から選ぶか入力', zhHans: '在哪里 — 从行程中选择或输入', zhHant: '在哪裡 — 從行程中選擇或輸入' },
 
   '%s · 오늘 환율': { ja: '%s · 今日のレート', zhHans: '%s · 今日汇率', zhHant: '%s · 今日匯率' },
+  '중구': { ja: '中区', zhHans: '中区', zhHant: '中區' },
+  '서구': { ja: '西区', zhHans: '西区', zhHant: '西區' },
+  '동구': { ja: '東区', zhHans: '东区', zhHant: '東區' },
+  '영도구': { ja: '影島区', zhHans: '影岛区', zhHant: '影島區' },
+  '부산진구': { ja: '釜山鎮区', zhHans: '釜山镇区', zhHant: '釜山鎮區' },
+  '동래구': { ja: '東萊区', zhHans: '东莱区', zhHant: '東萊區' },
+  '남구': { ja: '南区', zhHans: '南区', zhHant: '南區' },
+  '북구': { ja: '北区', zhHans: '北区', zhHant: '北區' },
+  '해운대구': { ja: '海雲台区', zhHans: '海云台区', zhHant: '海雲臺區' },
+  '사하구': { ja: '沙下区', zhHans: '沙下区', zhHant: '沙下區' },
+  '금정구': { ja: '金井区', zhHans: '金井区', zhHant: '金井區' },
+  '강서구': { ja: '江西区', zhHans: '江西区', zhHant: '江西區' },
+  '연제구': { ja: '蓮堤区', zhHans: '莲堤区', zhHant: '蓮堤區' },
+  '수영구': { ja: '水営区', zhHans: '水营区', zhHant: '水營區' },
+  '사상구': { ja: '沙上区', zhHans: '沙上区', zhHant: '沙上區' },
+  '기장군': { ja: '機張郡', zhHans: '机张郡', zhHant: '機張郡' },
 };
 
 export function getTranslation(ko: string, field: 'ja' | 'zhHans' | 'zhHant'): string | null {

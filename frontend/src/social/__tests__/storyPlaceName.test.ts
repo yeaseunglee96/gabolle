@@ -11,8 +11,10 @@ describe('storyPlaceName', () => {
     const place = { name: '국제시장', nameEn: 'Gukje Market', localNames: { ja: '国際市場', 'zh-Hant': '國際市場' } };
     expect(storyPlaceName(place, ja, 'ja')).toBe('国際市場');
     expect(storyPlaceName(place, (_k: string, e: string) => e, 'zh-Hant')).toBe('國際市場');
-    // 간체 이름이 없으면 예전 길(번역표 → 영어)
-    expect(storyPlaceName(place, (_k: string, e: string) => e, 'zh-Hans')).toBe('Gukje Market');
+    // 간체 이름이 없으면 번체 이름(S15P21E201-1945) — 영어보다 중국어 독자가 바로 읽는다
+    expect(storyPlaceName(place, (_k: string, e: string) => e, 'zh-Hans')).toBe('國際市場');
+    // 그 언어·짝 언어 둘 다 없을 때만 예전 길(번역표 → 영어)
+    expect(storyPlaceName({ ...place, localNames: { ja: '国際市場' } }, (_k: string, e: string) => e, 'zh-Hans')).toBe('Gukje Market');
   });
   it('한국어는 그대로', () => {
     expect(storyPlaceName({ name: '감천문화마을', nameEn: 'Gamcheon Culture Village' }, ko, 'ko')).toBe('감천문화마을');
