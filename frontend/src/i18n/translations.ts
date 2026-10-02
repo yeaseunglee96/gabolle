@@ -3294,6 +3294,8 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '가까운 병원 · 지금 있는 곳에서': { ja: '近くの病院 · 今いる場所から', zhHans: '附近的医院 · 从你现在的位置', zhHant: '附近的醫院 · 從你現在的位置' },
   '%s · 진료 중': { ja: '%s · 診療中', zhHans: '%s · 正在接诊', zhHant: '%s · 看診中' },
   '약국·경찰까지 지도로 보기': { ja: '薬局・警察も地図で見る', zhHans: '在地图上查看药店和警察', zhHant: '在地圖上查看藥局和警察' },
+  '여행 조건 다시 펼치기 — 출발지, 날짜, 인원': { ja: '旅行条件をもう一度開く — 出発地・日付・人数', zhHans: '重新展开旅行条件 — 出发地、日期、人数', zhHant: '重新展開旅行條件 — 出發地、日期、人數' },
+  '어디서 출발': { ja: '出発地', zhHans: '从哪里出发', zhHant: '從哪裡出發' },
 };
 
 export function getTranslation(ko: string, field: 'ja' | 'zhHans' | 'zhHant'): string | null {
