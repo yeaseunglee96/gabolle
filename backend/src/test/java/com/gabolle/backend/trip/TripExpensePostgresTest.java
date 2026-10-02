@@ -75,7 +75,10 @@ class TripExpensePostgresTest extends AuthPostgresIntegrationTest {
 	void addAndList() {
 		OffsetDateTime morning = OffsetDateTime.of(2026, 10, 3, 9, 40, 0, 0, ZoneOffset.ofHours(9));
 		this.service.add(this.tripId, this.owner, new NewExpense(24000, "ADMISSION", null, "해변열차", null, true, morning));
-		TripExpenseService.Ledger ledger = this.service.add(this.tripId, this.viewer, expense(18000, "FOOD", null));
+		// 🔴 시각을 적는다 — 비우면 「지금」인데, 시험의 Clock 이 이 날보다 앞이라 순서가 뒤집힌다(CI 2026-10-02)
+		OffsetDateTime lunch = morning.plusHours(3);
+		TripExpenseService.Ledger ledger = this.service.add(this.tripId, this.viewer,
+				new NewExpense(18000, "FOOD", null, "광안리 밀면집", null, true, lunch));
 
 		assertThat(ledger.totalKrw()).isEqualTo(42000);
 		assertThat(ledger.items()).hasSize(2);
@@ -99,7 +102,9 @@ class TripExpensePostgresTest extends AuthPostgresIntegrationTest {
 	@DisplayName("🔴 지우기 — 적은 사람과 여행을 만든 사람만. 남의 줄은 403")
 	void removeRules() {
 		UUID ownersLine = this.service.add(this.tripId, this.owner, expense(5000, "CAFE", null)).items().get(0).expenseId();
-		UUID viewersLine = this.service.add(this.tripId, this.viewer, expense(7000, "CAFE", null)).items().get(0).expenseId();
+		// 시험의 Clock 이 멈춰 있어 두 줄의 시각이 같다 — 순서로 고르지 않고 적은 사람으로 고른다
+		UUID viewersLine = this.service.add(this.tripId, this.viewer, expense(7000, "CAFE", null)).items().stream()
+				.filter(line -> line.createdBy().equals(this.viewer)).findFirst().orElseThrow().expenseId();
 
 		assertThatThrownBy(() -> this.service.remove(this.tripId, this.viewer, ownersLine))
 				.isInstanceOf(TripExpenseService.ExpenseForbiddenException.class);
