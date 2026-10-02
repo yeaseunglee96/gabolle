@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
@@ -20,6 +20,7 @@ import { useHomeData } from '@/home/useHomeData';
 import { AssistantBackdrop, AssistantMenu, assistantSubtitle } from '@/home/AssistantMenu';
 import { useSavedPlaces } from '@/home/useSavedPlaces';
 import { WebFooter } from '@/home/WebFooter';
+import { shouldShowStickySearch, StickySearchPill } from '@/home/StickySearchPill';
 import { color, desktopGutter, radius, spacing } from '@/design/tokens';
 import { LANGUAGE_OPTIONS } from '@/i18n/languages';
 import { FLAG_IMAGES, WelcomeLanguageSheet } from '@/onboarding/WelcomeLanguageSheet';
@@ -29,6 +30,8 @@ import { useI18n } from '@/i18n';
 import { useAuth } from '@/auth/AuthProvider';
 import { txf } from '@/i18n/format';
 
+/** 웹 머리의 위 여백 — 따라오는 검색 알약이 검색창 아래 끝을 계산할 때도 쓴다 */
+const HEADER_PADDING_TOP = 56;
 const nightLogo = require('../assets/brand/gabolle-logo-night.png');
 const welcomeImage = require('../assets/images/welcome-busan.png');
 // 첫 화면의 배경 영상 — 바다를 끼고 달리는 부산 전차(assets/video/README.md 에 출처). 소리 없이
@@ -65,6 +68,16 @@ export default function Welcome() {
   // 비회원이 하트를 누르면 로그인으로 보내고 돌아온다 (S15P21E201-1795).
   const saved = useSavedPlaces(accessToken, () => router.push({ pathname: '/sign-in', params: { returnTo: '/' } }));
   const [assistantOpen, setAssistantOpen] = useState(false);
+  // 내리면 따라오는 검색 알약(S15P21E201-1931) — 큰 검색창 머리의 아래 끝을 재 두고, 그보다 내려가면 띄운다
+  const webScrollRef = useRef<ScrollView>(null);
+  // 머리의 위치 + 그 안 검색창의 아래 끝. 머리 전체(아래 빠른 고르기 줄까지)로 재면 검색창이 사라진 뒤에도 한참 안 떴다.
+  const [headerY, setHeaderY] = useState<number | null>(null);
+  const [barBottom, setBarBottom] = useState<number | null>(null);
+  const searchBottom = headerY !== null && barBottom !== null ? headerY + HEADER_PADDING_TOP + barBottom : null;
+  const [stickySearch, setStickySearch] = useState(false);
+  // 창 크기가 바뀌어 검색창 자리가 다시 재지면 스크롤을 기다리지 않고 다시 판정한다(AI 리뷰 !1980)
+  const lastScrollY = useRef(0);
+  useEffect(() => { setStickySearch(shouldShowStickySearch(lastScrollY.current, searchBottom)); }, [searchBottom]);
   const onToggleLike = (placeId: string) => {
     // 로그인 안 한 사람도 기기에 저장된다 — 로그인으로 밀어내지 않는다.
     saved.toggle(placeId);
@@ -195,7 +208,7 @@ export default function Welcome() {
     </View>;
   }
 
-  return <View style={styles.webShell}><ScrollView style={styles.webScreen} contentContainerStyle={styles.webContent}>
+  return <View style={styles.webShell}><ScrollView ref={webScrollRef} style={styles.webScreen} contentContainerStyle={styles.webContent} scrollEventThrottle={32} onScroll={(event) => { lastScrollY.current = event.nativeEvent.contentOffset.y; const next = shouldShowStickySearch(lastScrollY.current, searchBottom); if (next !== stickySearch) setStickySearch(next); }}>
     <StatusBar style="dark" />
     {/* 상단 바는 이 파일에 없다. 앱 뼈대(app/_layout.tsx)가 모든 화면에 한 번만 붙인다
          전에는 이 파일 안에 내비가 하나 더 박혀 있어서 내비가 두 벌이었고
@@ -210,14 +223,14 @@ export default function Welcome() {
     {/* 시안 p0 (PlanFlow.dc.html) — 사진 히어로가 없다. 아이보리 바탕에 제목과
         시작 바를 가운데 세우고, 그 아래로 내용 줄을 전폭으로 쌓는다.
     */}
-    <View style={styles.headerSection}>
+    <View style={styles.headerSection} onLayout={(event) => setHeaderY(event.nativeEvent.layout.y)}>
       <View style={styles.headerInner}>
  {/* 색을 반드시 적는다. `hero` 변형의 기본색은 흰색이라(사진 위에 얹던 시절의
             기본값) 아이보리 바탕에서는 글자가 통째로 안 보인다 — 2026-09-18 화면을 띄워
             보고 찾았다. 타입도 시험도 안 잡는다. 프로필 카드에서도 같은 일이 났었다. */}
         <Text variant="hero" weight="bold" color={color.text.heading} style={styles.headerTitle}>{tx('부산의 모든 여행, 가볼래?', 'Every side of Busan, yours to explore.')}</Text>
         <Text variant="body" color={color.text.muted} style={styles.headerSubtitle}>{tx('언제, 누구와, 어떻게 다닐지만 알려주세요. 일정은 가볼래가 짜요.', 'Just tell us when, with whom and how you travel — we build the itinerary.')}</Text>
-        <View style={styles.startBar}>
+        <View style={styles.startBar} onLayout={(event) => setBarBottom(event.nativeEvent.layout.y + event.nativeEvent.layout.height)}>
           <PlanStartBar wide accessToken={accessToken} onSubmit={startPlanFromBar} initialSection={editSection} initialValue={editSection ? startBarFromDraft(planDraft) : undefined} />
         </View>
         {/* 🔴 이 자리에 있던 것 둘이 지금은 없다. 왜 없는지를 남긴다 —
@@ -259,6 +272,7 @@ export default function Welcome() {
     {/* 맨 아래 안내 — 앱 받기·메뉴·출처(S15P21E201-1930). 전에는 내 여행 카드에서 페이지가 그냥 끝났다. */}
     <WebFooter />
   </ScrollView>
+    <StickySearchPill visible={stickySearch} reduceMotion={reduceMotion} onPress={() => webScrollRef.current?.scrollTo({ y: 0, animated: !reduceMotion })} />
     {/* 판이 먼저다 — 메뉴와 단추보다 아래에 깔려야 그 둘은 그대로 눌린다. */}
     <AssistantBackdrop open={assistantOpen} onClose={() => setAssistantOpen(false)} />
     <View style={styles.webAssistantAnchor}>
@@ -321,7 +335,7 @@ const styles = StyleSheet.create({
   // 시안 p0 의 머리 — 아이보리 바탕에 가운데 정렬. 본문 폭은 1200 이다.
   // 시안: 히어로는 그대로 두고 아래에 경계선만 더한다 — 줄 배치가 시작되는 자리를
   // 한 줄로 알린다. 없으면 히어로와 첫 줄이 같은 덩어리로 읽힌다.
-  headerSection: { width: '100%', backgroundColor: color.brand.ivory, paddingTop: 56, paddingBottom: 32, paddingHorizontal: desktopGutter, alignItems: 'center', borderBottomWidth: 1, borderBottomColor: color.surface.border },
+  headerSection: { width: '100%', backgroundColor: color.brand.ivory, paddingTop: HEADER_PADDING_TOP, paddingBottom: 32, paddingHorizontal: desktopGutter, alignItems: 'center', borderBottomWidth: 1, borderBottomColor: color.surface.border },
   headerInner: { width: '100%', maxWidth: 1200, alignItems: 'center' },
   headerTitle: { textAlign: 'center' },
   startBar: { width: '100%', maxWidth: 900, alignItems: 'center' },
