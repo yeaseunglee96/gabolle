@@ -34,7 +34,7 @@ import { Text } from '@/components/Text';
 import { TripActionIcon, type TripActionKind } from '@/components/TripActionIcon';
 import { color, radius, spacing } from '@/design/tokens';
 import { PLACE_CATEGORY_LABELS } from '@/discovery/placeCategoryLabels';
-import { stopNameForLanguage } from '@/discovery/romanize';
+import { stopNameForLanguage, stopNameParts } from '@/discovery/romanize';
 import { useI18n } from '@/i18n';
 import { formatClock, formatDayHeading, formatWeekdayShort } from '@/i18n/datetime';
 import { txf } from '@/i18n/format';
@@ -1043,6 +1043,8 @@ function TimelineStop({ item, name, startKind, index, last, freeBefore, date, ph
   /** 이 칸 위에 이동 칸 첫 안내를 띄운다(한 날에 한 칸) */ legGuide?: boolean; onLegGuideDone?: () => void;
   accessToken: string | null; language: LanguageCode; tx: Tx; locale: string;
 }) {
+  // 이름 두 줄(굵은 이름 + 작은 다른 표기) — 아래 제목 줄 주석
+  const nameParts = stopNameParts(item.title, itemOtherName(item, photo, language), language);
   const leg = formatTravelLabel(item, tx, index === 0 && startKind);
   const reason = pickReasonLine(item.reasonCodes);
   const done = step === 'done';
@@ -1137,11 +1139,14 @@ function TimelineStop({ item, name, startKind, index, last, freeBefore, date, ph
               style={styles.stopCopy}
             >
               <View style={styles.titleLine}>
-                <Text weight="bold" style={styles.shrink}>{name}</Text>
+                {/* 🔴 이름을 한 글로 그리지 않는다 — 좁은 폰에서 「Haesuyokja / ng」처럼 로마자가 낱말 중간에서 꺾여 다섯 줄까지 늘었다.
+                    먼저 읽을 이름을 굵게, 나머지(로마자·한글)는 아래 작게 한 줄(말줄임) — 장소 상세와 같은 순서다 */}
+                <Text weight="bold" style={styles.shrink}>{nameParts.otherFirst ? nameParts.other : nameParts.hangul}</Text>
                 {done ? <View style={styles.chipDone}><Text variant="micro" weight="bold" color={color.state.success}>{tx('✓ 다녀옴', '✓ Visited')}</Text></View> : null}
                 {aim ? <View style={styles.chipAim}><Text variant="micro" weight="bold" color={color.text.heading}>{tx('다음 갈 곳', 'Up next')}</Text></View> : null}
                 {staying ? <View style={styles.chipStaying}><Text variant="micro" weight="bold" color={color.text.body}>{tx('머무는 중', 'Here now')}</Text></View> : null}
               </View>
+              {nameParts.other ? <Text variant="caption" color={color.text.muted} numberOfLines={1}>{nameParts.otherFirst ? nameParts.hangul : nameParts.other}</Text> : null}
               {meta ? <Text variant="caption" color={color.text.muted}>{meta}</Text> : null}
               {/* 왜 이 곳인지 하나 — 없으면 줄째 안 그린다(S15P21E201-1645). 폰 카드는 글자 칸이 좁아 한 줄이면
                   「다른 곳보다 거리가 돋…」처럼 핵심 말이 잘려서 두 줄까지 둔다. */}
