@@ -13,6 +13,8 @@ import { fillNumbers, numericShape } from '@/i18n/pick';
 
 type Tx = (ko: string, en: string) => string;
 
+const HANGUL = /[가-힣]/;
+
 export const MESSAGE_EN: Record<string, string> = {
   // 서버가 이 기능을 모를 때 — 곳마다 다르던 「○○ API가 아직 준비되지 않았어요」를 한 문장으로(S15P21E201-1664, api/errorText.ts).
   '지금은 이 정보를 불러올 수 없어요. 잠시 뒤 다시 시도해 주세요.': "We can't load this right now. Please try again in a moment.",
@@ -57,6 +59,8 @@ export const MESSAGE_EN: Record<string, string> = {
   '조건에 맞는 장소를 찾지 못했어요. 날짜·예산·취향 조건을 조금 넓혀서 다시 시도해 주세요.': 'No places matched your conditions. Loosen the dates, budget or preferences a little and try again.',
   '일정을 아직 못 불러왔어요.': 'The itinerary has not loaded yet.',
   '(탈퇴한 사용자)': '(deleted user)',
+  // 서버(AuthenticatedUsers·AuthController)는 언어와 상관없이 이 한국어 문장을 준다 — 번체 여행 화면에 그대로 나왔다(S15P21E201-1922).
+  '인증 정보가 올바르지 않습니다.': 'Your sign-in has expired. Please sign in again.',
   // 5xx — 상태 번호가 끼므로 «모양»으로 둔다. 찾을 때 숫자를 빼고 찾는다(pick.ts numericShape).
   '서버가 잠시 응답하지 못했어요. 잠시 후 다시 시도해 주세요. (HTTP %d)': 'The server could not handle this just now. Please try again shortly. (HTTP %d)',
 };
@@ -87,5 +91,8 @@ export function localizeMessage(tx: Tx, text: string | null | undefined): string
     const koShape = KO_BY_EN[shaped.shape];
     if (koShape) return tx(fillNumbers(koShape, shaped.numbers), text);
   }
+  // 🔴 표에 없는 한국어 문장(서버가 보낸 것) — 한국어가 아닌 화면에 한글을 그대로 내지 않는다(S15P21E201-1922).
+  //    tx 가 한국어 원문을 돌려주면 한국어 화면이다. 아니면 그 언어의 일반 안내로 바꾼다.
+  if (HANGUL.test(text) && tx(text, '') !== text) return tx('요청을 처리하지 못했어요.', 'We could not complete that request.');
   return text;
 }
