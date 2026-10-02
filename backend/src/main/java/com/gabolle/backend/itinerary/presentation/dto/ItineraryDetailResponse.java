@@ -1,6 +1,9 @@
 package com.gabolle.backend.itinerary.presentation.dto;
 
 import java.util.List;
+import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import com.gabolle.backend.recommendation.domain.FallbackMode;
 
@@ -252,6 +255,14 @@ public record ItineraryDetailResponse(
 			 * 기니만 바다 한가운데이고 지도에 실제로 점이 찍힌다.
 			 */
 			Double lat,
-			Double lng) {
+			Double lng,
+
+			/**
+			 * 장소의 영어 이름 — 장소 상세 응답의 {@code nameEn} 과 같다. 없으면 {@code null}. {@code title} 은 늘 한국어다
+			 * (S15P21E201-1937). 화면이 다른 언어에서 이 이름을 고른다.
+			 */
+			String nameEn,
+			/** 일본어·중국어 이름 — 장소 상세의 {@code localNames} 와 같은 키(ja·zh-Hans·zh-Hant). 비면 칸째 빠진다. */
+			@JsonInclude(JsonInclude.Include.NON_EMPTY) Map<String, String> localNames) {
 	}
 }
