@@ -131,6 +131,31 @@ export const RECOMMENDED_LODGING_AREAS: OriginCandidate[] = [
 ];
 
 /**
+ * 위 두 목록의 일본어·중국어 이름 — S15P21E201-1923. 전에는 일본어·중국어 화면의 칩이 「Busan Station (부산역)」처럼
+ * 영어였고, 3단계 지역 칸은 「海雲臺」라 같은 동네가 두 이름이었다. 열쇠는 목록의 한국어 name 그대로다.
+ */
+const KNOWN_PLACE_LOCAL_NAMES: Record<string, { ja: string; 'zh-Hans': string; 'zh-Hant': string }> = {
+  '부산역': { ja: '釜山駅', 'zh-Hans': '釜山站', 'zh-Hant': '釜山站' },
+  '해운대해수욕장': { ja: '海雲台海水浴場', 'zh-Hans': '海云台海水浴场', 'zh-Hant': '海雲臺海水浴場' },
+  '서면역': { ja: '西面駅', 'zh-Hans': '西面站', 'zh-Hant': '西面站' },
+  '남포동': { ja: '南浦洞', 'zh-Hans': '南浦洞', 'zh-Hant': '南浦洞' },
+  '광안리해수욕장': { ja: '広安里海水浴場', 'zh-Hans': '广安里海水浴场', 'zh-Hant': '廣安里海水浴場' },
+  '김해공항': { ja: '金海国際空港', 'zh-Hans': '金海国际机场', 'zh-Hant': '金海國際機場' },
+  '부산종합버스터미널(노포)': { ja: '釜山総合バスターミナル（老圃）', 'zh-Hans': '釜山综合巴士客运站（老圃）', 'zh-Hant': '釜山綜合巴士客運站（老圃）' },
+  '부산서부버스터미널(사상)': { ja: '釜山西部バスターミナル（沙上）', 'zh-Hans': '釜山西部巴士客运站（沙上）', 'zh-Hant': '釜山西部巴士客運站（沙上）' },
+  '해운대': { ja: '海雲台', 'zh-Hans': '海云台', 'zh-Hant': '海雲臺' },
+  '서면': { ja: '西面', 'zh-Hans': '西面', 'zh-Hant': '西面' },
+  '광안리': { ja: '広安里', 'zh-Hans': '广安里', 'zh-Hant': '廣安里' },
+  '남포동 · 중앙동': { ja: '南浦洞・中央洞', 'zh-Hans': '南浦洞 · 中央洞', 'zh-Hant': '南浦洞 · 中央洞' },
+};
+
+/** 정해 둔 출발지·동네의 일본어·중국어 이름. 그 밖의 언어·이름이면 null — 검색해 고른 이름은 지어내지 않는다. */
+export function knownPlaceLocalName(name: string, language: string): string | null {
+  if (language !== 'ja' && language !== 'zh-Hans' && language !== 'zh-Hant') return null;
+  return KNOWN_PLACE_LOCAL_NAMES[name.trim()]?.[language] ?? null;
+}
+
+/**
  * 서버가 돌려준 숙소·출발지 이름(「해운대」「부산역」)을 화면 언어로 — S15P21E201-1917.
  * 🔴 위 두 목록의 이름과 **글자 그대로 같을 때만** 바꾼다. 검색해 고른 숙소 이름은 그대로 둔다 — 지어내지 않는다.
  */
