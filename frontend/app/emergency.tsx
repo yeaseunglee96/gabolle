@@ -9,6 +9,7 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { EMERGENCY_LINES, SHOW_KOREAN } from '@/field/emergencyContacts';
+import { NearbyHelpPreview } from '@/field/NearbyHelpPreview';
 import { ShowKoreanCard } from '@/field/ShowKoreanCard';
 import { useI18n } from '@/i18n';
 
@@ -46,14 +47,9 @@ export default function Emergency() {
       ))}
     </View>
 
-    {/* 가까운 곳 지도 — 다치거나 아플 때 먼저 궁금한 것은 「어디로 가냐」다(UI 캔버스 ㉒-4, S15P21E201-1889). */}
-    <Pressable testID="emergency-nearby" accessibilityRole="link" onPress={() => router.push('/nearby-help')} style={({ pressed }) => [styles.lostRow, pressed && styles.pressed]}>
-      <View style={styles.lineBody}>
-        <Text variant="body" weight="bold" color={color.text.heading}>{tx('가까운 병원·약국·경찰 지도', 'Hospitals, pharmacies and police nearby')}</Text>
-        <Text variant="caption" color={color.text.body}>{tx('내 위치 근처를 지도로 보고, 전화하거나 길 안내를 받아요', 'See them on a map near you, then call or get directions')}</Text>
-      </View>
-      <Text variant="title" color={color.text.muted}>›</Text>
-    </Pressable>
+    {/* 가까운 곳 지도 — 다치거나 아플 때 먼저 궁금한 것은 「어디로 가냐」다(UI 캔버스 ㉒-4, S15P21E201-1889).
+        위치를 이미 허락했으면 여기서 바로 지도로 보인다(S15P21E201-1934). 아니면 원래 입구 한 줄. */}
+    <NearbyHelpPreview testID="emergency-nearby" />
 
     <Pressable testID="emergency-lost-items" accessibilityRole="link" onPress={() => router.push('/lost-items')} style={({ pressed }) => [styles.lostRow, pressed && styles.pressed]}>
       <View style={styles.lineBody}>

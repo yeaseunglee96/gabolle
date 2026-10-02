@@ -12,6 +12,8 @@ import { EMERGENCY_LINES, METRO_LOST_FOUND, POLICE_LOST_FOUND_URL } from '@/fiel
 
 jest.mock('expo-router', () => ({ useRouter: () => ({ push: jest.fn(), back: jest.fn(), replace: jest.fn(), canGoBack: () => true }) }));
 jest.mock('@/components/BrandLogoLink', () => ({ BrandLogoLink: () => null }));
+// 가까운 병원 지도는 위치·지도 부품이 따로 시험한다(nearbyHelpPreview.test.tsx) — 여기서는 적힌 사실만 본다.
+jest.mock('@/field/NearbyHelpPreview', () => ({ NearbyHelpPreview: () => null }));
 // 화면 틀은 안전 영역 값을 요구한다 — 내용만 본다.
 jest.mock('@/components/Screen', () => ({ Screen: ({ children }: { children: unknown }) => children }));
 let mockLang: 'ko' | 'en' = 'ko';
