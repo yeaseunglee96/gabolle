@@ -1,7 +1,8 @@
 // 홈의 여행 시작 바 — 출발지 · 날짜 · 인원을 홈에서 받는다.
 // 시안: docs/design_handoff_plan_flow/PlanFlow.dc.html 의 p0.
 import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
-import { AccessibilityInfo, ActivityIndicator, Animated, BackHandler, Easing, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { AccessibilityInfo, ActivityIndicator, Animated, BackHandler, Easing, Platform, Pressable, ScrollView, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
+import Svg, { Circle, Path } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Text } from '@/components/Text';
@@ -291,12 +292,20 @@ export function lodgingAreaNote(candidate: OriginCandidate, tx: (ko: string, en:
   }
 }
 
+/** 이 폭보다 좁은 데스크톱 판은 「일정 물어보기」를 돋보기 원으로 줄인다 */
+export const COMPACT_CTA_BELOW = 960;
+
 export function PlanStartBar({
   wide, accessToken, onSubmit, today = new Date(), initialSection = null, initialValue,
   sheet = false, value: controlledValue, onChange, onClose, onOpenSheet, submitLabel,
 }: PlanStartBarProps) {
   const { tx, language } = useI18n();
   const insets = useSafeAreaInsets();
+  const { width: windowWidth } = useWindowDimensions();
+  // 🔴 세로로 세운 탭(아이패드 미니 768 · 서피스 960)은 데스크톱 판인데 칸 넷과 「일정 물어보기」가 한 줄에 다 안 들어가
+  //    「どこから出発しま…」처럼 잘렸다(사용자 요청 2026-10-02 — 「가독성 너무 안 좋다」). 좁으면 단추를 돋보기 원으로 줄여
+  //    칸에 자리를 주고, 단추가 품던 「날짜를 골라 주세요」는 바 아래 한 줄로 옮긴다.
+  const compactCta = wide && windowWidth < COMPACT_CTA_BELOW;
   // 🔴 「영어가 아니면 한국어」로 가르면 일본어·중국어 사용자가 한국어를 본다.
   // 그 언어들은 번역표에 없는 문구가 있으면 영어로 떨어지기로 정해져 있다
   // (resolveTextLanguage). 그 규칙을 그대로 쓴다 — S15P21E201-1296.
@@ -774,10 +783,18 @@ export function PlanStartBar({
             onPress={submit}
             disabled={!ready}
             accessibilityRole="button"
-            style={[styles.cta, !ready && styles.ctaOff]}
+            accessibilityLabel={compactCta ? tx('일정 물어보기', 'Ask for a plan') : undefined}
+            accessibilityHint={compactCta && blocker ? blocker : undefined}
+            style={[styles.cta, compactCta && styles.ctaRound, !ready && styles.ctaOff]}
           >
-            <Text weight="bold" color={ready ? color.text.onAction : color.text.muted}>{tx('일정 물어보기', 'Ask for a plan')}</Text>
-            {blocker ? <Text variant="micro" color={color.text.muted}>{blocker}</Text> : null}
+            {compactCta ? (
+              <Svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={ready ? color.text.onAction : color.text.muted} strokeWidth={2.6} strokeLinecap="round"><Circle cx={11} cy={11} r={6.5} /><Path d="M20 20l-4-4" /></Svg>
+            ) : (
+              <>
+                <Text weight="bold" color={ready ? color.text.onAction : color.text.muted}>{tx('일정 물어보기', 'Ask for a plan')}</Text>
+                {blocker ? <Text variant="micro" color={color.text.muted}>{blocker}</Text> : null}
+              </>
+            )}
           </Pressable>
         </View>
       ) : (
@@ -792,6 +809,8 @@ export function PlanStartBar({
           </Text>
         </Pressable>
       )}
+
+      {compactCta && blocker ? <Text variant="caption" color={color.text.muted} style={styles.compactBlocker}>{blocker}</Text> : null}
 
       {inlinePanel ? (
         <Animated.View
@@ -878,6 +897,8 @@ const styles = StyleSheet.create({
   cta: { minHeight: 56, paddingHorizontal: spacing[6], borderRadius: radius.full, backgroundColor: color.action.primary, alignItems: 'center', justifyContent: 'center' },
   ctaWide: { alignSelf: 'stretch', marginTop: spacing[3] },
   ctaOff: { backgroundColor: color.surface.field },
+  ctaRound: { width: 56, paddingHorizontal: 0 },
+  compactBlocker: { alignSelf: 'center', marginTop: spacing[2] },
   phonePill: {
     minHeight: 56, paddingHorizontal: spacing[4], justifyContent: 'center',
     borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.action.outline,

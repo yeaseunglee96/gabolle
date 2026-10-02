@@ -186,7 +186,7 @@ export function TopNav() {
       {/* 날씨는 CTA «왼쪽»에 붙는다. 날씨가 없으면 TopNavWeather 가 아무것도 안 그려서
           자리가 저절로 접힌다 — 빈 칸을 남겨 두지 않는다. */}
       <View style={styles.navRight}>
-        <TopNavWeather forecast={weather} />
+        <TopNavWeather forecast={weather} compact={width < 1000} />
         <Pressable accessibilityRole="link" accessibilityState={{ selected: planActive }} onPress={() => router.push('/plan')} style={({ pressed }) => [styles.cta, pressed && styles.ctaPressed]}>
           {/* 한 줄로 묶는다. 옆에 날씨가 서면서 좁아져 「여행 / 만들기」로 접혔다. */}
           <Text weight="bold" color={color.action.outline} numberOfLines={1} style={styles.noUnderline}>{tx('여행 만들기', 'Plan a trip')}</Text>
