@@ -747,7 +747,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
         {map.stops.length ? (
           // 🔴 지도 부품은 둥근 테두리 칸으로 그려진다. 바탕으로 쓰려면 모서리를 화면 밖으로 밀어낸다.
           <View style={styles.mapBleed}>
-            <RouteMap stops={map.stops} selectedId={selectedId} onSelect={setSelectedId} routes={routes} points={points} currentLocation={usableFix(live.fix) ? { latitude: live.fix.latitude, longitude: live.fix.longitude } : null} height={mapHeight + radius.lg * 2} focusSelected bottomInset={mapCovered} topInset={mapTopCovered} refitKey={mapRefitKey} />
+            <RouteMap stops={map.stops} selectedId={selectedId} onSelect={setSelectedId} routes={routes} points={points} currentLocation={usableFix(live.fix) ? { latitude: live.fix.latitude, longitude: live.fix.longitude } : null} height={mapHeight + radius.lg * 2} focusSelected bottomInset={mapCovered} topInset={mapTopCovered} refitKey={mapRefitKey} sideBleed={radius.lg} />
           </View>
         ) : loaded ? (
           <View style={[styles.mapEmpty, { paddingTop: insets.top }]}>
