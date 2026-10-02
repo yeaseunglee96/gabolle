@@ -5,7 +5,7 @@
 // 🔴 안드로이드는 링크가 아니라 「Google Play 심사 중」 표시만 — 아직 스토어에 없다. 없는 곳으로 가는 단추는 고장으로 보이고,
 //    아무 말도 없으면 안드로이드 사용자는 앱이 없는 줄 안다(사용자 의견 2026-10-02). 심사가 끝나면 링크로 바꾼다.
 // 🔴 긴 문장은 문장·쉼표 단위로 줄을 나눈다(\n) — 상자가 아무 데서나 꺾으면 「…여행이 / 그대로」처럼 읽힌다(사용자 지적 2026-10-02).
-import { Image, Linking, Pressable, StyleSheet, View } from 'react-native';
+import { Image, Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useRouter, type Href } from 'expo-router';
 
 import { GabolleMascot } from '@/components/DongbaekMascot';
@@ -67,6 +67,9 @@ export function WebFooter() {
       {/* 🔴 두 단 — 왼쪽은 글, 오른쪽은 받는 곳(단추 둘 + QR). 전에는 단추·QR 이 글 밑 왼쪽에 몰려 판 오른쪽 절반이 비었다
           (사용자 지적 2026-10-02 「QR 코드랑 다운로드 버튼이 왼쪽에 붙어 있다」). QR 은 폰 카메라로 찍는 것이라
           크게 둔다 — 데스크톱 사람이 실제로 쓰는 것은 이쪽이다. 좁으면(세로 탭) 단추를 글 아래로 내리고 QR 만 오른쪽에. */}
+      {/* 🔴 앱 안(탭의 넓은 화면 판)에서는 숨긴다 — 이미 앱을 쓰는 사람에게 앱을 받으라고 하고, 안드로이드 앱 안에서
+          「Google Play 심사 중」이 보였다(S15P21E201-1964). 메뉴·약관 칸은 앱에서도 쓸모가 있어 남긴다. */}
+      {Platform.OS === 'web' ? (
       <View style={[styles.appBand, narrow && styles.appBandNarrow]}>
         {narrow ? null : <GabolleMascot state="idle" still style={styles.mascot} />}
         <View style={styles.appMain}>
@@ -84,6 +87,7 @@ export function WebFooter() {
           <Text variant="caption" weight="medium" color={color.text.onDarkMuted}>{tx('iPhone 카메라로 찍어 받기', 'Scan with your iPhone camera')}</Text>
         </View>
       </View>
+      ) : null}
 
       <View style={styles.columns}>
         <View style={[styles.about, narrow && styles.aboutNarrow]}>
