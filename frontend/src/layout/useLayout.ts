@@ -10,7 +10,7 @@
 //    사용자가 정한 것: 외부 화면·펼침 세로 = 모바일, 펼침 가로 = 데스크톱.
 import { useWindowDimensions } from 'react-native';
 
-import { isAtLeast } from './breakpoints';
+import { isAtLeast, shortSide } from './breakpoints';
 
 /** `tablet` 은 옛 이름이다 — 뜻은 «데스크톱처럼 동작한다»(위쪽 메뉴 · 넓은 판). `desktop` 과 같다. */
 export type LayoutKind = 'phone' | 'tablet';
@@ -24,19 +24,19 @@ export type Layout = {
   isLandscape: boolean;
 };
 
-// 최단변 기준 600dp. 폴드8 외부 화면(374×918)은 가로로 돌려도 이 값을 못 넘는다.
-const TABLET_MIN_SHORT_SIDE = 600;
 
 /**
  * 데스크톱으로 볼 화면인가 — 짧은 변이 600 이상이고, **가로이거나 폭이 1024 이상**.
  *   · 폴드 외부 화면 374×918 / 918×374 → 모바일 (짧은 변이 모자란다)
- *   · 폴드 펼침 세로 717×795           → 모바일 (세로이고 폭이 1024 에 못 미친다)
+ *   · 폴드 펼침 세로 717×795           → 모바일 (세로이고 폭이 768 에 못 미친다)
  *   · 폴드 펼침 가로 795×717           → 데스크톱
+ *   · 태블릿 세로 800×1280              → 데스크톱 (폭 768 이상 — S15P21E201-1940, 폰 판을 늘리면 카드가 지나치게 커진다)
  *   · PC 브라우저                      → 데스크톱 (폭 1024 이상이면 세로로 긴 창이어도)
+ * 기기 표는 __tests__/deviceTable.test.ts 에 고정해 두었다.
  */
 export function isDesktopWindow(width: number, height: number): boolean {
-  if (Math.min(width, height) < TABLET_MIN_SHORT_SIDE) return false;
-  return width > height || isAtLeast(width, 'lg');
+  if (Math.min(width, height) <= shortSide.phoneMax) return false;
+  return width > height || width >= shortSide.tabletPortraitMin || isAtLeast(width, 'lg');
 }
 
 export function useLayout(): Layout {

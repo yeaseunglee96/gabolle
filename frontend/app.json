@@ -4,7 +4,7 @@
     "slug": "gabolle",
     "scheme": "gabolle",
     "version": "1.0.1",
-    "orientation": "default",
+    "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
