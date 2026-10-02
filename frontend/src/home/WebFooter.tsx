@@ -48,28 +48,36 @@ export function WebFooter() {
   //  「약관」 하나만 아랫줄로 떨어졌다(캡처 2026-10-02).
   const { width } = useLayout();
   const narrow = width < 1100;
+  const storeButtons = <>
+    <Pressable accessibilityRole="link" accessibilityLabel={tx('App Store에서 가볼래 받기', 'Get GABOLLE on the App Store')} onPress={() => { void Linking.openURL(APP_STORE_URL).catch(() => {}); }} style={({ pressed }) => [styles.storeButton, pressed && styles.pressed]}>
+      <Text variant="micro" color={color.text.muted}>iPhone</Text>
+      <Text weight="bold">{tx('App Store에서 받기', 'Get it on the App Store')}</Text>
+    </Pressable>
+    <View accessibilityLabel={tx('안드로이드 앱은 Google Play 심사 중이에요', 'The Android app is in Google Play review')} style={styles.storePending}>
+      <Text variant="micro" color={color.text.onDarkMuted}>Android</Text>
+      <Text weight="bold" color={color.text.onAction}>{tx('Google Play 심사 중', 'Google Play — in review')}</Text>
+    </View>
+  </>;
   return (
     <View style={styles.footer}>
+      {/* 🔴 두 단 — 왼쪽은 글, 오른쪽은 받는 곳(단추 둘 + QR). 전에는 단추·QR 이 글 밑 왼쪽에 몰려 판 오른쪽 절반이 비었다
+          (사용자 지적 2026-10-02 「QR 코드랑 다운로드 버튼이 왼쪽에 붙어 있다」). QR 은 폰 카메라로 찍는 것이라
+          크게 둔다 — 데스크톱 사람이 실제로 쓰는 것은 이쪽이다. 좁으면(세로 탭) 단추를 글 아래로 내리고 QR 만 오른쪽에. */}
       <View style={[styles.appBand, narrow && styles.appBandNarrow]}>
-        <GabolleMascot state="idle" still style={styles.mascot} />
-        <View style={[styles.appCopy, narrow && styles.appCopyNarrow]}>
-          <Text variant="title" weight="bold" color={color.text.onAction}>{tx('여행 중에는 앱이 더 편해요', 'The app is handier on the road')}</Text>
-          <Text color={color.text.onDarkMuted}>{tx('버스에서 내릴 정류장을 세어 주고, 잠금 화면에 다음 일정이 떠요.\n웹에서 만든 여행이 그대로 이어져요.', 'It counts the stops until yours and shows your next plan on the lock screen.\nTrips you made on the web carry right over.')}</Text>
+        {narrow ? null : <GabolleMascot state="idle" still style={styles.mascot} />}
+        <View style={styles.appMain}>
+          <View style={styles.appCopy}>
+            <Text variant="title" weight="bold" color={color.text.onAction}>{tx('여행 중에는 앱이 더 편해요', 'The app is handier on the road')}</Text>
+            <Text color={color.text.onDarkMuted}>{tx('버스에서 내릴 정류장을 세어 주고, 잠금 화면에 다음 일정이 떠요.\n웹에서 만든 여행이 그대로 이어져요.', 'It counts the stops until yours and shows your next plan on the lock screen.\nTrips you made on the web carry right over.')}</Text>
+          </View>
+          {narrow ? <View style={styles.actions}>{storeButtons}</View> : null}
         </View>
-        {/* 좁으면 단추·QR 을 글 아랫줄로 — 한 줄에 다 넣으면 글이 「…잠금 / 화면에」처럼 문장 중간에서 꺾였다 */}
-        <View style={[styles.actions, narrow && styles.actionsNarrow]}>
-        <Pressable accessibilityRole="link" accessibilityLabel={tx('App Store에서 가볼래 받기', 'Get GABOLLE on the App Store')} onPress={() => { void Linking.openURL(APP_STORE_URL).catch(() => {}); }} style={({ pressed }) => [styles.storeButton, pressed && styles.pressed]}>
-          <Text variant="micro" color={color.text.muted}>iPhone</Text>
-          <Text weight="bold">{tx('App Store에서 받기', 'Get it on the App Store')}</Text>
-        </Pressable>
-        <View accessibilityLabel={tx('안드로이드 앱은 Google Play 심사 중이에요', 'The Android app is in Google Play review')} style={styles.storePending}>
-          <Text variant="micro" color={color.text.onDarkMuted}>Android</Text>
-          <Text weight="bold" color={color.text.onAction}>{tx('Google Play 심사 중', 'Google Play — in review')}</Text>
-        </View>
+        {narrow ? null : <View style={styles.actionsStacked}>{storeButtons}</View>}
         <View style={styles.qrBlock}>
-          <Image source={qrAppStore} accessibilityLabel={tx('App Store 내려받기 QR 코드', 'QR code to the App Store')} style={styles.qr} />
-          <Text variant="micro" color={color.text.onDarkMuted}>{tx('iPhone 카메라로', 'Scan with iPhone')}</Text>
-        </View>
+          <View style={styles.qrFrame}>
+            <Image source={qrAppStore} accessibilityLabel={tx('App Store 내려받기 QR 코드', 'QR code to the App Store')} style={styles.qr} />
+          </View>
+          <Text variant="caption" weight="medium" color={color.text.onDarkMuted}>{tx('iPhone 카메라로 찍어 받기', 'Scan with your iPhone camera')}</Text>
         </View>
       </View>
 
@@ -105,19 +113,22 @@ const FLOATING_ASSISTANT_CLEARANCE = 84 + spacing[8] + spacing[4];
 const styles = StyleSheet.create({
   footer: { width: '100%', backgroundColor: color.surface.card, borderTopWidth: 1, borderTopColor: color.surface.border, paddingHorizontal: desktopGutter, paddingTop: desktopGutter, paddingBottom: FLOATING_ASSISTANT_CLEARANCE },
   // 앱 받기 띠 — 짙은 판. 웹 홈에서 유일하게 어두운 면이라 「여기서 앱을 받는다」가 바로 읽힌다.
-  appBand: { flexDirection: 'row', alignItems: 'center', gap: spacing[6], paddingVertical: spacing[6], paddingHorizontal: spacing[8], borderRadius: radius.lg, backgroundColor: color.action.secondary },
-  mascot: { width: 72, height: 72 },
-  appCopy: { flex: 1, minWidth: 0, gap: spacing[2] },
-  appBandNarrow: { flexWrap: 'wrap', rowGap: spacing[4] },
-  appCopyNarrow: { flexBasis: 420 },
-  actions: { flexDirection: 'row', alignItems: 'center', gap: spacing[6] },
-  // 마스코트(72) + 간격(24) 만큼 들여서 글 왼쪽 끝에 맞춘다
-  actionsNarrow: { flexBasis: '100%', paddingLeft: 72 + spacing[6] },
-  storeButton: { minHeight: 52, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.md, backgroundColor: color.surface.card },
+  appBand: { flexDirection: 'row', alignItems: 'center', gap: spacing[8], paddingVertical: spacing[8], paddingHorizontal: spacing[8] + spacing[2], borderRadius: radius.lg, backgroundColor: color.action.secondary },
+  // 좁으면(세로 탭) 동백이를 빼고 안쪽 여백을 줄여 글 폭을 번다 — QR 은 그대로 오른쪽에
+  appBandNarrow: { gap: spacing[6], paddingHorizontal: spacing[8] },
+  mascot: { width: 72, height: 72, alignSelf: 'flex-start' },
+  appMain: { flex: 1, minWidth: 0, gap: spacing[4] + spacing[1] },
+  appCopy: { gap: spacing[2] },
+  actions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing[3] },
+  // 넓으면 단추 둘을 세로로 쌓아 QR 옆에 — 같은 폭으로 늘린다
+  actionsStacked: { width: 240, gap: spacing[3] },
+  storeButton: { minHeight: 52, justifyContent: 'center', paddingHorizontal: spacing[4] + spacing[1], borderRadius: radius.md, backgroundColor: color.surface.card },
   // 누를 수 없는 표시라 테두리만 — 채운 단추(App Store)와 모양으로 갈린다
-  storePending: { minHeight: 52, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.md, borderWidth: 1, borderColor: color.text.onDarkMuted },
-  qrBlock: { alignItems: 'center', gap: spacing[1] },
-  qr: { width: 84, height: 84, borderRadius: radius.sm, backgroundColor: color.surface.card },
+  storePending: { minHeight: 52, justifyContent: 'center', paddingHorizontal: spacing[4] + spacing[1], borderRadius: radius.md, borderWidth: 1, borderColor: color.text.onDarkMuted },
+  qrBlock: { alignItems: 'center', gap: spacing[2] },
+  // 흰 여백(QR 의 «조용한 칸»)을 둘러야 어두운 판 위에서도 카메라가 읽는다
+  qrFrame: { padding: spacing[2], borderRadius: radius.md, backgroundColor: color.surface.card },
+  qr: { width: 112, height: 112 },
   // 안내 단 — 소개 한 칸을 조금 넓게, 메뉴 셋은 같은 폭
   columns: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[8], marginTop: spacing[8] + spacing[4] },
   about: { flexGrow: 1.4, flexBasis: 320, gap: spacing[3] },
