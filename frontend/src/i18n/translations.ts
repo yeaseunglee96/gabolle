@@ -3275,6 +3275,22 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '「저장」을 누르면 기본 커버로 돌아가요.': { ja: '「保存」を押すとデフォルトのカバーに戻ります。', zhHans: '点击“保存”后会恢复默认封面。', zhHant: '點擊「儲存」後會恢復預設封面。' },
   '저장 전': { ja: '未保存', zhHans: '未保存', zhHant: '未儲存' },
   '여행을 만들면 출발일 예보와 준비물도 챙겨드려요.': { ja: '旅行を作ると、出発日の予報と持ち物もお知らせします。', zhHans: '创建旅行后，还会为您提供出发日的天气预报和行李清单。', zhHant: '建立旅行後，還會為您提供出發日的天氣預報和行李清單。' },
+  '도움': { ja: 'ヘルプ', zhHans: '帮助', zhHant: '幫助' },
+  '긴급 도움 · 119 112 1330': { ja: '緊急ヘルプ · 119 112 1330', zhHans: '紧急求助 · 119 112 1330', zhHant: '緊急求助 · 119 112 1330' },
+  '가까운 병원·약국': { ja: '近くの病院・薬局', zhHans: '附近的医院·药店', zhHant: '附近的醫院·藥局' },
+  '처음 쓰는 분께': { ja: 'はじめての方へ', zhHans: '新手指南', zhHant: '新手指南' },
+  '약관': { ja: '規約', zhHans: '条款', zhHant: '條款' },
+  '자료 출처': { ja: 'データの出典', zhHans: '资料来源', zhHant: '資料來源' },
+  '계정 삭제': { ja: 'アカウント削除', zhHans: '删除账户', zhHant: '刪除帳戶' },
+  '여행 중에는 앱이 더 편해요': { ja: '旅行中はアプリがもっと便利です', zhHans: '旅途中用应用更方便', zhHant: '旅途中用 App 更方便' },
+  '버스에서 내릴 정류장을 세어 주고, 잠금 화면에 다음 일정이 떠요.\n웹에서 만든 여행이 그대로 이어져요.': { ja: '降りるバス停までの数を数え、ロック画面に次の予定を表示します。\nウェブで作った旅行がそのまま引き継がれます。', zhHans: '帮你数到下车的站，锁屏上显示下一个行程。\n在网页上创建的旅行会直接同步过来。', zhHant: '幫你數到下車的站，鎖定畫面顯示下一個行程。\n在網頁上建立的旅行會直接同步過來。' },
+  'App Store에서 가볼래 받기': { ja: 'App Store で GABOLLE を入手', zhHans: '在 App Store 获取 GABOLLE', zhHant: '在 App Store 取得 GABOLLE' },
+  'App Store에서 받기': { ja: 'App Store で入手', zhHans: '在 App Store 下载', zhHant: '在 App Store 下載' },
+  'App Store 내려받기 QR 코드': { ja: 'App Store ダウンロード用 QR コード', zhHans: 'App Store 下载二维码', zhHant: 'App Store 下載 QR 碼' },
+  'iPhone 카메라로': { ja: 'iPhone のカメラで', zhHans: '用 iPhone 相机扫码', zhHant: '用 iPhone 相機掃描' },
+  '가볼래': { ja: 'GABOLLE', zhHans: 'GABOLLE', zhHant: 'GABOLLE' },
+  '언제, 누구와, 어떻게 다닐지만 알려 주면\n부산 일정을 짜 드려요.\n경사·그늘까지 따져 길을 고르고,\n여행 중에는 통역과 긴급 도움을 바로 열 수 있어요.': { ja: 'いつ、誰と、どう回るかを教えてくれれば、\n釜山の日程を組みます。\n坂や日陰まで考えて道を選び、\n旅行中は通訳と緊急ヘルプをすぐ開けます。', zhHans: '只要告诉我们何时、和谁、怎么玩，\n就为你安排釜山行程。\n选路时会考虑坡度和树荫，\n旅途中还能随时打开翻译和紧急求助。', zhHant: '只要告訴我們何時、和誰、怎麼玩，\n就為你安排釜山行程。\n選路時會考慮坡度和樹蔭，\n旅途中還能隨時打開翻譯和緊急求助。' },
+  '장소·축제: 한국관광공사 · 병원·약국: 건강보험심사평가원 · 지도: © OpenStreetMap 기여자': { ja: 'スポット・祭り：韓国観光公社 · 病院・薬局：健康保険審査評価院 · 地図：© OpenStreetMap 寄稿者', zhHans: '景点·节庆：韩国观光公社 · 医院·药店：健康保险审查评估院 · 地图：© OpenStreetMap 贡献者', zhHant: '景點·節慶：韓國觀光公社 · 醫院·藥局：健康保險審查評估院 · 地圖：© OpenStreetMap 貢獻者' },
 };
 
 export function getTranslation(ko: string, field: 'ja' | 'zhHans' | 'zhHant'): string | null {
