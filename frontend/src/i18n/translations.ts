@@ -3334,6 +3334,7 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '내가 냄': { ja: '自分が支払い', zhHans: '我付的', zhHant: '我付的' },
   '어디서 — 일정에서 고르거나 적기': { ja: 'どこで — 日程から選ぶか入力', zhHans: '在哪里 — 从行程中选择或输入', zhHant: '在哪裡 — 從行程中選擇或輸入' },
 
+  '%s · 오늘 환율': { ja: '%s · 今日のレート', zhHans: '%s · 今日汇率', zhHant: '%s · 今日匯率' },
 };
 
 export function getTranslation(ko: string, field: 'ja' | 'zhHans' | 'zhHant'): string | null {
