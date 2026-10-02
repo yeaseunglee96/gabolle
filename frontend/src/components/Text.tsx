@@ -119,7 +119,14 @@ export function webHangulLang(children: React.ReactNode): 'ko' | undefined {
 
 function joinHangulChildren(children: React.ReactNode): React.ReactNode {
   if (typeof children === 'string') return joinHangulSyllables(children);
-  if (Array.isArray(children)) return children.map((child) => (typeof child === 'string' ? joinHangulSyllables(child) : child));
+  if (Array.isArray(children)) {
+    // 🔴 글자 조각만 있으면 한 문자열로 합친다(S15P21E201-1966). {'✓ '}{'日本語'} 처럼 조각이 둘이면 안드로이드에서
+    //    둘째 조각(가나·한자)이 자리만 차지하고 안 보였다 — 갤럭시 탭의 고른 언어 칩. 한 문자열은 보였다.
+    if (children.every((child) => typeof child === 'string' || typeof child === 'number' || child == null || typeof child === 'boolean')) {
+      return joinHangulSyllables(children.filter((child) => typeof child === 'string' || typeof child === 'number').join(''));
+    }
+    return children.map((child) => (typeof child === 'string' ? joinHangulSyllables(child) : child));
+  }
   return children;
 }
 
