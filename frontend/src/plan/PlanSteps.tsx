@@ -441,7 +441,7 @@ function StyleStep({ draft, update, tx }: Pick<PlanStepsProps, 'draft' | 'update
             return (
               <Pressable key={option[0]} accessibilityRole="radio" accessibilityState={{ selected }} onPress={() => update({ paceLevel: option[0] as PlanDraft['paceLevel'] })} style={({ pressed }) => [styles.segmentItem, selected && styles.segmentOn, pressed && styles.pressed]}>
                 <Text variant="caption" weight="bold" color={selected ? color.text.onAction : color.text.heading}>{labelOf(option, tx)}</Text>
-                <Text variant="micro" numberOfLines={1} color={selected ? color.text.onDarkMuted : color.text.body} style={styles.center}>{paceSubtitle(option, tx)}</Text>
+                <Text testID="plan-pace-subtitle" variant="micro" numberOfLines={2} color={selected ? color.text.onDarkMuted : color.text.body} style={styles.center}>{paceSubtitle(option, tx)}</Text>
               </Pressable>
             );
           })}
