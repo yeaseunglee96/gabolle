@@ -26,6 +26,13 @@ const SKY_LABEL: Record<SkyCondition, readonly [string, string]> = {
 
 // 시간별 칸의 그림 — 시안 그대로 글자 그림이다. 비·눈이 오면 하늘보다 그것을 먼저 그린다.
 const SKY_ICON: Record<SkyCondition, string> = { CLEAR: '☀', PARTLY_CLOUDY: '⛅', CLOUDY: '☁' };
+
+/** 하늘 아이콘 — 밤(19~05시) 맑음은 달이다. 22시 칸에 해가 떠 있으면 틀린 예보처럼 보인다(S15P21E201-1963). */
+export function skyIcon(sky: SkyCondition, time: string): string {
+  const hour = Number(time.slice(0, 2));
+  const night = Number.isInteger(hour) && (hour >= 19 || hour <= 5);
+  return sky === 'CLEAR' && night ? '🌙' : SKY_ICON[sky];
+}
 const PRECIPITATION: Record<Exclude<PrecipitationType, 'NONE'>, { icon: string; label: readonly [string, string] }> = {
   RAIN: { icon: '🌧', label: ['비', 'Rain'] },
   SHOWER: { icon: '🌧', label: ['소나기', 'Showers'] },
@@ -77,7 +84,7 @@ function describeHour(hour: HourlyForecastDto, tx: Tx) {
   const precipitation = hour.precipitationType && hour.precipitationType !== 'NONE' ? PRECIPITATION[hour.precipitationType] : null;
   const chance = hour.precipitationProbability;
   return {
-    icon: precipitation?.icon ?? (hour.skyCondition ? SKY_ICON[hour.skyCondition] : null),
+    icon: precipitation?.icon ?? (hour.skyCondition ? skyIcon(hour.skyCondition, hour.time) : null),
     condition: precipitation ? tx(...precipitation.label) : hour.skyCondition ? tx(...SKY_LABEL[hour.skyCondition]) : null,
     temperature: hour.temperature != null ? `${Math.round(hour.temperature)}°` : null,
     chance,
