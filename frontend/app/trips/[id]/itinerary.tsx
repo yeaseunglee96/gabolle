@@ -68,6 +68,7 @@ import { humanTripTitle, tripNameOrDates } from '@/trip/tripNaming';
 import { categoryGlyph, loadPlacePhoto, loadPlacePhotos, type PlacePhoto } from '@/plan/placePhotos';
 import { summarizeItineraryBudget, type BudgetCategoryKey, type BudgetSummary } from '@/plan/itineraryBudget';
 import { loadTripBudget } from '@/trip/tripBudget';
+import { initialDayIndex } from '@/trip/openDay';
 
 // 경고 문구는 src/plan/warningLabels.ts 로 옮겼다 — 시험이 붙들게 하려고.
 
@@ -425,6 +426,8 @@ function ItineraryClassic() {
   // 날짜는 사람이 보는 주소에서는 1일차부터 세지만(?day=2), 내부 배열 인덱스는 0부터다.
   const [selectedDay, setSelectedDay] = useState(() => { const requested = Number(dayParam); return Number.isInteger(requested) && requested >= 1 ? requested - 1 : 0; });
   const [dayOutOfRange, setDayOutOfRange] = useState(false);
+  // 처음 받아 왔을 때 한 번만 — 여행 중이면 오늘 칸을 연다(S15P21E201-1921). 그 뒤 고친 칸은 건드리지 않는다.
+  const openedDayRef = useRef(false);
   const [viewMode, setViewMode] = useState<ViewMode>(viewParam === 'all' ? 'all' : 'day');
   const [busyItemId, setBusyItemId] = useState<string | null>(null);
   const [excludingItemId, setExcludingItemId] = useState<string | null>(null);
@@ -520,6 +523,7 @@ function ItineraryClassic() {
     const next = await loadItinerary(itineraryId, accessToken);
     setResult(next); setLoading(false);
     if (next.state === 'success') {
+      if (!openedDayRef.current) { openedDayRef.current = true; setSelectedDay(initialDayIndex(next.itinerary.days, dayParam)); }
       setSelectedDay((current) => {
         const lastDay = Math.max(0, next.itinerary.days.length - 1);
         if (current > lastDay) { setDayOutOfRange(true); return 0; }
@@ -527,7 +531,7 @@ function ItineraryClassic() {
       });
       void refreshVersions(next.itinerary.id);
     }
-  }, [accessToken, itineraryId, refreshVersions]);
+  }, [accessToken, itineraryId, refreshVersions, dayParam]);
 
   useEffect(() => { void reload(); }, [reload]);
 
