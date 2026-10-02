@@ -87,6 +87,15 @@ export function stepBlocker(step: number, r: StepReadiness, tx: Tx): string | nu
 const labelOf = (option: PlanOption, tx: Tx) => tx(option[1], option[2]);
 const subOf = (option: PlanOption, tx: Tx) => tx(option[3], option[4]);
 const won = (value: number, tx: Tx) => tx(`${(value / 10000).toLocaleString()}만원`, `₩${value.toLocaleString()}`);
+
+/**
+ * 총예산 칸 금액의 글자 크기. adjustsFontSizeToFit 은 웹에서 동작하지 않아 일본어 「10万ウォン」이 「10万ウォ…」로
+ * 잘렸다(S15P21E201-1939). 글자 폭을 어림해(한·중·일 글자 1, 숫자·라틴 0.6) 길면 처음부터 작게 그린다.
+ */
+export function presetAmountFontSize(label: string): number {
+  const width = [...label].reduce((sum, ch) => sum + (ch === ' ' ? 0.3 : /[　-鿿가-힣＀-￯]/.test(ch) ? 1 : 0.6), 0);
+  return width > 5 ? 14 : 17;
+}
 const DAILY_BUDGET_PRESETS = [
   { perDay: 30000, ko: '알뜰', en: 'Frugal' },
   { perDay: 50000, ko: '보통', en: 'Standard' },
@@ -354,7 +363,7 @@ function WhereStep({ draft, update, tx }: Pick<PlanStepsProps, 'draft' | 'update
               <Pressable key={preset.perDay} accessibilityRole="radio" accessibilityState={{ selected }} onPress={() => update({ budgetKrw: presetTotal })} style={({ pressed }) => [styles.preset, selected && styles.presetOn, pressed && styles.pressed]}>
                 <Text variant="caption" weight="bold" color={selected ? color.text.onAction : color.text.heading}>{tx(preset.ko, preset.en)}</Text>
                 {/* 한 줄 — 일본어 「10万ウォン」이 좁은 칸에서 「ウォ / ン」으로 갈라졌다(S15P21E201-1924). */}
-                <Text testID="plan-budget-preset-amount" weight="bold" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} style={styles.presetAmount} color={selected ? color.text.onAction : color.text.heading}>{won(presetTotal, tx)}</Text>
+                <Text testID="plan-budget-preset-amount" weight="bold" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} style={[styles.presetAmount, { fontSize: presetAmountFontSize(won(presetTotal, tx)) }]} color={selected ? color.text.onAction : color.text.heading}>{won(presetTotal, tx)}</Text>
                 <Text variant="micro" color={selected ? color.text.onDarkMuted : color.text.muted}>{txf(tx, '1인 하루 %s', '%s / person / day', tx(`${preset.perDay / 10000}만`, `₩${preset.perDay.toLocaleString()}`))}</Text>
               </Pressable>
             );
@@ -401,7 +410,7 @@ function PhotoCard({ source, label, selected, disabled, onPress, wide = false, s
           <Text variant="caption" weight="bold" color={color.text.heading}>{label}</Text>
           {sub ? <Text variant="micro" color={color.text.muted}>{sub}</Text> : null}
         </View>
-      ) : <Text variant="caption" weight="bold" color={color.text.heading} numberOfLines={1} style={styles.photoLabel}>{label}</Text>}
+      ) : <Text variant="caption" weight="bold" color={color.text.heading} numberOfLines={2} style={styles.photoLabel}>{label}</Text>}
     </Pressable>
   );
 }
