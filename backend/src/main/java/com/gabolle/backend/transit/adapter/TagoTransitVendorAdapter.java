@@ -1,5 +1,6 @@
 package com.gabolle.backend.transit.adapter;
 
+import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.time.Duration;
 
@@ -11,7 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -98,12 +101,12 @@ public class TagoTransitVendorAdapter implements TransitVendorPort {
 		URI uri = URI.create(this.properties.getBaseUrl()
 				+ "/BusSttnInfoInqireService/getCrdntPrxmtSttnList?serviceKey=" + serviceKey + query);
 
-		return get(uri, "근처 정류소", this.restClient);
+		return getRetryingOnce(uri, "근처 정류소");
 	}
 
 	@Override
 	public String fetchArrivalsJson(String cityCode, String nodeId) {
-		return get(arrivalsUri(cityCode, nodeId), "버스 도착정보", this.restClient);
+		return getRetryingOnce(arrivalsUri(cityCode, nodeId), "버스 도착정보");
 	}
 
 	/** 덤 정류소 — 같은 호출을 짧은 읽기 제한으로(S15P21E201-1755). 늦으면 예외로 끝나고 부르는 쪽이 버린다. */
@@ -136,6 +139,38 @@ public class TagoTransitVendorAdapter implements TransitVendorPort {
 					HttpStatus.BAD_GATEWAY);
 		}
 		return serviceKey;
+	}
+
+	/**
+	 * 빠른 실패(5xx·연결 끊김)는 한 번 다시 부른다 — S15P21E201-1927.
+	 * 🔴 운영(10/2): 첫 호출만 502, 바로 다시 부르면 200 이었다. 화면은 「도착 정보를 불러올 수 없어요」였다.
+	 * 읽기 시간 초과는 다시 부르지 않는다 — 기다림이 두 배가 된다. 키 거절도 그대로다(몇 번을 불러도 같다).
+	 */
+	private String getRetryingOnce(URI uri, String what) {
+		try {
+			return get(uri, what, this.restClient);
+		}
+		catch (TransitVendorException exception) {
+			if (!isFastFailure(exception)) {
+				throw exception;
+			}
+			log.info("{} 한 번 더 부른다", what);
+			return get(uri, what, this.restClient);
+		}
+	}
+
+	private static boolean isFastFailure(TransitVendorException exception) {
+		if (!"TRANSIT_VENDOR_UNAVAILABLE".equals(exception.getCode())) {
+			return false;
+		}
+		Throwable cause = exception.getCause();
+		if (cause instanceof HttpServerErrorException) {
+			return true;
+		}
+		if (cause instanceof ResourceAccessException access) {
+			return !(access.getCause() instanceof SocketTimeoutException);
+		}
+		return false;
 	}
 
 	private String get(URI uri, String what, RestClient client) {
