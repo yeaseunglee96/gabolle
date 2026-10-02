@@ -2,7 +2,7 @@
 import { Platform } from 'react-native';
 import { render, screen } from '@testing-library/react-native';
 
-import { joinHangulSyllables, Text, webLineBreakStyle } from '../Text';
+import { joinHangulSyllables, nativeFontFamily, Text, webLineBreakStyle } from '../Text';
 
 const WJ = String.fromCharCode(0x2060);
 
@@ -41,5 +41,36 @@ describe('웹 감싸기 힌트 — S15P21E201-1372', () => {
       Object.defineProperty(Platform, 'OS', { value: original, configurable: true });
     }
     expect(webLineBreakStyle(undefined)).toBeNull();
+  });
+});
+
+describe('폰 앱의 가나·한자 글 — S15P21E201-1942', () => {
+  // 🔴 Pretendard 에는 가나·한자가 없다. 굵기별 이름 + 굵기를 함께 박으면 일부 안드로이드에서 글자가 빈칸이 됐다.
+  it('가나·한자가 든 글은 기기 글꼴(fontFamily 없음)로 — 한글·영문만이면 Pretendard 그대로', () => {
+    expect(Platform.OS).not.toBe('web');
+    expect(nativeFontFamily('Pretendard-Bold', '日本語')).toBeUndefined();
+    expect(nativeFontFamily('Pretendard-Bold', '简体中文')).toBeUndefined();
+    expect(nativeFontFamily('Pretendard-Bold', ['✓ ', '繁體中文'])).toBeUndefined();
+    expect(nativeFontFamily('Pretendard-Bold', '釜山駅 (부산역)')).toBeUndefined();
+    expect(nativeFontFamily('Pretendard-Bold', '한국어')).toBe('Pretendard-Bold');
+    expect(nativeFontFamily('Pretendard-Bold', 'English')).toBe('Pretendard-Bold');
+    expect(nativeFontFamily('Pretendard-Bold', 12000)).toBe('Pretendard-Bold');
+  });
+
+  it('그려진 글의 스타일에도 그대로 — 일본어 글에는 굵기만 남는다', () => {
+    render(<Text weight="bold">旅行のお金</Text>);
+    const style = [screen.getByText('旅行のお金').props.style].flat(3).reduce((all, each) => ({ ...all, ...(each ?? {}) }), {});
+    expect(style.fontFamily).toBeUndefined();
+    expect(style.fontWeight).toBe('700');
+  });
+
+  it('웹은 그대로 — CSS 대체 글꼴 목록이 이미 있다', () => {
+    const original = Platform.OS;
+    Object.defineProperty(Platform, 'OS', { value: 'web', configurable: true });
+    try {
+      expect(nativeFontFamily('Pretendard-Bold, sans-serif', '日本語')).toBe('Pretendard-Bold, sans-serif');
+    } finally {
+      Object.defineProperty(Platform, 'OS', { value: original, configurable: true });
+    }
   });
 });

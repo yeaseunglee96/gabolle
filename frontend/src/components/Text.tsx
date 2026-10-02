@@ -80,6 +80,28 @@ export function joinHangulSyllables(text: string): string {
   return text.replace(HANGUL_THEN_HANGUL, `$1${WORD_JOINER}`);
 }
 
+/** 가나·한자(CJK 통합 한자·호환 한자)·전각 문장부호. 한글은 뺀다 — 한글은 Pretendard 에 있다. */
+const KANA_OR_HAN = /[\u3000-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff00-\uff60]/;
+
+function textOf(children: React.ReactNode): string {
+  if (typeof children === 'string') return children;
+  if (typeof children === 'number') return String(children);
+  if (Array.isArray(children)) return children.map(textOf).join('');
+  return '';
+}
+
+/**
+ * 🔴 폰 앱에서 가나·한자가 든 글은 Pretendard 를 강요하지 않는다(S15P21E201-1942).
+ * Pretendard 에는 가나·한자가 없어 폰이 다른 글꼴로 대신 그려야 하는데, 굵기별 글꼴 이름(Pretendard-Bold)과
+ * 굵기(700)를 함께 박으면 일부 안드로이드(삼성 One UI 등)에서 대신 그릴 글꼴을 못 찾아 글자가 통째로 빈칸이 됐다 —
+ * 「마이페이지에서 일본어·중국어를 고르면 글자가 사라진다」(사용자 신고 2026-10-02). 그런 글은 기기 글꼴에 굵기만 준다.
+ * 웹은 그대로다 — CSS 대체 글꼴 목록(fontFamilyStack)이 이미 있다.
+ */
+export function nativeFontFamily(family: string, children: React.ReactNode): string | undefined {
+  if (Platform.OS === 'web') return family;
+  return KANA_OR_HAN.test(textOf(children)) ? undefined : family;
+}
+
 function joinHangulChildren(children: React.ReactNode): React.ReactNode {
   if (typeof children === 'string') return joinHangulSyllables(children);
   if (Array.isArray(children)) return children.map((child) => (typeof child === 'string' ? joinHangulSyllables(child) : child));
@@ -118,7 +140,7 @@ export function Text({ variant = 'body', color: colorOverride, weight = 'regular
       {...rest}
       style={[
         {
-          fontFamily: FONT_FAMILY[weight],
+          fontFamily: nativeFontFamily(FONT_FAMILY[weight], children),
           fontSize: size,
           lineHeight,
           letterSpacing,
