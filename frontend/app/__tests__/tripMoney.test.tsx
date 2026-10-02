@@ -1,5 +1,5 @@
 // 여행 돈 화면(S15P21E201-1935) — 합계가 보이고, 정산이 맞고, 적기·지우기가 서버로 간다.
-import { fireEvent, render, waitFor } from '@testing-library/react-native';
+import { fireEvent, render, waitFor, within } from '@testing-library/react-native';
 
 import TripMoney from '../(trip)/[id]/money';
 import { addExpense, loadLedger, removeExpense } from '@/trip/expenses';
@@ -10,6 +10,8 @@ jest.mock('@/auth/AuthProvider', () => ({ useAuth: () => ({ accessToken: 'token'
 jest.mock('@/i18n', () => ({ useI18n: () => ({ tx: (ko: string) => ko, language: 'ko' }) }));
 jest.mock('@/components/Screen', () => ({ Screen: ({ children }: { children: unknown }) => children }));
 jest.mock('@/trip/collaboration', () => ({ listTripMembers: jest.fn() }));
+jest.mock('@/trip/trips', () => ({ loadTripItineraries: jest.fn(async () => ({ state: 'success', role: 'OWNER', itineraries: [{ itineraryId: 'it-1' }] })) }));
+jest.mock('@/plan/itinerary', () => ({ loadItinerary: jest.fn(async () => ({ state: 'success', itinerary: { days: [{ date: '2000-01-01', items: [{ id: 'i1', title: '광안리 밀면집', locked: false, startsAt: null }] }] } })) }));
 jest.mock('@/trip/expenses', () => ({ ...jest.requireActual('@/trip/expenses'), loadLedger: jest.fn(), addExpense: jest.fn(), removeExpense: jest.fn(), saveBudget: jest.fn() }));
 
 const ME = { userId: 'me', displayName: '진미리', role: 'OWNER', joinedAt: '', invitedBy: null, invitedAt: null, isMe: true };
@@ -38,8 +40,11 @@ describe('여행 돈', () => {
     await waitFor(() => expect(view.getByTestId('money-total')).toBeTruthy());
     fireEvent.press(view.getByTestId('money-add'));
     fireEvent.changeText(view.getByTestId('money-amount'), '9,000');
+    // 일정에서 고르기 — 누르면 그 이름이 장소로 간다
+    await waitFor(() => expect(view.getByTestId('money-plan-places')).toBeTruthy());
+    fireEvent.press(within(view.getByTestId('money-plan-places')).getByText('광안리 밀면집'));
     fireEvent.press(view.getByTestId('money-save'));
-    await waitFor(() => expect(addExpense).toHaveBeenCalledWith('trip-1', expect.objectContaining({ amountKrw: 9000, category: 'FOOD', paidBy: 'me', splitEven: true }), 'token'));
+    await waitFor(() => expect(addExpense).toHaveBeenCalledWith('trip-1', expect.objectContaining({ amountKrw: 9000, category: 'FOOD', paidBy: 'me', splitEven: true, placeName: '광안리 밀면집' }), 'token'));
   });
 
   it('🔴 지우기는 두 번 눌러야 — 한 번에 지우지 않는다', async () => {
