@@ -216,8 +216,9 @@ const styles = StyleSheet.create({
   utilDivider: { width: 1, height: 14, backgroundColor: color.surface.field },
 
   // 국기 다섯 칸. 안 고른 것은 옅게 둬서 고른 언어가 눈에 띈다.
-  utilFlagDivider: { width: 1, height: 14, backgroundColor: color.surface.field, marginRight: spacing[2] },
-  utilFlagTouch: { height: UTIL_HEIGHT, width: 30, alignItems: 'center', justifyContent: 'center', opacity: 0.55 },
+  utilFlagDivider: { width: 1, height: 14, backgroundColor: color.surface.field },
+  // 손가락으로 누르는 탭(데스크톱 판)도 있다 — 44 아래면 옆 국기를 잘못 누른다(S15P21E201-1952).
+  utilFlagTouch: { height: UTIL_HEIGHT, width: 44, alignItems: 'center', justifyContent: 'center', opacity: 0.55 },
   utilFlagTouchSelected: { opacity: 1 },
   utilFlagImage: { width: 20, height: 14, borderRadius: 2 },
 
