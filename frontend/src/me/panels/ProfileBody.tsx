@@ -4,7 +4,7 @@
 // 「나」에 해당하는 것만 떼어 왔다 — 사진 · 닉네임 · 이메일 · 언어 · 회원 탈퇴.
 import { deviceAvatarKey, loadProfileAvatar } from '@/me/profileAvatar';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Modal, Pressable, Share, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Image, Modal, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -21,6 +21,7 @@ import { useI18n } from '@/i18n';
 import { useLayout } from '@/layout/useLayout';
 import { usePlan } from '@/plan/PlanProvider';
 import { txf } from '@/i18n/format';
+import { shareLink, type ShareOutcome } from '@/utils/shareLink';
 
 // 박재현 님 계약 — 서버가 대소문자·앞뒤 공백까지 정확히 이 값과 비교한다.
 const DELETE_CONFIRMATION_PHRASE = 'DELETE';
@@ -37,16 +38,16 @@ export function ProfileBody({ startDeletion = false }: { startDeletion?: boolean
   const router = useRouter();
   // 데스크톱 판인가 — 폭만이 아니라 폴드 펼침 가로까지, 판정은 useLayout 한 곳(S15P21E201-1563).
   const desktop = useLayout().desktop;
+  const [shareNotice, setShareNotice] = useState('');
 
 
   async function shareProfile() {
     if (!user?.userId) return;
     const url = `${APP_WEB_BASE_URL}/user/${user.userId}`;
-    try {
-      await Share.share({ title: tx('가볼래 프로필 공유', 'Share GABOLLE profile'), message: txf(tx, '제 가볼래 프로필을 확인해 보세요.\n%s', 'Check out my GABOLLE profile.\n%s', url), url });
-    } catch {
-      // 사용자가 공유 시트를 닫은 것도 실패로 취급하지 않는다 — 별도 안내가 필요 없다.
-    }
+    // 사용자가 공유 시트를 닫은 것은 실패로 취급하지 않는다. 웹에서 공유를 못 하는 브라우저는 링크를 복사한다(S15P21E201-1958).
+    let outcome: ShareOutcome;
+    try { outcome = await shareLink({ title: tx('가볼래 프로필 공유', 'Share GABOLLE profile'), message: txf(tx, '제 가볼래 프로필을 확인해 보세요.\n%s', 'Check out my GABOLLE profile.\n%s', url), url }); } catch { outcome = 'dismissed'; }
+    setShareNotice(outcome === 'copied' ? tx('링크를 복사했어요. 붙여넣어 공유하세요.', 'Link copied. Paste it to share.') : outcome === 'failed' ? url : '');
   }
 
   const visualPreview = __DEV__ && preview === 'ui';
@@ -343,6 +344,7 @@ export function ProfileBody({ startDeletion = false }: { startDeletion?: boolean
           <View style={styles.shareCopy}>
             <Text weight="bold">{tx('프로필 공유', 'Share profile')}</Text>
             <Text variant="caption" color={color.text.muted}>{tx('내 기록을 볼 수 있는 링크를 보내요', 'Send a link to your records')}</Text>
+            {shareNotice ? <Text testID="profile-share-notice" variant="caption" selectable color={color.text.muted}>{shareNotice}</Text> : null}
           </View>
           <Text variant="title" color={color.text.muted}>›</Text>
         </Pressable>

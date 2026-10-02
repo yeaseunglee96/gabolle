@@ -2,7 +2,7 @@
 // 옛 화면(app/(trip)/[id]/share.tsx)의 알맹이를 떼어 왔다. 여행 페이지는 이것을 «창» 안에 띄우고
 // (시안: 데스크톱 가운데 창 · 폰 아래 시트), 옛 주소는 로그인 뒤 돌아오기 등이 쓰므로 같은 것을 감싸서 남긴다.
 import { useState } from 'react';
-import { Pressable, Share as NativeShare, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { ApiClientError } from '@/api/client';
@@ -18,6 +18,7 @@ import { formatDateTime } from '@/i18n/datetime';
 import { txf } from '@/i18n/format';
 import { markChecklistStep } from '@/onboarding/firstRun';
 import { localizeMessage } from '@/i18n/messages';
+import { shareLink, type ShareOutcome } from '@/utils/shareLink';
 
 const ROLES: { value: CompanionRole; titleKo: string; titleEn: string; descriptionKo: string; descriptionEn: string }[] = [
   { value: 'EDITOR', titleKo: '함께 편집', titleEn: 'Edit together', descriptionKo: '일정의 장소와 순서를 같이 바꿀 수 있어요.', descriptionEn: 'Can change places and order in the itinerary together.' },
@@ -33,26 +34,38 @@ export function TripInvitePanel({ tripId, onNavigate }: { tripId: string; onNavi
   const [invite, setInvite] = useState<CompanionInvite | null>(null);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState('');
+  const [shareNotice, setShareNotice] = useState('');
 
   function go(path: Parameters<typeof router.push>[0]) {
     onNavigate?.();
     router.push(path);
   }
 
+  async function openShare(content: Parameters<typeof shareLink>[0]) {
+    setShareNotice('');
+    let outcome: ShareOutcome;
+    try { outcome = await shareLink(content); } catch { outcome = 'failed'; }
+    if (outcome === 'copied') setShareNotice(tx('링크를 복사했어요. 붙여넣어 공유하세요.', 'Link copied. Paste it to share.'));
+    else if (outcome === 'failed') setShareNotice(tx('링크를 복사하지 못했어요.', "Couldn't copy the link."));
+  }
+
   async function createInvite() {
     if (!accessToken || creating) return;
     setCreating(true);
     setError('');
+    let created: CompanionInvite;
     try {
-      const created = await createCompanionInvite(tripId, role, accessToken);
+      created = await createCompanionInvite(tripId, role, accessToken);
       setInvite(created);
       void markChecklistStep('invite');
-      await NativeShare.share({ title: tx('가볼래 부산 여행 초대', 'GABOLLE Busan trip invite'), message: txf(tx, '부산 여행 일정에 초대할게요.\n%s', 'You\'re invited to a Busan trip itinerary.\n%s', created.inviteUrl), url: created.inviteUrl });
     } catch (cause) {
       setError(cause instanceof ApiClientError ? cause.message : tx('초대 링크를 만들지 못했어요. 잠시 후 다시 시도해 주세요.', 'Could not create the invite link. Please try again shortly.'));
+      return;
     } finally {
       setCreating(false);
     }
+    // 링크는 이미 만들어졌다 — 공유 창을 닫거나 브라우저가 공유를 못 해도 「만들지 못했습니다」가 아니다(S15P21E201-1958).
+    await openShare({ title: tx('가볼래 부산 여행 초대', 'GABOLLE Busan trip invite'), message: txf(tx, '부산 여행 일정에 초대할게요.\n%s', 'You\'re invited to a Busan trip itinerary.\n%s', created.inviteUrl), url: created.inviteUrl });
   }
 
   return <View>
@@ -67,7 +80,7 @@ export function TripInvitePanel({ tripId, onNavigate }: { tripId: string; onNavi
       <Button label={tx('참여자 목록·역할 관리', 'Manage participants and roles')} variant="tertiary" onPress={() => go(`/${tripId}/collaborate`)} containerStyle={styles.manageButton} />
       <Button label={creating ? tx('초대 링크 만드는 중…', 'Creating invite link…') : txf(tx, '%s 초대 링크 만들기', 'Create %s invite link', role === 'EDITOR' ? tx('편집자', 'editor') : tx('열람자', 'viewer'))} disabled={creating} onPress={() => void createInvite()} />
       {error ? <View accessibilityRole="alert" style={styles.errorCard}><Text weight="bold" color={color.state.danger}>{tx('초대 링크를 만들지 못했습니다', 'Could not create the invite link')}</Text><Text color={color.text.body}>{localizeMessage(tx, error)}</Text><Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void createInvite()} /></View> : null}
-      {invite && <View accessibilityLiveRegion="polite" style={styles.successCard}><Text weight="bold" color={color.state.success}>{tx('초대 링크를 만들었어요', 'Invite link created')}</Text><Text selectable color={color.text.body}>{invite.inviteUrl}</Text><Text variant="caption" color={color.text.muted}>{txf(tx, '만료: %s', 'Expires: %s', formatDateTime(invite.expiresAt, locale))}</Text><Button label={tx('공유 창 다시 열기', 'Reopen share sheet')} variant="tertiary" onPress={() => void NativeShare.share({ message: invite.inviteUrl, url: invite.inviteUrl })} /></View>}
+      {invite && <View accessibilityLiveRegion="polite" style={styles.successCard}><Text weight="bold" color={color.state.success}>{tx('초대 링크를 만들었어요', 'Invite link created')}</Text><Text selectable color={color.text.body}>{invite.inviteUrl}</Text><Text variant="caption" color={color.text.muted}>{txf(tx, '만료: %s', 'Expires: %s', formatDateTime(invite.expiresAt, locale))}</Text><Button label={tx('공유 창 다시 열기', 'Reopen share sheet')} variant="tertiary" onPress={() => void openShare({ message: invite.inviteUrl, url: invite.inviteUrl })} />{shareNotice ? <Text testID="trip-invite-share-notice" variant="caption" color={color.text.muted}>{shareNotice}</Text> : null}</View>}
 
       <View style={styles.divider} />
 

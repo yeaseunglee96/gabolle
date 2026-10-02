@@ -1,5 +1,5 @@
 // 19 여행 기록·회고 — Figma 19_여행 기록·회고 실측 그대로.
-import { Share, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
@@ -8,6 +8,7 @@ import { Eyebrow } from '@/components/Eyebrow';
 import { Button } from '@/components/Button';
 import { SampleNotice } from '@/components/SampleNotice';
 import { useI18n } from '@/i18n';
+import { shareLink } from '@/utils/shareLink';
 
 const STATS = [
   { key: 'places', labelKo: '방문 장소', labelEn: 'Places visited', value: '8' },
@@ -26,7 +27,7 @@ export default function Log() {
 
   function share() {
     // 네트워크 호출 없이 OS 공유 시트만 띄운다(react-native 내장 Share, 새 의존성 아님).
-    Share.share({ message: tx('부산에서 보낸 2일 — 바다와 골목을 따라, 부산', '2 days in Busan — along the sea and the alleys') });
+    void shareLink({ message: tx('부산에서 보낸 2일 — 바다와 골목을 따라, 부산', '2 days in Busan — along the sea and the alleys') }).catch(() => undefined);
   }
 
   return (
