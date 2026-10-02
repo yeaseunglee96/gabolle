@@ -4,7 +4,7 @@ import { txf } from '@/i18n/format';
 import { localDateKey } from '@/plan/tripProgress';
 import { formatMonthDay } from '@/i18n/datetime';
 import { useEffect, useState } from 'react';
-import { Image, Share as NativeShare, StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { ApiClientError } from '@/api/client';
@@ -24,6 +24,7 @@ import { SelectTripFirst } from '@/trip/SelectTripFirst';
 import { loadTripItineraries, loadTrips } from '@/trip/trips';
 import { TripWeatherCard, weatherDateFor, weatherHeading } from '@/trip/TripWeatherPanel';
 import { localToday } from '@/plan/tripBasics';
+import { shareLink, type ShareOutcome } from '@/utils/shareLink';
 
 // 🔴 한국어면 손으로, 그 밖이면 «무조건 en-US» 였다 (S15P21E201-1355).
 //    이제는 고른 언어에 맞는 꼴로 운영체제가 만든다.
@@ -76,19 +77,27 @@ function TripSummaryCard({ tripId, title, visitCount, photoUrl }: { tripId: stri
   const { accessToken } = useAuth();
   const [sharing, setSharing] = useState(false);
   const [shareError, setShareError] = useState('');
+  const [shareNotice, setShareNotice] = useState('');
 
   async function share() {
     if (!accessToken || sharing) return;
     setSharing(true);
     setShareError('');
+    setShareNotice('');
+    let shareUrl: string;
     try {
-      const issued = await issueShareLink(tripId, accessToken);
-      await NativeShare.share({ title, message: txf(tx, '%s 일정을 공유해요.\n%s', 'Sharing my %s itinerary.\n%s', title, issued.shareUrl), url: issued.shareUrl });
+      shareUrl = (await issueShareLink(tripId, accessToken)).shareUrl;
     } catch (cause) {
       setShareError(cause instanceof ApiClientError ? cause.message : tx('공유 링크를 만들지 못했어요. 잠시 후 다시 시도해 주세요.', 'Could not create the share link. Please try again shortly.'));
-    } finally {
       setSharing(false);
+      return;
     }
+    // 링크는 만들어졌다 — 웹에서 공유 창을 닫거나 브라우저가 공유를 못 해도 「만들지 못했어요」가 아니다(S15P21E201-1958).
+    let outcome: ShareOutcome;
+    try { outcome = await shareLink({ title, message: txf(tx, '%s 일정을 공유해요.\n%s', 'Sharing my %s itinerary.\n%s', title, shareUrl), url: shareUrl }); } catch { outcome = 'failed'; }
+    if (outcome === 'copied') setShareNotice(tx('링크를 복사했어요. 붙여넣어 공유하세요.', 'Link copied. Paste it to share.'));
+    else if (outcome === 'failed') setShareNotice(shareUrl);
+    setSharing(false);
   }
 
   return (
@@ -101,6 +110,7 @@ function TripSummaryCard({ tripId, title, visitCount, photoUrl }: { tripId: stri
       </View>
       <Button label={sharing ? tx('공유 링크 만드는 중…', 'Creating share link…') : tx('여행 공유하기', 'Share this trip')} variant="tertiary" disabled={sharing} onPress={() => void share()} />
       {shareError ? <Text variant="caption" color={color.state.danger}>{shareError}</Text> : null}
+      {shareNotice ? <Text testID="trip-summary-share-notice" variant="caption" selectable color={color.text.muted}>{shareNotice}</Text> : null}
     </View>
   );
 }
