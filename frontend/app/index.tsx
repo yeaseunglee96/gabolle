@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { AccessibilityInfo, Animated, Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { useVideoPlayer, VideoView } from 'expo-video';
@@ -20,7 +20,7 @@ import { useHomeData } from '@/home/useHomeData';
 import { AssistantBackdrop, AssistantMenu, assistantSubtitle } from '@/home/AssistantMenu';
 import { useSavedPlaces } from '@/home/useSavedPlaces';
 import { WebFooter } from '@/home/WebFooter';
-import { shouldShowStickySearch, StickySearchPill } from '@/home/StickySearchPill';
+import { collapseProgress, searchCollapse, setSearchHandle } from '@/home/stickySearchStore';
 import { color, desktopGutter, radius, spacing } from '@/design/tokens';
 import { LANGUAGE_OPTIONS } from '@/i18n/languages';
 import { FLAG_IMAGES, WelcomeLanguageSheet } from '@/onboarding/WelcomeLanguageSheet';
@@ -74,10 +74,21 @@ export default function Welcome() {
   const [headerY, setHeaderY] = useState<number | null>(null);
   const [barBottom, setBarBottom] = useState<number | null>(null);
   const searchBottom = headerY !== null && barBottom !== null ? headerY + HEADER_PADDING_TOP + barBottom : null;
-  const [stickySearch, setStickySearch] = useState(false);
+  // 스크롤에 맞춰 큰 검색창이 줄어들고 위쪽 메뉴 알약이 커진다 — 둘이 같은 진행도(searchCollapse)를 본다.
   // 창 크기가 바뀌어 검색창 자리가 다시 재지면 스크롤을 기다리지 않고 다시 판정한다(AI 리뷰 !1980)
+  const [reduceMotion, setReduceMotion] = useState(false);
   const lastScrollY = useRef(0);
-  useEffect(() => { setStickySearch(shouldShowStickySearch(lastScrollY.current, searchBottom)); }, [searchBottom]);
+  const applyCollapse = (scrollY: number) => {
+    const raw = collapseProgress(scrollY, searchBottom);
+    // 동작 줄이기면 중간 없이 — 반을 넘으면 바로 바꾼다
+    const progress = reduceMotion ? (raw >= 0.5 ? 1 : 0) : raw;
+    searchCollapse.setValue(progress);
+    setSearchHandle({ active: true, collapsed: progress >= 0.5, open: openSearchFromNav });
+  };
+  const openSearchFromNav = useRef(() => webScrollRef.current?.scrollTo({ y: 0, animated: true })).current;
+  useEffect(() => { applyCollapse(lastScrollY.current); }, [searchBottom, reduceMotion]); // eslint-disable-line react-hooks/exhaustive-deps
+  // 홈을 떠나면 위쪽 메뉴를 원래대로 — 다른 화면에서 알약이 남지 않게
+  useEffect(() => () => { searchCollapse.setValue(0); setSearchHandle({ active: false, collapsed: false, open: null }); }, []);
   const onToggleLike = (placeId: string) => {
     // 로그인 안 한 사람도 기기에 저장된다 — 로그인으로 밀어내지 않는다.
     saved.toggle(placeId);
@@ -92,7 +103,6 @@ export default function Welcome() {
   };
   const [languageSheetOpen, setLanguageSheetOpen] = useState(false);
   // 동작 줄이기(OS 접근성 설정)가 켜져 있으면 영상을 안 돌린다 — 움직이는 배경이 곧 그 설정이 막으려는 것이다.
-  const [reduceMotion, setReduceMotion] = useState(false);
   useEffect(() => {
     let alive = true;
     void AccessibilityInfo.isReduceMotionEnabled().then((enabled) => { if (alive) setReduceMotion(enabled); }).catch(() => {});
@@ -208,7 +218,7 @@ export default function Welcome() {
     </View>;
   }
 
-  return <View style={styles.webShell}><ScrollView ref={webScrollRef} style={styles.webScreen} contentContainerStyle={styles.webContent} scrollEventThrottle={32} onScroll={(event) => { lastScrollY.current = event.nativeEvent.contentOffset.y; const next = shouldShowStickySearch(lastScrollY.current, searchBottom); if (next !== stickySearch) setStickySearch(next); }}>
+  return <View style={styles.webShell}><ScrollView ref={webScrollRef} style={styles.webScreen} contentContainerStyle={styles.webContent} scrollEventThrottle={32} onScroll={(event) => { lastScrollY.current = event.nativeEvent.contentOffset.y; applyCollapse(lastScrollY.current); }}>
     <StatusBar style="dark" />
     {/* 상단 바는 이 파일에 없다. 앱 뼈대(app/_layout.tsx)가 모든 화면에 한 번만 붙인다
          전에는 이 파일 안에 내비가 하나 더 박혀 있어서 내비가 두 벌이었고
@@ -230,9 +240,10 @@ export default function Welcome() {
             보고 찾았다. 타입도 시험도 안 잡는다. 프로필 카드에서도 같은 일이 났었다. */}
         <Text variant="hero" weight="bold" color={color.text.heading} style={styles.headerTitle}>{tx('부산의 모든 여행, 가볼래?', 'Every side of Busan, yours to explore.')}</Text>
         <Text variant="body" color={color.text.muted} style={styles.headerSubtitle}>{tx('언제, 누구와, 어떻게 다닐지만 알려주세요. 일정은 가볼래가 짜요.', 'Just tell us when, with whom and how you travel — we build the itinerary.')}</Text>
-        <View style={styles.startBar} onLayout={(event) => setBarBottom(event.nativeEvent.layout.y + event.nativeEvent.layout.height)}>
+        {/* 큰 검색창 — 내리면 작아지며 흐려진다. 같은 만큼 위쪽 메뉴 알약이 커지며 나타나 「검색창이 위로 접혀 올라간」 것처럼 보인다 */}
+        <Animated.View style={[styles.startBar, { opacity: searchCollapse.interpolate({ inputRange: [0, 0.85, 1], outputRange: [1, 0.15, 0] }), transform: [{ scale: searchCollapse.interpolate({ inputRange: [0, 1], outputRange: [1, 0.72] }) }, { translateY: searchCollapse.interpolate({ inputRange: [0, 1], outputRange: [0, -24] }) }] }]} onLayout={(event) => setBarBottom(event.nativeEvent.layout.y + event.nativeEvent.layout.height)}>
           <PlanStartBar wide accessToken={accessToken} onSubmit={startPlanFromBar} initialSection={editSection} initialValue={editSection ? startBarFromDraft(planDraft) : undefined} />
-        </View>
+        </Animated.View>
         {/* 🔴 이 자리에 있던 것 둘이 지금은 없다. 왜 없는지를 남긴다 —
             안 적어 두면 다음 사람이 「빠뜨렸나」 하고 다시 넣는다.
 
@@ -272,7 +283,6 @@ export default function Welcome() {
     {/* 맨 아래 안내 — 앱 받기·메뉴·출처(S15P21E201-1930). 전에는 내 여행 카드에서 페이지가 그냥 끝났다. */}
     <WebFooter />
   </ScrollView>
-    <StickySearchPill visible={stickySearch} reduceMotion={reduceMotion} onPress={() => webScrollRef.current?.scrollTo({ y: 0, animated: !reduceMotion })} />
     {/* 판이 먼저다 — 메뉴와 단추보다 아래에 깔려야 그 둘은 그대로 눌린다. */}
     <AssistantBackdrop open={assistantOpen} onClose={() => setAssistantOpen(false)} />
     <View style={styles.webAssistantAnchor}>
