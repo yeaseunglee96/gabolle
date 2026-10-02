@@ -1,6 +1,8 @@
 import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 
+import { proxyPublicPhotos } from './publicPhotoProxy';
+
 export const API_BASE_URL = (process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:8080').replace(/\/$/, '');
 // 서버가 초대 응답에 주는 건 token·acceptPath(서버 API 경로)뿐이다 — 앱 화면 주소는 앱이
 // 스스로 조립해야 한다(TripInviteResponse·StoryInviteResponse 공통 계약). oauth.ts의
@@ -498,5 +500,6 @@ async function performRequest<T>(path: string, options: RequestOptions, isRetry:
       envelope.data,
     );
   }
-  return envelope.data;
+  // 안드로이드가 못 받는 공공 사진 주소를 서버 프록시 주소로 바꾼다(S15P21E201-1955).
+  return proxyPublicPhotos(envelope.data, API_BASE_URL);
 }
