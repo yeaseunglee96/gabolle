@@ -172,7 +172,7 @@ export function TopNav() {
             pointerEvents={search.collapsed ? 'box-none' : 'none'}
             accessibilityElementsHidden={!search.collapsed}
             importantForAccessibility={search.collapsed ? 'auto' : 'no-hide-descendants'}
-            style={[styles.pillSlot, {
+            style={[styles.pillSlot, width < 1100 && styles.pillSlotNarrow, {
               opacity: searchCollapse.interpolate({ inputRange: [0.4, 1], outputRange: [0, 1], extrapolate: 'clamp' }),
               // 처음엔 크게(큰 검색창에서 줄어든 것처럼) 아래에서, 다 접히면 제자리 크기로
               transform: [{ scale: searchCollapse.interpolate({ inputRange: [0, 1], outputRange: [1.12, 1] }) }, { translateY: searchCollapse.interpolate({ inputRange: [0, 1], outputRange: [6, 0] }) }],
@@ -231,6 +231,9 @@ const styles = StyleSheet.create({
   // 가운데 칸과 알약이 같은 자리를 나눠 쓴다 — 알약은 그 위에 겹쳐 가운데에 선다(폭이 칸보다 넓어도 가운데 기준)
   centerSlot: { alignItems: 'center', justifyContent: 'center' },
   pillSlot: { position: 'absolute', top: 0, bottom: 0, left: -240, right: -240, alignItems: 'center', justifyContent: 'center' },
+  // 🔴 좁으면 양옆으로 덜 넓힌다 — 768 폭에서 이 칸(보이지 않아도 자리는 차지한다)이 화면 오른쪽 끝을 넘어 페이지에
+  //    가로 스크롤이 9~48px 생겼다(2026-10-02 전체 점검, 세로 아이패드 미니). 좁을 때의 알약은 「인원」이 빠져 메뉴 폭 안팎이다.
+  pillSlotNarrow: { left: -80, right: -80 },
   capsuleItem: { height: CTA_HEIGHT, paddingHorizontal: spacing[4] + spacing[1], borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' },
 
   // 날씨와 CTA 를 한 덩어리로 묶는다. 2층이 space-between 이라 이 덩어리가 오른쪽 끝을 잡는다.

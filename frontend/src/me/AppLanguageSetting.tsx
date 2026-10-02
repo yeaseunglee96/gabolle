@@ -44,7 +44,9 @@ export function AppLanguageSetting() {
 const styles = StyleSheet.create({
   section: { padding: spacing[4], gap: spacing[3] },
   options: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
-  option: { minHeight: 48, paddingHorizontal: spacing[4], paddingVertical: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.soft, alignItems: 'center', justifyContent: 'center' },
+  // 🔴 다섯 칸을 3 + 2 로 고르게 채운다 — 글자 길이만큼만 차지하면 폭에 따라 「繁體中文」 하나만 다음 줄에 혼자
+  //    떨어졌다(2026-10-02 서피스 프로 세로 실측). 줄마다 남은 폭은 칸들이 나눠 갖는다.
+  option: { flexGrow: 1, flexBasis: '30%', minHeight: 48, paddingHorizontal: spacing[4], paddingVertical: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.soft, alignItems: 'center', justifyContent: 'center' },
   selected: { backgroundColor: color.brand.navy },
   disabled: { opacity: 0.58 },
 });
