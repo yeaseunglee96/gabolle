@@ -15,6 +15,7 @@ import * as reanimated from 'react-native-reanimated';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 
 import { OnboardingPreferencesProvider } from '@/onboarding/OnboardingPreferences';
+import { radius } from '@/design/tokens';
 import { TripPageMobile } from '@/trip/page/TripPageMobile';
 
 const mapProps: Array<{ height?: number; bottomInset?: number; topInset?: number; refitKey?: string | number | null }> = [];
@@ -88,6 +89,14 @@ describe('폰 여행 화면의 일정 창', () => {
     expect(coveredOpen).toBeGreaterThan(mapProps[mapProps.length - 1].bottomInset ?? 0);
     fireEvent.press(screen.getByLabelText('일정 펼치기'));
     expect(mapProps[mapProps.length - 1].height).toBe(opened);
+  });
+
+  it('🔴 지도 아래쪽이 화면 밖으로 밀린 만큼도 가렸다고 알린다 — − 단추가 창 윗변에 깔리지 않게(S15P21E201-1962)', () => {
+    // 지도는 둥근 모서리를 숨기려 위·아래로 radius.lg 씩 화면 밖에 있다. 창 윗변(시험 화면에서 190) 위로 드러난 지도 =
+    // 지도 높이 − 아래 가림 − 위로 밀린 radius.lg. 아래로 밀린 radius.lg 를 빼먹으면 단추가 그만큼 낮아 창에 깔린다.
+    mount();
+    const last = mapProps[mapProps.length - 1];
+    expect((last.height ?? 0) - (last.bottomInset ?? 0) - radius.lg).toBe(190);
   });
 
   it('🔴 «지도 보기»로 접을 때만 지도를 다시 맞춘다 — 창을 열 때는 안 맞춘다(S15P21E201-1754)', () => {
