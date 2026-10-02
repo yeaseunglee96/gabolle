@@ -7,11 +7,25 @@ import type { LanguageCode } from '@/i18n/languages';
 /** 키는 앱의 언어 코드. 없는 언어는 빠져 온다. */
 export type LocalNames = Partial<Record<'ja' | 'zh-Hans' | 'zh-Hant', string>>;
 
-/** 이 언어의 번역 이름 — 한국어·영어 화면이거나 없으면 null. */
+/**
+ * 그 언어에 번역 이름이 없을 때 대신 쓸 언어 — 같은 한자를 읽는 쪽으로만(S15P21E201-1945).
+ * 관광공사 번역은 언어마다 136~162곳이라 서로 비는 곳이 다르다 — 일본어 자료에는 광안리해수욕장이 없고 번체에는 있다.
+ * 일본어 ← 번체(「廣安里海水浴場」은 일본어로도 읽힌다. 간체 「广安里」는 일본어로 못 읽어 쓰지 않는다), 간체 ↔ 번체.
+ */
+const FALLBACK: Record<'ja' | 'zh-Hans' | 'zh-Hant', Array<'ja' | 'zh-Hans' | 'zh-Hant'>> = {
+  ja: ['ja', 'zh-Hant'],
+  'zh-Hans': ['zh-Hans', 'zh-Hant'],
+  'zh-Hant': ['zh-Hant', 'zh-Hans'],
+};
+
+/** 이 언어의 번역 이름 — 없으면 같은 한자를 읽는 언어의 이름. 한국어·영어 화면이거나 아무것도 없으면 null. */
 export function localNameFor(localNames: LocalNames | null | undefined, language: LanguageCode): string | null {
   if (language !== 'ja' && language !== 'zh-Hans' && language !== 'zh-Hant') return null;
-  const name = localNames?.[language]?.trim();
-  return name || null;
+  for (const each of FALLBACK[language]) {
+    const name = localNames?.[each]?.trim();
+    if (name) return name;
+  }
+  return null;
 }
 
 /**

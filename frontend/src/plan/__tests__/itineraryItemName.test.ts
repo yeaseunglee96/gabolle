@@ -11,8 +11,8 @@ describe('itemOtherName', () => {
     expect(stopNameForLanguage('파스쿠치 광안리점', itemOtherName(item, null, 'ja'), 'ja')).toBe('パスクチ 広安里店 (파스쿠치 광안리점)');
   });
 
-  it('번역 이름이 없는 언어는 영어 이름으로 물러선다', () => {
-    expect(itemOtherName(item, null, 'zh-Hant')).toBe('Paskucci Gwangalli');
+  it('번역 이름이 없으면 같은 한자를 읽는 언어로(번체 ← 간체, S15P21E201-1945), 영어 화면은 영어', () => {
+    expect(itemOtherName(item, null, 'zh-Hant')).toBe('帕斯库奇 广安里店');
     expect(itemOtherName(item, null, 'en')).toBe('Paskucci Gwangalli');
   });
 

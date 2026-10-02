@@ -20,7 +20,7 @@ export type LocalAddresses = Partial<Record<'ja' | 'zh-Hans' | 'zh-Hant', string
 type GuName = { en: string; ja: string; zhHans: string; zhHant: string };
 
 // 부산의 구·군 — 영문은 로마자 표기법(도로명주소 영문 표기와 같다), 한자는 관광공사 일문·중문 주소에 쓰인 표기.
-const BUSAN_GU: Record<string, GuName> = {
+export const BUSAN_GU: Readonly<Record<string, GuName>> = {
   중구: { en: 'Jung-gu', ja: '中区', zhHans: '中区', zhHant: '中區' },
   서구: { en: 'Seo-gu', ja: '西区', zhHans: '西区', zhHant: '西區' },
   동구: { en: 'Dong-gu', ja: '東区', zhHans: '东区', zhHant: '東區' },
