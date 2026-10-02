@@ -229,7 +229,9 @@ public class AccountDeletionService {
 			//    때마다, 계정이 없어진 뒤에도.
 			new OwnedRows("PushTokenJpaEntity", "userId"),
 			// 여행 별점 (S15P21E201-1908). 남의 여행에 매긴 별점은 여행이 남으므로 CASCADE 로 안 지워진다.
-			new OwnedRows("TripRatingJpaEntity", "id.userId"));
+			new OwnedRows("TripRatingJpaEntity", "id.userId"),
+			// 여행 돈 (S15P21E201-1935) — 이 사람이 «적은» 줄. 남이 적은 줄의 낸 사람 칸은 남는다(동행의 장부가 통째로 비면 안 된다).
+			new OwnedRows("TripExpenseJpaEntity", "createdBy"));
 
 	/**
 	 * 지울 표 하나 — 엔티티 이름과 그 사람을 가리키는 칸.
