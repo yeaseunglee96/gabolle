@@ -9,10 +9,10 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
-import { Screen } from '@/components/Screen';
+import { MAX_CONTENT_WIDTH, Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { Toggle } from '@/components/Toggle';
-import { color, radius, spacing } from '@/design/tokens';
+import { color, gutter, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { txf } from '@/i18n/format';
 import { localizeMessage } from '@/i18n/messages';
@@ -189,8 +189,10 @@ function TripMoneyForTrip({ tripId }: { tripId: string }) {
       <Text variant="caption" color={color.text.muted} style={styles.foot}>{tx('원화로 적어요. 외화로 냈으면 환율 도구로 바꿔 적어 주세요.\n동행에게도 같은 내역이 보여요.', 'Amounts are in won. If you paid in another currency, convert it with the exchange tool first.\nYour companions see the same list.')}</Text>
     </Screen>
 
-    <View style={styles.dock}>
-      <Button label={tx('쓴 돈 적기', 'Add an expense')} onPress={() => setAdding(true)} testID="money-add" />
+    <View style={styles.dock} pointerEvents="box-none">
+      <View style={styles.dockInner}>
+        <Button label={tx('쓴 돈 적기', 'Add an expense')} onPress={() => setAdding(true)} testID="money-add" />
+      </View>
     </View>
 
     <AddExpenseSheet visible={adding} planPlaces={planPlaces} placeLabel={(place) => stopNameForLanguage(place.title, place.nameEn, language)} members={members} meId={me?.userId ?? null} nameOf={nameOf} tx={tx}
@@ -348,8 +350,9 @@ const styles = StyleSheet.create({
   bar: { height: 10, borderRadius: radius.full, backgroundColor: color.surface.tint, overflow: 'hidden' },
   barFill: { height: '100%', borderRadius: radius.full, backgroundColor: color.action.secondary },
   barOver: { backgroundColor: color.state.dot },
-  categories: { gap: spacing[2], paddingBottom: spacing[3] },
-  categoryChip: { minWidth: 84, gap: 2, paddingVertical: spacing[2], paddingHorizontal: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card },
+  // 갈래 칸은 줄을 고르게 채운다 — 글자 폭만큼이면 넓은 화면에서 왼쪽에 몰리고 오른쪽이 비었다. 많으면 옆으로 민다
+  categories: { flexGrow: 1, gap: spacing[2], paddingBottom: spacing[3] },
+  categoryChip: { flexGrow: 1, minWidth: 84, gap: 2, paddingVertical: spacing[2], paddingHorizontal: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card },
   settle: { gap: spacing[1], padding: spacing[4], marginBottom: spacing[3], borderRadius: radius.lg, backgroundColor: color.action.secondary },
   day: { gap: spacing[2], marginBottom: spacing[4] },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], padding: spacing[3], borderRadius: radius.lg, backgroundColor: color.surface.card },
@@ -359,7 +362,10 @@ const styles = StyleSheet.create({
   deleteConfirm: { backgroundColor: color.state.dangerBg },
   // 아래 「쓴 돈 적기」 단추(56 + 바닥 16)에 마지막 안내가 깔리지 않게 — 일본어는 세 줄이 된다
   foot: { marginTop: spacing[2], marginBottom: spacing[8] * 3, lineHeight: 18 },
-  dock: { position: 'absolute', left: spacing[4], right: spacing[4], bottom: spacing[4] },
+  // 🔴 단추는 본문 칸 폭(Screen 의 720 − 좌우 여백)을 넘지 않는다 — 넓은 화면에서 창 끝에서 끝까지 늘어나 본문(가운데 한 줄)과
+  //    어긋났다(2026-10-02 1440 점검). 양옆도 본문과 같은 여백(gutter) — 폰에서 단추만 카드보다 넓었다.
+  dock: { position: 'absolute', left: 0, right: 0, bottom: spacing[4], alignItems: 'center', paddingHorizontal: gutter },
+  dockInner: { width: '100%', maxWidth: MAX_CONTENT_WIDTH - gutter * 2 },
   backdrop: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(25,25,25,0.45)' },
   backdropCenter: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: spacing[6], backgroundColor: 'rgba(25,25,25,0.45)' },
   sheet: { width: '100%', maxWidth: 640, alignSelf: 'center', gap: spacing[3], padding: spacing[6], borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg, backgroundColor: color.surface.card },
