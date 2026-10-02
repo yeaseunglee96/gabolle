@@ -18,6 +18,7 @@ import { loadItinerary, loadItineraryPace, type ItineraryDto, type ItineraryItem
 import { summarizeItineraryBudget } from '@/plan/itineraryBudget';
 import { totalTravelMinutes } from '@/plan/itinerarySummary';
 import { loadPlacePhotos, type PlacePhoto } from '@/plan/placePhotos';
+import { initialDayIndex } from '@/trip/openDay';
 import { useOptionalPlanDraft } from '@/plan/PlanProvider';
 import { canConfirmCourse, ensureCourseItinerary, type TripCourse } from '@/plan/tripCourses';
 import { loadTripBudget } from '@/trip/tripBudget';
@@ -116,7 +117,15 @@ export function useTripPage(source: TripPageSource) {
 
   const loaded = itinerary?.value ?? null;
   // 다른 여행을 열면 1일차부터 본다.
-  useEffect(() => { setDayIndex(0); }, [sourceKey]);
+  useEffect(() => { setDayIndex(0); openedDayFor.current = null; }, [sourceKey]);
+  // 🔴 여행 중이면 오늘 칸을 연다(S15P21E201-1941) — 셋째 날에 열어도 1일차가 보였다. 여행마다 처음 한 번만.
+  //    그 뒤 사람이 고른 날·코스를 바꿔도 다시 끌어오지 않는다.
+  const openedDayFor = useRef<string | null>(null);
+  useEffect(() => {
+    if (!loaded || openedDayFor.current === sourceKey) return;
+    openedDayFor.current = sourceKey;
+    setDayIndex(initialDayIndex(loaded.days, undefined));
+  }, [loaded, sourceKey]);
   // 🔴 코스(A/B/C)만 바꿀 때는 보던 날을 그대로 둔다 (S15P21E201-1813) — 2일차를 보다 코스를 바꿨는데
   //    1일차로 튀면 「같은 날을 비교」할 수 없다. 새 코스가 더 짧으면 마지막 날로 맞춘다.
   const dayCount = loaded?.days.length ?? 0;
