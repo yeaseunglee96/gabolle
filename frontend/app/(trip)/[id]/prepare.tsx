@@ -15,7 +15,6 @@ import { Eyebrow } from '@/components/Eyebrow';
 import { Button } from '@/components/Button';
 import { useAuth } from '@/auth/AuthProvider';
 import { useI18n } from '@/i18n';
-import { DialectFlashcards } from '@/discovery/DialectFlashcards';
 import { RouteMap } from '@/map/RouteMap';
 import type { MapStop } from '@/map/types';
 import { loadItinerary } from '@/plan/itinerary';
@@ -33,7 +32,7 @@ function formatDepartureDate(value: string, locale: string) {
 }
 
 // 🔴 「가볼래가 챙긴 준비물」은 뺐다(S15P21E201-1422) — 고정 샘플(우산·신발·카드 사본, 「오후 비 예보」)이라 진짜가 아니었고,
-//    같은 화면의 날씨(진짜)까지 가짜로 보이게 했다. 사투리 카드는 src/discovery/DialectFlashcards.tsx 로 갔고 여기서도 그대로 쓴다.
+//    같은 화면의 날씨(진짜)까지 가짜로 보이게 했다. 사투리 카드는 src/discovery/DialectFlashcards.tsx 로 갔다(이 화면에서는 2026-10-02 에 뺐다 — 아래 주석).
 
 // — 여행 종료일이 지나면 이 탭에 추억 지도 카드를 띄운다. 계획한 경로가
 // 아니라 실제로 쓴 기록(story)의 장소를 방문 순서(created_at)대로 이어 그린다 — 서버가
@@ -205,7 +204,8 @@ function PrepareForTrip({ tripId }: { tripId: string }) {
           0곳이라 눌러도 항상 빈 목록만 나온다. /{tripId}/souvenirs 라우트는 그대로 있다.
       */}
 
-      <View style={styles.dialectSection}><DialectFlashcards /></View>
+      {/* 🔴 사투리 카드를 뺐다 — 날씨·준비물을 보러 온 화면에 「부산 사투리」가 같이 떠서 헷갈렸다(사용자 지적 2026-10-02).
+          사투리는 현장 도구(/field/dialect)와 동백이 메뉴에 그대로 있다. */}
     </Screen>
   );
 }
@@ -253,8 +253,5 @@ const styles = StyleSheet.create({
   },
   prepTitle: {
     marginBottom: spacing[2],
-  },
-  dialectSection: {
-    marginTop: spacing[4],
   },
 });

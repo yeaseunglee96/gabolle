@@ -7,6 +7,8 @@ import { txf } from '@/i18n/format';
 import type { StoryPlaceSnapshot } from '@/social/regionSearch';
 import { decodeHtmlText } from '@/social/htmlText';
 import { localNameFor, type LocalNames } from '@/discovery/localNames';
+import { romanizeKorean } from '@/discovery/romanize';
+import { resolveTextLanguage } from '@/i18n/languages';
 import type { LocalAddresses } from '@/discovery/localAddress';
 import type { LanguageCode } from '@/i18n/languages';
 
@@ -197,7 +199,14 @@ export async function deleteStory(id: string, accessToken: string | null): Promi
  *    한국어는 그대로, 영어는 nameEn, 일본어·중국어는 관광공사 번역 이름(localNames, S15P21E201-1859) → 앱 번역표 → nameEn → 한국어.
  */
 export function storyPlaceName(place: { name: string; nameEn?: string | null; localNames?: LocalNames }, tx: (ko: string, en: string) => string, language: LanguageCode): string {
-  return localNameFor(place.localNames, language) ?? tx(place.name, place.nameEn?.trim() || place.name);
+  const shown = localNameFor(place.localNames, language) ?? tx(place.name, place.nameEn?.trim() || place.name);
+  // 🔴 번역도 영어 이름도 없으면 외국어 화면에 한국어만 떴다 — 피드의 「포토오브제 서면점」(사용자 지적 2026-10-02).
+  //    그때는 간판과 같은 한글에 읽는 법을 붙인다(일정 카드의 stopNameForLanguage 와 같은 규칙).
+  if (shown === place.name && resolveTextLanguage(language) !== 'ko') {
+    const reading = romanizeKorean(place.name);
+    if (reading) return `${place.name} (${reading})`;
+  }
+  return shown;
 }
 
 export function relativeStoryTime(iso: string, tx: (ko: string, en: string) => string) {

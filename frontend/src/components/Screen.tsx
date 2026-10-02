@@ -44,13 +44,16 @@ type ScreenProps = {
 };
 
 export function Screen({ children, scroll = false, wide = false, withTabBar = false, style, scrollRef, floatingDockHeight = 0 }: ScreenProps) {
-  const { kind } = useLayout();
+  const { kind, width } = useLayout();
   const insets = useSafeAreaInsets();
 
   // 하단만 SafeAreaView 에 안 맡기고 내용 여백으로 처리한다.
   const contentStyle = [
     styles.content,
     kind === 'tablet' && (wide ? styles.tabletWide : styles.tablet),
+    // 🔴 세로로 든 태블릿·펼친 폴드(폭 600 이상인데 폰 판)도 가운데로 묶는다 — 안 묶으면 폰 화면이 800~900 폭
+    //    끝까지 늘어나 달력 칸·단추가 휑하게 벌어졌다(반응형 점검 2026-10-02). 데스크톱 판과 같은 720.
+    kind === 'phone' && !wide && width >= 600 && styles.tablet,
     style,
     // 🔴 떠 있는 단추 줄이 있으면 목록 끝만 비워서는 모자란다 — 첫 화면(스크롤 전)에서 단추가 첫 카드의
     //    좋아요·인용 줄 위에 그대로 앉는다(S15P21E201-1872 실기). 그래서 스크롤 창 자체를 단추 위에서 끝낸다.

@@ -178,9 +178,13 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
       {/* 바깥을 눌러 닫되 단추 역할을 주지 않는다. 단추 안에 단추가 들어가면
           웹에서 잘못된 마크업이 된다. 읽어 주는 이름은 안쪽 ✕ 가 갖는다.
       */}
-      <Pressable onPress={() => onClose('DISMISSED')} style={[styles.backdrop, phone && styles.backdropPhone]}>
-        {/* 안쪽 누름이 바깥으로 안 새게 한다 — 고르다가 모달이 닫히면 답이 통째로 날아간다. */}
-        <Animated.View onStartShouldSetResponder={() => true} style={[styles.sheet, phone ? styles.sheetPhone : styles.sheetWide, phone && { transform: [{ translateY: dragY }] }]}>
+      {/* 🔴 바깥 누름 판은 시트의 «부모»가 아니라 뒤에 깐 «형제»다(사용자 지적 2026-10-02 — 「내리는 게 뻑뻑하다」).
+          전에는 시트를 바깥 판 안에 두고, 안쪽 누름이 바깥으로 새지 않게 시트가 손가락이 닿자마자 터치를 가져갔다
+          (onStartShouldSetResponder). 그러면 안쪽 목록이 스크롤하려면 시트에게서 터치를 빼앗아 와야 해서, 끌기
+          첫머리가 먹히고 뻑뻑했다. 형제로 두면 시트 안 누름은 처음부터 바깥 판에 안 간다 — 가로챌 것이 없다. */}
+      <View style={[styles.backdrop, phone && styles.backdropPhone]}>
+        <Pressable onPress={() => onClose('DISMISSED')} style={StyleSheet.absoluteFill} />
+        <Animated.View style={[styles.sheet, phone ? styles.sheetPhone : styles.sheetWide, phone && { transform: [{ translateY: dragY }] }]}>
           <View testID="conditions-sheet-grab" {...(phone ? dragHandlers : {})}>
           {phone ? (
             <View testID="conditions-sheet-handle" style={styles.handleWrap} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
@@ -296,7 +300,7 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
             />
           </View>
         </Animated.View>
-      </Pressable>
+      </View>
     </Modal>
   );
 }

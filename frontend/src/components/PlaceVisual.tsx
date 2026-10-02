@@ -94,7 +94,8 @@ const styles = StyleSheet.create({
   frame: { position: 'relative', width: '100%', aspectRatio: 4 / 3, overflow: 'hidden', borderRadius: radius.md, backgroundColor: color.surface.soft },
   image: { width: '100%', height: '100%' },
   fallback: { flex: 1, overflow: 'hidden', backgroundColor: '#dceff2' },
-  sun: { position: 'absolute', top: spacing[3], right: spacing[3], width: 28, height: 28, borderRadius: radius.full, backgroundColor: '#ffd391' },
+  // 해는 오른쪽 위 모서리를 비운다 — 그 자리에 하트(저장) 버튼이 얹혀, 해가 하트 뒤의 동그라미로 보였다(사용자 지적 2026-10-02)
+  sun: { position: 'absolute', top: spacing[3], right: 56, width: 28, height: 28, borderRadius: radius.full, backgroundColor: '#ffd391' },
   waveBack: { position: 'absolute', left: -24, right: -24, bottom: -28, height: '58%', borderRadius: radius.full, backgroundColor: '#8fcbd3', transform: [{ rotate: '-4deg' }] },
   waveFront: { position: 'absolute', left: -32, right: -20, bottom: -48, height: '58%', borderRadius: radius.full, backgroundColor: '#4da8b5', transform: [{ rotate: '5deg' }] },
   pin: { position: 'absolute', top: '27%', left: '44%', width: 30, height: 30, borderRadius: radius.full, borderBottomRightRadius: radius.sm, alignItems: 'center', justifyContent: 'center', backgroundColor: color.action.secondary, transform: [{ rotate: '45deg' }] },

@@ -25,9 +25,11 @@ const SPECIAL_CHARACTER_PATTERN = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?`~]/;
 
 const PANEL_LABELS = [['이메일', 'Email'], ['비밀번호', 'Password'], ['이름·언어', 'Name · Language'], ['약관 동의', 'Agreements']] as const;
 
-// 넓은 화면 왼쪽 판 — 부산 야경 (S15P21E201-1518 시안 6번). 글자는 사진 윗부분 검은 하늘에
-// 얹히므로 어둡게 덮는 막 없이도 읽힌다. 원본은 6192×4128·18MB 라 긴 변 2000 으로 줄여 넣었다.
-const introPhoto = require('../../assets/home/busan-night.jpg');
+// 넓은 화면 왼쪽 판 — 광안대교 야경 (S15P21E201-1518 시안 6번). 글자는 사진 윗부분 검은 하늘에
+// 얹히므로 어둡게 덮는 막 없이도 읽힌다.
+// 🔴 전에는 황령산 전망대 야경(busan-night.jpg)이었는데 아래쪽 절반에 모르는 두 사람의 뒷모습이 크게 찍혀 있었다
+//    (사용자 지적 2026-10-02) — 남의 모습을 가입 화면 얼굴로 쓰지 않는다. 사람이 없는 앱 안의 사진으로 바꾼다.
+const introPhoto = require('../../assets/home/gwangalli.png');
 
 type FieldKey = 'email' | 'password' | 'confirm' | 'name';
 
@@ -90,22 +92,24 @@ export default function SignUp() {
   // 회원가입 버튼이 왜 잠겼나 — 버튼 바로 위 회색 상자에 적는다(시안 2번). canSubmit 과 같은
   // 조건을 사람 말로 푼 것이라, 이 목록이 비면 버튼이 열린다(보내는 중만 빼고).
   //
-  // 🔴 폰도 같은 목록을 쓴다. 시안은 폰에 「동의 셋만」 나온다고 적었는데, 그건 앞 칸의 「다음」이
-  //    이미 막아서 나머지가 늘 비어 있기 때문이다. 위 진행 점을 눌러 칸을 건너뛰면 앞 칸이 빈 채로
-  //    여기 올 수 있다 — 동의 셋만 세면 상자는 사라졌는데 버튼은 잠긴 채가 된다.
+  // 🔴 줄였다(사용자 의견 2026-10-02 — 「이 내용이 필요할까?」). 처음 연 화면에 아홉 줄이 한꺼번에 떠서 겁을 줬고,
+  //    비밀번호 넉 줄은 비밀번호 칸 아래 조건 표시(8~64자·영문·숫자·특수문자)와 같은 말이었다.
+  //    - 아무것도 손대기 전에는 안 띄운다(아래 started) — 빈 칸은 오류가 아니다
+  //    - 비밀번호는 한 줄, 동의 셋은 「필수 동의 N개」 한 줄
+  // 🔴 폰도 같은 목록을 쓴다. 위 진행 점을 눌러 칸을 건너뛰면 앞 칸이 빈 채로 마지막 칸에 올 수 있다 —
+  //    그때 동의만 세면 상자는 사라졌는데 버튼은 잠긴 채가 된다.
   // 🔴 빨강을 쓰지 않는다. 아직 안 채운 것은 오류가 아니다(tokens 규칙 4).
+  const agreementsLeft = [ageAccepted, termsAccepted, privacyAccepted].filter((accepted) => !accepted).length;
   const blockers = [
-    !emailValid && tx('이메일 형식이 올바르지 않아요', 'The email format is not valid'),
-    !passwordChecks.length && tx('비밀번호를 8~64자로 입력해 주세요', 'Use 8-64 characters for your password'),
-    !passwordChecks.letter && tx('비밀번호에 영문을 넣어 주세요', 'Add a letter to your password'),
-    !passwordChecks.number && tx('비밀번호에 숫자를 넣어 주세요', 'Add a number to your password'),
-    !passwordChecks.special && tx('비밀번호에 특수문자(!@#$% 등)를 넣어 주세요', 'Add a symbol (!@#$% etc.) to your password'),
+    !emailValid && tx('이메일 주소', 'Email address'),
+    !passwordValid && tx('비밀번호 조건 — 칸 아래 표시', 'Password rules — see below the field'),
     password.length > 0 && !passwordMatches && tx('비밀번호 확인이 일치하지 않아요', 'The password confirmation does not match'),
-    !nameValid && tx('이름을 1~30자로 입력해 주세요', 'Enter a name of 1-30 characters'),
-    !ageAccepted && tx('만 14세 이상인지 확인해 주세요', 'Confirm that you are 14 or older'),
-    !termsAccepted && tx('이용약관에 동의해 주세요', 'Agree to the Terms of Service'),
-    !privacyAccepted && tx('개인정보 처리방침에 동의해 주세요', 'Agree to the Privacy Policy'),
+    !nameValid && tx('이름(1~30자)', 'Name (1-30 characters)'),
+    agreementsLeft > 0 && txf(tx, '필수 동의 %s개', '%s required agreement(s)', agreementsLeft),
   ].filter((item): item is string => Boolean(item));
+  // 손댄 것이 하나라도 있으면 — 칸에 글자를 쳤거나 동의를 하나 눌렀거나. 폰의 마지막 칸(동의)에 오면 늘 띄운다.
+  const started = Object.values(touched).some(Boolean) || email.length > 0 || password.length > 0 || displayName.length > 0
+    || ageAccepted || termsAccepted || privacyAccepted;
 
   // 칸에 문제가 있나 — 🔴 손댄 뒤에, 값이 있을 때만. 빈 칸·처음 연 칸은 기본 모습이다.
   const problem: Record<FieldKey, boolean> = {
@@ -252,9 +256,9 @@ export default function SignUp() {
           </Pressable>
         </View>}
 
-        {(kind === 'tablet' || panelIndex === 3) && blockers.length > 0 && <View accessibilityLiveRegion="polite" style={styles.blockers}>
-          <Text variant="caption" weight="bold" color={color.text.heading}>{tx('회원가입하려면 아래를 마저 채워 주세요', 'To sign up, finish the items below')}</Text>
-          {blockers.map((reason) => <Text key={reason} variant="caption" color={color.text.body}>○ {reason}</Text>)}
+        {((kind === 'tablet' && started) || panelIndex === 3) && blockers.length > 0 && <View accessibilityLiveRegion="polite" style={styles.blockers}>
+          <Text variant="caption" weight="bold" color={color.text.heading}>{tx('아직 남은 것', 'Still to do')}</Text>
+          <Text variant="caption" color={color.text.body}>{blockers.join(' · ')}</Text>
         </View>}
 
         {error && <View accessibilityRole="alert" style={styles.errorBox}><ErrorText>{localizeMessage(tx, error)}</ErrorText></View>}

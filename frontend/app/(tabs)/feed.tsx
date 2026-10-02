@@ -899,7 +899,10 @@ export default function Feed() {
   </View>;
 
   // 「이 피드에 나온 장소」 목록을 뺐다.
-  const aside = <View style={styles.aside}>
+  // 🔴 지도 칸 폭을 화면에 맞춘다 — 480 으로 박으면 폴드를 펼쳐 가로로 든 화면(795)에서 기록 칸이 270 남짓으로
+  //    짓눌려 「내 피드」 탭이 잘렸다(반응형 점검 2026-10-02). 넓은 PC 에서는 그대로 480.
+  const asideWidth = width >= 1180 ? 480 : width >= 1024 ? 400 : 300;
+  const aside = <View style={[styles.aside, { width: asideWidth }]}>
     <MemoryMap items={items} onOpenStory={(id) => router.push(`/feed/${id}`)} />
   </View>;
 
