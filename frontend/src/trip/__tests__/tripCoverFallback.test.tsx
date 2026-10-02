@@ -61,6 +61,7 @@ describe('커버 사진을 못 불러오면', () => {
     expect(await screen.findByText('지금 여행', {}, { timeout: 5000 })).toBeTruthy();
     expect(imageWith(NOW)).toHaveLength(1);
     await act(async () => { imageWith(NOW)[0].props.onError?.({ nativeEvent: { error: 'ssl' } }); });
+    await act(async () => { imageWith(NOW)[0].props.onError?.({ nativeEvent: { error: 'ssl' } }); });
     expect(imageWith(NOW)).toHaveLength(0);
   });
 
@@ -69,6 +70,23 @@ describe('커버 사진을 못 불러오면', () => {
     expect(await screen.findByText('다음 여행', {}, { timeout: 5000 })).toBeTruthy();
     expect(imageWith(LATER)).toHaveLength(1);
     await act(async () => { imageWith(LATER)[0].props.onError?.({ nativeEvent: { error: 'ssl' } }); });
+    await act(async () => { imageWith(LATER)[0].props.onError?.({ nativeEvent: { error: 'ssl' } }); });
     expect(imageWith(LATER)).toHaveLength(0);
+  });
+});
+
+describe('커버 사진이 한 번 실패하면 (S15P21E201-1967)', () => {
+  // 🔴 탭에서 돌리고 언어를 바꾼 뒤 멀쩡한 커버 둘이 회색 판으로 남았다 — 서버 사진은 그때도 200 이었다.
+  //    한 번의 실패로 앱을 끌 때까지 그 주소를 안 부르면, 잠깐의 실패가 영영 남는다. 한 번은 다시 불러 본다.
+  const ONCE = 'https://www.visitbusan.net/once-cover';
+  it('🔴 한 번은 다시 불러 본다 — 사진 칸이 새로 만들어진다', async () => {
+    mockLoadTrips.mockResolvedValue({ state: 'success', trips: [trip('once', -1, 1, ONCE, '한 번 실패')] });
+    render(<Trips />, { wrapper: Providers });
+    expect(await screen.findByText('한 번 실패', {}, { timeout: 5000 })).toBeTruthy();
+    const first = imageWith(ONCE)[0];
+    await act(async () => { first.props.onError?.({ nativeEvent: { error: 'timeout' } }); });
+    const again = imageWith(ONCE);
+    expect(again).toHaveLength(1);
+    expect(again[0]).not.toBe(first);
   });
 });
