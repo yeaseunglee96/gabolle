@@ -14,6 +14,7 @@ import { GabolleMascot } from '@/components/DongbaekMascot';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { useLayout } from '@/layout/useLayout';
+import { isAtLeast } from '@/layout/breakpoints';
 import { deleteTrip, loadTrips, resolveTripItinerary, type TripsLoadResult, type TripSummaryDto } from '@/trip/trips';
 import { humanTripTitle, tripDatesLabel, tripNameOrDates } from '@/trip/tripNaming';
 import { leaveTrip } from '@/trip/collaboration';
@@ -86,7 +87,9 @@ export default function Trips() {
   const { accessToken, user } = useAuth();
   // 넓은 화면은 최대 1200 폭의 3열 카드 격자다(시안 docs/design_handoff_my_trips, S15P21E201-1587).
   // 전에는 카드 한 장이 1440 폭 전체로 늘어진 한 줄 목록이었다.
-  const { desktop } = useLayout();
+  const { desktop, width: screenWidth } = useLayout();
+  // 좁은 데스크톱(갤럭시 탭 세로 753)에서 3열이면 카드 제목·칩이 두세 줄로 꺾인다 — 2열로 (S15P21E201-1947).
+  const twoColumns = desktop && !isAtLeast(screenWidth, 'lg');
   const queryClient = useQueryClient();
   const [openingTripId, setOpeningTripId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState('');
@@ -208,7 +211,7 @@ export default function Trips() {
     </View>;
   };
 
-  const bigCard = (trip: TripSummaryDto) => <View key={trip.tripId} style={desktop ? styles.gridSlot : undefined}><View style={[styles.card, desktop && styles.cardInGrid]}><Pressable accessibilityRole="button" accessibilityState={{ busy: openingTripId === trip.tripId }} accessibilityLabel={open === 'prepare' ? txf(tx, '%s 날씨와 준비물 보기', 'View weather and packing for %s', cardTitle(trip, tx, locale)) : txf(tx, '%s 여행 열기', 'Open trip %s', cardTitle(trip, tx, locale))} disabled={openingTripId === trip.tripId || removingTripId === trip.tripId} onPress={() => void openTrip(trip)} style={({ pressed }) => [styles.cardBody, pressed && styles.cardPressed]}>
+  const bigCard = (trip: TripSummaryDto) => <View key={trip.tripId} style={desktop ? [styles.gridSlot, twoColumns && styles.gridSlotTwo] : undefined}><View style={[styles.card, desktop && styles.cardInGrid]}><Pressable accessibilityRole="button" accessibilityState={{ busy: openingTripId === trip.tripId }} accessibilityLabel={open === 'prepare' ? txf(tx, '%s 날씨와 준비물 보기', 'View weather and packing for %s', cardTitle(trip, tx, locale)) : txf(tx, '%s 여행 열기', 'Open trip %s', cardTitle(trip, tx, locale))} disabled={openingTripId === trip.tripId || removingTripId === trip.tripId} onPress={() => void openTrip(trip)} style={({ pressed }) => [styles.cardBody, pressed && styles.cardPressed]}>
       <TripCover uri={trip.coverImageUrl} />
       <View style={styles.cardTop}><View style={styles.cardCopy}><Text variant="title" weight="bold">{cardTitle(trip, tx, locale)}</Text>{humanTripTitle(trip.title) ? <Text variant="caption" color={color.text.muted}>{dateLabel(trip, tx, locale)}</Text> : null}{trip.role !== 'OWNER' ? <Text variant="caption" color={color.text.muted}>{tx('초대받은 여행', 'Invited trip')}</Text> : null}</View>{openingTripId === trip.tripId ? <ActivityIndicator color={color.action.primary} /> : <Text variant="title" color={color.text.muted}>›</Text>}</View>
       <View style={styles.meta}>
@@ -431,6 +434,7 @@ const styles = StyleSheet.create({
   // 한 줄의 칸은 줄 높이만큼 늘어나고(stretch), 카드가 칸을 채워 같은 줄 카드 높이가 같다.
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 0, marginTop: -spacing[2], marginHorizontal: -spacing[2], marginBottom: -spacing[2] },
   gridSlot: { width: '33.3333%', padding: spacing[2] },
+  gridSlotTwo: { width: '50%' },
   // 행동 줄(이름 바꾸기 / ⋯)이 늘 카드 바닥에 붙는다.
   cardInGrid: { flex: 1, justifyContent: 'space-between' }, cardBody: { gap: spacing[3] }, card: { padding: spacing[4], borderRadius: radius.lg, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card, gap: spacing[3], shadowColor: color.brand.navy, shadowOpacity: 0.06, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 2 }, cardPressed: { opacity: 0.72, transform: [{ scale: 0.99 }] }, cardTop: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] }, cardCopy: { flex: 1, gap: spacing[1] }, meta: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing[2] }, metaPill: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft },
   statusPillLive: { flexDirection: 'row', alignItems: 'center', gap: spacing[1] }, liveDot: { width: 6, height: 6, borderRadius: radius.full, backgroundColor: color.state.success },
