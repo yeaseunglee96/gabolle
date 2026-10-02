@@ -1,0 +1,34 @@
+// 웹 홈의 큰 검색창 ↔ 위쪽 메뉴의 작은 알약 — 둘이 함께 보는 값(S15P21E201-1931).
+//
+// 🔴 스크롤에 맞춰 큰 검색창이 줄어들며 사라지고, 같은 만큼 위쪽 메뉴 가운데의 알약이 커지며 나타난다(사용자 요청 2026-10-02,
+//    에어비앤비 영상 — 「흰 칸이 생기는 게 아니라 검색창 자체가 작아지면서」). 그래서 값은 «켜짐/꺼짐»이 아니라 0~1 의 진행도다.
+//    스크롤마다 React 상태를 바꾸면 위쪽 메뉴가 통째로 다시 그려진다 — 움직임 값(Animated.Value) 하나를 같이 쥔다.
+import { Animated } from 'react-native';
+import { useSyncExternalStore } from 'react';
+
+/** 0 = 큰 검색창 그대로, 1 = 위쪽 메뉴 알약으로 다 접힘 */
+export const searchCollapse = new Animated.Value(0);
+
+type Handle = { active: boolean; collapsed: boolean; open: (() => void) | null };
+let handle: Handle = { active: false, collapsed: false, open: null };
+const listeners = new Set<() => void>();
+
+/** 홈이 부른다 — active: 이 화면이 알약을 쓰는가, collapsed: 지금 알약을 누를 수 있나(반 넘게 접혔나) */
+export function setSearchHandle(next: Handle): void {
+  if (next.active === handle.active && next.collapsed === handle.collapsed && next.open === handle.open) return;
+  handle = next;
+  listeners.forEach((listener) => listener());
+}
+
+export function useSearchHandle(): Handle {
+  return useSyncExternalStore((listener) => { listeners.add(listener); return () => listeners.delete(listener); }, () => handle, () => handle);
+}
+
+/** 스크롤 위치 → 진행도. 검색창 아래 끝 앞 `span` 만큼에서 0→1 로 간다. 자리를 못 쟀으면 0 */
+export function collapseProgress(scrollY: number, searchBottom: number | null, span = 140): number {
+  if (searchBottom === null || searchBottom <= 0) return 0;
+  const start = searchBottom - span;
+  if (scrollY <= start) return 0;
+  if (scrollY >= searchBottom) return 1;
+  return (scrollY - start) / span;
+}

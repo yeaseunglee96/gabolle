@@ -1,4 +1,4 @@
-import { Image, Pressable, StyleSheet, View } from 'react-native';
+import { Animated, Image, Pressable, StyleSheet, View } from 'react-native';
 import { usePathname, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/auth/AuthProvider';
@@ -7,6 +7,8 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { TopNavWeather } from '@/home/HomeBlocks';
 import { useHomeWeather } from '@/home/useHomeData';
+import { SearchPillButton } from '@/home/StickySearchPill';
+import { searchCollapse, useSearchHandle } from '@/home/stickySearchStore';
 import { useLayout } from '@/layout/useLayout';
 import { useI18n } from '@/i18n';
 import { LANGUAGE_CODES, LANGUAGE_OPTIONS } from '@/i18n/languages';
@@ -71,10 +73,13 @@ function ActiveMarker() {
 }
 
 export function TopNav() {
-  const { kind } = useLayout();
+  const { kind, width } = useLayout();
   const router = useRouter();
   const pathname = usePathname();
   const { tx, language } = useI18n();
+  // 웹 홈을 내리면 가운데 칸(홈·피드·내 여행)이 흐려지고 같은 자리에 검색 알약이 커지며 나온다(S15P21E201-1931) — 에어비앤비처럼
+  // 큰 검색창이 위로 접혀 올라온 것으로 보이게. 진행도는 홈이 스크롤에 맞춰 searchCollapse 에 적는다.
+  const search = useSearchHandle();
   const { accessToken, ready, user } = useAuth();
   const { mobility, setPreferences } = useOnboardingPreferences();
   const signedOut = ready && !accessToken;
@@ -94,6 +99,22 @@ export function TopNav() {
   // 위쪽 안전 영역은 이 컴포넌트가 직접 두른다. 전에는 랜딩 파일이 두르고 있었는데, 이제
   // 바가 모든 화면에 뜨므로 그 처리도 같이 따라다녀야 한다 — 안 그러면 노치 있는 기기를
   // 가로로 눕혔을 때 바가 노치 밑에 깔린다. 배경색을 안전 영역까지 칠해야 틈이 안 뜬다.
+  const morphSearch = search.active && pathname === '/';
+  const capsule = (
+    <View style={styles.capsule}>
+      {LINKS.map((item) => {
+        const paths = [item.path, ...item.extra];
+        const active = !planActive && paths.some((path) => pathname === path || (path !== '/' && pathname.startsWith(`${path}/`)));
+        return (
+          <Pressable key={item.key} accessibilityRole="link" accessibilityState={{ selected: active }} onPress={() => router.push(item.path)} style={styles.capsuleItem}>
+            <Text weight={active ? 'bold' : 'medium'} color={active ? color.brand.navy : color.text.body} style={styles.noUnderline}>{tx(item.labelKo, item.labelEn)}</Text>
+            {active ? <ActiveMarker /> : null}
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+
   return <SafeAreaView edges={['top']} style={styles.safeArea}>
     {/* ── 1층 · 유틸 바 (높이 36) — 언어와 계정. 이동이 아니다. ───────────────── */}
     <View style={styles.utilBar}>
@@ -142,18 +163,25 @@ export function TopNav() {
     <View style={styles.nav}>
       <BrandLogoLink href="/" imageStyle={styles.logo} inTopNav />
 
-      <View style={styles.capsule}>
-        {LINKS.map((item) => {
-          const paths = [item.path, ...item.extra];
-          const active = !planActive && paths.some((path) => pathname === path || (path !== '/' && pathname.startsWith(`${path}/`)));
-          return (
-            <Pressable key={item.key} accessibilityRole="link" accessibilityState={{ selected: active }} onPress={() => router.push(item.path)} style={styles.capsuleItem}>
-              <Text weight={active ? 'bold' : 'medium'} color={active ? color.brand.navy : color.text.body} style={styles.noUnderline}>{tx(item.labelKo, item.labelEn)}</Text>
-              {active ? <ActiveMarker /> : null}
-            </Pressable>
-          );
-        })}
-      </View>
+      {morphSearch ? (
+        <View style={styles.centerSlot}>
+          <Animated.View pointerEvents={search.collapsed ? 'none' : 'auto'} accessibilityElementsHidden={search.collapsed} style={{ opacity: searchCollapse.interpolate({ inputRange: [0, 0.5], outputRange: [1, 0], extrapolate: 'clamp' }) }}>
+            {capsule}
+          </Animated.View>
+          <Animated.View
+            pointerEvents={search.collapsed ? 'box-none' : 'none'}
+            accessibilityElementsHidden={!search.collapsed}
+            importantForAccessibility={search.collapsed ? 'auto' : 'no-hide-descendants'}
+            style={[styles.pillSlot, {
+              opacity: searchCollapse.interpolate({ inputRange: [0.4, 1], outputRange: [0, 1], extrapolate: 'clamp' }),
+              // 처음엔 크게(큰 검색창에서 줄어든 것처럼) 아래에서, 다 접히면 제자리 크기로
+              transform: [{ scale: searchCollapse.interpolate({ inputRange: [0, 1], outputRange: [1.12, 1] }) }, { translateY: searchCollapse.interpolate({ inputRange: [0, 1], outputRange: [6, 0] }) }],
+            }]}
+          >
+            <SearchPillButton narrow={width < 1100} onPress={() => search.open?.()} />
+          </Animated.View>
+        </View>
+      ) : capsule}
 
       {/* 날씨는 CTA «왼쪽»에 붙는다. 날씨가 없으면 TopNavWeather 가 아무것도 안 그려서
           자리가 저절로 접힌다 — 빈 칸을 남겨 두지 않는다. */}
@@ -200,6 +228,9 @@ const styles = StyleSheet.create({
   // 가운데 칸들 — 알약 바탕도 흰 카드도 없다. 「지금 여기」는 검은 글자와 밑의 점이 말한다.
   // 바탕으로 말하면 「고른 것」이 되고, 이 배색에서 고른 것은 색이 아니라 굵기와 점으로 뜬다.
   capsule: { flexDirection: 'row', alignItems: 'center', gap: spacing[1], padding: spacing[1] },
+  // 가운데 칸과 알약이 같은 자리를 나눠 쓴다 — 알약은 그 위에 겹쳐 가운데에 선다(폭이 칸보다 넓어도 가운데 기준)
+  centerSlot: { alignItems: 'center', justifyContent: 'center' },
+  pillSlot: { position: 'absolute', top: 0, bottom: 0, left: -240, right: -240, alignItems: 'center', justifyContent: 'center' },
   capsuleItem: { height: CTA_HEIGHT, paddingHorizontal: spacing[4] + spacing[1], borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' },
 
   // 날씨와 CTA 를 한 덩어리로 묶는다. 2층이 space-between 이라 이 덩어리가 오른쪽 끝을 잡는다.
