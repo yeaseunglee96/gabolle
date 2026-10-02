@@ -18,7 +18,7 @@ import com.gabolle.backend.story.storage.StoragePort;
 
 /**
  * S15P21E201-1954 — 허락한 공공 사진만, 사진일 때만, 한 번만 받아 온다.
- * 상대 서버는 가짜로 바꿔 끼운다. 실제 www.visitbusan.net 은 {@link HttpImageFetcherLiveTest} 가 본다.
+ * 상대 서버는 가짜로 바꿔 끼운다. 실제 www.visitbusan.net 은 배포 뒤 운영 경로를 불러 확인한다(CI 는 건너뛴 시험을 실패로 보므로 바깥 네트워크 시험을 두지 않는다).
  */
 class ImageProxyServiceTest {
 
