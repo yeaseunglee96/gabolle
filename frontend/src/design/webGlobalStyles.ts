@@ -47,14 +47,18 @@ export const webInputNoOutline: TextStyle | null = Platform.OS === 'web'
  * 끊는다. 크롬 119+). 글자 사이 아무 데서나 끊으면 「…問い合わせ先が違い / ます。」처럼 끝 두세 글자가
  * 다음 줄에 혼자 남았다(2026-09-30 전 화면 점검, 일본어 폰 폭에서 40곳 남짓). 모르는 브라우저는
  * 이 줄을 버리고 위의 normal 로 간다. 중국어에는 이 값이 없다.
+ *
+ * 🔴 한글만 든 글(`Text` 가 lang="ko" 를 단 것)은 건너뛴다 — S15P21E201-1950. 한글 장소 이름이
+ *    「광 / 안리 밀면집」처럼 낱말 중간에서 꺾였다. `:lang(ko)` 가 아니라 `[lang="ko"]` 로 고르는 것은 그 글 «자신»에
+ *    붙은 표시만 보려는 것이다 — 조상에서 물려받은 언어까지 보면 한국어 화면 밖의 글이 섞여 들어온다.
  */
 const CJK_LINE_BREAK = `
-html:lang(ja) [style*="word-break: keep-all"],
-html:lang(zh) [style*="word-break: keep-all"] {
+html:lang(ja) [style*="word-break: keep-all"]:not([lang="ko"]),
+html:lang(zh) [style*="word-break: keep-all"]:not([lang="ko"]) {
   word-break: normal !important;
   line-break: strict;
 }
-html:lang(ja) [style*="word-break: keep-all"] {
+html:lang(ja) [style*="word-break: keep-all"]:not([lang="ko"]) {
   word-break: auto-phrase !important;
 }
 `;

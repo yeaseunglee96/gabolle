@@ -102,6 +102,21 @@ export function nativeFontFamily(family: string, children: React.ReactNode): str
   return KANA_OR_HAN.test(textOf(children)) ? undefined : family;
 }
 
+const HANGUL = /[가-힣ㄱ-ㆎ]/;
+
+/**
+ * 웹에서 한글만 든 글(가나·한자 없이)은 lang="ko" 를 단다 — S15P21E201-1950.
+ * 일본어·중국어 화면은 글자 사이에서 끊도록 keep-all 을 푸는데(webGlobalStyles 의 CJK_LINE_BREAK), 그 규칙이
+ * 한글 장소 이름에도 걸려 「해운대 블루라 / 인 해변열차」처럼 낱말 중간에서 꺾였다(2026-10-02 전체 점검, 344 중국어).
+ * 이 표시가 있는 글은 그 규칙을 건너뛰고 한국어처럼 띄어쓰기에서만 끊긴다. 일본어·중국어 문장 안에 한글이 섞이면
+ * 달지 않는다 — 그 문장은 그 나라 규칙으로 끊겨야 한다.
+ */
+export function webHangulLang(children: React.ReactNode): 'ko' | undefined {
+  if (Platform.OS !== 'web') return undefined;
+  const text = textOf(children);
+  return HANGUL.test(text) && !KANA_OR_HAN.test(text) ? 'ko' : undefined;
+}
+
 function joinHangulChildren(children: React.ReactNode): React.ReactNode {
   if (typeof children === 'string') return joinHangulSyllables(children);
   if (Array.isArray(children)) return children.map((child) => (typeof child === 'string' ? joinHangulSyllables(child) : child));
@@ -137,6 +152,7 @@ export function Text({ variant = 'body', color: colorOverride, weight = 'regular
     <RNText
       lineBreakStrategyIOS="hangul-word"
       textBreakStrategy="balanced"
+      {...({ lang: webHangulLang(children) } as object)}
       {...rest}
       style={[
         {
