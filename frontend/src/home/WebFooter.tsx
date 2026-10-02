@@ -69,7 +69,7 @@ export function WebFooter() {
         <View style={styles.appMain}>
           <View style={styles.appCopy}>
             <Text variant="title" weight="bold" color={color.text.onAction}>{tx('여행 중에는 앱이 더 편해요', 'The app is handier on the road')}</Text>
-            <Text color={color.text.onDarkMuted}>{tx('버스에서 내릴 정류장을 세어 주고, 잠금 화면에 다음 일정이 떠요.\n웹에서 만든 여행이 그대로 이어져요.', 'It counts the stops until yours and shows your next plan on the lock screen.\nTrips you made on the web carry right over.')}</Text>
+            <Text color={color.text.onDarkMuted}>{tx('버스·지하철에서 내릴 곳까지 남은 정류장을 세어 주고, 다가오면 진동으로 알려 줘요.\n웹에서 만든 여행이 그대로 이어져요.', 'It counts the stops left on the bus or subway and buzzes as yours gets close.\nTrips you made on the web carry right over.')}</Text>
           </View>
           {narrow ? <View style={styles.actions}>{storeButtons}</View> : null}
         </View>
