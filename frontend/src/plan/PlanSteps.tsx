@@ -353,7 +353,8 @@ function WhereStep({ draft, update, tx }: Pick<PlanStepsProps, 'draft' | 'update
             return (
               <Pressable key={preset.perDay} accessibilityRole="radio" accessibilityState={{ selected }} onPress={() => update({ budgetKrw: presetTotal })} style={({ pressed }) => [styles.preset, selected && styles.presetOn, pressed && styles.pressed]}>
                 <Text variant="caption" weight="bold" color={selected ? color.text.onAction : color.text.heading}>{tx(preset.ko, preset.en)}</Text>
-                <Text weight="bold" style={styles.presetAmount} color={selected ? color.text.onAction : color.text.heading}>{won(presetTotal, tx)}</Text>
+                {/* 한 줄 — 일본어 「10万ウォン」이 좁은 칸에서 「ウォ / ン」으로 갈라졌다(S15P21E201-1924). */}
+                <Text testID="plan-budget-preset-amount" weight="bold" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} style={styles.presetAmount} color={selected ? color.text.onAction : color.text.heading}>{won(presetTotal, tx)}</Text>
                 <Text variant="micro" color={selected ? color.text.onDarkMuted : color.text.muted}>{txf(tx, '1인 하루 %s', '%s / person / day', tx(`${preset.perDay / 10000}만`, `₩${preset.perDay.toLocaleString()}`))}</Text>
               </Pressable>
             );
