@@ -50,6 +50,21 @@
               "scheme": "https",
               "host": "j15e201.p.ssafy.io",
               "pathPrefix": "/oauth"
+            },
+            {
+              "scheme": "https",
+              "host": "j15e201.p.ssafy.io",
+              "pathPrefix": "/s/"
+            },
+            {
+              "scheme": "https",
+              "host": "j15e201.p.ssafy.io",
+              "pathPrefix": "/invite/"
+            },
+            {
+              "scheme": "https",
+              "host": "j15e201.p.ssafy.io",
+              "pathPrefix": "/story-invite/"
             }
           ],
           "category": [
