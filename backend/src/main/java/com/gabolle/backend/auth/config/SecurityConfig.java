@@ -86,6 +86,9 @@ public class SecurityConfig {
 				// 장소 사진 대리 조회(S15P21E201-1832)도 화면이 <img> 로 부른다 — 위와 같은 이유로 헤더가 없다.
 				// 장소 번호가 UUID 이고, Google 장소 번호가 저장된 장소에만 답한다(PlacePhotoController).
 				.requestMatchers(HttpMethod.GET, "/api/v1/places/*/photo").permitAll()
+				// 공공 사진 대리 조회(S15P21E201-1954)도 <img> 로 불린다. 허락 호스트만 받고(ImageUrlGuard)
+				// 사진일 때만 내보내므로, 열려 있어도 남의 서버를 아무렇게나 부르는 문이 되지 않는다.
+				.requestMatchers(HttpMethod.GET, "/api/v1/images/proxy").permitAll()
 				// 공유 조회는 43글자 난수 토큰을 아는 사람이 로그인 없이 연다. 발급(POST)·복제는
 				// 여전히 인증이 필요하다.
 				.requestMatchers(HttpMethod.GET, "/api/v1/shares/*").permitAll()

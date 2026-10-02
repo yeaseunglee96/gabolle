@@ -110,10 +110,11 @@ class RouteAuthorizationRegistryTest {
 
 		// 개수를 박아 두면 하나 열 때마다 이 줄을 고치게 되고, 그 변경이 diff 에 남아 리뷰에서
 		// 보인다. 인증 없이 열린 경로가 조용히 늘어나는 것이 이 시스템에서 가장 비싼 실수다.
-		assertThat(open).hasSize(20);
+		assertThat(open).hasSize(21);
 
 		// 표를 아는 사람이 실제로 열린 것과 대조할 수 있게 목록도 고정한다
 		assertThat(routesWith(Policy.PUBLIC_TOKEN)).containsExactlyInAnyOrder(
+				"GET /api/v1/images/proxy",
 				"GET /api/v1/places/{}/photo",
 				"GET /api/v1/shares/{}",
 				"GET /api/v1/uploads/images/{}");
@@ -772,6 +773,8 @@ class RouteAuthorizationRegistryTest {
 				"공용 기준 데이터. 다만 itineraryInclusion 은 요청자별로 갈리므로 그 자리는 인증 주체로만 읽는다. PlaceDetailIntegrationTest");
 		put(m, "GET /api/v1/places/{}/photo", Policy.PUBLIC_TOKEN,
 				"S15P21E201-1832 — 카드·상세 화면이 <img> 로 부르고 그 요청에는 Authorization 이 안 붙는다. 키가 UUID 라 추측 불가하고, Google 장소 번호가 저장된 공개 장소에만 302 를 준다(그 밖은 Google 을 안 부르고 404). PlacePhotoControllerTest");
+		put(m, "GET /api/v1/images/proxy", Policy.PUBLIC_TOKEN,
+				"S15P21E201-1954 — 화면이 <img> 로 불러 Authorization 이 안 붙는다. 표는 없지만 허락 호스트(www.visitbusan.net)·https·내부망 차단·사진 매직 넘버·10MB 상한을 모두 통과한 공공 사진만 내보낸다. ImageUrlGuardTest·ImageProxyServiceTest");
 		put(m, "GET /api/v1/places/{}/taxi-card", Policy.AUTHENTICATED_ONLY,
 				"장소 하나를 다른 모양으로 보여주는 것이라 주인이 없다. TaxiCardServiceIntegrationTest");
 		put(m, "GET /api/v1/festivals", Policy.AUTHENTICATED_ONLY,
