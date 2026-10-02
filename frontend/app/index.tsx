@@ -19,6 +19,7 @@ import { MyTripCard, PlaceRow, StoryRow } from '@/home/HomeBlocks';
 import { useHomeData } from '@/home/useHomeData';
 import { AssistantBackdrop, AssistantMenu, assistantSubtitle } from '@/home/AssistantMenu';
 import { useSavedPlaces } from '@/home/useSavedPlaces';
+import { WebFooter } from '@/home/WebFooter';
 import { color, desktopGutter, radius, spacing } from '@/design/tokens';
 import { LANGUAGE_OPTIONS } from '@/i18n/languages';
 import { FLAG_IMAGES, WelcomeLanguageSheet } from '@/onboarding/WelcomeLanguageSheet';
@@ -255,6 +256,8 @@ export default function Welcome() {
         <MyTripCard trip={home.trip} signedIn loaded={home.tripsLoaded} hasTrips={home.hasTrips} />
       </View>
     ) : null}
+    {/* 맨 아래 안내 — 앱 받기·메뉴·출처(S15P21E201-1930). 전에는 내 여행 카드에서 페이지가 그냥 끝났다. */}
+    <WebFooter />
   </ScrollView>
     {/* 판이 먼저다 — 메뉴와 단추보다 아래에 깔려야 그 둘은 그대로 눌린다. */}
     <AssistantBackdrop open={assistantOpen} onClose={() => setAssistantOpen(false)} />
