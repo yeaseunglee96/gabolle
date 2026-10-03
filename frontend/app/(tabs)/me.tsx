@@ -157,6 +157,8 @@ export default function Me() {
         onPress={() => openPanel('saved')}
         disabled={!user}
       />
+      {/* 내 여행 후보로 저장한 장소 — 로그인 안 해도 기기에 저장된 것을 본다(S15P21E201-1969). */}
+      <InfoRow label={tx('저장한 장소', 'Saved places')} value="›" onPress={() => openPanel('saved-places')} />
       {/* 원글이 지워지거나 가려지면 내 댓글로 가는 길이 없어진다 — 여기서 모아 찾고 지운다(S15P21E201-1652). */}
       <InfoRow label={tx('내 댓글', 'My comments')} value="›" onPress={() => openPanel('replies')} disabled={!user} />
       {/* 🔴 「팔로워」「팔로잉」 행도 여기 없다 — 위 프로필 카드의 타일(기록·팔로워·팔로잉)이 같은 곳으로

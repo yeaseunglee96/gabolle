@@ -15,7 +15,7 @@ function read(relative: string): string {
 }
 
 describe('「로컬 점수 있음」 알약이 없다', () => {
-  it.each(['app/place/[id].tsx', 'app/(tabs)/saved.tsx'])('%s 에 알약이 없다', (file) => {
+  it.each(['app/place/[id].tsx', 'app/(tabs)/saved.tsx', 'src/me/panels/SavedPlacesBody.tsx', 'src/discovery/savedPlaceCards.ts'])('%s 에 알약이 없다', (file) => {
     const source = read(file);
     expect(source).not.toContain('로컬 점수 있음');
     expect(source).not.toContain('Has locality score');
@@ -28,6 +28,6 @@ describe('「로컬 점수 있음」 알약이 없다', () => {
   });
 
   it('알레르기 확인 알림은 그대로 있다 — 같이 있던 다른 알림은 안 뺀다', () => {
-    expect(read('app/(tabs)/saved.tsx')).toContain("tx('알레르기·식단 확인 필요', 'Check allergy/dietary info')");
+    expect(read('src/me/panels/SavedPlacesBody.tsx')).toContain("tx('알레르기·식단 확인 필요', 'Check allergy/dietary info')");
   });
 });

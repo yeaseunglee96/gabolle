@@ -23,7 +23,8 @@ import { budgetForDaily, tripDayCount } from '@/plan/budgetDefault';
 import { conditionLabels } from '@/plan/conditionLabels';
 import { DateRangePicker } from '@/plan/DateRangeCard';
 import { maskTimeInput } from '@/plan/inputMasks';
-import { MustVisitSearch } from '@/plan/MustVisitSearch';
+import { MustVisitSearch, mustVisitLimit } from '@/plan/MustVisitSearch';
+import { SavedCandidates } from '@/plan/SavedCandidates';
 import { MAJOR_BUSAN_ORIGINS, RECOMMENDED_LODGING_AREAS, lodgingSnapshotOf, type OriginCandidate } from '@/plan/origins';
 import { AREA_OPTIONS, CATEGORY_IMAGES, CATEGORY_OPTIONS, PACE_OPTIONS, TRANSPORT_OPTIONS, effectOf, paceSubtitle, type PlanOption } from '@/plan/planOptions';
 import { dayWindowIssue } from '@/plan/planQuestions';
@@ -591,7 +592,9 @@ function ReviewStep({ draft, update, tx, language, styleSkipped, accessibilityCo
           <PassRow label={tx('꼭 가고 싶은 곳', 'Must-visit places')} value={must || tx('없음', 'None')} open={open === 'must'} onPress={() => toggle('must')} />
           {open === 'must' ? (
             <View style={styles.expand}>
-              <MustVisitSearch picked={draft.mustVisitPlaces} onChange={(next) => update({ mustVisitPlaces: next })} tx={tx} ko={language === 'ko'} language={language} />
+              {/* 둘러보기에서 저장한 후보를 바로 고른다 — 검색으로 고른 곳과 같은 칸, 같은 상한(S15P21E201-1970). */}
+              <SavedCandidates picked={draft.mustVisitPlaces} onChange={(next) => update({ mustVisitPlaces: next })} max={mustVisitLimit(draft.startDate, draft.endDate)} tx={tx} language={language} />
+              <MustVisitSearch picked={draft.mustVisitPlaces} onChange={(next) => update({ mustVisitPlaces: next })} tx={tx} ko={language === 'ko'} language={language} max={mustVisitLimit(draft.startDate, draft.endDate)} />
             </View>
           ) : null}
         </View>
