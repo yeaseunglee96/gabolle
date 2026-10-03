@@ -62,6 +62,11 @@ export const MESSAGE_EN: Record<string, string> = {
   // 서버(AuthenticatedUsers·AuthController)는 언어와 상관없이 이 한국어 문장을 준다 — 번체 여행 화면에 그대로 나왔다(S15P21E201-1922).
   '인증 정보가 올바르지 않습니다.': 'Your sign-in has expired. Please sign in again.',
   // 5xx — 상태 번호가 끼므로 «모양»으로 둔다. 찾을 때 숫자를 빼고 찾는다(pick.ts numericShape).
+  // 여행 돈(src/trip/expenses.ts) — S15P21E201-1968
+  '여행 돈을 불러오지 못했어요.': 'Could not load your trip spending.',
+  '쓴 돈을 적지 못했어요.': 'Could not save that expense.',
+  '지우지 못했어요.': 'Could not delete it.',
+  '예산을 저장하지 못했어요.': 'Could not save the budget.',
   '서버가 잠시 응답하지 못했어요. 잠시 후 다시 시도해 주세요. (HTTP %d)': 'The server could not handle this just now. Please try again shortly. (HTTP %d)',
 };
 

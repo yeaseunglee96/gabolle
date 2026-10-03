@@ -3311,6 +3311,11 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '%s (나)': { ja: '%s（自分）', zhHans: '%s（我）', zhHant: '%s（我）' },
   '나': { ja: '自分', zhHans: '我', zhHant: '我' },
   '동행': { ja: '同行者', zhHans: '同行者', zhHant: '同行者' },
+  // 여행 돈 실패 문구 — localizeMessage 가 이 표를 거친다(S15P21E201-1968)
+  '여행 돈을 불러오지 못했어요.': { ja: '旅行のお金を読み込めませんでした。', zhHans: '无法加载旅行花费。', zhHant: '無法載入旅行花費。' },
+  '쓴 돈을 적지 못했어요.': { ja: '支出を記録できませんでした。', zhHans: '这笔花费没能记下来。', zhHant: '這筆花費沒能記下來。' },
+  '지우지 못했어요.': { ja: '削除できませんでした。', zhHans: '删除失败。', zhHant: '刪除失敗。' },
+  '예산을 저장하지 못했어요.': { ja: '予算を保存できませんでした。', zhHans: '预算保存失败。', zhHant: '預算儲存失敗。' },
   '여행 돈': { ja: '旅行のお金', zhHans: '旅行花费', zhHant: '旅行花費' },
   '쓴 돈': { ja: '使ったお金', zhHans: '已花费', zhHant: '已花費' },
   '예산 %s · 바꾸기 ›': { ja: '予算 %s · 変更 ›', zhHans: '预算 %s · 修改 ›', zhHant: '預算 %s · 修改 ›' },
