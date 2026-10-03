@@ -38,6 +38,14 @@ export function splitToday<T extends { at: string }>(items: T[], now: Date = new
   return { today, earlier };
 }
 
+/**
+ * 빈 화면이 「다 지워서 빈 것」인지 「원래 없는 것」인지(S15P21E201-1976).
+ * 지운 것인데 「아직 도착한 알림이 없어요」라고 하면 알림이 사라진 줄로 안다.
+ */
+export function emptyNoticeState(receivedCount: number, shownCount: number): 'cleared' | 'none' {
+  return receivedCount > 0 && shownCount === 0 ? 'cleared' : 'none';
+}
+
 export function NotificationsBody() {
   const { tx, language, locale } = useI18n();
   const router = useRouter();
@@ -208,11 +216,12 @@ export function NotificationsBody() {
     );
   }
 
+  const cleared = feed.state === 'ready' && emptyNoticeState(feed.items.length, shownItems.length) === 'cleared';
   return (
       <View style={styles.empty}>
         <View style={styles.icon}><Image source={bellIcon} resizeMode="contain" style={styles.iconImage} /></View>
-        <Text variant="title" weight="bold">{tx('아직 도착한 알림이 없어요', 'No notifications yet')}</Text>
-        <Text variant="body" color={color.text.muted} style={styles.description}>{user ? tx('여행 일정이 만들어지거나 바뀌면 이곳에서 알려드려요.', "We'll let you know here when a trip is created or changed.") : tx('로그인하면 내 여행의 소식을 여기서 볼 수 있어요.', 'Sign in to see updates about your trips here.')}</Text>
+        <Text variant="title" weight="bold">{cleared ? tx('알림을 모두 지웠어요', 'All notifications cleared') : tx('아직 도착한 알림이 없어요', 'No notifications yet')}</Text>
+        <Text variant="body" color={color.text.muted} style={styles.description}>{cleared ? tx('새 알림이 오면 여기에 보여요.', 'New notifications will show up here.') : user ? tx('여행 일정이 만들어지거나 바뀌면 이곳에서 알려드려요.', "We'll let you know here when a trip is created or changed.") : tx('로그인하면 내 여행의 소식을 여기서 볼 수 있어요.', 'Sign in to see updates about your trips here.')}</Text>
         {!user ? <Button label={tx('로그인', 'Sign in')} variant="outline" onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/notifications' } })} containerStyle={styles.action} /> : null}
         {feed.state === 'error' ? <Text variant="caption" color={color.state.danger}>{feed.message}</Text> : null}
         {permissionCard}
