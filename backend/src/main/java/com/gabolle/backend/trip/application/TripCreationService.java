@@ -159,6 +159,9 @@ public class TripCreationService {
         boolean usesPrivateCar = java.util.Arrays.asList(travelModes).contains("PRIVATE_CAR");
         Integer maxTransitTransfers = usesPrivateCar ? null : command.maxTransitTransfers();
 
+        // 🔴 꼭 가는 곳은 여행 일수 × 3 곳까지(S15P21E201-1971). 숙소 스냅샷으로 장소를 만들기 전에 본다 — 거절할 요청에 장소 행을 남기지 않는다.
+        TripConditionRules.requireMustVisitLimit(command.startDate(), command.finishDate(), command.mustVisitPlaceIds());
+
         // 숙소를 장소로 바꾼다. 앱이 우리 place_id 를 못 주고 좌표로만 보내던 것을 여기서 받는다
         // (S15P21E201-1522). Trip 을 만들기 전에 해야 accommodation_place_id 외래키가 맞는다.
         String accommodationPlaceId = resolveAccommodation(command);

@@ -27,6 +27,9 @@ public final class TripConditionRules {
 
 	public static final int BUDGET_UNIT_KRW = 10_000;
 
+	/** 꼭 가는 곳은 하루에 이만큼까지 받는다(S15P21E201-1971). 여행 일수를 곱한 것이 상한이다. */
+	public static final int MUST_VISIT_PER_DAY = 3;
+
 	private TripConditionRules() {
 	}
 
@@ -123,6 +126,30 @@ public final class TripConditionRules {
 		}
 		throw new TripConditionRejectedException(List.of(
 				new Violation("accommodation", "1박 이상 여행은 숙소가 있어야 한다. 숙소나 묵을 동네를 골라 주세요")));
+	}
+
+	/**
+	 * 꼭 가는 곳은 여행 일수 × {@value #MUST_VISIT_PER_DAY} 곳까지다(S15P21E201-1971).
+	 *
+	 * <p>상한이 없으면 저장한 후보를 통째로 보낸 여행이 받아들여지고, 일정 계산기는 하루에 다 못 넣어
+	 * 몇 곳을 조용히 잃는다 — 사용자는 「꼭」이라고 고른 곳이 왜 빠졌는지 모른다. 들어올 때 막는다.
+	 * 같은 장소를 두 번 보낸 것은 한 곳으로 센다 — 저장할 때도 한 번만 적힌다({@code saveMustVisitPlaces}).
+	 * 날짜가 없거나 거꾸로면 여기서 판정하지 않는다 — {@link #check} 가 그 칸으로 따로 답한다.
+	 *
+	 * @throws TripConditionRejectedException {@code mustVisitPlaceIds} 칸 하나로 — 화면이 이 이름으로 문장을 고른다
+	 */
+	public static void requireMustVisitLimit(LocalDate startDate, LocalDate finishDate, List<String> mustVisitPlaceIds) {
+		if (startDate == null || finishDate == null || finishDate.isBefore(startDate) || mustVisitPlaceIds == null) {
+			return;
+		}
+		long distinct = mustVisitPlaceIds.stream().filter(id -> id != null && !id.isBlank()).distinct().count();
+		long days = ChronoUnit.DAYS.between(startDate, finishDate) + 1;
+		long limit = days * MUST_VISIT_PER_DAY;
+		if (distinct > limit) {
+			throw new TripConditionRejectedException(List.of(new Violation("mustVisitPlaceIds",
+					"꼭 가고 싶은 곳은 하루 " + MUST_VISIT_PER_DAY + "곳, 이 여행은 " + limit + "곳까지 고를 수 있다 ("
+							+ distinct + "곳)")));
+		}
 	}
 
 	/** @param field 응답에 그대로 실려 화면이 어느 칸을 짚을지 정한다 — 요청의 칸 이름과 같게 쓴다 */

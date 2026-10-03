@@ -130,6 +130,45 @@ class MustVisitSeedTest {
 	}
 
 
+	/**
+	 * 꼭 가는 곳은 하루 3곳까지다(S15P21E201-1971) — 여기 여행은 1박 2일이라 6곳까지. 상한이 없으면
+	 * 저장한 후보를 통째로 보낸 여행이 하루에 다 못 넣고 조용히 몇 곳을 잃는다.
+	 */
+	@Test
+	@DisplayName("🔴 꼭 가는 곳이 여행 일수 × 3 을 넘으면 거절한다 — mustVisitPlaceIds 칸으로")
+	void tooManyMustVisitPlacesAreRejected() {
+		List<String> seven = java.util.stream.IntStream.range(0, 7).mapToObj(i -> UUID.randomUUID().toString()).toList();
+
+		org.assertj.core.api.Assertions.assertThatThrownBy(() -> this.service.create(command(seven), null))
+				.isInstanceOf(com.gabolle.backend.trip.domain.TripConditionRules.TripConditionRejectedException.class)
+				.satisfies(e -> assertThat(((com.gabolle.backend.trip.domain.TripConditionRules.TripConditionRejectedException) e)
+						.violations()).extracting(com.gabolle.backend.trip.domain.TripConditionRules.Violation::field)
+						.containsExactly("mustVisitPlaceIds"));
+		assertThat(this.seeds.saved).isEmpty();
+	}
+
+	@Test
+	@DisplayName("꼭 가는 곳이 여행 일수 × 3 이면 받는다")
+	void mustVisitPlacesAtTheLimitAreAccepted() {
+		List<String> six = java.util.stream.IntStream.range(0, 6).mapToObj(i -> UUID.randomUUID().toString()).toList();
+
+		TripCreationService.Result result = this.service.create(command(six), null);
+
+		assertThat(this.seeds.findByTripId(result.trip().tripId())).hasSize(6);
+	}
+
+	/** 저장할 때 같은 장소는 한 번만 적으므로 상한도 서로 다른 장소로 센다 — 같은 곳 두 번이 한 자리를 더 먹으면 안 된다. */
+	@Test
+	@DisplayName("같은 장소를 두 번 보낸 것은 한 곳으로 센다")
+	void duplicatesDoNotCountTowardTheLimit() {
+		List<String> six = new ArrayList<>(java.util.stream.IntStream.range(0, 6).mapToObj(i -> UUID.randomUUID().toString()).toList());
+		six.add(six.get(0));
+
+		TripCreationService.Result result = this.service.create(command(six), null);
+
+		assertThat(this.seeds.findByTripId(result.trip().tripId())).hasSize(6);
+	}
+
 	@Test
 	@DisplayName("고른 여행 범위가 순서대로 남는다")
 	void chosenTravelAreasAreStoredInOrder() {

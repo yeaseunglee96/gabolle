@@ -382,17 +382,31 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         }
 
         // 경고는 서로 독립이라 같이 나올 수 있다 — 하나를 고르지 않는다.
-        List<String> draftWarnings = new ArrayList<>(2);
+        List<String> draftWarnings = new ArrayList<>(3);
         if (distribution.sightSlotUnfilled()) {
             draftWarnings.add(ItineraryWarningCodes.SIGHT_SLOT_UNFILLED);
         }
         if (distribution.regionMixed()) {
             draftWarnings.add(ItineraryWarningCodes.DAY_REGION_MIXED);
         }
+        if (mustVisitLeftOut(places, items)) {
+            draftWarnings.add(ItineraryWarningCodes.MUST_VISIT_NOT_PLACED);
+        }
 
         return new ItineraryDraft(command.tripId(), command.userId(), command.requestId(),
                 command.modelVersion(), command.featureVersion(), command.ontologyVersion(),
                 command.policyVersion(), command.datasetVersion(), items, legs, draftWarnings);
+    }
+
+    /** 「꼭 가고 싶은 곳」({@link SeedBoost#REASON_CODE_MUST_VISIT})으로 들어온 후보 중 판에 못 앉은 것이 있나 — S15P21E201-1971. */
+    static boolean mustVisitLeftOut(List<ItineraryDraftCommand.PlannedPlace> places, List<ItineraryDraft.DraftItem> items) {
+        Set<UUID> placed = new HashSet<>();
+        for (ItineraryDraft.DraftItem item : items) {
+            placed.add(item.placeId());
+        }
+        return places.stream()
+                .filter((p) -> p.reasonCodes() != null && p.reasonCodes().contains(SeedBoost.REASON_CODE_MUST_VISIT))
+                .anyMatch((p) -> !placed.contains(p.placeId()));
     }
 
     /**

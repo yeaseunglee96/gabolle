@@ -103,6 +103,51 @@ class SavedPlaceControllerTest {
 				.andExpect(jsonPath("$.data.items[0].placeId").value(this.placeId.toString()));
 	}
 
+	/**
+	 * 저장 목록 화면이 장소마다 상세를 한 번씩 더 부르지 않게(후보 30곳이면 31번) 이름·사진·좌표·종류를
+	 * 같이 싣는다 — S15P21E201-1971. 장소는 한 번에 모아 읽는다(장소마다 따로 읽으면 서버 안에서 같은 N+1 이 된다).
+	 */
+	@Test
+	@DisplayName("🔴 저장 목록에 장소 이름·사진·좌표·종류가 함께 나온다 — 한 번에 읽는다")
+	void listCarriesPlaceSummary() throws Exception {
+		SavedPlace saved = SavedPlace.of(UUID.randomUUID(), this.userId, this.placeId,
+				OffsetDateTime.parse("2026-09-16T12:00:00Z"));
+		when(this.savedPlaces.findByUserIdOrderByCreatedAtDesc(eq(this.userId), any())).thenReturn(List.of(saved));
+		com.gabolle.backend.place.domain.Place place = com.gabolle.backend.place.domain.Place.imported(this.placeId,
+				"감천문화마을", "ATTRACTION", "부산 사하구", 35.0975, 129.0106, "FIXTURE", "x", null, null, "v1",
+				"https://example.org/p.jpg", "출처 : 부산관광아카이브");
+		when(this.places.findAllById(any())).thenReturn(List.of(place));
+
+		this.mockMvc.perform(get("/api/v1/me/saved-places").principal(principal(this.userId)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.items[0].placeId").value(this.placeId.toString()))
+				.andExpect(jsonPath("$.data.items[0].savedAt").exists())
+				.andExpect(jsonPath("$.data.items[0].nameKo").value("감천문화마을"))
+				.andExpect(jsonPath("$.data.items[0].category").value("ATTRACTION"))
+				.andExpect(jsonPath("$.data.items[0].lat").value(35.0975))
+				.andExpect(jsonPath("$.data.items[0].lng").value(129.0106))
+				.andExpect(jsonPath("$.data.items[0].photoUrl").value("https://example.org/p.jpg"))
+				.andExpect(jsonPath("$.data.items[0].photoSource").value("출처 : 부산관광아카이브"));
+
+		verify(this.places).findAllById(any());
+		verify(this.places, never()).findById(any());
+	}
+
+	@Test
+	@DisplayName("🔴 장소 행이 사라진 저장은 번호·시각만 나간다 — 목록 전체가 실패하지 않는다")
+	void listKeepsRowWhosePlaceIsGone() throws Exception {
+		SavedPlace saved = SavedPlace.of(UUID.randomUUID(), this.userId, this.placeId,
+				OffsetDateTime.parse("2026-09-16T12:00:00Z"));
+		when(this.savedPlaces.findByUserIdOrderByCreatedAtDesc(eq(this.userId), any())).thenReturn(List.of(saved));
+		when(this.places.findAllById(any())).thenReturn(List.of());
+
+		this.mockMvc.perform(get("/api/v1/me/saved-places").principal(principal(this.userId)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.items[0].placeId").value(this.placeId.toString()))
+				.andExpect(jsonPath("$.data.items[0].nameKo").doesNotExist())
+				.andExpect(jsonPath("$.data.items[0].photoUrl").doesNotExist());
+	}
+
 	@Test
 	@DisplayName("하트를 켜면 204 이고 행이 하나 생긴다")
 	void saveCreatesRow() throws Exception {
