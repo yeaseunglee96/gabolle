@@ -34,6 +34,25 @@ const STEPS: Array<{ value: NonNullable<ThreeStepScore>; labelKo: string; labelE
   { value: 'HIGH', labelKo: '좋아요', labelEn: 'Good' },
 ];
 const BODY_MAX = 300;
+
+type Tx = (ko: string, en: string) => string;
+const SCORE_KEYS: Record<(typeof CATEGORIES)[number]['key'], 'foodScore' | 'priceScore' | 'accessibilityScore' | 'onsiteScore'> = {
+  food: 'foodScore', price: 'priceScore', accessibility: 'accessibilityScore', onsite: 'onsiteScore',
+};
+
+/**
+ * 리뷰 한 건에 매긴 항목을 「음식 · 좋아요」처럼 — 매긴 것만(S15P21E201-1973).
+ * 전에는 목록이 본문만 그려서, 점수만 남긴 리뷰가 「미인증」 배지만 있는 빈 칸으로 보였다.
+ * 서버 점수는 1~5 다(쓸 때 별로예요=1·보통이에요=3·좋아요=5) — 2 이하는 별로, 4 이상은 좋아요, 그 사이는 보통.
+ */
+export function reviewScoreLabels(review: Pick<PlaceReviewDto, 'foodScore' | 'priceScore' | 'accessibilityScore' | 'onsiteScore'>, tx: Tx): string[] {
+  return CATEGORIES.flatMap((category) => {
+    const score = review[SCORE_KEYS[category.key]];
+    if (score == null) return [];
+    const step = STEPS[score <= 2 ? 0 : score >= 4 ? 2 : 1];
+    return [`${tx(category.labelKo, category.labelEn)} · ${tx(step.labelKo, step.labelEn)}`];
+  });
+}
 type Scores = Record<'food' | 'price' | 'accessibility' | 'onsite', ThreeStepScore>;
 const EMPTY_SCORES: Scores = { food: null, price: null, accessibility: null, onsite: null };
 
@@ -247,6 +266,13 @@ export default function PlaceReviews() {
                 )}
                 {review.mine ? <Text variant="caption" color={color.text.muted}>{tx('내 리뷰', 'My review')}</Text> : null}
               </View>
+              {reviewScoreLabels(review, tx).length ? (
+                <View style={styles.scoreRow}>
+                  {reviewScoreLabels(review, tx).map((label) => (
+                    <View key={label} style={styles.scoreChip}><Text variant="caption" weight="medium" color={color.text.body}>{label}</Text></View>
+                  ))}
+                </View>
+              ) : null}
               {review.body ? <Text color={color.text.body}>{review.body}</Text> : null}
             </View>
           ))}
@@ -270,6 +296,8 @@ const styles = StyleSheet.create({
   verifyButton: { alignSelf: 'flex-start', marginTop: spacing[1] },
   composeCard: { gap: spacing[3], marginTop: spacing[4], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
   categoryRow: { gap: spacing[2] },
+  scoreRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
+  scoreChip: { paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft },
   stepRow: { flexDirection: 'row', gap: spacing[2] },
   stepOption: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[2], borderRadius: radius.md, backgroundColor: color.surface.soft, borderWidth: 1, borderColor: color.surface.field },
   stepOptionSelected: { backgroundColor: color.action.secondary, borderColor: color.action.secondary },
