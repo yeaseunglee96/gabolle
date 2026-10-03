@@ -17,8 +17,10 @@
 //   안드로이드  그런 스위치가 리액트 네이티브에 없다. 대신 한글 음절 사이에 **낱말 이음표**
 //             (U+2060 WORD JOINER — 보이지 않고 폭도 없지만 「여기서 끊지 마라」는 뜻의 글자)를
 //             넣어 낱말을 통째로 붙인다. 안드로이드에서만 하므로 시험(jest 는 iOS 로 돈다)과
-//             글자 비교에는 영향이 없다. textBreakStrategy="balanced" 는 여러 줄을 고르게 나눠
-//             외톨이 낱말을 줄인다
+//             글자 비교에는 영향이 없다.
+//             🔴 textBreakStrategy 는 "simple" 이다(S15P21E201-1972). "balanced" 는 여러 줄을 고르게 나눴지만,
+//             삼성 기기에서 글 폭을 잰 뒤 그 폭에 다시 그릴 때 마지막 낱말을 다음 줄로 넘겨 잘라 먹었다 —
+//             갤럭시 탭에서 「Trip money」 단추가 「Trip」, 일본어 제목 「旅行のお金」이 「旅行の」로 보였다(자리는 다 차지)
 import { useMemo } from 'react';
 import { Platform, Text as RNText, type TextProps as RNTextProps } from 'react-native';
 
@@ -158,7 +160,7 @@ export function Text({ variant = 'body', color: colorOverride, weight = 'regular
   return (
     <RNText
       lineBreakStrategyIOS="hangul-word"
-      textBreakStrategy="balanced"
+      textBreakStrategy="simple"
       {...({ lang: webHangulLang(children) } as object)}
       {...rest}
       style={[
