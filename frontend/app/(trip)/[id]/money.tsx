@@ -6,6 +6,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Modal, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
@@ -47,6 +48,8 @@ export default function TripMoney() {
 function TripMoneyForTrip({ tripId }: { tripId: string }) {
   const router = useRouter();
   const { tx, language } = useI18n();
+  // 떠 있는 「쓴 돈 적기」는 아래 시스템 막대(탭 작업 표시줄·버튼 내비)만큼 올린다(S15P21E201-1974) — 안 올리면 반쯤 깔린다
+  const insets = useSafeAreaInsets();
   const { accessToken } = useAuth();
   const [ledger, setLedger] = useState<Ledger | null>(null);
   const [members, setMembers] = useState<TripMember[]>([]);
@@ -189,7 +192,7 @@ function TripMoneyForTrip({ tripId }: { tripId: string }) {
       <Text variant="caption" color={color.text.muted} style={styles.foot}>{tx('원화로 적어요. 외화로 냈으면 환율 도구로 바꿔 적어 주세요.\n동행에게도 같은 내역이 보여요.', 'Amounts are in won. If you paid in another currency, convert it with the exchange tool first.\nYour companions see the same list.')}</Text>
     </Screen>
 
-    <View style={styles.dock} pointerEvents="box-none">
+    <View style={[styles.dock, { bottom: spacing[4] + insets.bottom }]} pointerEvents="box-none" testID="money-dock">
       <View style={styles.dockInner}>
         <Button label={tx('쓴 돈 적기', 'Add an expense')} onPress={() => setAdding(true)} testID="money-add" />
       </View>
