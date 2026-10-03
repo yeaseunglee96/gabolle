@@ -15,8 +15,21 @@ import { txf } from '@/i18n/format';
 import type { LanguageCode } from '@/i18n/languages';
 import { KOREAN_OR_ENGLISH_HINT, needsKoreanOrEnglishName } from '@/discovery/nameSearchHint';
 
-/** 최대 몇 곳까지 담나. 넘으면 추천이 「이 여행」이 아니라 「이 목록」이 된다. */
+/** 날짜를 모를 때 쓰는 기본 상한 — 검색 결과를 몇 개까지 보여 줄지에도 쓴다. */
 export const MUST_VISIT_MAX = 5;
+/** 하루에 꼭 넣을 수 있는 곳. 넘으면 추천이 「이 여행」이 아니라 「이 목록」이 된다(S15P21E201-1970). */
+export const MUST_VISIT_PER_DAY = 3;
+
+/**
+ * 이 여행에 꼭 가고 싶은 곳을 몇 곳까지 담나 — 하루 3곳 × 여행 일수. 날짜를 아직 안 정했거나
+ * 거꾸로면 하루로 친다. 검색으로 고른 곳과 저장한 후보에서 고른 곳을 합쳐 센다.
+ */
+export function mustVisitLimit(startDate: string, endDate: string): number {
+  const start = Date.parse(`${startDate}T00:00:00Z`);
+  const end = Date.parse(`${endDate}T00:00:00Z`);
+  const days = Number.isFinite(start) && Number.isFinite(end) && end >= start ? Math.round((end - start) / 86_400_000) + 1 : 1;
+  return MUST_VISIT_PER_DAY * days;
+}
 /** 글자를 멈춘 뒤 이만큼 기다렸다 물어본다. 타이핑마다 부르면 한 낱말에 열 번 나간다. */
 const DEBOUNCE_MS = 250;
 /** 이 글자 수 미만은 서버에 안 보낸다 — 한 글자로는 온 부산이 다 나온다. */
@@ -28,12 +41,15 @@ export function MustVisitSearch({
   tx,
   ko,
   language: languageProp,
+  max = MUST_VISIT_MAX,
 }: {
   picked: MustVisitPlace[];
   onChange: (next: MustVisitPlace[]) => void;
   tx: (koText: string, enText: string) => string;
   ko: boolean;
   language?: LanguageCode;
+  /** 이 여행의 상한 — 부르는 쪽이 mustVisitLimit 로 정한다. */
+  max?: number;
 }) {
   // 이름·주소를 화면 언어로(S15P21E201-1877). 부르는 쪽이 안 주면 예전처럼 ko 로만 가른다.
   const language: LanguageCode = languageProp ?? (ko ? 'ko' : 'en');
@@ -41,7 +57,7 @@ export function MustVisitSearch({
   const [results, setResults] = useState<PlaceSearchItem[]>([]);
   const [searching, setSearching] = useState(false);
   const [failed, setFailed] = useState(false);
-  const full = picked.length >= MUST_VISIT_MAX;
+  const full = picked.length >= max;
 
   // 🔴 앞 요청을 끊는다. 안 끊으면 느린 응답이 나중에 도착해 **방금 친 글자의 결과를 덮는다**.
   //    「광안」을 치다 「광」의 결과가 뒤늦게 오는 식이라, 화면만 보면 검색이 고장 난 것처럼 보인다.
@@ -156,8 +172,8 @@ export function MustVisitSearch({
 
       <Text variant="caption" color={color.text.muted}>
         {picked.length
-          ? txf(tx, '%s곳 담았어요 · 최대 %s곳. 일정에 꼭 넣고 나머지를 주변으로 채워요.', '%s added · up to %s. We always include these and fill around them.', picked.length, MUST_VISIT_MAX)
-          : txf(tx, '최대 %s곳까지 담을 수 있어요. 담은 곳은 일정에 꼭 들어가요.', 'Up to %s places. Whatever you add always makes the itinerary.', MUST_VISIT_MAX)}
+          ? txf(tx, '%s곳 담았어요 · 최대 %s곳. 일정에 꼭 넣고 나머지를 주변으로 채워요.', '%s added · up to %s. We always include these and fill around them.', picked.length, max)
+          : txf(tx, '최대 %s곳까지 담을 수 있어요. 담은 곳은 일정에 꼭 들어가요.', 'Up to %s places. Whatever you add always makes the itinerary.', max)}
       </Text>
     </View>
   );
