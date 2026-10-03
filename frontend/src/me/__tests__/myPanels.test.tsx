@@ -6,7 +6,7 @@
 import { panelTitle, isPanelKey, myPanelBody, type MyPanelKey } from '@/me/myPanels';
 
 const ALL: MyPanelKey[] = [
-  'posts', 'saved', 'replies', 'followers', 'following', 'preferences',
+  'posts', 'saved', 'saved-places', 'replies', 'followers', 'following', 'preferences',
   'identities', 'profile', 'notifications', 'blocked', 'help', 'terms',
 ];
 

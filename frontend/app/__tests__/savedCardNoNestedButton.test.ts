@@ -14,8 +14,8 @@ function read(relative: string): string {
   return readFileSync(join(__dirname, '..', '..', relative), 'utf8') as string;
 }
 
-describe('저장 목록 카드 — 단추 안에 단추가 없다', () => {
-  const source = read('app/(tabs)/saved.tsx');
+describe('저장 목록 카드 — 단추 안에 단추가 없다(본문은 SavedPlacesBody, S15P21E201-1969)', () => {
+  const source = read('src/me/panels/SavedPlacesBody.tsx');
   const card = source.slice(source.indexOf('<View key={card.placeId} style={styles.card}>'), source.indexOf('</View>\n        ))}'));
 
   it('카드는 틀이고, 사진·글만 누르는 곳이다', () => {
@@ -23,9 +23,9 @@ describe('저장 목록 카드 — 단추 안에 단추가 없다', () => {
     expect(card).toContain('style={styles.cardMain}>');
   });
 
-  it('「저장 취소」는 누르는 곳이 닫힌 뒤에 형제로 온다', () => {
+  it('「후보에서 빼기」는 누르는 곳이 닫힌 뒤에 형제로 온다', () => {
     const mainClose = card.indexOf('</Pressable>');
-    const unsave = card.indexOf("accessibilityLabel={txf(tx, '%s 저장 취소', 'Unsave %s', card.title)}");
+    const unsave = card.indexOf("accessibilityLabel={txf(tx, '%s 후보에서 빼기', 'Remove %s from saved', card.title)}");
     expect(mainClose).toBeGreaterThan(0);
     expect(unsave).toBeGreaterThan(mainClose);
     // 안에 들어 있지 않으니 부모로 번지는 누름을 막을 일도 없다.
