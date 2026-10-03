@@ -8,7 +8,8 @@
 //    만들 수 없고, 어설프게 넣으면 「확대는 되는데 원래대로 못 돌아가는」 창이 된다.
 //    지금 필요한 것은 「화면 가득 보기」다 — 그것만 정확히 한다.
 //    나중에 확대가 필요해지면 그때 전용 라이브러리를 들인다.
-import { Image, Modal, Pressable, StyleSheet, View } from 'react-native';
+import { Modal, Pressable, StyleSheet, View } from 'react-native';
+import { AppImage } from '@/components/AppImage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Text } from '@/components/Text';
@@ -54,7 +55,7 @@ function PhotoViewerBody({ uri, label, closeLabel, onClose }: { uri: string; lab
       >
         {/* 🔴 contain 이다. cover 로 하면 화면 비율에 맞춰 «잘린다» — 크게 보려고 눌렀는데
             가장자리가 사라지면 작게 볼 때보다 못하다. */}
-        <Image
+        <AppImage
           source={{ uri }}
           resizeMode="contain"
           accessibilityLabel={label}

@@ -1,7 +1,8 @@
 // 로컬 탐색 화면 (상세설계서 v2 P-17). 8개 갈래(축제·야시장·전통시장·액티비티
 // 산책·자연·야경·기념품샵) 중 하나를 고르고, 내 근처와 부산 전체를 전환해 본다.
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Image, Linking, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Linking, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { AppImage } from '@/components/AppImage';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Location from 'expo-location';
 import { readCurrentPosition } from '@/location/currentPosition';
@@ -349,7 +350,7 @@ function PlacePhoto({ item, style }: { item: { photoUrl?: string | null; photoSu
     // 그 장소를 직접 찍은 사진에는 아무것도 안 나온다(판정은 photoLabels 한 곳에 있다).
     return (
       <View style={[style, styles.photoWrap]}>
-        <Image source={{ uri: item.photoUrl }} resizeMode="cover" style={StyleSheet.absoluteFill} />
+        <AppImage source={{ uri: item.photoUrl }} resizeMode="cover" style={StyleSheet.absoluteFill} />
         <PhotoSubjectBadge photoSubject={item.photoSubject} style={styles.photoBadge} />
       </View>
     );

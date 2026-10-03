@@ -4,7 +4,8 @@
 // 같이 쓴다. 줄마다 따로 만들면 간격이 조금씩 어긋나고, 그 어긋남은 나란히 놓고 봐야만
 // 보인다 — 한 줄씩 고칠 때는 아무도 못 잡는다.
 import { useRef } from 'react';
-import { Image, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { AppImage } from '@/components/AppImage';
 
 import { Text } from '@/components/Text';
 import { color, desktopGutter, radius, spacing } from '@/design/tokens';
@@ -51,7 +52,7 @@ function CircleButton({
       onPress={onPress}
       style={({ pressed }) => [styles.circle, filled && styles.circleFilled, pressed && styles.pressed]}
     >
-      <Image source={icon} resizeMode="contain" accessibilityIgnoresInvertColors style={styles.circleIcon} />
+      <AppImage source={icon} resizeMode="contain" accessibilityIgnoresInvertColors style={styles.circleIcon} />
     </Pressable>
   );
 }

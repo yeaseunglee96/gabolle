@@ -1,6 +1,7 @@
 // 피드 사진 자리 — S15P21E201-1135.
 import { useEffect, useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { AppImage } from '@/components/AppImage';
 
 import { color, radius as radii, spacing } from '@/design/tokens';
 import { photoGridSlots, planPhotoGrid, type PhotoGridPlan } from '@/social/photoGrid';
@@ -87,7 +88,7 @@ export function PhotoGrid({ photos, renderOverlay, onPressPhoto, accessibilityLa
     const photo = shown[index];
     if (!photo) return null;
     const inner = <>
-      <Image source={{ uri: photo.uri }} resizeMode="cover" style={styles.image} accessibilityIgnoresInvertColors />
+      <AppImage source={{ uri: photo.uri }} resizeMode="cover" style={styles.image} accessibilityIgnoresInvertColors />
       {renderOverlay?.(index)}
     </>;
     return onPressPhoto

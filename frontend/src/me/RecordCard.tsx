@@ -4,7 +4,8 @@
 //    같이 서고, 이쪽은 격자에서 «고르는» 카드라 사진과 이름만 있다. 하나로 합치려다
 //    두 화면 중 하나가 반드시 억지가 된다.
 import { storyBodyText } from '@/social/courseLink';
-import { Image, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { AppImage } from '@/components/AppImage';
 
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
@@ -32,7 +33,7 @@ export function RecordCard({
   return (
     <Pressable accessibilityRole="button" onPress={onPress} style={[styles.card, width ? { width } : null]}>
       {cover ? (
-        <Image source={{ uri: cover }} resizeMode="cover" accessibilityLabel="" style={styles.cover} />
+        <AppImage source={{ uri: cover }} resizeMode="cover" accessibilityLabel="" style={styles.cover} />
       ) : (
         // 🔴 빈 회색 네모를 두지 않는다 — 「사진을 못 불러왔다」로 읽힌다.
         // 실제로는 사진 없이 쓴 글이므로 본문을 대신 보여 준다.

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { localDateKey } from '@/plan/tripProgress';
-import { Image, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { AppImage } from '@/components/AppImage';
 import Svg, { Path, Rect } from 'react-native-svg';
 import { useRouter } from 'expo-router';
 
@@ -190,7 +191,7 @@ export default function Festivals() {
       const photo = photoLabels(festival, tx);
       return <View key={festival.placeId} style={[styles.card, cardWidth !== null && { width: cardWidth }]}>
         {festival.photoUrl ? <View>
-          <Image source={{ uri: festival.photoUrl }} resizeMode="cover" style={styles.image} />
+          <AppImage source={{ uri: festival.photoUrl }} resizeMode="cover" style={styles.image} />
           {photo.badge && <View style={styles.photoBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>{photo.badge}</Text></View>}
         </View> : <View style={styles.imageFallback}>{/* 사진이 없으면 둘러보기와 같은 📍 그림(S15P21E201-1679) — 전에는 「GABOLLE」 글자만 있었다. */}<Text variant="title" color={color.text.muted}>📍</Text></View>}
         <View style={styles.cardBody}>

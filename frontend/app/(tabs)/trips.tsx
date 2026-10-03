@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Modal, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Modal, Pressable, StyleSheet, View } from 'react-native';
+import { AppImage } from '@/components/AppImage';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
@@ -372,14 +373,14 @@ function TripCover({ uri }: { uri: string | null }) {
   const { desktop } = useLayout();
   const { uri: loadable, attempt } = useLoadableUri(uri);
   if (!loadable) return desktop ? <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.cover, styles.coverDesktop, styles.coverBlank]} /> : null;
-  return <Image key={attempt} source={{ uri: loadable }} resizeMode="cover" accessibilityLabel="" onError={() => markBroken(loadable)} style={[styles.cover, desktop && styles.coverDesktop]} />;
+  return <AppImage retries={0} key={attempt} source={{ uri: loadable }} resizeMode="cover" accessibilityLabel="" onError={() => markBroken(loadable)} style={[styles.cover, desktop && styles.coverDesktop]} />;
 }
 
 /** 작은 줄의 사진 — 없거나 못 불러오면 연한 빈 판. */
 function RowThumb({ uri }: { uri: string | null }) {
   const { uri: loadable, attempt } = useLoadableUri(uri);
   if (!loadable) return <View style={[styles.rowThumb, styles.rowThumbBlank]} />;
-  return <Image key={attempt} source={{ uri: loadable }} resizeMode="cover" accessibilityLabel="" onError={() => markBroken(loadable)} style={styles.rowThumb} />;
+  return <AppImage retries={0} key={attempt} source={{ uri: loadable }} resizeMode="cover" accessibilityLabel="" onError={() => markBroken(loadable)} style={styles.rowThumb} />;
 }
 
 /**

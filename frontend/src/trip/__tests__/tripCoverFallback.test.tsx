@@ -5,7 +5,8 @@
 //    서버가 보내 줘야 하는 인증서)를 빠뜨려서 안드로이드에서만 못 받는다. 웹에서는 보였다.
 //    Image 의 배경색(surface.soft)만 남아 「못 불러왔다」로 읽혔다 — 사진이 없을 때와 같게 그린다.
 import type { ReactNode } from 'react';
-import { Image } from 'react-native';
+// 사진은 공용 부품 AppImage(expo-image)로 그린다(S15P21E201-1975) — 그 부품을 찾는다.
+import { AppImage as Image } from '@/components/AppImage';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, render, screen } from '@testing-library/react-native';
 import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';

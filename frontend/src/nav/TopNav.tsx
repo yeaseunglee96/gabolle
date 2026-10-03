@@ -1,4 +1,4 @@
-import { Animated, Image, Pressable, StyleSheet, View } from 'react-native';
+import { Animated, Image, Pressable, StyleSheet, View, Platform } from 'react-native';
 import { usePathname, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/auth/AuthProvider';
@@ -102,11 +102,12 @@ export function TopNav() {
   const morphSearch = search.active && pathname === '/';
   const capsule = (
     <View style={styles.capsule}>
+      {/* 앱은 replace — 메뉴를 오갈 때마다 화면이 쌓여 사진 메모리가 찼다(S15P21E201-1975). 웹은 브라우저 뒤로 가기를 위해 push. */}
       {LINKS.map((item) => {
         const paths = [item.path, ...item.extra];
         const active = !planActive && paths.some((path) => pathname === path || (path !== '/' && pathname.startsWith(`${path}/`)));
         return (
-          <Pressable key={item.key} accessibilityRole="link" accessibilityState={{ selected: active }} onPress={() => router.push(item.path)} style={styles.capsuleItem}>
+          <Pressable key={item.key} accessibilityRole="link" accessibilityState={{ selected: active }} onPress={() => (Platform.OS === 'web' ? router.push(item.path) : router.replace(item.path))} style={styles.capsuleItem}>
             <Text weight={active ? 'bold' : 'medium'} color={active ? color.brand.navy : color.text.body} style={styles.noUnderline}>{tx(item.labelKo, item.labelEn)}</Text>
             {active ? <ActiveMarker /> : null}
           </Pressable>

@@ -1,4 +1,5 @@
-import { Image, StyleSheet, View, type ImageSourcePropType, type StyleProp, type ViewStyle } from 'react-native';
+import { StyleSheet, View, type ImageSourcePropType, type StyleProp, type ViewStyle } from 'react-native';
+import { AppImage } from '@/components/AppImage';
 
 import { PhotoCreditBar } from '@/components/PhotoCreditBar';
 import { Text } from '@/components/Text';
@@ -55,7 +56,7 @@ export function PlaceVisual({ name, address, style, photoUrl, photoSource, photo
   if (photoUrl && credit) {
     return (
       <View testID="place-visual-frame" style={frame}>
-        <Image source={{ uri: photoUrl }} resizeMode="cover" accessibilityLabel={`${name} 장소 사진`} style={styles.image} />
+        <AppImage source={{ uri: photoUrl }} resizeMode="cover" accessibilityLabel={`${name} 장소 사진`} style={styles.image} />
         <PhotoSubjectBadge photoSubject={photoSubject} style={styles.subjectBadge} />
         {/* 출처 띠는 둘러보기 카드와 같은 부품이다(S15P21E201-1682) — 「사진: …」 두 줄까지, 라이선스는 둘째 줄에 따로. */}
         {photoSource ? <PhotoCreditBar source={photoSource} license={photoLicense?.name ?? null} licenseUrl={labels.licenseUrl} tx={tx} /> : null}
@@ -66,7 +67,7 @@ export function PlaceVisual({ name, address, style, photoUrl, photoSource, photo
   return (
     <View testID="place-visual-frame" style={frame}>
       {visualKey ? (
-        <Image
+        <AppImage
           source={PLACE_IMAGES[visualKey]}
           resizeMode="cover"
           accessibilityLabel={`${name} 장소 사진`}
