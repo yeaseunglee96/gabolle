@@ -130,6 +130,45 @@ class MustVisitSeedTest {
 	}
 
 
+	/**
+	 * 꼭 가는 곳은 하루 3곳까지다(S15P21E201-1971) — 여기 여행은 1박 2일이라 6곳까지. 넘게 와도 거절하지 않는다:
+	 * 상한이 없던 옛 앱(iOS 1.0.1 등)이 그대로 보내면 여행 만들기 자체가 실패하기 때문이다. 앞에서부터 6곳만
+	 * 씨앗으로 적고 나머지는 버린다 — 고른 순서가 곧 우선순위다.
+	 */
+	@Test
+	@DisplayName("🔴 꼭 가는 곳이 여행 일수 × 3 을 넘으면 거절하지 않고 앞에서부터 상한까지만 적는다")
+	void tooManyMustVisitPlacesAreTrimmedNotRejected() {
+		List<String> seven = java.util.stream.IntStream.range(0, 7).mapToObj(i -> UUID.randomUUID().toString()).toList();
+
+		TripCreationService.Result result = this.service.create(command(seven), null);
+
+		assertThat(this.seeds.findByTripId(result.trip().tripId()))
+				.extracting(com.gabolle.backend.trip.domain.TripSeedPlace::placeId)
+				.containsExactlyElementsOf(seven.subList(0, 6));
+	}
+
+	@Test
+	@DisplayName("꼭 가는 곳이 여행 일수 × 3 이면 받는다")
+	void mustVisitPlacesAtTheLimitAreAccepted() {
+		List<String> six = java.util.stream.IntStream.range(0, 6).mapToObj(i -> UUID.randomUUID().toString()).toList();
+
+		TripCreationService.Result result = this.service.create(command(six), null);
+
+		assertThat(this.seeds.findByTripId(result.trip().tripId())).hasSize(6);
+	}
+
+	/** 저장할 때 같은 장소는 한 번만 적으므로 상한도 서로 다른 장소로 센다 — 같은 곳 두 번이 한 자리를 더 먹으면 안 된다. */
+	@Test
+	@DisplayName("같은 장소를 두 번 보낸 것은 한 곳으로 센다")
+	void duplicatesDoNotCountTowardTheLimit() {
+		List<String> six = new ArrayList<>(java.util.stream.IntStream.range(0, 6).mapToObj(i -> UUID.randomUUID().toString()).toList());
+		six.add(six.get(0));
+
+		TripCreationService.Result result = this.service.create(command(six), null);
+
+		assertThat(this.seeds.findByTripId(result.trip().tripId())).hasSize(6);
+	}
+
 	@Test
 	@DisplayName("고른 여행 범위가 순서대로 남는다")
 	void chosenTravelAreasAreStoredInOrder() {
