@@ -26,6 +26,7 @@ import { loadItinerary } from '@/plan/itinerary';
 import { localDateKey } from '@/plan/tripProgress';
 import { planPlacesFor, type PlanPlace } from '@/trip/planPlaces';
 import { loadTripItineraries } from '@/trip/trips';
+import { loadTripBudget } from '@/trip/tripBudget';
 import { approxForeignText, addExpense, EXPENSE_CATEGORIES, loadLedger, removeExpense, saveBudget, settle, totalsByCategory, type Expense, type ExpenseCategory, type Ledger } from '@/trip/expenses';
 
 type Tx = (ko: string, en: string) => string;
@@ -65,6 +66,15 @@ function TripMoneyForTrip({ tripId }: { tripId: string }) {
     if (people.state === 'success') { setMembers(people.members); setCanEdit(people.canEdit); setMyRole(people.myRole); }
   }, [tripId, accessToken]);
   useEffect(() => { void reload(); }, [reload]);
+
+  // 여행 경비 예산을 따로 안 정했으면 여행 계획 예산(여행 화면의 「예산 대비」와 같은 값)을 처음 값으로 쓴다(S15P21E201-1992).
+  // 같은 여행인데 여행 화면은 300,000원, 여기는 「예산 정하기」로 비어 서로 다른 말을 했다. 직접 정한 값이 있으면 그것이 우선
+  const [planBudget, setPlanBudget] = useState<number | null>(null);
+  useEffect(() => {
+    let alive = true;
+    void loadTripBudget(tripId, accessToken).then((next) => { if (alive) setPlanBudget(next.state === 'success' ? next.budgetKrw : null); });
+    return () => { alive = false; };
+  }, [tripId, accessToken]);
 
   // 「일정에서 고르기」 — 이 여행 일정의 장소. 못 받아도 손으로 적을 수 있으니 조용히 넘어간다
   const [planPlaces, setPlanPlaces] = useState<PlanPlace[]>([]);
@@ -113,7 +123,9 @@ function TripMoneyForTrip({ tripId }: { tripId: string }) {
   };
 
   const total = ledger?.totalKrw ?? 0;
-  const budget = ledger?.budgetKrw ?? null;
+  const ownBudget = ledger?.budgetKrw ?? null;
+  const budget = ownBudget ?? (ledger ? planBudget : null);
+  const fromPlan = ownBudget === null && budget !== null;
   const ratio = budget ? Math.min(1, total / budget) : 0;
   const perPerson = members.length > 1 ? Math.round(total / members.length) : null;
 
@@ -132,9 +144,9 @@ function TripMoneyForTrip({ tripId }: { tripId: string }) {
           <Text variant="caption" weight="bold" color={color.text.muted}>{tx('지출', 'Spent')}</Text>
           {canEdit ? (
             <Pressable accessibilityRole="button" onPress={() => setEditingBudget(true)} style={styles.linkButton}>
-              <Text variant="caption" weight="bold" color={color.text.body}>{budget ? txf(tx, '예산 %s · 바꾸기 ›', 'Budget %s · change ›', won(budget)) : tx('예산 정하기 ›', 'Set a budget ›')}</Text>
+              <Text variant="caption" weight="bold" color={color.text.body}>{budget ? (fromPlan ? txf(tx, '여행 계획 예산 %s · 바꾸기 ›', 'Trip plan budget %s · change ›', won(budget)) : txf(tx, '예산 %s · 바꾸기 ›', 'Budget %s · change ›', won(budget))) : tx('예산 정하기 ›', 'Set a budget ›')}</Text>
             </Pressable>
-          ) : budget ? <Text variant="caption" color={color.text.muted}>{txf(tx, '예산 %s', 'Budget %s', won(budget))}</Text> : null}
+          ) : budget ? <Text variant="caption" color={color.text.muted}>{fromPlan ? txf(tx, '여행 계획 예산 %s', 'Trip plan budget %s', won(budget)) : txf(tx, '예산 %s', 'Budget %s', won(budget))}</Text> : null}
         </View>
         {/* 🔴 색을 적는다 — hero 의 기본색은 흰색이라(사진 위에 얹던 시절) 흰 카드에서는 금액이 통째로 안 보인다 */}
         <Text variant="hero" weight="bold" color={color.text.heading} testID="money-total">{ledger ? won(total) : '…'}</Text>
@@ -201,7 +213,7 @@ function TripMoneyForTrip({ tripId }: { tripId: string }) {
     <AddExpenseSheet visible={adding} planPlaces={planPlaces} placeLabel={(place) => stopNameForLanguage(place.title, place.nameEn, language)} members={members} meId={me?.userId ?? null} nameOf={nameOf} tx={tx}
       onClose={() => setAdding(false)}
       onSubmit={async (expense) => { const ok = apply(await addExpense(tripId, expense, accessToken)); if (ok) setAdding(false); return ok; }} />
-    <BudgetSheet visible={editingBudget} initial={budget} tx={tx} onClose={() => setEditingBudget(false)}
+    <BudgetSheet visible={editingBudget} initial={ownBudget} tx={tx} onClose={() => setEditingBudget(false)}
       onSubmit={async (amount) => { const ok = apply(await saveBudget(tripId, amount, accessToken)); if (ok) setEditingBudget(false); }} />
   </View>;
 }

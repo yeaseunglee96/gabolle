@@ -3335,6 +3335,8 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '예산 %s · 바꾸기 ›': { ja: '予算 %s · 変更 ›', zhHans: '预算 %s · 修改 ›', zhHant: '預算 %s · 修改 ›' },
   '예산 정하기 ›': { ja: '予算を決める ›', zhHans: '设定预算 ›', zhHant: '設定預算 ›' },
   '예산 %s': { ja: '予算 %s', zhHans: '预算 %s', zhHant: '預算 %s' },
+  '여행 계획 예산 %s · 바꾸기 ›': { ja: '旅行プランの予算 %s · 変更 ›', zhHans: '行程预算 %s · 修改 ›', zhHant: '行程預算 %s · 修改 ›' },
+  '여행 계획 예산 %s': { ja: '旅行プランの予算 %s', zhHans: '行程预算 %s', zhHant: '行程預算 %s' },
   '예산보다 %s 더 썼어요': { ja: '予算より %s 多く使いました', zhHans: '比预算多花了 %s', zhHant: '比預算多花了 %s' },
   '%s 남았어요': { ja: '残り %s', zhHans: '还剩 %s', zhHant: '還剩 %s' },
   '%s명이면 1인 %s': { ja: '%s人なら1人 %s', zhHans: '%s 人平摊每人 %s', zhHant: '%s 人平分每人 %s' },
