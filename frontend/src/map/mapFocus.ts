@@ -30,9 +30,15 @@ export function fitPadding(bottomInset: number, mapHeight: number, topInset = 0,
   //    한 화면, 번호 점 1~6 이 한 덩어리). 세로는 높이의 TALL_MIN_ROOM 만큼을 맞출 자리로 남긴다 — 가장자리 점이 창 뒤로 가도 동네 단위 줌이 낫다.
   const room = Math.max(0, mapHeight - Math.max(MIN_FIT_ROOM, Math.round(mapHeight * (wide ? WIDE_MIN_ROOM : TALL_MIN_ROOM))));
   if (mapHeight > 0 && top + bottom > room) {
-    const scale = room / (top + bottom);
-    top = Math.round(top * scale);
-    bottom = Math.round(bottom * scale);
+    // 🔴 넘친 만큼은 위 여백(상태바·칩 — 반투명)에서 먼저 덜어 내고, 위가 EDGE 까지 줄어든 뒤에야 둘을 같은 비율로 줄인다(S15P21E201-1987).
+    //    전에는 둘을 같은 비율로 줄여 아래 여백이 아래 창 높이보다 훨씬 작아졌고, 맨 아래 번호 점이 불투명한 창 윗변에 반쯤 걸렸다(폴드 바깥 화면, 빌드 45).
+    const fromTop = Math.min(top + bottom - room, Math.max(0, top - EDGE));
+    top -= fromTop;
+    if (top + bottom > room) {
+      const scale = room / (top + bottom);
+      top = Math.round(top * scale);
+      bottom = room - top;
+    }
   }
   return [top, EDGE, bottom, EDGE];
 }
@@ -64,4 +70,14 @@ export const FOCUS_LEVEL = 4;
  */
 export function fitTargets<T>(stops: readonly T[], visible: readonly T[]): readonly T[] {
   return stops.length ? stops : visible;
+}
+
+/**
+ * 넓은 화면 여행 화면의 «큰 지도» 높이 — S15P21E201-1987.
+ * 🔴 전에는 창 높이 − 260(최소 520)이라, 탭 가로(높이 ~750dp)에서는 지도 칸이 보이는 영역보다 아래로 길어져 맞춘 범위의
+ *    아래쪽(4번·6번 점)이 첫 화면 밖에 있었다. 보이는 영역 높이(fillHeight — 스크롤 창 높이에서 본문 위치를 뺀 값)를 알면 그만큼만 쓴다.
+ */
+export function bigMapHeight(windowHeight: number, fillHeight: number): number {
+  if (fillHeight > 0) return Math.max(320, Math.round(fillHeight));
+  return Math.max(520, windowHeight - 260);
 }
