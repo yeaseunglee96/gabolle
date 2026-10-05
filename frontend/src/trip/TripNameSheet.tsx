@@ -124,9 +124,9 @@ export function TripNameSheet({ tripId, currentTitle, dateLabel, accessToken, on
         <Text color={color.text.body}>{tx('비워 두고 저장하면 이름이 지워지고 카드에 날짜가 보여요.', 'Save it empty to clear the name and show the dates.')}</Text>
       ) : dateLabel ? (
         <Text color={color.text.body}>
-          {tx('지금은 카드에 날짜 ', 'Right now the card shows ')}
+          {/* 넘어오는 값은 날짜일 때도, 「6곳 · 약 9.1만원」 같은 요약일 때도 있다 — 「날짜」라고 부르지 않고, 조사도 붙이지 않는다(S15P21E201-1990). */}
+          {tx('지금 카드에는 이렇게 보여요: ', 'Right now the card shows: ')}
           <Text weight="bold" color={color.text.heading}>{dateLabel}</Text>
-          {tx('가 보여요.', '.')}
         </Text>
       ) : null}
 

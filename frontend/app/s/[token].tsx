@@ -5,7 +5,7 @@
 // 심어 두면 마지막 제출 지점(recommendationJob.ts)이 일반 생성 대신 복제(clone) API를 부른다.
 import { txf } from '@/i18n/format';
 import { useEffect, useState } from 'react';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { BackHandler, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
 
@@ -91,6 +91,19 @@ export default function SharedItinerary() {
     return () => { active = false; };
   }, [token]);
 
+  // 🔴 앱 안에서 연 공유 링크는 나갈 길이 없었다 — 뒤로 단추도 없고 안드로이드 뒤로 가기도 먹지 않았다(S15P21E201-1990).
+  //    갈 곳이 있으면 뒤로, 없으면 홈으로. 웹(로그인 없이 보는 사람)은 브라우저 뒤로 가기가 있으니 그대로 둔다.
+  function leave() {
+    if (router.canGoBack()) router.back();
+    else router.replace('/home');
+  }
+  useEffect(() => {
+    if (Platform.OS !== 'android') return undefined;
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => { leave(); return true; });
+    return () => sub.remove();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   async function startMyOwnTrip() {
     if (!token) return;
     await clear();
@@ -136,6 +149,9 @@ export default function SharedItinerary() {
     .join(tx(' · ', ', '));
 
   return <Screen scroll style={styles.screen}>
+    {Platform.OS !== 'web' ? (
+      <Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={leave} style={styles.back}><Text variant="title">‹</Text></Pressable>
+    ) : null}
     <LanguageSwitch />
     <View style={styles.heading}>
       <Text variant="eyebrow" weight="bold">{tx('공유된 여행 일정', 'Shared trip itinerary')}</Text>
@@ -183,6 +199,7 @@ export default function SharedItinerary() {
 
 const styles = StyleSheet.create({
   screen: { backgroundColor: color.canvas },
+  back: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card },
   center: { alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.ivory },
   card: { gap: spacing[3], width: '100%', maxWidth: 420, padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
   heading: { gap: spacing[1], marginTop: spacing[3], marginBottom: spacing[4] },
