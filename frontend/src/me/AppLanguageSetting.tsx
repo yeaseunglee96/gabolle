@@ -46,7 +46,9 @@ const styles = StyleSheet.create({
   options: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
   // 🔴 다섯 칸을 3 + 2 로 고르게 채운다 — 글자 길이만큼만 차지하면 폭에 따라 「繁體中文」 하나만 다음 줄에 혼자
   //    떨어졌다(2026-10-02 서피스 프로 세로 실측). 줄마다 남은 폭은 칸들이 나눠 갖는다.
-  option: { flexGrow: 1, flexBasis: '30%', minHeight: 48, paddingHorizontal: spacing[4], paddingVertical: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.soft, alignItems: 'center', justifyContent: 'center' },
+  //    폭은 「최소」 30% 다(S15P21E201-1983) — 30% 로 박아 두면 글자를 키운 기기에서 「English」가 「Eng / lish」로
+  //    낱말 중간에서 꺾였다(갤럭시 탭 세로·글자 1.3배). 이름이 더 길면 칸이 넓어지고, 넘치면 다음 줄로 간다.
+  option: { flexGrow: 1, minWidth: '30%', minHeight: 48, paddingHorizontal: spacing[4], paddingVertical: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.soft, alignItems: 'center', justifyContent: 'center' },
   selected: { backgroundColor: color.brand.navy },
   disabled: { opacity: 0.58 },
 });

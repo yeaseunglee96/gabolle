@@ -49,3 +49,14 @@ it('offers all five UI languages and approximates non-Korean picks as EN for the
   //    일본어를 고른 뒤 그 안내가 어느 언어로도 남아 있지 않아야 한다.
   await waitFor(() => expect(view.queryByText(/メニューはまだ英語|Menus are in English|메뉴는 아직 영어/)).toBeNull());
 });
+// S15P21E201-1983 — 칸 폭을 30% 로 박아 두면(flexBasis) 글자를 키운 기기에서 「English」가 「Eng / lish」로
+// 낱말 중간에서 꺾였다(갤럭시 탭 세로·글자 1.3배 실측). 칸은 최소 30% 만 차지하고 글자 길이만큼 넓어져야 한다.
+it('lets a language chip grow to fit its name instead of breaking the word', async () => {
+  const { StyleSheet } = require('react-native');
+  const view = await mount();
+  const chip = view.getByLabelText('English');
+  const style = StyleSheet.flatten(chip.props.style);
+  expect(style.flexBasis).toBeUndefined();
+  expect(style.minWidth).toBe('30%');
+  expect(style.flexGrow).toBe(1);
+});
