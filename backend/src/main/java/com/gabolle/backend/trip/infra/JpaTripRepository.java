@@ -302,7 +302,7 @@ public class JpaTripRepository implements TripRepository {
 		}
 
 		Object[] row = (Object[]) entityManager.createNativeQuery(
-				"SELECT request_fingerprint, trip_id FROM trip_idempotency "
+				"SELECT request_fingerprint, trip_id, created_at FROM trip_idempotency "
 						+ "WHERE user_id = ?1 AND idempotency_key = ?2")
 				.setParameter(1, UUID.fromString(userId))
 				.setParameter(2, idempotencyKey)
@@ -324,7 +324,11 @@ public class JpaTripRepository implements TripRepository {
 		//
 		//    갈아 묶기는 「아직 그 지운 여행에 묶여 있을 때만」({@code trip_id = ?5}) 바꾼다. 같은 키로 동시에 온 요청 둘이
 		//    모두 지운 여행을 보았을 때 한쪽만 이기게 하는 장치다(한 행에 대한 갱신은 한 번에 하나만 통과한다).
-		if (existingTrip.isDeleted()) {
+		// 🔴 S15P21E201-1995 — 재시도 보호는 몇 초~몇 분 사이의 중복 요청을 막는 것이다. 앱(iOS 1.0.1 포함)은 여행 조건을
+		//    해시해 키를 만들어서, 같은 조건으로 다음 날 새로 만들어도 같은 키가 되고 옛 여행(옛 이름·옛 코스)이 다시 열렸다
+		//    (10/5 녹화). 키가 묶인 지 {@link #IDEMPOTENCY_WINDOW} 가 지났으면 지운 여행과 같이 새 여행으로 갈아 묶는다.
+		boolean staleKey = isStale(row.length > 2 ? row[2] : null, trip.createdAt());
+		if (existingTrip.isDeleted() || staleKey) {
 			int rebound = entityManager.createNativeQuery(
 					"UPDATE trip_idempotency SET trip_id = ?3, created_at = ?4 "
 							+ "WHERE user_id = ?1 AND idempotency_key = ?2 AND trip_id = ?5")
@@ -352,6 +356,26 @@ public class JpaTripRepository implements TripRepository {
 
 		PreferenceSnapshot existingSnapshot = findLatestSnapshot(existingTripId.toString()).orElse(null);
 		return new SaveOutcome(existingTrip, existingSnapshot, false);
+	}
+
+	/** 같은 키를 재시도로 보는 시간. 이보다 오래전에 묶인 키로 다시 오면 사용자가 새로 만든 여행이다. */
+	static final java.time.Duration IDEMPOTENCY_WINDOW = java.time.Duration.ofMinutes(10);
+
+	static boolean isStale(Object boundAt, java.time.Instant now) {
+		java.time.Instant bound = null;
+		if (boundAt instanceof java.time.OffsetDateTime odt) {
+			bound = odt.toInstant();
+		}
+		else if (boundAt instanceof java.time.Instant instant) {
+			bound = instant;
+		}
+		else if (boundAt instanceof java.sql.Timestamp ts) {
+			bound = ts.toInstant();
+		}
+		if (bound == null || now == null) {
+			return false;
+		}
+		return bound.plus(IDEMPOTENCY_WINDOW).isBefore(now);
 	}
 
 	/**
