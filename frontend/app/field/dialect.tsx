@@ -9,6 +9,7 @@ import { StyleSheet, View } from 'react-native';
 import { useAuth } from '@/auth/AuthProvider';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
+import { FieldBackButton } from '@/components/FieldBackButton';
 import { color, radius, spacing } from '@/design/tokens';
 import { DialectFlashcards } from '@/discovery/DialectFlashcards';
 import { useI18n } from '@/i18n';
@@ -37,6 +38,7 @@ export default function Dialect() {
 
   return (
     <Screen scroll wide>
+      <FieldBackButton />
       <Text variant="display" weight="bold">{tx('부산 사투리 한마디', 'A word of Busan dialect')}</Text>
       <Text variant="caption" color={color.text.body} style={styles.subtitle}>
         {tx('뜻을 보고, 눌러서 진짜 부산 억양으로 들어 보세요. 식당·택시에서 한마디 하면 반응이 다릅니다.', 'See what it means, then tap to hear it in a real Busan accent. One word at a restaurant or in a taxi changes the mood.')}

@@ -256,9 +256,11 @@ export default function SignUp() {
           </Pressable>
         </View>}
 
-        {((kind === 'tablet' && started) || panelIndex === 3) && blockers.length > 0 && <View accessibilityLiveRegion="polite" style={styles.blockers}>
-          <Text variant="caption" weight="bold" color={color.text.heading}>{tx('아직 남은 것', 'Still to do')}</Text>
-          <Text variant="caption" color={color.text.body}>{blockers.join(' · ')}</Text>
+        {/* 🔴 상자를 다 채워도 지우지 않는다 — S15P21E201-1993. 지우면 「가입」 단추가 위로 튀고 그 자리에 「둘러보기」가 와서,
+            체크 전에 본 자리를 누르면 가입 대신 둘러보기로 빠졌다(실제로 첫 가입 시도가 날아갔다). 같은 자리에 「준비됐어요」를 둔다. */}
+        {((kind === 'tablet' && started) || panelIndex === 3) && <View testID="signup-blockers" accessibilityLiveRegion="polite" style={styles.blockers}>
+          <Text variant="caption" weight="bold" color={color.text.heading}>{blockers.length > 0 ? tx('아직 남은 것', 'Still to do') : tx('가입할 준비가 됐어요', 'Ready to sign up')}</Text>
+          <Text variant="caption" color={color.text.body}>{blockers.length > 0 ? blockers.join(' · ') : tx('아래 가입 단추를 누르세요.', 'Tap the sign-up button below.')}</Text>
         </View>}
 
         {error && <View accessibilityRole="alert" style={styles.errorBox}><ErrorText>{localizeMessage(tx, error)}</ErrorText></View>}

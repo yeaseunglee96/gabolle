@@ -7,6 +7,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { BusIcon } from '@/field/BusIcon';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
+import { FieldBackButton } from '@/components/FieldBackButton';
 import { useI18n } from '@/i18n';
 
 const sunIcon = require('../../assets/icons/common/sun.png');
@@ -80,6 +81,7 @@ export default function Translate() {
 
   return (
     <Screen scroll>
+      <FieldBackButton fallback="/home" />
       <Text variant="display" weight="bold">
         {tx('현장 도구', 'On-the-go tools')}
       </Text>

@@ -12,6 +12,7 @@ import { useLocationGate } from '@/personalization/useLocationGate';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
+import { FieldBackButton } from '@/components/FieldBackButton';
 import { color, radius, spacing } from '@/design/tokens';
 import {
   arrivalLabel,
@@ -256,6 +257,7 @@ export default function Bus() {
 
   return (
     <Screen scroll wide>
+      <FieldBackButton />
       <Text variant="display" weight="bold">{tx('주변 버스', 'Buses nearby')}</Text>
       <Text variant="caption" color={color.text.body} style={styles.subtitle}>
         {tx('어디로 가는지 알려주면 탈 버스와 기다릴 시간을 알려드려요.', 'Tell us where you are going and we will show which bus to take and how long to wait.')}

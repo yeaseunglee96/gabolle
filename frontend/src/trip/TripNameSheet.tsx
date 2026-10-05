@@ -227,7 +227,9 @@ export function TripNameSheet({ tripId, currentTitle, dateLabel, accessToken, on
   });
 
   const sheet = (
-    <Pressable onPress={() => {}} style={kind === 'phone' ? [styles.sheet, { paddingBottom: bottomPad }] : styles.card}>
+    // 🔴 accessible={false} — S15P21E201-1993. 누름을 가두려고 감싼 Pressable 이 iOS 에서 「단추 하나」로 묶여,
+    //    안의 이름 입력칸·저장 단추가 VoiceOver·자동화 도구에 따로 잡히지 않았다.
+    <Pressable accessible={false} onPress={() => {}} style={kind === 'phone' ? [styles.sheet, { paddingBottom: bottomPad }] : styles.card}>
       {kind === 'phone' ? <View {...sheetDrag} style={styles.handleZone}><View style={styles.handle} /></View> : null}
       {body}
     </Pressable>

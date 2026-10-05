@@ -8,6 +8,7 @@ import { speakAloud as speakWithAudioSession, stopSpeaking } from '@/field/speak
 import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
+import { FieldBackButton } from '@/components/FieldBackButton';
 import { Eyebrow } from '@/components/Eyebrow';
 import { PlacePhraseBrowser } from '@/components/PlacePhraseBrowser';
 import { useI18n } from '@/i18n';
@@ -142,6 +143,7 @@ export default function Speak() {
 
   return (
     <Screen scroll>
+      <FieldBackButton />
       {/* 여기에도 흰여울문화마을이 박혀 있었다 — 어디에 있든 그렇게 적혔다. */}
       <Eyebrow>{tx('여행 중', 'On your trip')}</Eyebrow>
       <Text variant="display" weight="bold" style={styles.title}>

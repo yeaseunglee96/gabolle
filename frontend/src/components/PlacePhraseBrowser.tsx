@@ -67,11 +67,14 @@ export function PlacePhraseBrowser({ category, onOpenTaxiCard }: PlacePhraseBrow
         })}
       </View>
 
+      {/* 한국어 화면에서는 카드 제목이 영어다 — 외국인 여행자에게 보여 주는 카드라서 일부러 그렇다(뜻 → 한국어 → 발음).
+          한국어 사용자가 「왜 영어지」 하지 않게 한 줄 알린다 — S15P21E201-1994. */}
+      {language === 'ko' ? <Text testID="phrase-ko-note" variant="caption" color={color.text.muted} style={styles.koNote}>{tx('외국인 여행자에게 보여 주는 문장 카드예요 · 영어 뜻 → 한국어 → 발음 순서', 'Phrase cards to show locals · meaning → Korean → pronunciation')}</Text> : null}
       <ScrollView style={styles.list} contentContainerStyle={styles.listContent}>
         {phrases.map((phrase) => {
           const expanded = expandedId === phrase.id;
           return (
-            <Pressable key={phrase.id} accessibilityRole="button" accessibilityState={{ expanded }} onPress={() => setExpandedId(expanded ? null : phrase.id)} style={[styles.phraseCard, expanded && styles.phraseCardExpanded]}>
+            <Pressable key={phrase.id} accessible={!expanded} accessibilityRole="button" accessibilityState={{ expanded }} onPress={() => setExpandedId(expanded ? null : phrase.id)} style={[styles.phraseCard, expanded && styles.phraseCardExpanded]}>
               {/* 사용자 실사용 리포트(2026-09-16): 여행자는 영어 뜻을 이미 알고 한국어를
                   찾으러 온다 — 한국어를 먼저 크게 보여주면 "그게 무슨 뜻인지" 되짚어야 한다.
                   뜻(en)을 먼저 보여주고, 누르면 그제서야 한국어·발음·듣기 버튼이 나오게
@@ -91,10 +94,10 @@ export function PlacePhraseBrowser({ category, onOpenTaxiCard }: PlacePhraseBrow
                       사라진다. 웹에서는 단추 속 단추라 마크업도 잘못된다.
                       같은 처리를 ConditionsPromptModal · trips.tsx 가 이미 쓴다. */}
                   <View onStartShouldSetResponder={() => true} style={styles.speedRow}>
-                    <Pressable accessibilityRole="button" accessibilityLabel={tx('보통 속도로 듣기', 'Listen at normal speed')} onPress={() => speak(phrase, NORMAL_RATE)} style={styles.speedButton}>
+                    <Pressable accessibilityRole="button" accessibilityLabel={tx('보통, 보통 속도로 듣기', 'Normal, listen at normal speed')} onPress={() => speak(phrase, NORMAL_RATE)} style={styles.speedButton}>
                       <Text variant="caption" weight="bold" color={color.text.onAction}>{speakingId === phrase.id && speakingRate === NORMAL_RATE ? tx('재생 중', 'Playing') : tx('▶ 보통', '▶ Normal')}</Text>
                     </Pressable>
-                    <Pressable accessibilityRole="button" accessibilityLabel={tx('느린 속도로 듣기', 'Listen at slow speed')} onPress={() => speak(phrase, SLOW_RATE)} style={[styles.speedButton, styles.speedButtonSlow]}>
+                    <Pressable accessibilityRole="button" accessibilityLabel={tx('느리게, 느린 속도로 듣기', 'Slow, listen at slow speed')} onPress={() => speak(phrase, SLOW_RATE)} style={[styles.speedButton, styles.speedButtonSlow]}>
                       <Text variant="caption" weight="bold" color={color.text.onAction}>{speakingId === phrase.id && speakingRate === SLOW_RATE ? tx('재생 중', 'Playing') : tx('▶ 느리게', '▶ Slow')}</Text>
                     </Pressable>
                   </View>
@@ -115,6 +118,7 @@ export function PlacePhraseBrowser({ category, onOpenTaxiCard }: PlacePhraseBrow
 }
 
 const styles = StyleSheet.create({
+  koNote: { marginBottom: 8 },
   container: { gap: spacing[3] },
   tabRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
   tab: { minHeight: 40, flexGrow: 1, flexBasis: '45%', alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
