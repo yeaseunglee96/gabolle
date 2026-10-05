@@ -77,6 +77,16 @@ import { initialDayIndex } from '@/trip/openDay';
 // 영업시간 경고/-858) — 편집 다섯 갈래 중 넷(더하기 제외, 재계산은 비동기라
 // 이 응답에 못 싣는다)이 warnings·notChecked를 함께 돌려준다. 되돌리기는 여러 날에 걸친
 // 위반이 함께 올 수 있어 하루가 아니라 일정 전체에서 항목을 찾는다.
+/**
+ * 편집 응답(고정·순서·되돌리기 등)은 여행 번호·제목을 안 싣기도 한다. 그대로 갈아 끼우면 tripId 를 보고 그리는
+ * 「이름 바꾸기·동행 초대·날씨」가 사라졌다가, 다시 불러온 뒤에야 돌아왔다(폴드 점검 10/5, S15P21E201-1985).
+ * 응답에 없는 칸만 이전 값으로 채운다.
+ */
+export function keepTripFields(next: ItineraryDto, prev: ItineraryDto | null): ItineraryDto {
+  if (!prev) return next;
+  return { ...next, tripId: next.tripId ?? prev.tripId, title: next.title ?? prev.title };
+}
+
 export function describeOpeningHoursIssues(itinerary: ItineraryDto, warnings: ItineraryOpeningHoursWarning[], notChecked: ItineraryOpeningHoursNotChecked[], tx: (ko: string, en: string) => string): string[] {
   const itemsById = new Map(itinerary.days.flatMap((day) => day.items).map((item) => [item.id, item]));
   const closedMessages = warnings
@@ -744,7 +754,7 @@ function ItineraryClassic() {
     setActualBusyItemId(null);
     if (outcome.state === 'success') {
       setArrivalsHere((current) => ({ ...current, [item.id]: arrivedAt }));
-      setResult({ state: 'success', itinerary: outcome.itinerary });
+      setResult({ state: 'success', itinerary: keepTripFields(outcome.itinerary, itinerary) });
       void refreshPaceAfterActual();
     }
     else if (outcome.state !== 'conflict') setActionMessage(outcome.message);
@@ -761,7 +771,7 @@ function ItineraryClassic() {
     setActualBusyItemId(item.id);
     const outcome = await recordItineraryItemActual({ itineraryId: itinerary.id, itemId: item.id, arrivedAt: existingArrival, departedAt: new Date().toISOString(), accessToken });
     setActualBusyItemId(null);
-    if (outcome.state === 'success') { setResult({ state: 'success', itinerary: outcome.itinerary }); void refreshPaceAfterActual(); }
+    if (outcome.state === 'success') { setResult({ state: 'success', itinerary: keepTripFields(outcome.itinerary, itinerary) }); void refreshPaceAfterActual(); }
     else if (outcome.state !== 'conflict') setActionMessage(outcome.message);
   };
 
@@ -771,7 +781,7 @@ function ItineraryClassic() {
     const outcome = await replanItineraryDay({ itineraryId: itinerary.id, dayIndex: selectedDay, baseVersion: itinerary.version, accessToken });
     setReplanBusy(false); setReplanConfirming(false);
     if (outcome.state === 'success') {
-      setResult({ state: 'success', itinerary: outcome.itinerary });
+      setResult({ state: 'success', itinerary: keepTripFields(outcome.itinerary, itinerary) });
       setActionMessage(tx('남은 일정을 다시 계획했어요.', 'Replanned the rest of the day.'));
       setOpeningHoursNotice(describeOpeningHoursIssues(outcome.itinerary, outcome.warnings, outcome.notChecked, tx));
     }
@@ -795,7 +805,7 @@ function ItineraryClassic() {
     setBusyItemId(item.id); setConflict(null); setActionMessage(null); setOpeningHoursNotice([]);
     const next = await setItineraryItemLocked({ itineraryId: itinerary.id, itemId: item.id, locked: !item.locked, baseVersion: itinerary.version, accessToken });
     setBusyItemId(null);
-    if (next.state === 'success') { setResult({ state: 'success', itinerary: next.itinerary }); setOpeningHoursNotice(describeOpeningHoursIssues(next.itinerary, next.warnings, next.notChecked, tx)); }
+    if (next.state === 'success') { setResult({ state: 'success', itinerary: keepTripFields(next.itinerary, itinerary) }); setOpeningHoursNotice(describeOpeningHoursIssues(next.itinerary, next.warnings, next.notChecked, tx)); }
     else if (next.state === 'conflict') setConflict(next.message);
     else setResult(next);
   };
@@ -829,7 +839,7 @@ function ItineraryClassic() {
     const outcome = await revertItinerary({ itineraryId: itinerary.id, baseVersion: itinerary.version, accessToken });
     setRevertBusy(false);
     if (outcome.state === 'success') {
-      setResult({ state: 'success', itinerary: outcome.itinerary });
+      setResult({ state: 'success', itinerary: keepTripFields(outcome.itinerary, itinerary) });
       void refreshVersions(outcome.itinerary.id);
       setActionMessage(tx('최근 변경을 되돌렸어요.', 'Reverted your last change.'));
       setOpeningHoursNotice(describeOpeningHoursIssues(outcome.itinerary, outcome.warnings, outcome.notChecked, tx));
@@ -891,7 +901,7 @@ function ItineraryClassic() {
     const outcome = await reorderItineraryDay({ itineraryId: itinerary.id, dayIndex: selectedDay, itemKeys: orderDraft, baseVersion: itinerary.version, accessToken });
     setReorderBusy(false);
     if (outcome.state === 'success') {
-      setResult({ state: 'success', itinerary: outcome.itinerary });
+      setResult({ state: 'success', itinerary: keepTripFields(outcome.itinerary, itinerary) });
       setOrderDraft(null);
       setActionMessage(tx('순서를 저장했어요.', 'Saved the new order.'));
       setOpeningHoursNotice(describeOpeningHoursIssues(outcome.itinerary, outcome.warnings, outcome.notChecked, tx));
