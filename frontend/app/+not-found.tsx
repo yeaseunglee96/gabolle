@@ -21,7 +21,8 @@ export default function NotFoundScreen() {
 
   return (
     <Screen wide style={isDesktop ? styles.desktopScreen : styles.screen}>
-      <StatusBar style={isDesktop ? 'dark' : 'light'} />
+      {/* 🔴 위쪽 안전 영역은 Screen 의 SafeAreaView 가 밝은 바탕(canvas)으로 그린다 — 남색은 그 아래부터라 밝은 글자가 묻혔다(S15P21E201-1988). 어두운 글자로. */}
+      <StatusBar style="dark" />
       <View style={[styles.shell, isDesktop && styles.desktopShell]}>
         <View style={[styles.messagePanel, isDesktop && styles.desktopMessagePanel]}>
           <BrandLogoLink href={homeHref} imageStyle={styles.logo} />

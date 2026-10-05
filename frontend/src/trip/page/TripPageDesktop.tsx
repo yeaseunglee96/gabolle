@@ -29,7 +29,7 @@ import { koreanSubject } from '@/i18n/korean';
 import { localizeMessage } from '@/i18n/messages';
 import { PLACE_CATEGORY_LABELS } from '@/discovery/placeCategoryLabels';
 import { RouteMap } from '@/map/RouteMap';
-import { bigMapHeight } from '@/map/mapFocus';
+import { BIG_MAP_CHIP_COVER, bigMapHeight } from '@/map/mapFocus';
 import { courseLetter } from '@/plan/CourseCard';
 import { stopClock, type DayStart, type ItineraryItemDto } from '@/plan/itinerary';
 import { formatTravelLabel, totalTravelMinutes } from '@/plan/itinerarySummary';
@@ -149,7 +149,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
   const mapPanel = (height: number) => (
     <View style={[styles.mapPanel, { height }]}>
       {map.stops.length ? (
-        <RouteMap stops={map.stops} selectedId={selectedId} onSelect={setSelectedId} routes={routes} points={points} height={height} focusSelected topInset={routeLegend ? LEGEND_COVER : 0} />
+        <RouteMap stops={map.stops} selectedId={selectedId} onSelect={setSelectedId} routes={routes} points={points} height={height} focusSelected topInset={routeLegend ? LEGEND_COVER : BIG_MAP_CHIP_COVER} />
       ) : (
         <View style={styles.mapEmpty}><Text variant="caption" color={color.text.muted}>{tx('장소의 좌표가 아직 없어 지도에 그릴 수 없어요.', 'These places have no coordinates yet, so the map is empty.')}</Text></View>
       )}

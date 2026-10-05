@@ -232,10 +232,9 @@ export function buildKakaoMapHtml(appKey: string): string {
       // 🔴 여백은 그릴 때의 지도 높이로 셈한 값이다(S15P21E201-1903). 폰을 가로로 돌리면 높이가 확 줄어 그 여백이 지도를 다 덮고, 카카오가 동아시아 전체로 물러났다.
       //    지금 높이로 다시 줄여 맞출 자리를 60 은 남긴다(mapFocus.fitPadding 과 같은 규칙).
       var pad = padNow.slice(); var el = document.getElementById('map'); var h = el.clientHeight || 0; var w = el.clientWidth || 0;
-      // 넓고 낮은 지도(탭 가로)는 높이의 45% 를 맞출 자리로 남긴다 — mapFocus.fitPadding 의 WIDE_MIN_ROOM 과 같은 규칙(S15P21E201-1980).
-      // 세로 지도는 높이의 25% — TALL_MIN_ROOM 과 같은 규칙(S15P21E201-1986).
-      var room = Math.max(0, h - Math.max(60, Math.round(h * (w > h * 1.3 ? 0.45 : 0.25))));
-      if (h > 0 && pad[0] + pad[2] > room) { var up = Math.min(pad[0] + pad[2] - room, Math.max(0, pad[0] - 60)); pad[0] -= up; if (pad[0] + pad[2] > room) { var k = room / (pad[0] + pad[2]); pad[0] = Math.round(pad[0] * k); pad[2] = room - pad[0]; } } // 넘친 만큼은 위 여백에서 먼저 덜어 낸다 — 맨 아래 점이 창 윗변에 걸리지 않게(mapFocus.fitPadding, S15P21E201-1987)
+      // 위·아래 가림 띠는 앱이 따로 셈해 보낸다(mapFocus.fitPadding, S15P21E201-1988). 여기서는 지금 높이에서 맞출 자리가
+      // 48 보다 좁아질 때만 아래부터(점 반지름 24 까지) 줄이고, 그래도 모자라면 위를 줄인다 — 같은 규칙.
+      if (h > 0) { var over = pad[0] + pad[2] + 48 - h; if (over > 0) { var cut = Math.min(over, pad[2] - 24); pad[2] -= cut; over -= cut; } if (over > 0) pad[0] = Math.max(24, pad[0] - over); }
       if (fitStops.length <= 1) { map.setCenter(new maps.LatLng(fitStops[0].latitude, fitStops[0].longitude)); map.setLevel(5); } else map.setBounds(bounds, pad[0], pad[1], pad[2], pad[3]); focusOn(selectedNow); };
     fit();
     // 맞추면 줌이 바뀐다 — 줌 사건이 안 오는 환경도 있어 맞춘 뒤 한 번 더 셈한다.

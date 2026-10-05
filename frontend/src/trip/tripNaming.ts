@@ -225,7 +225,10 @@ export function tripDatesLabel(startDate: string | null | undefined, endDate: st
   const end = endDate && endDate !== startDate ? (formatDayHeading(endDate, locale) ?? endDate) : null;
   // 🔴 대시 뒤는 끊기지 않는 빈칸(U+00A0)이다(S15P21E201-1986) — 좁은 화면에서 「10월 10일 (토) –」 / 「10월 12일 (월)」처럼
   //    대시를 앞줄 끝에 남기고 꺾였다. 이제 꺾이면 「10월 10일 (토)」 / 「– 10월 12일 (월)」이 된다.
-  return end ? `${start} –\u00A0${end}` : start;
+  // 🔴 날짜 덩어리 안의 빈칸도 끊기지 않는 빈칸이다(S15P21E201-1988) — 큰 글씨에서 「10월 10일 (토) – 10월」 / 「12일 (월)」로
+  //    날짜 중간이 꺾였다. 이제 꺾일 수 있는 자리는 대시 앞 한 곳뿐이다.
+  const keep = (text: string) => text.replace(/ /g, '\u00A0');
+  return end ? `${keep(start)} –\u00A0${keep(end)}` : keep(start);
 }
 
 /**

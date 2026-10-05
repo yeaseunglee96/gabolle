@@ -34,9 +34,9 @@ describe('앱 지도 스크립트(kakaoMapHtml)', () => {
 });
 
 describe('가로 화면처럼 지도가 낮을 때의 여백', () => {
-  it('🔴 위아래 여백이 지도 높이를 다 먹지 않는다 — 맞출 자리를 60 은 남긴다(전에는 동아시아 전체로 물러났다)', () => {
+  it('🔴 위아래 여백이 지도 높이를 다 먹지 않는다 — 맞출 자리를 48 은 남긴다(전에는 동아시아 전체로 물러났다; S15P21E201-1988 부터 48)', () => {
     const [top, , bottom] = fitPadding(600, 410, 200);
-    expect(410 - top - bottom).toBeGreaterThanOrEqual(60);
+    expect(410 - top - bottom).toBeGreaterThanOrEqual(48);
   });
   it('지도가 넉넉하면 전과 같다', () => {
     expect(fitPadding(0, 800, 0)).toEqual([60, 60, 60, 60]);
@@ -47,7 +47,7 @@ describe('앱 지도 — 화면을 돌린 뒤 다시 맞출 때', () => {
   it('🔴 지금 지도 높이로 여백을 다시 줄인다 — 가로로 돌리면 동아시아 전체로 물러나던 것(S15P21E201-1903)', () => {
     const html = buildKakaoMapHtml('key');
     expect(html).toContain("var h = el.clientHeight || 0; var w = el.clientWidth || 0;");
-    // 세로는 60 을 남기고(1903), 넓고 낮은 지도(탭 가로)는 높이의 45% 를 남긴다(S15P21E201-1980).
-    expect(html).toContain("var room = Math.max(0, h - Math.max(60, Math.round(h * (w > h * 1.3 ? 0.45 : 0.25))));");
+    // 맞출 자리가 48 보다 좁아질 때만 아래부터 줄인다 — mapFocus.fitPadding 과 같은 규칙(S15P21E201-1988).
+    expect(html).toContain('var over = pad[0] + pad[2] + 48 - h');
   });
 });

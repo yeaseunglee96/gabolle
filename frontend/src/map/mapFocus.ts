@@ -6,39 +6,28 @@
 //    스크립트라 이 파일을 못 불러서 식을 한 번 더 적었다.
 
 const EDGE = 60;
-/** 전체를 맞출 때 여백을 빼고도 남겨 둘 지도 높이(px) — 이보다 좁게 맞추면 너무 멀리 물러난다. */
-const MIN_FIT_ROOM = EDGE;
-/** 가로로 넓은 지도에서 맞출 자리로 남길 높이 비율 — S15P21E201-1980. */
-const WIDE_MIN_ROOM = 0.45;
-/** 세로 지도(폰·폴드 바깥 화면)에서 맞출 자리로 남길 높이 비율 — S15P21E201-1986. 60px 띠에 맞추면 번호 점이 한 덩어리가 됐다. */
-const TALL_MIN_ROOM = 0.25;
+/** 번호 점(마커) 반지름 + 여유(px). 마커는 지름 34~40 이라 가운데가 가림 띠에서 이만큼은 떨어져야 다 보인다 — S15P21E201-1988. */
+export const MARKER_CLEARANCE = 24;
+/** 가림 띠를 빼고도 맞출 자리로 남겨 둘 최소 높이(px). 여백이 지도 높이를 다 먹으면 카카오가 동아시아 전체로 물러난다(S15P21E201-1903). */
+const MIN_FIT_BAND = 48;
+/** 넓은 화면 큰 지도 왼쪽 위의 「장소 N곳」 칩이 덮는 높이(top 12 + 높이 34 + 8) — TripPageDesktop. 범례가 있으면 LEGEND_COVER(80). */
+export const BIG_MAP_CHIP_COVER = 54;
 
 /**
- * 전체를 맞출 때의 여백 [위, 오른쪽, 아래, 왼쪽]. 아래는 가려진 만큼 더 — 다만 지도에 보일 자리(위아래 120)는 남긴다.
- * 위도 가려진 만큼(topInset — 상태바와 지도 위에 뜬 칩) 더 둔다(S15P21E201-1754). 전에는 위가 늘 60 이라
- * 폰에서 출발지·정차지가 상태바와 「장소 N곳」·지도 위 칩(지금은 색 범례) 밑으로 숨었다.
+ * 전체를 맞출 때의 여백 [위, 오른쪽, 아래, 왼쪽] — S15P21E201-1988.
+ * 위는 «위에서 가린 높이(상태바·「장소 N곳」 칩·범례) + 점 반지름», 아래는 «아래에서 가린 높이(일정 창·탭 막대) + 점 반지름»으로
+ * **따로** 둔다. 보이는 띠가 좁으면 그 띠에 맞춰 줌을 덜 당긴다 — 점이 가림 띠 뒤로 숨는 것보다 낫다.
+ * 🔴 전에는 위아래 합이 넘치면 한쪽에서 덜어 냈다: 빌드 45 는 아래(창 윗변에 맨 아래 점이 걸림), 빌드 46 은 위(칩 뒤로 5번 점이 숨음).
+ *    덜어 내는 쪽이 바뀌었을 뿐 늘 한쪽이 가렸다. 이제는 맞출 자리가 MIN_FIT_BAND 보다 좁아질 때만(지도 높이를 거의 다 덮었을 때) 줄인다.
+ * mapWidth 는 예전 호출과 맞추려고 남겨 둔 인자다(쓰지 않는다).
  */
-export function fitPadding(bottomInset: number, mapHeight: number, topInset = 0, mapWidth = 0): [number, number, number, number] {
-  let top = EDGE + Math.max(0, topInset);
-  let bottom = Math.min(EDGE + Math.max(0, bottomInset), Math.max(EDGE, mapHeight - top - EDGE));
-  // 🔴 위아래 여백이 지도 높이를 다 먹으면 카카오가 범위를 못 맞춰 동아시아 전체로 물러났다(S15P21E201-1903 — 폰을 가로로
-  //    돌렸을 때: 높이 ~410 에 위 칩·범례와 아래 창이 거의 다 덮었다). 맞출 자리를 MIN_FIT_ROOM 만큼은 남기게 여백을 줄인다.
-  // 🔴 넓고 낮은 지도(탭·웹 가로)는 60px 띠에 부산 전체를 맞추면 통영·거제까지 물러났다(S15P21E201-1980). 가로일 때는
-  //    높이의 WIDE_MIN_ROOM 만큼을 맞출 자리로 남긴다 — 점 몇 개가 창 뒤로 가도 도시 단위 줌이 낫다. 세로(폰)는 전과 같다.
-  const wide = mapWidth > mapHeight * 1.3;
-  // 🔴 세로 지도도 60px 띠에 맞추면 너무 멀어졌다(S15P21E201-1986, 폴드 바깥 화면 — 아래 창이 높이의 대부분을 덮어 김해공항~오륙도가
-  //    한 화면, 번호 점 1~6 이 한 덩어리). 세로는 높이의 TALL_MIN_ROOM 만큼을 맞출 자리로 남긴다 — 가장자리 점이 창 뒤로 가도 동네 단위 줌이 낫다.
-  const room = Math.max(0, mapHeight - Math.max(MIN_FIT_ROOM, Math.round(mapHeight * (wide ? WIDE_MIN_ROOM : TALL_MIN_ROOM))));
-  if (mapHeight > 0 && top + bottom > room) {
-    // 🔴 넘친 만큼은 위 여백(상태바·칩 — 반투명)에서 먼저 덜어 내고, 위가 EDGE 까지 줄어든 뒤에야 둘을 같은 비율로 줄인다(S15P21E201-1987).
-    //    전에는 둘을 같은 비율로 줄여 아래 여백이 아래 창 높이보다 훨씬 작아졌고, 맨 아래 번호 점이 불투명한 창 윗변에 반쯤 걸렸다(폴드 바깥 화면, 빌드 45).
-    const fromTop = Math.min(top + bottom - room, Math.max(0, top - EDGE));
-    top -= fromTop;
-    if (top + bottom > room) {
-      const scale = room / (top + bottom);
-      top = Math.round(top * scale);
-      bottom = room - top;
-    }
+export function fitPadding(bottomInset: number, mapHeight: number, topInset = 0, _mapWidth = 0): [number, number, number, number] {
+  let top = Math.max(EDGE, Math.max(0, topInset) + MARKER_CLEARANCE);
+  let bottom = Math.max(EDGE, Math.max(0, bottomInset) + MARKER_CLEARANCE);
+  if (mapHeight > 0) {
+    let over = top + bottom + MIN_FIT_BAND - mapHeight;
+    if (over > 0) { const cut = Math.min(over, bottom - MARKER_CLEARANCE); bottom -= cut; over -= cut; }
+    if (over > 0) { top = Math.max(MARKER_CLEARANCE, top - over); }
   }
   return [top, EDGE, bottom, EDGE];
 }
