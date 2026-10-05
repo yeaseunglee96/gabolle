@@ -357,6 +357,8 @@ export default function Home() {
           </View>
         ) : null}
         {saved.consentPrompt}
+        {/* 🔴 떠 있는 AI 단추(64)가 맨 아래 카드·「축제 →」 단추를 덮었다(S15P21E201-1986, 폴드 바깥 화면) — 그 높이만큼 더 내릴 수 있게 비워 둔다. */}
+        <View testID="home-assistant-clearance" style={styles.assistantClearance} />
         <ConditionsPromptModal visible={conditions.open} reprompt={conditions.reprompt} onClose={closeConditions} />
   </Screen>
 
@@ -469,4 +471,5 @@ const styles = StyleSheet.create({
   assistantButton: { width: 64, height: 64, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field, shadowColor: color.brand.navy, shadowOpacity: 0.14, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
   assistantBadge: { position: 'absolute', top: -2, right: -2, minWidth: 22, height: 18, paddingHorizontal: 5, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card, borderWidth: 1.5, borderColor: color.action.outline },
   assistantMascot: { width: 50, height: 50 },
+  assistantClearance: { height: 64 + spacing[3] },
 });

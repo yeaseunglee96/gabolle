@@ -14,7 +14,7 @@
 //    · 타임라인을 내려가는 내 위치 점 — 4단계다. 「지금」 카드의 출발·중지·건너뛰기는 지금도 된다.
 //    · 지도 위 고른 곳의 붉은 맥동 링과 이름표 — 지도 부품(RouteMap)은 고른 표식을 키우기만 한다(1단계와 같다).
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { AccessibilityInfo, Animated, BackHandler, Easing, Image, Platform, Pressable, ScrollView, StyleSheet, View, type ImageSourcePropType } from 'react-native';
+import { AccessibilityInfo, Animated, BackHandler, Easing, Image, PixelRatio, Platform, Pressable, ScrollView, StyleSheet, View, type ImageSourcePropType } from 'react-native';
 import { useRouter } from 'expo-router';
 import Reanimated, { Easing as REasing, Extrapolation, interpolate, interpolateColor, ReduceMotion, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
@@ -150,6 +150,8 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   const { tx, locale, language } = useI18n();
   const insets = useSafeAreaInsets();
   const { width, height } = useLayout();
+  // 도구 줄을 세 칸씩 두 줄로 놓을 만큼 좁은가 — 글자 배율까지 셈한다(S15P21E201-1986).
+  const narrowTools = width / PixelRatio.getFontScale() < TOOL_ROW_MIN_WIDTH;
 
   const {
     page, load, courses, course, courseIndex, setCourseIndex, confirmed, setConfirmed, tripId,
@@ -564,14 +566,15 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
           아이콘 한 줄로 줄였다(UI 캔버스 ④). 창은 화면을 옮기지 않고 아래 시트로 연다(S15P21E201-1561).
           「공유」는 읽기 전용 링크만 담은 창, 「기록 남기기」는 이 여행을 단 글쓰기다(S15P21E201-1593) — 넷 다 창 안에서 연다(S15P21E201-1760). */}
       {ready ? (
-        <View style={styles.actions}>
-          <ActionTile icon="map" label={tx('지도 보기', 'View map')} onPress={() => changePanel('collapsed')} />
-          {tripId ? <ActionTile icon="invite" label={tx('동행 초대', 'Invite')} onPress={() => setOverlay('invite')} /> : null}
-          {tripId ? <ActionTile icon="share" label={tx('공유', 'Share')} onPress={() => setOverlay('share')} /> : null}
-          {tripId ? <ActionTile icon="record" label={tx('기록 남기기', 'Write a record')} onPress={() => setOverlay('record')} /> : null}
-          {tripId ? <ActionTile icon="weather" label={tx('날씨', 'Weather')} onPress={() => setOverlay('weather')} /> : null}
+        // 🔴 좁은 화면(폴드 바깥 ~369dp, 글자 크게)은 여섯 칸이 한 줄에 못 들어가 「기록 남기기」가 두 줄로 꺾였다(S15P21E201-1986) — 세 칸씩 두 줄로.
+        <View style={[styles.actions, narrowTools && styles.actionsGrid]}>
+          <ActionTile narrow={narrowTools} icon="map" label={tx('지도 보기', 'View map')} onPress={() => changePanel('collapsed')} />
+          {tripId ? <ActionTile narrow={narrowTools} icon="invite" label={tx('동행 초대', 'Invite')} onPress={() => setOverlay('invite')} /> : null}
+          {tripId ? <ActionTile narrow={narrowTools} icon="share" label={tx('공유', 'Share')} onPress={() => setOverlay('share')} /> : null}
+          {tripId ? <ActionTile narrow={narrowTools} icon="record" label={tx('기록 남기기', 'Write a record')} onPress={() => setOverlay('record')} /> : null}
+          {tripId ? <ActionTile narrow={narrowTools} icon="weather" label={tx('날씨', 'Weather')} onPress={() => setOverlay('weather')} /> : null}
           {/* 여행 돈 — 쓴 돈·남은 돈·동행 정산(S15P21E201-1935). 적고 고치는 일이 많아 창이 아니라 화면으로 연다 */}
-          {tripId ? <ActionTile icon="money" label={tx('여행 경비', 'Trip expenses')} onPress={() => router.push(`/${tripId}/money` as never)} /> : null}
+          {tripId ? <ActionTile narrow={narrowTools} icon="money" label={tx('여행 경비', 'Trip expenses')} onPress={() => router.push(`/${tripId}/money` as never)} /> : null}
         </View>
       ) : null}
 
@@ -903,12 +906,15 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
 
 // ── 부품 ────────────────────────────────────────────────────────────────────
 
-function ActionTile({ icon, label, onPress }: { icon: TripActionKind; label: string; onPress: () => void }) {
+/** 이 폭(글자 배율로 나눈 dp)보다 좁으면 도구 여섯을 세 칸씩 두 줄로 — 한 칸이 70dp 아래로 줄면 「기록 남기기」가 꺾인다. */
+export const TOOL_ROW_MIN_WIDTH = 420;
+
+function ActionTile({ icon, label, onPress, narrow = false }: { icon: TripActionKind; label: string; onPress: () => void; narrow?: boolean }) {
   return (
     // 🔴 글자를 두 줄까지 둔다 — 일본어 「同行者を招待」처럼 긴 말이 한 줄이면 「同行者を…」로 잘린다.
-    <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={({ pressed }) => [styles.actionTile, pressed && styles.pressed]}>
+    <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={({ pressed }) => [styles.actionTile, narrow && styles.actionTileGrid, pressed && styles.pressed]}>
       <View style={styles.actionIcon}><TripActionIcon kind={icon} tint={color.text.heading} /></View>
-      <Text variant="micro" weight="bold" color={color.text.body} numberOfLines={2} style={styles.actionLabel}>{label}</Text>
+      <Text variant="micro" weight="bold" color={color.text.body} numberOfLines={narrow ? 1 : 2} style={styles.actionLabel}>{label}</Text>
     </Pressable>
   );
 }
@@ -1283,8 +1289,10 @@ const styles = StyleSheet.create({
   circle44: { width: 44, height: 44, borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
   // 알약이 다섯이라(S15P21E201-1593) 한 줄이면 「지도 …」처럼 잘린다 — 한 줄에 셋까지, 넘치면 다음 줄로 감긴다.
   actions: { flexDirection: 'row', gap: spacing[1] },
+  actionsGrid: { flexWrap: 'wrap', rowGap: spacing[2] },
   actionTile: { flex: 1, minWidth: 0, minHeight: 44, alignItems: 'center', gap: 4, paddingVertical: spacing[1] },
   actionIcon: { width: 44, height: 44, borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
+  actionTileGrid: { flex: 0, flexGrow: 1, flexBasis: '30%' },
   actionLabel: { textAlign: 'center' },
   actionPill: { flexGrow: 1, flexBasis: '30%', minHeight: 44, paddingHorizontal: spacing[2], borderRadius: radius.md, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
   dayRow: { flexDirection: 'row', gap: spacing[2] },

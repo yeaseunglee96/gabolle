@@ -10,6 +10,8 @@ const EDGE = 60;
 const MIN_FIT_ROOM = EDGE;
 /** 가로로 넓은 지도에서 맞출 자리로 남길 높이 비율 — S15P21E201-1980. */
 const WIDE_MIN_ROOM = 0.45;
+/** 세로 지도(폰·폴드 바깥 화면)에서 맞출 자리로 남길 높이 비율 — S15P21E201-1986. 60px 띠에 맞추면 번호 점이 한 덩어리가 됐다. */
+const TALL_MIN_ROOM = 0.25;
 
 /**
  * 전체를 맞출 때의 여백 [위, 오른쪽, 아래, 왼쪽]. 아래는 가려진 만큼 더 — 다만 지도에 보일 자리(위아래 120)는 남긴다.
@@ -24,7 +26,9 @@ export function fitPadding(bottomInset: number, mapHeight: number, topInset = 0,
   // 🔴 넓고 낮은 지도(탭·웹 가로)는 60px 띠에 부산 전체를 맞추면 통영·거제까지 물러났다(S15P21E201-1980). 가로일 때는
   //    높이의 WIDE_MIN_ROOM 만큼을 맞출 자리로 남긴다 — 점 몇 개가 창 뒤로 가도 도시 단위 줌이 낫다. 세로(폰)는 전과 같다.
   const wide = mapWidth > mapHeight * 1.3;
-  const room = Math.max(0, mapHeight - (wide ? Math.max(MIN_FIT_ROOM, Math.round(mapHeight * WIDE_MIN_ROOM)) : MIN_FIT_ROOM));
+  // 🔴 세로 지도도 60px 띠에 맞추면 너무 멀어졌다(S15P21E201-1986, 폴드 바깥 화면 — 아래 창이 높이의 대부분을 덮어 김해공항~오륙도가
+  //    한 화면, 번호 점 1~6 이 한 덩어리). 세로는 높이의 TALL_MIN_ROOM 만큼을 맞출 자리로 남긴다 — 가장자리 점이 창 뒤로 가도 동네 단위 줌이 낫다.
+  const room = Math.max(0, mapHeight - Math.max(MIN_FIT_ROOM, Math.round(mapHeight * (wide ? WIDE_MIN_ROOM : TALL_MIN_ROOM))));
   if (mapHeight > 0 && top + bottom > room) {
     const scale = room / (top + bottom);
     top = Math.round(top * scale);

@@ -3,7 +3,7 @@
 // 🔴 버스는 목적지가 있어야 탄다. 목적지를 고르면 내 위치에서 대중교통·택시 길을 받아 「무엇을, 어디서, 언제」 탈지를
 //    한 줄로 답한다. 타는 정류장이 주변 정류장 목록에 있으면 그 버스의 실시간 도착을 붙인다(goFromHere.rideSummary).
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { PixelRatio, Pressable, StyleSheet, TextInput, useWindowDimensions, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { Text } from '@/components/Text';
@@ -36,6 +36,8 @@ export function DestinationPicker({ origin, stops, accessToken, tx, onLinesChang
 }) {
   const { language } = useI18n();
   const router = useRouter();
+  const { width } = useWindowDimensions();
+  const shortHint = width / PixelRatio.getFontScale() < 360;
   const [targets, setTargets] = useState<TodayTargets | null>(null);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Destination[] | null>(null);
@@ -146,7 +148,8 @@ export function DestinationPicker({ origin, stops, accessToken, tx, onLinesChang
             accessibilityLabel={tx('갈 곳 검색', 'Search for a destination')}
             value={query}
             onChangeText={setQuery}
-            placeholder={tx('장소 이름으로 찾기 (예: 자갈치시장)', 'Search by place name (e.g. Jagalchi Market)')}
+            // 🔴 좁은 화면·글자 크게에서는 예시를 뺀다 — 「장소 이름으로 찾기 (예:」에서 잘렸다(S15P21E201-1986, 폴드 바깥 화면 1.3배).
+            placeholder={shortHint ? tx('장소 이름으로 찾기', 'Search by place name') : tx('장소 이름으로 찾기 (예: 자갈치시장)', 'Search by place name (e.g. Jagalchi Market)')}
             placeholderTextColor={color.text.muted}
             returnKeyType="search"
             style={styles.input}
