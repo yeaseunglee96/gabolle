@@ -131,20 +131,20 @@ class MustVisitSeedTest {
 
 
 	/**
-	 * 꼭 가는 곳은 하루 3곳까지다(S15P21E201-1971) — 여기 여행은 1박 2일이라 6곳까지. 상한이 없으면
-	 * 저장한 후보를 통째로 보낸 여행이 하루에 다 못 넣고 조용히 몇 곳을 잃는다.
+	 * 꼭 가는 곳은 하루 3곳까지다(S15P21E201-1971) — 여기 여행은 1박 2일이라 6곳까지. 넘게 와도 거절하지 않는다:
+	 * 상한이 없던 옛 앱(iOS 1.0.1 등)이 그대로 보내면 여행 만들기 자체가 실패하기 때문이다. 앞에서부터 6곳만
+	 * 씨앗으로 적고 나머지는 버린다 — 고른 순서가 곧 우선순위다.
 	 */
 	@Test
-	@DisplayName("🔴 꼭 가는 곳이 여행 일수 × 3 을 넘으면 거절한다 — mustVisitPlaceIds 칸으로")
-	void tooManyMustVisitPlacesAreRejected() {
+	@DisplayName("🔴 꼭 가는 곳이 여행 일수 × 3 을 넘으면 거절하지 않고 앞에서부터 상한까지만 적는다")
+	void tooManyMustVisitPlacesAreTrimmedNotRejected() {
 		List<String> seven = java.util.stream.IntStream.range(0, 7).mapToObj(i -> UUID.randomUUID().toString()).toList();
 
-		org.assertj.core.api.Assertions.assertThatThrownBy(() -> this.service.create(command(seven), null))
-				.isInstanceOf(com.gabolle.backend.trip.domain.TripConditionRules.TripConditionRejectedException.class)
-				.satisfies(e -> assertThat(((com.gabolle.backend.trip.domain.TripConditionRules.TripConditionRejectedException) e)
-						.violations()).extracting(com.gabolle.backend.trip.domain.TripConditionRules.Violation::field)
-						.containsExactly("mustVisitPlaceIds"));
-		assertThat(this.seeds.saved).isEmpty();
+		TripCreationService.Result result = this.service.create(command(seven), null);
+
+		assertThat(this.seeds.findByTripId(result.trip().tripId()))
+				.extracting(com.gabolle.backend.trip.domain.TripSeedPlace::placeId)
+				.containsExactlyElementsOf(seven.subList(0, 6));
 	}
 
 	@Test

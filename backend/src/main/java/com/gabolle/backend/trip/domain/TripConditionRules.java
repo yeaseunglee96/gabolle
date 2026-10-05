@@ -129,27 +129,17 @@ public final class TripConditionRules {
 	}
 
 	/**
-	 * 꼭 가는 곳은 여행 일수 × {@value #MUST_VISIT_PER_DAY} 곳까지다(S15P21E201-1971).
+	 * 꼭 가는 곳의 상한 — 여행 일수 × {@value #MUST_VISIT_PER_DAY} 곳(S15P21E201-1971). 날짜가 없거나 거꾸로면
+	 * {@code -1}(상한 없음) — 그 칸은 {@link #check} 가 따로 답한다.
 	 *
-	 * <p>상한이 없으면 저장한 후보를 통째로 보낸 여행이 받아들여지고, 일정 계산기는 하루에 다 못 넣어
-	 * 몇 곳을 조용히 잃는다 — 사용자는 「꼭」이라고 고른 곳이 왜 빠졌는지 모른다. 들어올 때 막는다.
-	 * 같은 장소를 두 번 보낸 것은 한 곳으로 센다 — 저장할 때도 한 번만 적힌다({@code saveMustVisitPlaces}).
-	 * 날짜가 없거나 거꾸로면 여기서 판정하지 않는다 — {@link #check} 가 그 칸으로 따로 답한다.
-	 *
-	 * @throws TripConditionRejectedException {@code mustVisitPlaceIds} 칸 하나로 — 화면이 이 이름으로 문장을 고른다
+	 * <p>🔴 넘었다고 거절하지 않는다. 상한이 없던 옛 앱(iOS 1.0.1 등)이 그대로 보내면 여행 만들기 자체가 실패하기
+	 * 때문이다. 대신 저장할 때 앞에서부터 이만큼만 적는다 — 고른 순서가 곧 우선순위다. 새 앱은 화면에서 미리 막는다.
 	 */
-	public static void requireMustVisitLimit(LocalDate startDate, LocalDate finishDate, List<String> mustVisitPlaceIds) {
-		if (startDate == null || finishDate == null || finishDate.isBefore(startDate) || mustVisitPlaceIds == null) {
-			return;
+	public static long mustVisitLimit(LocalDate startDate, LocalDate finishDate) {
+		if (startDate == null || finishDate == null || finishDate.isBefore(startDate)) {
+			return -1;
 		}
-		long distinct = mustVisitPlaceIds.stream().filter(id -> id != null && !id.isBlank()).distinct().count();
-		long days = ChronoUnit.DAYS.between(startDate, finishDate) + 1;
-		long limit = days * MUST_VISIT_PER_DAY;
-		if (distinct > limit) {
-			throw new TripConditionRejectedException(List.of(new Violation("mustVisitPlaceIds",
-					"꼭 가고 싶은 곳은 하루 " + MUST_VISIT_PER_DAY + "곳, 이 여행은 " + limit + "곳까지 고를 수 있다 ("
-							+ distinct + "곳)")));
-		}
+		return (ChronoUnit.DAYS.between(startDate, finishDate) + 1) * MUST_VISIT_PER_DAY;
 	}
 
 	/** @param field 응답에 그대로 실려 화면이 어느 칸을 짚을지 정한다 — 요청의 칸 이름과 같게 쓴다 */

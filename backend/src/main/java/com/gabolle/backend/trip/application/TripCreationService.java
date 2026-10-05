@@ -159,9 +159,6 @@ public class TripCreationService {
         boolean usesPrivateCar = java.util.Arrays.asList(travelModes).contains("PRIVATE_CAR");
         Integer maxTransitTransfers = usesPrivateCar ? null : command.maxTransitTransfers();
 
-        // 🔴 꼭 가는 곳은 여행 일수 × 3 곳까지(S15P21E201-1971). 숙소 스냅샷으로 장소를 만들기 전에 본다 — 거절할 요청에 장소 행을 남기지 않는다.
-        TripConditionRules.requireMustVisitLimit(command.startDate(), command.finishDate(), command.mustVisitPlaceIds());
-
         // 숙소를 장소로 바꾼다. 앱이 우리 place_id 를 못 주고 좌표로만 보내던 것을 여기서 받는다
         // (S15P21E201-1522). Trip 을 만들기 전에 해야 accommodation_place_id 외래키가 맞는다.
         String accommodationPlaceId = resolveAccommodation(command);
@@ -251,7 +248,8 @@ public class TripCreationService {
             if (command.ownerType() != Trip.OwnerType.ANONYMOUS) {
                 preferenceDefaults.carryOver(command.userId(), storedPreferences);
             }
-            saveMustVisitPlaces(outcome.trip().tripId(), command.mustVisitPlaceIds(), now);
+            saveMustVisitPlaces(outcome.trip().tripId(), command.mustVisitPlaceIds(),
+                    TripConditionRules.mustVisitLimit(command.startDate(), command.finishDate()), now);
             saveTravelAreas(outcome.trip().tripId(), command.travelAreas());
             recordExplicitInputs(outcome.trip(), command, storedPreferences, constraints);
         }
@@ -263,17 +261,22 @@ public class TripCreationService {
      * 꼭 가고 싶은 장소를 {@code trip_seed_place} 에 씨앗으로 적는다. 새로 만든 여행일 때만
      * 부른다 — 재시도로 돌려준 여행에는 씨앗이 이미 있어 다시 적으면 기본키에 걸린다. 같은
      * 이유로 중복 장소는 앞의 것만 남긴다. 저장소가 없으면 조용히 건너뛴다.
+     * {@code limit} 이 0 이상이면 서로 다른 장소를 앞에서부터 그만큼만 적는다(S15P21E201-1971, {@link TripConditionRules#mustVisitLimit}).
      */
-    private void saveMustVisitPlaces(String tripId, List<String> placeIds, Instant now) {
+    private void saveMustVisitPlaces(String tripId, List<String> placeIds, long limit, Instant now) {
         if (this.seedPlaces.isEmpty() || placeIds.isEmpty()) {
             return;
         }
         List<TripSeedPlace> seeds = new ArrayList<>();
         Set<String> seen = new LinkedHashSet<>();
         for (String placeId : placeIds) {
-            if (placeId == null || placeId.isBlank() || !seen.add(placeId)) {
+            if (placeId == null || placeId.isBlank() || seen.contains(placeId)) {
                 continue;
             }
+            if (limit >= 0 && seen.size() >= limit) {
+                break;
+            }
+            seen.add(placeId);
             seeds.add(new TripSeedPlace(tripId, placeId, seen.size(), null, null, now));
         }
         if (!seeds.isEmpty()) {
