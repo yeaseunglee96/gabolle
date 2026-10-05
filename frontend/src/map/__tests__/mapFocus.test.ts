@@ -39,3 +39,18 @@ describe('창에 가린 지도', () => {
     expect(focusShiftY(50, 900, 200)).toBe(0);
   });
 });
+
+describe('넓고 낮은 지도(탭·웹 가로) — S15P21E201-1980', () => {
+  it('🔴 아래 창이 지도를 거의 다 가려도 가로 지도에서는 높이의 45% 는 맞출 자리로 남긴다(전에는 60px 띠에 맞춰 통영·거제까지 물러났다)', () => {
+    const height = 700;
+    const [top, , bottom] = fitPadding(560, height, 80, 1205);
+    expect(height - top - bottom).toBeGreaterThanOrEqual(Math.round(height * 0.45) - 1);
+  });
+  it('세로 지도(폰)는 전과 같다 — 넓이를 안 주거나 세로면 바뀌지 않는다', () => {
+    expect(fitPadding(600, 844, 0, 390)).toEqual(fitPadding(600, 844));
+    expect(fitPadding(2000, 844, 100, 390)).toEqual([160, 60, 624, 60]);
+  });
+  it('가로라도 가림이 작으면 손대지 않는다', () => {
+    expect(fitPadding(100, 700, 80, 1205)).toEqual(fitPadding(100, 700, 80));
+  });
+});

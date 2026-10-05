@@ -111,6 +111,14 @@ export const WARNING_LABEL: Record<string, [string, string]> = {
     'Not enough data to rank this one.',
   ],
   /** 「일부만 채웠다. 후보가 자리보다 적었다」 */
+  /**
+   * 고른 「꼭 가고 싶은 곳」 가운데 일정에 못 넣은 곳이 있다(백엔드 !2028 — 전에는 조용히 빠졌다). 하루 3곳 × 일수를 넘게
+   * 보낸 옛 앱의 요청도 거절하지 않고 앞에서부터 넣은 뒤 이 경고를 남긴다. S15P21E201-1980.
+   */
+  MUST_VISIT_NOT_PLACED: [
+    '꼭 가고 싶다고 고른 곳 중 일부는 일정에 넣지 못했어요. 일정을 고쳐 직접 넣을 수 있어요.',
+    "Some of your must-visit places didn't fit into the itinerary. You can add them yourself by editing it.",
+  ],
   RECALC_DAY_PARTIALLY_FILLED: [
     '그날 일정을 일부만 채웠어요. 넣을 곳이 모자랐어요.',
     'Only part of that day was filled — not enough places to add.',
