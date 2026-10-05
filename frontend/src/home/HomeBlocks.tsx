@@ -5,7 +5,8 @@
 import { storyBodyText } from '@/social/courseLink';
 import { enCount, enPlural, txf } from '@/i18n/format';
 import { useState } from 'react';
-import { Image, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { AppImage } from '@/components/AppImage';
 import { useRouter, type Href } from 'expo-router';
 
 import { GabolleMascot } from '@/components/DongbaekMascot';
@@ -95,7 +96,7 @@ function StoryCard({ story, cardWidth }: { story: StoryDto; cardWidth: number })
       style={({ pressed }) => [{ width: cardWidth }, pressed && styles.pressed]}
     >
       {story.images.length
-        ? <Image source={{ uri: story.images[0].url }} resizeMode="cover" accessibilityLabel={tx('여행 기록 사진', 'Trip record photo')} style={[styles.storyImage, square]} />
+        ? <AppImage source={{ uri: story.images[0].url }} resizeMode="cover" accessibilityLabel={tx('여행 기록 사진', 'Trip record photo')} style={[styles.storyImage, square]} />
         // 사진이 없을 때 회색 빈 칸을 두지 않는다 — tint 바탕에 본문을 크게. 빈 회색은
         // 「사진을 못 불러왔다」로 읽힌다. feed.tsx 의 coverEmpty 와 같은 규칙이다.
         : <View style={[styles.storyImage, styles.storyCoverEmpty, square]}>

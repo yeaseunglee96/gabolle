@@ -1,6 +1,7 @@
 // 폰 홈. 디자인 인계 `design_handoff_home_phone` 의 절충안(C).
 import { useEffect, useRef, useState } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { AppImage } from '@/components/AppImage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -255,7 +256,7 @@ export default function Home() {
                 🔴 위쪽 메뉴가 떠 있으면(폴드 펼침 등 태블릿) 로그인·종이 거기 이미 있다 — 두 번 그리지 않는다(S15P21E201-1547). */}
             {topNav ? null : (
               <Pressable accessibilityRole="button" accessibilityLabel={tx('알림 확인', 'Check notifications')} onPress={() => router.push('/notifications')} style={({ pressed }) => [styles.bell, pressed && styles.pressed]}>
-                <Image source={bellIcon} resizeMode="contain" style={styles.bellIcon} />
+                <AppImage source={bellIcon} resizeMode="contain" style={styles.bellIcon} />
                 {bellDot ? <View style={styles.bellDot} /> : null}
               </Pressable>
             )}

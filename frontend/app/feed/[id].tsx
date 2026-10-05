@@ -2,7 +2,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AuthorAvatar } from '@/social/AuthorAvatar';
-import { ActivityIndicator, Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { AppImage } from '@/components/AppImage';
 import * as Clipboard from 'expo-clipboard';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -81,7 +82,7 @@ function PlaceHeading({ story, onOpen }: { story: StoryDto; onOpen: () => void }
       <Text variant="display" weight="bold" color={color.text.heading}>{storyPlaceName(story.place, tx, language)}</Text>
       {placeRegion
         ? <View style={styles.placeMetaRow}>
-            <Image source={require('../../assets/icons/common/pin.png')} resizeMode="contain" accessibilityIgnoresInvertColors style={styles.placePin} />
+            <AppImage source={require('../../assets/icons/common/pin.png')} resizeMode="contain" accessibilityIgnoresInvertColors style={styles.placePin} />
             <Text variant="body" color={color.text.body}>{regionText(placeRegion, tx)}</Text>
           </View>
         : null}
@@ -891,7 +892,7 @@ export default function StoryDetail() {
               {replyPhotos.images.length ? <Text variant="caption" color={color.text.muted}>{tx('사진의 위치 정보는 지워져요.', 'Location data is removed from photos.')}</Text> : null}
               <View style={styles.composerActions}>
                 <Pressable accessibilityRole="button" accessibilityLabel={tx('댓글에 사진 추가', 'Add photo to comment')} disabled={!replyPhotos.canAddMore} onPress={() => void replyPhotos.addImage()} style={[styles.composerTool, !replyPhotos.canAddMore && styles.composerToolBusy]}>
-                  <Image source={require('../../assets/icons/common/camera.png')} resizeMode="contain" accessibilityLabel="" style={styles.composerToolIcon} />
+                  <AppImage source={require('../../assets/icons/common/camera.png')} resizeMode="contain" accessibilityLabel="" style={styles.composerToolIcon} />
                   <Text variant="body" color={color.text.body}>{tx(`사진 ${replyPhotos.images.length}/${MAX_STORY_IMAGES}`, `Photos ${replyPhotos.images.length}/${MAX_STORY_IMAGES}`)}</Text>
                 </Pressable>
                 <Button

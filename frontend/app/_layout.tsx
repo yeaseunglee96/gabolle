@@ -8,6 +8,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { Platform, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { enableFreeze } from 'react-native-screens';
 
 import { color, fontFamily } from '@/design/tokens';
 import { shouldWaitForFonts } from '@/design/fontGate';
@@ -47,6 +48,10 @@ function HtmlLangSync() {
   }, [language]);
   return null;
 }
+
+// 가려진 화면(뒤에 쌓인 화면)은 다시 그리지 않는다 — 사진이 많은 화면이 쌓이면 메모리가 차서 새 사진을
+// 못 그렸다(S15P21E201-1975). 앱만. 웹은 react-native-screens 를 쓰지 않는다.
+if (Platform.OS !== 'web') enableFreeze(true);
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
