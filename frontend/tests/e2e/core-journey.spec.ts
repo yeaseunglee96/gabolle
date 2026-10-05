@@ -54,7 +54,10 @@ test('로그인 → 여행 조건 → 추천 요청까지 이어진다', async (
 
   // 2) 홈의 시작 바 — 출발지 · 날짜. 인원은 기본값 성인 2명이 이미 유효하다
   //    (EMPTY_START_BAR, src/home/startBarValue.ts).
-  await page.getByRole('button', { name: '출발지', exact: false }).click();
+  // 🔴 2026-10-05(파이프라인 228975) — 「출발지」만으로는 두 단추에 걸린다. 스크롤하면 나오는 고정 검색바
+  //    (sticky-search, 「여행 조건 다시 펼치기 — 출발지, 날짜, 인원」)도 같은 낱말을 품는다.
+  //    시작 바의 출발지 칸은 접근성 이름이 「출발지 어디서 출발해요?」로 시작한다 — 그 앞머리로 고른다.
+  await page.getByRole('button', { name: /^출발지/ }).click();
   // 추천 출발지는 검색어 없이도 MAJOR_BUSAN_ORIGINS 기본 목록이 뜬다 — 굳이 타이핑해서
   // 서버 검색(searchOrigins)의 250ms 디바운스를 기다릴 필요가 없다.
   // 🔴 실측(2026-09-18, 파이프라인 206720) — "부산역"만으로는 두 요소에 걸린다.
