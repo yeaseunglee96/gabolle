@@ -34,6 +34,16 @@ export function buildKakaoMapHtml(appKey: string): string {
   var locationOverlay = null;
   // 그린 경로 선마다 원래 점들과 그 선(테두리·선) — 줌이 바뀌면 덜어 낸 모양만 다시 셈한다(S15P21E201-1656).
   var lineRecords = [];
+  // 맞춤 대상(번호 장소) — 창을 열 때 가려진 점이 있는지 볼 때 쓴다(S15P21E201-1989).
+  var fitStopsNow = [];
+  // 이 점이 위·아래 가림 띠(여백 pad = 가림 + 점 반지름) 밖, 보이는 자리에 있나.
+  function inBand(stop, pad) {
+    try {
+      var el = document.getElementById('map'); var h = el.clientHeight || 0; var w = el.clientWidth || 0;
+      var pt = map.getProjection().containerPointFromCoords(new window.kakao.maps.LatLng(stop.latitude, stop.longitude));
+      return pt.y >= pad[0] && pt.y <= h - pad[2] && pt.x >= 24 && pt.x <= w - 24;
+    } catch (e) { return true; }
+  }
   // 웹 RouteMap.tsx 의 ROUTE_WEIGHT·CASING_EXTRA·REAL_OPACITY·ESTIMATED_OPACITY·SIMPLIFY_PIXELS 와 같은 값.
   var ROUTE_WEIGHT = 5, CASING_EXTRA = 4, REAL_OPACITY = 0.9, ESTIMATED_OPACITY = 0.45, SIMPLIFY_PIXELS = 2;
 
@@ -235,7 +245,11 @@ export function buildKakaoMapHtml(appKey: string): string {
       // 위·아래 가림 띠는 앱이 따로 셈해 보낸다(mapFocus.fitPadding, S15P21E201-1988). 여기서는 지금 높이에서 맞출 자리가
       // 48 보다 좁아질 때만 아래부터(점 반지름 24 까지) 줄이고, 그래도 모자라면 위를 줄인다 — 같은 규칙.
       if (h > 0) { var over = pad[0] + pad[2] + 48 - h; if (over > 0) { var cut = Math.min(over, pad[2] - 24); pad[2] -= cut; over -= cut; } if (over > 0) pad[0] = Math.max(24, pad[0] - over); }
-      if (fitStops.length <= 1) { map.setCenter(new maps.LatLng(fitStops[0].latitude, fitStops[0].longitude)); map.setLevel(5); } else map.setBounds(bounds, pad[0], pad[1], pad[2], pad[3]); focusOn(selectedNow); };
+      // 🔴 전체를 맞춘 뒤에는 고른 곳으로 «밀지 않는다»(S15P21E201-1989) — 맞춘 범위를 고른 곳 쪽으로 밀면 반대쪽 끝 점이 가림 띠 뒤로 나갔다
+      //    (빌드 47 폴드 접음, 해운대 당일 6번). 고른 곳이 이미 보이는 띠 안이면 그대로 둔다.
+      if (fitStops.length <= 1) { map.setCenter(new maps.LatLng(fitStops[0].latitude, fitStops[0].longitude)); map.setLevel(5); } else map.setBounds(bounds, pad[0], pad[1], pad[2], pad[3]);
+      if (selectedNow && stopsById[selectedNow] && !inBand(stopsById[selectedNow], pad)) focusOn(selectedNow); };
+    fitStopsNow = fitStops;
     fit();
     // 맞추면 줌이 바뀐다 — 줌 사건이 안 오는 환경도 있어 맞춘 뒤 한 번 더 셈한다.
     resimplify();
@@ -249,6 +263,20 @@ export function buildKakaoMapHtml(appKey: string): string {
     if (!map || !fit) return;
     padNow = data.fitPadding || padNow;
     shiftNow = data.shiftY || 0;
+    fit();
+    resimplify();
+  };
+
+  // 창을 «열 때» RN 쪽이 부른다(S15P21E201-1989). 지금 화면에서 가림 띠 뒤로 숨는 번호 점이 하나라도 있을 때만 새 여백으로 다시 맞춘다 —
+  // 다 보이면 그대로 둔다(창을 열 때마다 튀지 않게, S15P21E201-1607). 전에는 접을 때 맞춘 줌 그대로 창이 올라와 아래쪽 점이 창 뒤에 숨었다.
+  window.__ensureKakaoMapFits = function (data) {
+    if (!map || !fit) return;
+    var pad = data.fitPadding || padNow;
+    var hidden = false;
+    for (var i = 0; i < fitStopsNow.length; i++) if (!inBand(fitStopsNow[i], pad)) { hidden = true; break; }
+    padNow = pad;
+    shiftNow = data.shiftY || 0;
+    if (!hidden) return;
     fit();
     resimplify();
   };

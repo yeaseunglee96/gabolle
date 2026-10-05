@@ -139,6 +139,7 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
   const overlaysRef = useRef<any[]>([]);
   // 마지막으로 맞춘 범위 — 칸 크기가 바뀌면 같은 범위를 새 크기에 다시 맞춘다.
   const fitRef = useRef<(() => void) | null>(null);
+  const ensureRef = useRef<(() => void) | null>(null);
   // 가려진 높이는 «맞출 때» 읽는다 — 의존성에 넣으면 창을 여닫을 때마다 지도가 다시 맞춰져 튄다.
   const insetRef = useRef(bottomInset);
   insetRef.current = bottomInset;
@@ -313,8 +314,24 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
           const point = projection.containerPointFromCoords(target);
           map.panTo(projection.coordsFromContainerPoint(new maps.Point(point.x, point.y + shift)));
         };
-        const fitAndFocus = () => { fit(); focusOnSelected(); };
+        // 번호 점이 위·아래 가림 띠(여백 = 가림 + 점 반지름) 밖, 보이는 자리에 있나 — S15P21E201-1989.
+        const inBand = (stop: { latitude: number; longitude: number }) => {
+          try {
+            const [top, , bottom] = fitPadding(insetRef.current, hostHeight(), topInsetRef.current, hostWidth());
+            const point = map.getProjection().containerPointFromCoords(new maps.LatLng(stop.latitude, stop.longitude));
+            const h = hostHeight(); const w = hostWidth();
+            return point.y >= top && (!h || point.y <= h - bottom) && point.x >= 24 && (!w || point.x <= w - 24);
+          } catch { return true; }
+        };
+        // 🔴 전체를 맞춘 뒤에는 고른 곳이 이미 보이면 밀지 않는다(S15P21E201-1989) — 밀면 반대쪽 끝 점이 가림 띠 뒤로 나갔다.
+        const fitAndFocus = () => {
+          fit();
+          const selectedStop = visibleStops.find((stop) => stop.id === selectedRef.current);
+          if (selectedStop && !inBand(selectedStop)) focusOnSelected();
+        };
         fitAndFocus(); fitRef.current = fitAndFocus; focusFnRef.current = focusOnSelected;
+        // 창을 열 때 — 가려진 번호 점이 있을 때만 다시 맞춘다(다 보이면 그대로, 튀지 않게).
+        ensureRef.current = () => { if (fitStops.some((stop) => !inBand(stop))) fitAndFocus(); };
         // 맞추면 줌이 바뀐다 — 줌 사건이 안 오는 환경도 있어 맞춘 뒤 한 번 더 셈한다.
         resimplify();
         appliedSelectionRef.current = selectedNow;
@@ -417,6 +434,7 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
     if (refitKey === lastRefitKey.current) return;
     lastRefitKey.current = refitKey;
     if (refitKey != null) fitRef.current?.();
+    else ensureRef.current?.(); // 창을 열 때 — 가려진 점이 있을 때만(S15P21E201-1989)
   }, [refitKey]);
 
   // 지도에 어림 선(옅은 선)이 하나라도 있으면 그 뜻을 글로 적는다(S15P21E201-1656 — 점선 대신 옅게 그린다).

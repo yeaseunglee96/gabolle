@@ -136,6 +136,13 @@ export function RouteMap({
     webViewRef.current.injectJavaScript(`window.__fitKakaoMap(${JSON.stringify(data)}); true;`);
   };
 
+  // 창을 열 때(refitKey 가 null 로) — 가려진 번호 점이 있을 때만 다시 맞춘다(S15P21E201-1989). 다 보이면 지도는 그대로다.
+  const sendEnsureFits = () => {
+    if (!sdkReadyRef.current || !webViewRef.current) return;
+    const data = { fitPadding: fitPadding(bottomInset, height, topInset), shiftY: focusShiftY(bottomInset, height, topInset) };
+    webViewRef.current.injectJavaScript(`window.__ensureKakaoMapFits && window.__ensureKakaoMapFits(${JSON.stringify(data)}); true;`);
+  };
+
   // 현재 위치는 점만 옮긴다. 위치 객체는 부를 때마다 새것이라 좌표 두 숫자로 본다.
   const sendLocation = () => {
     if (!sdkReadyRef.current || !webViewRef.current) return;
@@ -155,12 +162,14 @@ export function RouteMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId, focusSelected]);
 
-  // 🔴 null 로 바뀔 때(창을 다시 열 때)는 안 맞춘다 — 창을 열 때 지도가 튀면 안 된다. 처음 뜰 때는 sendRender 가 맞춘다.
+  // 🔴 null 로 바뀔 때(창을 다시 열 때)는 무조건 맞추지 않는다 — 창을 열 때 지도가 튀면 안 된다. 가려진 점이 있을 때만 맞춘다(S15P21E201-1989).
+  //    처음 뜰 때는 sendRender 가 맞춘다.
   const lastRefitKey = useRef(refitKey);
   useEffect(() => {
     if (refitKey === lastRefitKey.current) return;
     lastRefitKey.current = refitKey;
     if (refitKey != null) sendRefit();
+    else sendEnsureFits();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refitKey]);
 

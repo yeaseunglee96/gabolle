@@ -39,7 +39,7 @@ const R = 20;
 function phone(name, w, screenH, insetTop, legend, sheet) {
   const sheetTop = insetTop + Math.min(190, Math.round(screenH * 0.3));
   const covered = sheet === 'open' ? screenH - sheetTop : Math.max(8, 24) + 64 + 8 + 96;
-  return { name: `${name}·${sheet}${legend ? '·범례' : ''}`, w, h: screenH + 40, top: 20 + insetTop + 8 + 40 + (legend ? 32 : 0), bottom: covered + 20 };
+  return { name: `${name}·${sheet}${legend ? '·범례' : ''}`, w, h: screenH + 40, top: 20 + insetTop + 8 + 40 + (legend ? 32 : 0), bottom: covered + 20, sheetOpen: sheet === 'open', collapsedBottom: Math.max(8, 24) + 64 + 8 + 96 + 20 };
 }
 const devices = [
   phone('폴드접음', 369, 905, 32, false, 'open'),
@@ -57,7 +57,12 @@ const trips = {
   '넓게': [[35.1587, 129.1604], [35.0975, 129.0106], [35.2445, 129.2222], [35.1578, 129.0600], [35.0469, 128.9665]],
   '한동네': [[35.1587, 129.1604], [35.1631, 129.1636], [35.1600, 129.1700], [35.1555, 129.1520], [35.1690, 129.1750]],
   '일직선': [[35.10, 129.00], [35.12, 129.05], [35.14, 129.10], [35.16, 129.15], [35.18, 129.20]],
+  // 빌드 47 폴드 접음에서 6번(해운대석각)이 창 윗변에 걸린 당일 여행(S15P21E201-1989) — 캡처에서 읽은 대략 좌표.
+  '해운대당일': [[35.1640, 129.1595], [35.1655, 129.1585], [35.1615, 129.1700], [35.1590, 129.1720], [35.1610, 129.1640], [35.1540, 129.1525]],
 };
+// 🔴 실기기에서 걸린 것은 «처음 그릴 때»가 아니라 «창을 접어 맞춘 뒤 다시 열 때»였다(S15P21E201-1989). 폰 판은 그 전환도 본다:
+//    접은 여백으로 그리고(고른 곳 1번, focus) → 창을 연 여백으로 __ensureKakaoMapFits 를 부른 뒤 열린 띠로 판정한다.
+function collapsedOf(d) { return d.sheetOpen ? { ...d, bottom: d.collapsedBottom } : null; }
 const colors = { navy: '#1F2A44', selected: '#D94141', canvas: '#FFFFFF', casing: '#FFFFFF' };
 
 const html = buildKakaoMapHtml(key);
@@ -73,13 +78,18 @@ for (const d of devices) {
   for (const [tripName, coords] of Object.entries(trips)) {
     const pad = fitPadding(d.bottom, d.h, d.top, d.w);
     const stops = coords.map(([latitude, longitude], i) => ({ id: `s${i + 1}`, number: i + 1, name: `장소 ${i + 1}`, latitude, longitude }));
-    const res = await page.evaluate(({ stops, pad, colors }) => {
-      window.__renderKakaoMap({ stops, points: [], routes: [], selectedId: null, colors, focus: false, shiftY: 0, fitPadding: pad });
+    const coll = collapsedOf(d);
+    const collPad = coll ? fitPadding(coll.bottom, d.h, d.top, d.w) : null;
+    const res = await page.evaluate(({ stops, pad, colors, collPad }) => {
+      if (collPad) {
+        window.__renderKakaoMap({ stops, points: [], routes: [], selectedId: 's1', colors, focus: true, shiftY: 0, fitPadding: collPad });
+        window.__ensureKakaoMapFits && window.__ensureKakaoMapFits({ fitPadding: pad, shiftY: 0 });
+      } else window.__renderKakaoMap({ stops, points: [], routes: [], selectedId: null, colors, focus: false, shiftY: 0, fitPadding: pad });
       return new Promise((done) => setTimeout(() => {
         const m = window.kakao.maps; const proj = map.getProjection();
         done({ level: map.getLevel(), pts: stops.map((s) => { const p = proj.containerPointFromCoords(new m.LatLng(s.latitude, s.longitude)); return { n: s.number, x: p.x, y: p.y }; }) });
       }, 900));
-    }, { stops, pad, colors });
+    }, { stops, pad, colors, collPad });
     const bad = res.pts.filter((p) => p.y - R < d.top || p.y + R > d.h - d.bottom || p.x - R < 0 || p.x + R > d.w).map((p) => p.n);
     let minGap = Infinity;
     for (let i = 0; i < res.pts.length; i++) for (let j = i + 1; j < res.pts.length; j++) minGap = Math.min(minGap, Math.hypot(res.pts[i].x - res.pts[j].x, res.pts[i].y - res.pts[j].y));
