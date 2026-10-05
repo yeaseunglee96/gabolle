@@ -9,7 +9,7 @@
 // 🔴 판정은 PLAN_QUESTIONS(필수 질문의 「답했나」)와 서버 요구(날짜·출발지·숙소) 그대로다. 단계가 바뀌어도
 //    무엇을 보내는지는 안 바뀐다 — 보내는 값이 달라지면 같은 조건에서 다른 일정이 나온다.
 import { useEffect, useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -45,6 +45,11 @@ type BarSection = 'origin' | 'lodging';
  *    로그인하면 계정으로 넘긴다(src/auth/guestHandover.ts). 예전엔 입구에서 로그인부터 요구했다(-1818).
  *    민감 정보(알레르기·식단) 동의만은 계정에 남겨야 해서 그때만 로그인으로 보낸다 — 아래 grantHealthConsentAndRetry.
  */
+/** 이번 앱 실행에서 「이어서 할까요」를 이미 물었나 — 앱을 껐다 켜면 다시 false. */
+let resumePromptShown = false;
+/** 시험용 — 앱을 새로 켠 것처럼 되돌린다. */
+export function resetResumePromptForTest() { resumePromptShown = false; }
+
 export default function PlanQuestionsRoute() {
   return <PlanConditions />;
 }
@@ -59,7 +64,7 @@ function PlanConditions() {
   // 세로로 든 태블릿·펼친 폴드 — 폰 판이지만 폭이 넉넉하다. 단추는 폰처럼 바닥에 두고, 기둥만 가운데로 묶는다(반응형 점검 2026-10-02).
   const roomy = !wide && width >= 600;
   const insets = useSafeAreaInsets();
-  const { draft, ready, update, completeStep } = usePlan();
+  const { draft, ready, update, completeStep, clear } = usePlan();
   const { accessToken } = useAuth();
   // 접근성 자료가 얼마나 덮였나 — 「있는데 적을 때」만 이동 보조 칸 아래에 적는다(S15P21E201-1855).
   // 못 물어봤으면(끝점 없는 서버·네트워크 실패) null 이라 아무 말도 안 나간다.
@@ -81,6 +86,26 @@ function PlanConditions() {
     return () => { active = false; };
   }, []);
   useEffect(() => { if (stateRestored) void saveQuestionState(state); }, [state, stateRestored]);
+  // 🔴 앱을 새로 켜고 들어왔는데 중간 단계에 서 있으면 먼저 묻는다 — S15P21E201-1994. 말없이 2/4 에서 열려
+  //    처음부터 하려는 사람(시연 녹화도)이 첫 화면을 못 봤다. 출발지를 고르러 나갔다 오거나 로그인하고 돌아온 것은
+  //    같은 앱 실행 안이라 묻지 않는다(S15P21E201-1376 의 이어 쓰기는 그대로). 홈 시작 바·AI 가 값을 넘겨 온 경우도 묻지 않는다.
+  const [askResume, setAskResume] = useState(false);
+  const resumeChecked = useRef(false);
+  useEffect(() => {
+    if (!stateRestored || !ready || resumeChecked.current) return;
+    resumeChecked.current = true;
+    if (resumePromptShown) return;
+    resumePromptShown = true;
+    const handed = Boolean(searchParams.days || searchParams.people);
+    if (!handed && state.open > 0) setAskResume(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stateRestored, ready]);
+  const startOver = async () => {
+    setAskResume(false);
+    await clear();
+    void clearQuestionState();
+    setState(INITIAL_QUESTION_STATE);
+  };
   const scrollRef = useRef<ScrollView>(null);
 
   const searchParams = useLocalSearchParams<{ days?: string; people?: string }>();
@@ -280,6 +305,16 @@ function PlanConditions() {
         <Text variant="caption" weight="bold" color={color.text.muted} style={styles.topCount}>{review ? tx('확인', 'Review') : `${step + 1} / ${PLAN_STEP_COUNT}`}</Text>
       </View>
       <StepBar step={step} tx={tx} />
+      <Modal transparent visible={askResume} animationType="fade" onRequestClose={() => setAskResume(false)}>
+        <View style={styles.resumeBackdrop}>
+          <View testID="plan-resume-prompt" accessibilityViewIsModal style={styles.resumeCard}>
+            <Text variant="title" weight="bold">{tx('만들던 여행이 있어요', 'You have a trip in progress')}</Text>
+            <Text color={color.text.body}>{txf(tx, '%s단계까지 채워 둔 내용이 남아 있어요. 이어서 할까요?', 'Your answers up to step %s are saved. Pick up where you left off?', String(Math.min(state.open, PLAN_STEP_COUNT)))}</Text>
+            <Button label={tx('이어서 하기', 'Continue')} variant="secondary" onPress={() => setAskResume(false)} />
+            <Button label={tx('처음부터 새로', 'Start over')} variant="tertiary" onPress={() => void startOver()} />
+          </View>
+        </View>
+      </Modal>
       {review ? (
         <View style={styles.reviewTitle}>
           <View style={styles.grow}>
@@ -370,6 +405,8 @@ function PlanConditions() {
 }
 
 const styles = StyleSheet.create({
+  resumeBackdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(25,25,25,0.62)' },
+  resumeCard: { width: '100%', maxWidth: 420, gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
   canvas: { backgroundColor: color.canvas },
   shell: { flex: 1, backgroundColor: color.canvas },
   column: { gap: spacing[4], paddingBottom: spacing[6] },

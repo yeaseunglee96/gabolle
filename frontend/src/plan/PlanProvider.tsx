@@ -83,6 +83,9 @@ export type PlanDraft = {
    * 채워져 있으면 제출 시 일반 생성 대신 POST /api/v1/shares/{token}/clone 을 부른다.
    */
   cloneShareToken: string | null;
+  /** 이 초안으로 «한 번» 만드는 시도의 이름표 — S15P21E201-1994. 여행 생성 Idempotency-Key 에 섞는다.
+   *  조건만으로 키를 만들면 같은 조건의 새 여행이 앞 여행으로 열렸다. 비운 뒤 처음 고칠 때 새로 붙는다. */
+  attemptId?: string | null;
 };
 
 const VERSION = 1;
@@ -95,7 +98,10 @@ const ANONYMOUS_KEY = `${STORAGE_PREFIX}:anonymous`;
 const LEGACY_STORAGE_KEY = STORAGE_PREFIX;
 
 const storageKeyFor = (userId: string | null) => (userId ? `${STORAGE_PREFIX}:${userId}` : ANONYMOUS_KEY);
-export const EMPTY_PLAN: PlanDraft = { startDate: '', endDate: '', travelers: 1, adults: 1, children: 0, origin: '', originLat: null, originLng: null, lodging: '', lodgingLat: null, lodgingLng: null, lodgingPlace: null, originEnglish: null, lodgingEnglish: null, transport: 'TRANSIT', budgetKrw: DAILY_BUDGET_PER_PERSON_KRW, budgetEdited: false, dayStartTime: '09:00', dayEndTime: '21:00', walkingLevel: 'MEDIUM', companionType: 'SOLO', preferences: [], preferenceAnswerStatus: { category: 'UNKNOWN', atmosphere: 'UNKNOWN', locality: 'UNKNOWN', quietness: 'UNKNOWN', touristPreference: 'UNKNOWN', foodPreference: 'UNKNOWN' }, atmospheres: [], localityLevel: null, quietLevel: null, touristLevel: null, foods: [], dietTypes: [], allergies: [], allergyStatus: 'UNKNOWN', allergyAnswered: false, dietStatus: 'UNKNOWN', dietAnswered: false, maxWalkingDistanceM: null, slopeConstraint: null, stairsConstraint: null, shadePreference: null, wheelchair: null, stroller: null, luggage: null, accessibilityNeeds: [], travelAreas: [], maxCompletedStep: 0, paceLevel: null, englishMenuRequired: false, foreignCardRequired: false, soloDiningPreferred: false, accommodation: '', accommodationPlace: null, maxTransfers: null, mustVisitPlaces: [], cloneShareToken: null };
+/** 시도 이름표 — 겹치지만 않으면 된다(보안 값이 아니다). */
+export function newAttemptId(): string { return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`; }
+
+export const EMPTY_PLAN: PlanDraft = { startDate: '', endDate: '', travelers: 1, adults: 1, children: 0, origin: '', originLat: null, originLng: null, lodging: '', lodgingLat: null, lodgingLng: null, lodgingPlace: null, originEnglish: null, lodgingEnglish: null, transport: 'TRANSIT', budgetKrw: DAILY_BUDGET_PER_PERSON_KRW, budgetEdited: false, dayStartTime: '09:00', dayEndTime: '21:00', walkingLevel: 'MEDIUM', companionType: 'SOLO', preferences: [], preferenceAnswerStatus: { category: 'UNKNOWN', atmosphere: 'UNKNOWN', locality: 'UNKNOWN', quietness: 'UNKNOWN', touristPreference: 'UNKNOWN', foodPreference: 'UNKNOWN' }, atmospheres: [], localityLevel: null, quietLevel: null, touristLevel: null, foods: [], dietTypes: [], allergies: [], allergyStatus: 'UNKNOWN', allergyAnswered: false, dietStatus: 'UNKNOWN', dietAnswered: false, maxWalkingDistanceM: null, slopeConstraint: null, stairsConstraint: null, shadePreference: null, wheelchair: null, stroller: null, luggage: null, accessibilityNeeds: [], travelAreas: [], maxCompletedStep: 0, paceLevel: null, englishMenuRequired: false, foreignCardRequired: false, soloDiningPreferred: false, accommodation: '', accommodationPlace: null, maxTransfers: null, mustVisitPlaces: [], cloneShareToken: null, attemptId: null };
 
 // 초안을 기기에 적을 때 비우는 칸. 여기 있는 조건은 새로고침 뒤 여행 조건(travelConditions.ts)이 다시 채운다.
 // 🔴 휠체어·유아차·큰 짐은 여기 두지 않는다 — 여행마다 바뀌는 답이라 여행 조건에 저장되지 않아, 비우면
@@ -297,7 +303,7 @@ export function PlanProvider({ children }: { children: ReactNode }) {
     draft,
     ready,
     // 인원·날짜가 바뀌면 손대지 않은 예산 기본값이 따라간다 — 모든 입력(홈 시작 바·질문 화면·AI 도우미)이 여기를 지난다.
-    update: (patch) => { if (!ready) changedBeforeHydration.current = true; setDraft((current) => applyBudgetDefault(current, patch)); },
+    update: (patch) => { if (!ready) changedBeforeHydration.current = true; setDraft((current) => { const next = applyBudgetDefault(current, patch); return next.attemptId ? next : { ...next, attemptId: newAttemptId() }; }); },
     completeStep: (step) => setDraft((current) => ({ ...current, maxCompletedStep: Math.max(current.maxCompletedStep, step) })),
     clear: async () => {
       setDraft(EMPTY_PLAN);

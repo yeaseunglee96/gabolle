@@ -422,18 +422,19 @@ export default function Generating() {
             key={reprint}
           />
         )}
+        <AccessibilityUnverifiedModal
+          inline
+          visible={accessibilityNotice !== null}
+          unverifiedCount={accessibilityNotice?.unverified ?? 0}
+          totalCount={accessibilityNotice?.total ?? 0}
+          aids={mobilityAids}
+          onClose={() => setAccessibilityNotice(null)}
+        />
         {/* 승차권 앞면 QR 자리의 「내 일정 보기」가 문이다 — 같은 곳으로 가는 큰 단추를 아래 또 두지 않는다(2026-09-21 실기, S15P21E201-1381).
             「뒤집으면 일정 보기가 있어요」 안내는 뺐다 — 앞면에 단추가 생겨 할 말이 없어졌다(S15P21E201-1562). */}
         </View>
       </View>}
     </View>
-    <AccessibilityUnverifiedModal
-      visible={accessibilityNotice !== null}
-      unverifiedCount={accessibilityNotice?.unverified ?? 0}
-      totalCount={accessibilityNotice?.total ?? 0}
-      aids={mobilityAids}
-      onClose={() => setAccessibilityNotice(null)}
-    />
   </Screen>;
 }
 const styles = StyleSheet.create({ doneHead: { gap: spacing[3], marginBottom: spacing[2] }, doneStrip: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: spacing[2], paddingHorizontal: spacing[3], borderRadius: radius.md, backgroundColor: color.brand.navy }, donePressed: { opacity: 0.85 }, doneCheck: { width: 18, height: 18, borderRadius: radius.full, backgroundColor: color.state.success, alignItems: 'center', justifyContent: 'center' }, doneStripText: { flex: 1 }, canvas: { backgroundColor: color.canvas, maxWidth: 1200 }, mobileTop: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[4] }, back: { width: 44, height: 44, borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' }, logo: { width: 154, height: 28 }, stepPill: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.brand.navy }, layout: { gap: spacing[4] }, layoutWide: { minHeight: 720 }, statusPanel: { gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.brand.navy }, statusWide: { flexDirection: 'row', alignItems: 'center', gap: spacing[8], paddingHorizontal: spacing[8], paddingVertical: spacing[6] }, aiBadge: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: spacing[2], paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderRadius: radius.full, backgroundColor: 'rgba(255,255,255,0.08)' }, pulse: { width: 8, height: 8, borderRadius: radius.full, backgroundColor: '#4a5568' }, pulseActive: { backgroundColor: color.state.dot }, headline: { lineHeight: 32 }, stageList: { gap: spacing[2] },
