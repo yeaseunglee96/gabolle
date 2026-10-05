@@ -233,7 +233,8 @@ export function buildKakaoMapHtml(appKey: string): string {
       //    지금 높이로 다시 줄여 맞출 자리를 60 은 남긴다(mapFocus.fitPadding 과 같은 규칙).
       var pad = padNow.slice(); var el = document.getElementById('map'); var h = el.clientHeight || 0; var w = el.clientWidth || 0;
       // 넓고 낮은 지도(탭 가로)는 높이의 45% 를 맞출 자리로 남긴다 — mapFocus.fitPadding 의 WIDE_MIN_ROOM 과 같은 규칙(S15P21E201-1980).
-      var room = Math.max(0, h - (w > h * 1.3 ? Math.max(60, Math.round(h * 0.45)) : 60));
+      // 세로 지도는 높이의 25% — TALL_MIN_ROOM 과 같은 규칙(S15P21E201-1986).
+      var room = Math.max(0, h - Math.max(60, Math.round(h * (w > h * 1.3 ? 0.45 : 0.25))));
       if (h > 0 && pad[0] + pad[2] > room) { var k = room / (pad[0] + pad[2]); pad[0] = Math.round(pad[0] * k); pad[2] = Math.round(pad[2] * k); }
       if (fitStops.length <= 1) { map.setCenter(new maps.LatLng(fitStops[0].latitude, fitStops[0].longitude)); map.setLevel(5); } else map.setBounds(bounds, pad[0], pad[1], pad[2], pad[3]); focusOn(selectedNow); };
     fit();

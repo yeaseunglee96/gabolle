@@ -76,8 +76,9 @@ export function HeaderWeatherText({ forecast, compact = false, now = new Date() 
   return (
     <View style={styles.weatherRow} accessible accessibilityLabel={`${skyLabel(shown.sky, tx)} · ${headerWeatherLabel(shown.kind, tx)} ${Math.round(shown.value)}°`}>
       {shown.icon ? <Text variant="body" accessibilityElementsHidden importantForAccessibility="no">{shown.icon}</Text> : null}
-      {compact ? null : <Text variant="caption" color={color.text.body}>{headerWeatherLabel(shown.kind, tx)}</Text>}
-      <Text variant="title" weight="bold">{`${Math.round(shown.value)}°`}</Text>
+      {/* 🔴 좁은 칸·글자 크게에서는 이름표가 줄고 숫자는 늘 보인다(S15P21E201-1986 — 1.3배에서 「… 17° / 24°」로 하늘이 잘렸다). */}
+      {compact ? null : <Text variant="caption" color={color.text.body} numberOfLines={1} style={styles.weatherLabel}>{headerWeatherLabel(shown.kind, tx)}</Text>}
+      <Text testID="header-weather-value" variant="title" weight="bold" numberOfLines={1} style={styles.weatherValue}>{`${Math.round(shown.value)}°`}</Text>
     </View>
   );
 }
@@ -362,7 +363,9 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.85 },
 
   // 상단 바 안이라 위쪽 구분선도 여백도 없다. 바가 이미 자기 높이를 가진다.
-  weatherRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
+  weatherLabel: { flexShrink: 1 },
+  weatherValue: { flexShrink: 0 },
+  weatherRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], flexShrink: 1, minWidth: 0 },
 
   // 줄 배치에서는 카드 폭을 줄 부품(HomeRow)이 정해서 내려준다 — 여기서 상한을 두면
   // 한 줄에 몇 장이 보이는지가 두 곳에서 정해지고, 둘이 어긋나면 줄마다 장 수가 달라진다.

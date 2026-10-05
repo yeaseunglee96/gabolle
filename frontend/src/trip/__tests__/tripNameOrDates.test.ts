@@ -20,11 +20,13 @@ describe('tripNameOrDates', () => {
 
   it('🔴 서버의 자리표시 제목(「2026-09-21 ~ 2026-09-23」)은 이름이 아니다', () => {
     expect(tripNameOrDates({ title: '2026-09-21 ~ 2026-09-23', startDate: '2026-09-21', endDate: '2026-09-23' }, tx, LOCALE))
-      .toBe(`${day('2026-09-21')} – ${day('2026-09-23')}`);
+      .toBe(`${day('2026-09-21')} –\u00A0${day('2026-09-23')}`);
   });
 
   it('여러 날이면 시작 – 끝, 하루면 하루만', () => {
-    expect(tripDatesLabel('2026-09-26', '2026-09-28', LOCALE)).toBe(`${day('2026-09-26')} – ${day('2026-09-28')}`);
+    expect(tripDatesLabel('2026-09-26', '2026-09-28', LOCALE)).toBe(`${day('2026-09-26')} –\u00A0${day('2026-09-28')}`);
+    // 🔴 대시는 뒤 날짜에 붙는다 — 꺾이면 「– 9월 28일」이 다음 줄로 간다(S15P21E201-1986)
+    expect(tripDatesLabel('2026-09-26', '2026-09-28', LOCALE)).not.toMatch(/– /);
     expect(tripDatesLabel('2026-09-26', '2026-09-26', LOCALE)).toBe(day('2026-09-26'));
   });
 

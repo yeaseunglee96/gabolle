@@ -8,22 +8,25 @@ describe('창에 가린 지도', () => {
   });
 
   it('🔴 가린 만큼 아래 여백을 더 두고, 고른 곳은 보이는 부분의 가운데로(가린 높이의 절반만큼 위)', () => {
-    // 390×844 폰에서 창이 아래 600 을 가린다 — 보이는 것은 위 244
-    expect(fitPadding(600, 844)).toEqual([60, 60, 660, 60]);
+    // 390×844 폰에서 창이 아래 600 을 가린다 — 맞출 자리는 높이의 25%(211) 는 남긴다(S15P21E201-1986)
+    const [t1, , b1] = fitPadding(600, 844);
+    expect(b1).toBeGreaterThan(t1);
+    expect(844 - t1 - b1).toBeGreaterThanOrEqual(210);
     expect(focusShiftY(600, 844)).toBe(300);
   });
 
   it('창이 지도를 거의 다 가려도 맞출 자리는 남긴다 — 여백이 지도보다 커지면 카카오 지도가 최대로 멀어진다', () => {
-    const [, , bottom] = fitPadding(2000, 400);
-    expect(bottom).toBe(280);
+    const [top, , bottom] = fitPadding(2000, 400);
+    expect(400 - top - bottom).toBeGreaterThanOrEqual(99);
     expect(focusShiftY(2000, 400)).toBe(140);
   });
 
   it('🔴 위가 상태바·칩에 가려진 만큼 위 여백을 더 둔다 — 정차지가 칩 밑으로 숨지 않게(S15P21E201-1754)', () => {
     // 폰에서 상태바 24 + 요약·경사/그늘 칩 — 위 100 이 가려진다
     expect(fitPadding(0, 844, 100)).toEqual([160, 60, 60, 60]);
-    // 위아래가 함께 가려져도 맞출 자리(위 여백 아래로 60)는 남긴다
-    expect(fitPadding(2000, 844, 100)).toEqual([160, 60, 624, 60]);
+    // 위아래가 함께 가려져도 맞출 자리(높이의 25%)는 남긴다
+    const [t2, , b2] = fitPadding(2000, 844, 100);
+    expect(844 - t2 - b2).toBeGreaterThanOrEqual(210);
   });
 
   it('🔴 고른 곳은 위 가림도 뺀 «보이는 부분» 의 가운데로 — 위에 뜬 색 범례 밑에 깔리지 않게(S15P21E201-1896)', () => {
@@ -46,11 +49,21 @@ describe('넓고 낮은 지도(탭·웹 가로) — S15P21E201-1980', () => {
     const [top, , bottom] = fitPadding(560, height, 80, 1205);
     expect(height - top - bottom).toBeGreaterThanOrEqual(Math.round(height * 0.45) - 1);
   });
-  it('세로 지도(폰)는 전과 같다 — 넓이를 안 주거나 세로면 바뀌지 않는다', () => {
+  it('세로 지도는 넓이를 주든 안 주든 같다', () => {
     expect(fitPadding(600, 844, 0, 390)).toEqual(fitPadding(600, 844));
-    expect(fitPadding(2000, 844, 100, 390)).toEqual([160, 60, 624, 60]);
   });
   it('가로라도 가림이 작으면 손대지 않는다', () => {
     expect(fitPadding(100, 700, 80, 1205)).toEqual(fitPadding(100, 700, 80));
+  });
+});
+
+describe('좁고 긴 지도(폴드 바깥 화면) — S15P21E201-1986', () => {
+  it('🔴 아래 창이 대부분을 덮어도 높이의 25% 는 맞출 자리로 남긴다(전에는 100px 남짓에 맞춰 김해공항~오륙도가 한 화면)', () => {
+    const height = 900;
+    const [top, , bottom] = fitPadding(620, height, 120, 369);
+    expect(height - top - bottom).toBeGreaterThanOrEqual(Math.round(height * 0.25) - 1);
+  });
+  it('가림이 작으면 손대지 않는다', () => {
+    expect(fitPadding(100, 900, 80, 369)).toEqual([140, 60, 160, 60]);
   });
 });
