@@ -36,6 +36,24 @@ export function buildKakaoMapHtml(appKey: string): string {
   var lineRecords = [];
   // 맞춤 대상(번호 장소) — 창을 열 때 가려진 점이 있는지 볼 때 쓴다(S15P21E201-1989).
   var fitStopsNow = [];
+  // 보이는 띠가 이보다 좁으면(일정 창을 연 폰) 전체 맞춤 대신 고른 곳(없으면 1번)을 가까이 본다 — mapFocus.ts 의 NARROW_BAND·isNarrowBand(S15P21E201-1991).
+  //    띠 120~150 에 번호 장소 전부를 맞추면 김해~송정까지 물러나 점이 한 덩어리로 겹쳤다(빌드 47 폴드).
+  var NARROW_BAND = 200;
+  function narrow(pad, h) { return h > 0 && pad[2] > 60 && h - pad[0] - pad[2] < NARROW_BAND; }
+  // 좁은 띠에서 볼 곳 — 고른 곳, 없으면 첫 번호 장소.
+  function nearTarget() { return (selectedNow && stopsById[selectedNow]) ? stopsById[selectedNow] : fitStopsNow[0]; }
+  // 그곳을 가까이(FOCUS_LEVEL + 1), 보이는 띠 가운데에 «바로» 둔다(맞추기처럼 순간 이동 — 고를 때의 panTo 와 다르다).
+  function showNear(stop, pad, h) {
+    var maps = window.kakao.maps;
+    map.setLevel(FOCUS_LEVEL + 1);
+    var target = new maps.LatLng(stop.latitude, stop.longitude);
+    map.setCenter(target);
+    var shift = Math.max(0, pad[2] - pad[0]) / 2;
+    if (!shift || !(h > 0)) return;
+    var projection = map.getProjection();
+    var point = projection.containerPointFromCoords(target);
+    map.setCenter(projection.coordsFromContainerPoint(new maps.Point(point.x, point.y + shift)));
+  }
   // 이 점이 위·아래 가림 띠(여백 pad = 가림 + 점 반지름) 밖, 보이는 자리에 있나.
   function inBand(stop, pad) {
     try {
@@ -247,6 +265,7 @@ export function buildKakaoMapHtml(appKey: string): string {
       if (h > 0) { var over = pad[0] + pad[2] + 48 - h; if (over > 0) { var cut = Math.min(over, pad[2] - 24); pad[2] -= cut; over -= cut; } if (over > 0) pad[0] = Math.max(24, pad[0] - over); }
       // 🔴 전체를 맞춘 뒤에는 고른 곳으로 «밀지 않는다»(S15P21E201-1989) — 맞춘 범위를 고른 곳 쪽으로 밀면 반대쪽 끝 점이 가림 띠 뒤로 나갔다
       //    (빌드 47 폴드 접음, 해운대 당일 6번). 고른 곳이 이미 보이는 띠 안이면 그대로 둔다.
+      if (fitStops.length > 1 && narrow(pad, h)) { var near = selectedNow && stopsById[selectedNow] ? stopsById[selectedNow] : fitStops[0]; showNear(near, pad, h); return; }
       if (fitStops.length <= 1) { map.setCenter(new maps.LatLng(fitStops[0].latitude, fitStops[0].longitude)); map.setLevel(5); } else map.setBounds(bounds, pad[0], pad[1], pad[2], pad[3]);
       if (selectedNow && stopsById[selectedNow] && !inBand(stopsById[selectedNow], pad)) focusOn(selectedNow); };
     fitStopsNow = fitStops;
@@ -273,7 +292,10 @@ export function buildKakaoMapHtml(appKey: string): string {
     if (!map || !fit) return;
     var pad = data.fitPadding || padNow;
     var hidden = false;
-    for (var i = 0; i < fitStopsNow.length; i++) if (!inBand(fitStopsNow[i], pad)) { hidden = true; break; }
+    var el = document.getElementById('map'); var h = (el && el.clientHeight) || 0;
+    // 좁은 띠면 다 보이게 할 수 없다 — 볼 곳(고른 곳·1번)이 띠 안에 있는지만 본다(S15P21E201-1991).
+    if (fitStopsNow.length > 1 && narrow(pad, h)) { var near = nearTarget(); if (near && !inBand(near, pad)) hidden = true; }
+    else for (var i = 0; i < fitStopsNow.length; i++) if (!inBand(fitStopsNow[i], pad)) { hidden = true; break; }
     padNow = pad;
     shiftNow = data.shiftY || 0;
     if (!hidden) return;

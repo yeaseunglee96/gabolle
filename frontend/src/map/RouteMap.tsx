@@ -6,7 +6,7 @@ import { Button } from '@/components/Button';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import type { MapPathPoint, MapStop } from './types';
-import { FOCUS_LEVEL, fitPadding, fitTargets, focusShiftY } from './mapFocus';
+import { FOCUS_LEVEL, fitPadding, fitTargets, focusShiftY, isNarrowBand } from './mapFocus';
 import { simplifyPath } from './simplifyPath';
 import { gradedSegments, type RouteGrading } from './routeGrading';
 import type { SlopePiece } from './slopeGrades';
@@ -293,7 +293,21 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
         // : stop이 하나면 bounds 넓이가 0이라 setBounds가 지도를 최대 줌으로
         // 밀어붙인다 — 고정 34px 마커가 화면 대부분을 덮어 장소 이름을 가린다. 하나일 때는
         // bounds 대신 그 지점을 도시 단위 줌으로 그냥 센터링한다.
+        // 좁은 띠(일정 창을 연 폰)에서 볼 곳 — 고른 곳, 없으면 첫 번호 장소(S15P21E201-1991, kakaoMapHtml.ts 와 같은 규칙).
+        const nearStop = () => fitStops.find((stop) => stop.id === selectedRef.current) ?? fitStops[0];
+        const narrowNow = () => fitStops.length > 1 && isNarrowBand(hostHeight(), fitPadding(insetRef.current, hostHeight(), topInsetRef.current, hostWidth()));
         const fit = () => {
+          if (narrowNow()) {
+            // 띠가 좁으면 전체를 맞추지 않는다 — 다 넣으려다 김해~송정까지 물러나 점이 겹쳤다. 볼 곳을 가까이, 띠 가운데에.
+            const [top, , bottom] = fitPadding(insetRef.current, hostHeight(), topInsetRef.current, hostWidth());
+            const near = nearStop();
+            const target = new maps.LatLng(near.latitude, near.longitude);
+            map.setLevel(FOCUS_LEVEL + 1);
+            map.setCenter(target);
+            const shift = Math.max(0, bottom - top) / 2;
+            if (shift) { const projection = map.getProjection(); const point = projection.containerPointFromCoords(target); map.setCenter(projection.coordsFromContainerPoint(new maps.Point(point.x, point.y + shift))); }
+            return;
+          }
           if (fitStops.length <= 1) { map.setCenter(new maps.LatLng(fitStops[0].latitude, fitStops[0].longitude)); map.setLevel(5); return; }
           const [top, right, bottom, left] = fitPadding(insetRef.current, hostHeight(), topInsetRef.current, hostWidth());
           map.setBounds(bounds, top, right, bottom, left);
@@ -331,7 +345,11 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
         };
         fitAndFocus(); fitRef.current = fitAndFocus; focusFnRef.current = focusOnSelected;
         // 창을 열 때 — 가려진 번호 점이 있을 때만 다시 맞춘다(다 보이면 그대로, 튀지 않게).
-        ensureRef.current = () => { if (fitStops.some((stop) => !inBand(stop))) fitAndFocus(); };
+        ensureRef.current = () => {
+          // 좁은 띠면 다 보이게 할 수 없다 — 볼 곳이 띠 안인지만 본다(S15P21E201-1991).
+          if (narrowNow()) { if (!inBand(nearStop())) fitAndFocus(); return; }
+          if (fitStops.some((stop) => !inBand(stop))) fitAndFocus();
+        };
         // 맞추면 줌이 바뀐다 — 줌 사건이 안 오는 환경도 있어 맞춘 뒤 한 번 더 셈한다.
         resimplify();
         appliedSelectionRef.current = selectedNow;
