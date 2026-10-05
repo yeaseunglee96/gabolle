@@ -2,7 +2,7 @@
 //
 // 🔴 전에는 글자 둘뿐이었다(「✦」 만들어짐 · 「⇄」 그 밖 전부). 고정·빼기·더하기·순서·되돌리기가 다 「⇄」라
 //    무엇이 바뀌었는지 아이콘으로는 못 읽었다. 글자 아이콘은 기기 글꼴마다 모양도 달라진다 — PencilIcon 과 같은 이유로 선 그림.
-import Svg, { Circle, Path, Rect } from 'react-native-svg';
+import Svg, { Circle, Path } from 'react-native-svg';
 
 export type NoticeIconKind = 'created' | 'lock' | 'remove' | 'add' | 'reorder' | 'replan' | 'revert' | 'change';
 
@@ -43,7 +43,11 @@ export function NoticeIcon({ kind, tint, size = 20 }: { kind: NoticeIconKind; ti
         <Path d="M8 7 4 11l4 4" {...line} />
         <Path d="M4 11h9a5 5 0 0 1 0 10h-3" {...line} />
       </> : null}
-      {kind === 'change' ? <Rect x={5} y={5} width={14} height={14} rx={3} {...line} /> : null}
+      {kind === 'change' ? <>
+        {/* 연필 — 여러 가지를 고쳤다. 전에는 빈 네모(Rect)만 그려 폴드에서 「□」로 보였다(S15P21E201-1985) */}
+        <Path d="M4 20h4L19 9l-4-4L4 16z" {...line} />
+        <Path d="M13.5 6.5l4 4" {...line} />
+      </> : null}
     </Svg>
   );
 }

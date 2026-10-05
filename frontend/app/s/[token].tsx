@@ -24,6 +24,7 @@ import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { PLACE_CATEGORY_LABELS } from '@/discovery/placeCategoryLabels';
 import { usePlan } from '@/plan/PlanProvider';
 import { getSharedItinerary, type SharedItineraryDto } from '@/share/sharedItinerary';
+import { humanTripTitle, tripDatesLabel, tripNameOrDates } from '@/trip/tripNaming';
 
 type Status =
   | { state: 'loading' }
@@ -138,9 +139,10 @@ export default function SharedItinerary() {
     <LanguageSwitch />
     <View style={styles.heading}>
       <Text variant="eyebrow" weight="bold">{tx('공유된 여행 일정', 'Shared trip itinerary')}</Text>
-      <Text variant="display" weight="bold">{data.title}</Text>
+      {/* 이름 없는 여행은 서버가 「2026-10-15 ~ 2026-10-15」 자리표시를 싣는다 — 날짜로 부르고, 그때는 아래 날짜 줄을 또 적지 않는다(S15P21E201-1985). */}
+      <Text variant="display" weight="bold">{tripNameOrDates({ title: data.title, startDate: data.startDate, endDate: data.finishDate }, tx, locale)}</Text>
       {/* 날짜는 내 여행 목록과 같은 모양 — 「2026-10-03」 기계 모양을 그대로 보이지 않는다(S15P21E201-1677). */}
-      <Text color={color.text.body}>{`${dayHeading(data.startDate, locale)} – ${dayHeading(data.finishDate, locale)}`}</Text>
+      {humanTripTitle(data.title) ? <Text color={color.text.body}>{tripDatesLabel(data.startDate, data.finishDate, locale) ?? ''}</Text> : null}
       <Text variant="caption" color={color.text.muted}>{txf(tx, '이 링크는 %s까지 볼 수 있어요.', 'This link is viewable until %s.', formatFullDate(data.expiresAt, locale))}</Text>
     </View>
 
