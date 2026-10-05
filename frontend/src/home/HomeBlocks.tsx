@@ -30,7 +30,7 @@ import { humanTripTitle, tripDatesLabel, tripNameOrDates } from '@/trip/tripNami
 // 🔴 상태 글자는 여행 목록 카드와 같은 함수다 — 날짜가 서버 상태를 이긴다(S15P21E201-1595). 전에는 서버 status 를
 //    그대로 읽는 홈 전용 함수가 따로 있어서, 오늘 진행 중인 여행에도 「준비 완료」가 붙었다.
 import { effectiveTripStatus, tripStatusLabel } from '@/trip/tripStatus';
-import type { DailyForecastDto } from '@/trip/weather';
+import { headerWeather, localTimeText, type CurrentWeather, type DailyForecastDto, type HeaderWeather, type HourlyForecastDto } from '@/trip/weather';
 import { regionText } from '@/social/districtNames';
 
 
@@ -56,20 +56,35 @@ function skyLabel(sky: DailyForecastDto['skyCondition'], tx: Tx) {
  * 그 문구를 만들던 weatherHint 도 쓰는 곳이 없어져 걷어냈다. 되살릴 일이 생기면
  * 이 커밋을 보면 된다.
  */
-export function TopNavWeather({ forecast, compact = false }: { forecast: DailyForecastDto | null; compact?: boolean }) {
+/** 머리말 날씨의 이름표 — 값의 뜻을 따른다(S15P21E201-1981). 전에는 최고기온에 「부산 지금」을 붙였다. */
+export function headerWeatherLabel(kind: HeaderWeather['kind'], tx: Tx): string {
+  return kind === 'now' ? tx('지금', 'Now') : kind === 'high' ? tx('오늘 최고', "Today's high") : tx('오늘 최저', "Today's low");
+}
+
+type HeaderForecast = DailyForecastDto & { current?: CurrentWeather; hourly?: HourlyForecastDto[] };
+
+/**
+ * 머리말 날씨 `[ 하늘 지금 N° ]` — 넓은 화면 상단 바와 폰 홈 칩이 같이 쓴다(S15P21E201-1981).
+ * 지금 기온이 없으면 `[ 하늘 오늘 최고 N° ]`. 값이 하나도 없으면 아무것도 안 그린다.
+ * compact 면 하늘과 기온만 — 좁은 상단 바에서 「晴れ · 今の釜山」이 메뉴 「マイ旅行」에 붙어 버렸다(768 세로 탭).
+ */
+export function HeaderWeatherText({ forecast, compact = false, now = new Date() }: { forecast: HeaderForecast | null; compact?: boolean; now?: Date }) {
   const { tx } = useI18n();
   if (!forecast) return null;
-  // 최고기온을 쓰고, 없으면 최저라도 보여준다. 둘 다 없으면 아무것도 안 그린다 —
-  // 「—도」 라고 적으면 값이 있는 것처럼 보인다.
-  const temp = forecast.maxTemperature ?? forecast.minTemperature;
-  if (temp === null) return null;
+  const shown = headerWeather(forecast, localTimeText(now));
+  if (shown === null) return null;
   return (
-    <View style={styles.weatherRow}>
-      <Text variant="title" weight="bold">{`${Math.round(temp)}°`}</Text>
-      {/* 좁으면 기온만 — 「晴れ · 今の釜山」이 메뉴 「マイ旅行」에 붙어 버렸다(768 세로 탭) */}
-      {compact ? null : <Text variant="caption" color={color.text.body}>{`${skyLabel(forecast.skyCondition, tx)} · ${tx('부산 지금', 'Busan now')}`}</Text>}
+    <View style={styles.weatherRow} accessible accessibilityLabel={`${skyLabel(shown.sky, tx)} · ${headerWeatherLabel(shown.kind, tx)} ${Math.round(shown.value)}°`}>
+      {shown.icon ? <Text variant="body" accessibilityElementsHidden importantForAccessibility="no">{shown.icon}</Text> : null}
+      {compact ? null : <Text variant="caption" color={color.text.body}>{headerWeatherLabel(shown.kind, tx)}</Text>}
+      <Text variant="title" weight="bold">{`${Math.round(shown.value)}°`}</Text>
     </View>
   );
+}
+
+/** 상단 바 오른쪽에 서는 날씨. 전에는 히어로 아래 한 줄(WeatherLine)이었다 — 시작 바와 첫 기록 줄 사이를 갈라놓았다. */
+export function TopNavWeather({ forecast, compact = false }: { forecast: HeaderForecast | null; compact?: boolean }) {
+  return <HeaderWeatherText forecast={forecast} compact={compact} />;
 }
 
 // ── 최근 기록 3장 + 갈래 칩 (히어로 오른쪽) ────────────────────────────────────

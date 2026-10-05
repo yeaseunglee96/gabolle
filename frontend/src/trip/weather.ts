@@ -37,14 +37,24 @@ type WeatherForecastResponseDto = {
   forecast: DailyForecastDto;
   /** 나중에 더해진 칸이다 — 옛 서버는 안 보낸다. */
   hourly?: HourlyForecastDto[] | null;
+  /**
+   * 지금 기온(S15P21E201-1979). 오늘을 물을 때 지금 시각에 가장 가까운 시간별 칸(90분 안)의 기온이다.
+   * 옛 서버는 안 보내고, 오늘이 아니거나 가까운 칸이 없으면 null 이다 — 그때 「지금」이라 쓰지 않는다.
+   */
+  currentTemperature?: number | null;
+  /** 그 칸의 시각 "HH:mm". */
+  currentTime?: string | null;
 };
+
+/** 지금 기온. 서버가 못 주면 null — 최고기온으로 대신 채우지 않는다(대신 쓸 때는 화면이 「오늘 최고」라고 적는다). */
+export type CurrentWeather = { temperature: number; time: string | null } | null;
 
 export type WeatherLoadResult =
   /**
    * hourly 는 **서버가 준 시각만** 담는다(S15P21E201-1582). 오늘 날짜면 발표 이후 시각 몇 칸만 오고
    * (2026-09-24 운영 실측: 21~23시 셋), 옛 서버면 빈 목록이다. 빈 시각을 지어서 채우지 않는다.
    */
-  | { state: 'success'; forecast: DailyForecastDto; hourly: HourlyForecastDto[] }
+  | { state: 'success'; forecast: DailyForecastDto; hourly: HourlyForecastDto[]; current: CurrentWeather }
   /** 기상청 단기예보는 발표 시점부터 사흘 남짓만 준다 — 그 밖의 날짜는 «실패»가 아니라 «아직»이다(S15P21E201-1376). */
   | { state: 'out-of-range'; message: string; past?: boolean }
   | { state: 'unavailable' | 'offline' | 'error'; message: string };
@@ -76,7 +86,10 @@ export async function loadWeatherForecast(date: string, accessToken: string | nu
   try {
     const params = new URLSearchParams({ lat: String(BUSAN_LAT), lon: String(BUSAN_LON), date });
     const response = await apiRequest<WeatherForecastResponseDto>(`/api/v1/weather?${params.toString()}`, { accessToken });
-    return { state: 'success', forecast: response.forecast, hourly: response.hourly ?? [] };
+    const current: CurrentWeather = typeof response.currentTemperature === 'number'
+      ? { temperature: response.currentTemperature, time: response.currentTime ?? null }
+      : null;
+    return { state: 'success', forecast: response.forecast, hourly: response.hourly ?? [], current };
   } catch (error) {
     if (error instanceof ApiClientError && (error.status === 404 || error.status === 501)) return { state: 'unavailable', message: UNAVAILABLE_MESSAGE };
     // 서버 원문: 「date 가 이 발표 회차의 단기예보 범위를 벗어났습니다」(2026-09-21 실서버 실기, 출발 6일 전 여행).
@@ -87,4 +100,66 @@ export async function loadWeatherForecast(date: string, accessToken: string | nu
     if (error instanceof ApiClientError && error.status === 502) return { state: 'error', message: '기상청 응답을 받지 못했어요.' };
     return { state: 'error', message: error instanceof Error ? error.message : '예보를 가져오지 못했어요.' };
   }
+}
+
+// 하늘 그림 — 시안 그대로 글자 그림이다(시간별 칸·홈 머리말이 같이 쓴다).
+const SKY_ICON: Record<SkyCondition, string> = { CLEAR: '☀', PARTLY_CLOUDY: '⛅', CLOUDY: '☁' };
+const PRECIPITATION_ICON: Record<Exclude<PrecipitationType, 'NONE'>, string> = { RAIN: '🌧', SHOWER: '🌧', SNOW: '🌨', RAIN_SNOW: '🌨' };
+
+/** 하늘 아이콘 — 밤(19~05시) 맑음은 달이다. 22시 칸에 해가 떠 있으면 틀린 예보처럼 보인다(S15P21E201-1963). */
+export function skyIcon(sky: SkyCondition, time: string): string {
+  const hour = Number(time.slice(0, 2));
+  const night = Number.isInteger(hour) && (hour >= 19 || hour <= 5);
+  return sky === 'CLEAR' && night ? '🌙' : SKY_ICON[sky];
+}
+
+const minutesOf = (time: string): number | null => {
+  const [h, m] = time.split(':').map(Number);
+  return Number.isInteger(h) && Number.isInteger(m) ? h * 60 + m : null;
+};
+
+/** time 과 같은 시각의 칸, 없으면 가장 가까운 칸. 시각을 못 읽으면 null. */
+export function slotAt(hourly: HourlyForecastDto[], time: string): HourlyForecastDto | null {
+  const target = minutesOf(time);
+  if (target === null) return null;
+  let best: HourlyForecastDto | null = null;
+  let bestGap = Infinity;
+  for (const slot of hourly) {
+    const at = minutesOf(slot.time);
+    if (at === null) continue;
+    const gap = Math.abs(at - target);
+    if (gap < bestGap) { best = slot; bestGap = gap; }
+  }
+  return best;
+}
+
+/**
+ * 머리말 날씨 하나 — `[ 하늘 지금 N° ]`(S15P21E201-1981).
+ * - 서버가 지금 기온(currentTemperature)을 주면 그 기온, 하늘은 그 시각(currentTime) 칸(없으면 가장 가까운 칸)의 하늘·비.
+ * - 못 주면 `[ 하늘 오늘 최고 N° ]` — 하루 요약 하늘. 최고도 없으면 오늘 최저. 다 없으면 null(「—°」는 값이 있는 척이다).
+ * 🔴 지금 기온이 아닐 때는 「지금」이라 쓰지 않는다. 전에는 최고기온에 「부산 지금」을 붙였다.
+ * 밤(19~05시) 맑음은 달 — 지금 칸은 그 칸의 시각으로, 하루 요약은 nowTime(이 기기 시각)으로 가른다.
+ */
+export type HeaderWeather = { value: number; kind: 'now' | 'high' | 'low'; icon: string | null; sky: SkyCondition | null };
+
+export function headerWeather(
+  weather: { maxTemperature: number | null; minTemperature: number | null; skyCondition: SkyCondition | null; current?: CurrentWeather; hourly?: HourlyForecastDto[] },
+  nowTime: string,
+): HeaderWeather | null {
+  if (weather.current && Number.isFinite(weather.current.temperature)) {
+    const at = weather.current.time ?? nowTime;
+    const slot = slotAt(weather.hourly ?? [], at);
+    const rain = slot?.precipitationType && slot.precipitationType !== 'NONE' ? PRECIPITATION_ICON[slot.precipitationType] : null;
+    const sky = slot?.skyCondition ?? weather.skyCondition;
+    return { value: weather.current.temperature, kind: 'now', icon: rain ?? (sky ? skyIcon(sky, slot?.time ?? at) : null), sky };
+  }
+  const icon = weather.skyCondition ? skyIcon(weather.skyCondition, nowTime) : null;
+  if (weather.maxTemperature !== null) return { value: weather.maxTemperature, kind: 'high', icon, sky: weather.skyCondition };
+  if (weather.minTemperature !== null) return { value: weather.minTemperature, kind: 'low', icon, sky: weather.skyCondition };
+  return null;
+}
+
+/** 이 기기의 지금 시각 "HH:mm". */
+export function localTimeText(now: Date = new Date()): string {
+  return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 }

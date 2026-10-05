@@ -1,5 +1,6 @@
 // 데스크톱 홈이 쓰는 값들을 한곳에서 읽는다.
 import { useQuery } from '@tanstack/react-query';
+import { useMemo } from 'react';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { festivalDisplayTitle, getFestivals, type Festival } from '@/discovery/festivals';
@@ -7,7 +8,7 @@ import { getFacets } from '@/discovery/localExplore';
 import { getPlacesByFacet, type PlaceSearchItem } from '@/discovery/places';
 import { loadFeed, type StoryDto } from '@/social/stories';
 import { loadTrips, type TripSummaryDto } from '@/trip/trips';
-import { loadWeatherForecast, type DailyForecastDto } from '@/trip/weather';
+import { loadWeatherForecast, type CurrentWeather, type DailyForecastDto, type HourlyForecastDto } from '@/trip/weather';
 
 
 // 줄 배치로 바뀌면서 한 줄에 일곱 장이 보인다 — 셋이면 줄이 반도 안 찬다.
@@ -107,7 +108,7 @@ export type HomeFacetRow = {
 export type HomeData = {
   signedIn: boolean;
   stories: StoryDto[] | null;
-  weather: DailyForecastDto | null;
+  weather: HomeWeather | null;
   facetRows: HomeFacetRow[];
   trip: TripSummaryDto | null;
   tripsLoaded: boolean;
@@ -126,15 +127,30 @@ export type HomeData = {
  * <p>질의 열쇠가 useHomeData 의 것과 «같다». 그래서 홈에서 둘 다 불려도 서버에는
  * 한 번만 나간다 — 캐시가 같은 열쇠를 하나로 묶는다.
  */
-export function useHomeWeather(enabled = true): DailyForecastDto | null {
+/** 오늘 예보에 지금 기온을 붙인 것. current 가 null 이면 화면은 「지금」이라 쓰지 않는다(S15P21E201-1981). */
+export type HomeWeather = DailyForecastDto & { current: CurrentWeather; hourly: HourlyForecastDto[] };
+
+/**
+ * 🔴 지금 기온은 낡는다 — S15P21E201-1981. 전에는 한 번 받은 오늘 날씨를 화면을 다시 열 때까지 그대로 써서,
+ *    낮에 받은 최고기온(23°)과 밤에 새로 받은 값(19°)이 로그아웃·로그인 화면에 따로 보였다.
+ *    10분 지나면 낡은 것으로 보고, 열려 있는 동안 15분마다 다시 받는다.
+ */
+export const HOME_WEATHER_STALE_MS = 10 * 60 * 1000;
+export const HOME_WEATHER_REFETCH_MS = 15 * 60 * 1000;
+
+export function useHomeWeather(enabled = true): HomeWeather | null {
   const { accessToken } = useAuth();
   const weatherQuery = useQuery({
     // 날씨도 스토리와 같다 — 익명으로는 401 이다.
     queryKey: ['home', 'weather', today()],
     enabled: enabled && Boolean(accessToken),
     queryFn: () => loadWeatherForecast(today(), accessToken),
+    staleTime: HOME_WEATHER_STALE_MS,
+    refetchInterval: HOME_WEATHER_REFETCH_MS,
   });
-  return weatherQuery.data?.state === 'success' ? weatherQuery.data.forecast : null;
+  const data = weatherQuery.data;
+  // 새 객체를 그릴 때마다 만들면 받는 쪽이 매번 바뀐 값으로 본다 — 받은 값이 바뀔 때만 만든다.
+  return useMemo(() => (data?.state === 'success' ? { ...data.forecast, current: data.current ?? null, hourly: data.hourly } : null), [data]);
 }
 
 /**

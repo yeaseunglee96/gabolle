@@ -2288,6 +2288,8 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '걷기 좋은 날이에요': { ja: '散歩に良い日です', zhHans: '今天很适合步行', zhHant: '今天很適合步行' },
   '실내 코스도 하나 챙겨두세요': { ja: '屋内コースも一つ用意しておきましょう', zhHans: '建议准备一个室内景点备选', zhHant: '建議準備一個室內景點備選' },
   '부산 지금': { ja: '今の釜山', zhHans: '此刻的釜山', zhHant: '此刻的釜山' },
+  '오늘 최고': { ja: '今日の最高', zhHans: '今日最高', zhHant: '今日最高' },
+  '오늘 최저': { ja: '今日の最低', zhHans: '今日最低', zhHant: '今日最低' },
   '로컬 탐색에서 더 보기 →': { ja: 'ローカル探索でもっと見る →', zhHans: '在本地探索中查看更多 →', zhHant: '在在地探索中查看更多 →' },
   '가볼래 · 약관': { ja: 'GABOLLE ・規約', zhHans: 'GABOLLE · 法律条款', zhHant: 'GABOLLE · 法律條款' },
   '초안 · 팀 확정 예정': { ja: '草案 ・チーム確定予定', zhHans: '草案 · 待团队确认', zhHant: '草案 · 待團隊確認' },
