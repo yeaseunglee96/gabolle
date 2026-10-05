@@ -77,5 +77,9 @@
     "verify:android-target-sdk": "node tools/verify-android-target-sdk.mjs",
     "eas-build-pre-install": "node tools/check-public-env.mjs"
   },
-  "private": true
+  "private": true,
+  "overrides": {
+    "brace-expansion@1": "1.1.21",
+    "brace-expansion@5": "5.0.12"
+  }
 }
