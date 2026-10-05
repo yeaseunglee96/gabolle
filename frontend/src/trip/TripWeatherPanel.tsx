@@ -16,7 +16,7 @@ import { useI18n } from '@/i18n';
 import { formatMonthDay } from '@/i18n/datetime';
 import { txf } from '@/i18n/format';
 import { useLayout } from '@/layout/useLayout';
-import { loadWeatherForecast, type HourlyForecastDto, type PrecipitationType, type SkyCondition, type WeatherLoadResult } from '@/trip/weather';
+import { loadWeatherForecast, skyIcon, type HourlyForecastDto, type PrecipitationType, type SkyCondition, type WeatherLoadResult } from '@/trip/weather';
 
 const SKY_LABEL: Record<SkyCondition, readonly [string, string]> = {
   CLEAR: ['맑음', 'Clear'],
@@ -24,15 +24,8 @@ const SKY_LABEL: Record<SkyCondition, readonly [string, string]> = {
   CLOUDY: ['흐림', 'Cloudy'],
 };
 
-// 시간별 칸의 그림 — 시안 그대로 글자 그림이다. 비·눈이 오면 하늘보다 그것을 먼저 그린다.
-const SKY_ICON: Record<SkyCondition, string> = { CLEAR: '☀', PARTLY_CLOUDY: '⛅', CLOUDY: '☁' };
-
-/** 하늘 아이콘 — 밤(19~05시) 맑음은 달이다. 22시 칸에 해가 떠 있으면 틀린 예보처럼 보인다(S15P21E201-1963). */
-export function skyIcon(sky: SkyCondition, time: string): string {
-  const hour = Number(time.slice(0, 2));
-  const night = Number.isInteger(hour) && (hour >= 19 || hour <= 5);
-  return sky === 'CLEAR' && night ? '🌙' : SKY_ICON[sky];
-}
+// 시간별 칸의 그림은 weather.ts 의 skyIcon 이다 — 홈 머리말도 같은 규칙을 쓴다(S15P21E201-1981). 비·눈이 오면 하늘보다 그것을 먼저 그린다.
+export { skyIcon };
 const PRECIPITATION: Record<Exclude<PrecipitationType, 'NONE'>, { icon: string; label: readonly [string, string] }> = {
   RAIN: { icon: '🌧', label: ['비', 'Rain'] },
   SHOWER: { icon: '🌧', label: ['소나기', 'Showers'] },

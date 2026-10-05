@@ -19,7 +19,8 @@ import { TAB_BAR_HEIGHT, TabBar, bottomDockPosition, tabBarBottomMargin } from '
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
-import { PlaceRow, StoryRow } from '@/home/HomeBlocks';
+import { PlaceRow, StoryRow, headerWeatherLabel } from '@/home/HomeBlocks';
+import { headerWeather, localTimeText } from '@/trip/weather';
 import { useHomeData } from '@/home/useHomeData';
 import { AssistantBackdrop, AssistantMenu } from '@/home/AssistantMenu';
 import { dismissChecklist, loadChecklist, takeHomeCoach, type ChecklistState } from '@/onboarding/firstRun';
@@ -212,6 +213,7 @@ export default function Home() {
 
   const signedIn = home.signedIn;
   const weather = home.weather;
+  const chipWeather = weather ? headerWeather(weather, localTimeText()) : null;
 
   return (
     <View style={styles.shell}>
@@ -230,17 +232,17 @@ export default function Home() {
                     하는데, 날씨·준비물 화면이 이미 있으므로 그리로 잇는 편이 맞다.
                     🔴 목적지는 현장 도구 허브(/field/translate)가 아니라 「날씨·준비물 — 여행 고르기」다(S15P21E201-1791).
                     허브로 보내면 번역이 먼저 떠서 이름표(「내 여행 날씨·준비물」)와 다른 곳에 닿는다. 허브의 날씨 칸도 같은 곳으로 간다. */}
-                {weather && (weather.maxTemperature !== null || weather.minTemperature !== null) ? (
+                {/* 칩 내용은 `[ 하늘 지금 N° ]` — 지금 기온이 없으면 `[ 하늘 오늘 최고 N° ]`(S15P21E201-1981). 상단 바와 같은 규칙. */}
+                {chipWeather ? (
                   <Pressable
                     accessibilityRole="button"
                     accessibilityLabel={tx('내 여행 날씨·준비물', 'Weather and packing for my trip')}
                     onPress={() => router.push({ pathname: '/trips', params: { open: 'prepare' } })}
                     style={({ pressed }) => [styles.weatherChip, pressed && styles.pressed]}
                   >
-                    <Text variant="caption" weight="bold" numberOfLines={1} style={styles.weatherWord}>
-                      {weather.skyCondition === 'CLEAR' ? tx('맑음', 'Clear') : weather.skyCondition === 'CLOUDY' ? tx('흐림', 'Cloudy') : tx('구름 조금', 'Partly cloudy')}
-                    </Text>
-                    <Text variant="caption" numberOfLines={1} style={styles.weatherTemp}>{weatherTemperatureText(weather)}</Text>
+                    {chipWeather.icon ? <Text variant="caption" numberOfLines={1} accessibilityElementsHidden importantForAccessibility="no">{chipWeather.icon}</Text> : null}
+                    <Text variant="caption" numberOfLines={1} style={styles.weatherWord}>{headerWeatherLabel(chipWeather.kind, tx)}</Text>
+                    <Text variant="caption" weight="bold" numberOfLines={1} style={styles.weatherTemp}>{`${Math.round(chipWeather.value)}°`}</Text>
                   </Pressable>
                 ) : null}
                 {/* 미읽음이 있는지 알려주는 조회가 없어 주황 점은 안 찍는다 — 늘 찍으면
