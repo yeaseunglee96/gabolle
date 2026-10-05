@@ -1,6 +1,9 @@
 package com.gabolle.backend.weather.presentation;
 
+import java.time.Clock;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.UUID;
 
 import org.springframework.context.annotation.Profile;
@@ -30,10 +33,15 @@ import com.gabolle.backend.weather.presentation.dto.WeatherForecastResponseDto;
 @Profile({ "db", "dev" })
 public class WeatherController {
 
-	private final WeatherService weatherService;
+	private static final ZoneId KST = ZoneId.of("Asia/Seoul");
 
-	public WeatherController(WeatherService weatherService) {
+	private final WeatherService weatherService;
+	/** 응답의 지금 기온(currentTemperature)을 고를 때 쓴다 — S15P21E201-1979. */
+	private final Clock clock;
+
+	public WeatherController(WeatherService weatherService, Clock clock) {
 		this.weatherService = weatherService;
+		this.clock = clock;
 	}
 
 	/**
@@ -57,7 +65,7 @@ public class WeatherController {
 		WeatherForecastResult result = signedIn ? this.weatherService.getForecast(query)
 				: this.weatherService.getForecastFromCache(query);
 
-		return ApiResponse.success(WeatherForecastResponseDto.from(result), resolveRequestId(requestId));
+		return ApiResponse.success(WeatherForecastResponseDto.from(result, LocalDateTime.now(this.clock.withZone(KST))), resolveRequestId(requestId));
 	}
 
 	private String resolveRequestId(String requestId) {
