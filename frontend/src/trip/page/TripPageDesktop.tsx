@@ -29,6 +29,7 @@ import { koreanSubject } from '@/i18n/korean';
 import { localizeMessage } from '@/i18n/messages';
 import { PLACE_CATEGORY_LABELS } from '@/discovery/placeCategoryLabels';
 import { RouteMap } from '@/map/RouteMap';
+import { bigMapHeight } from '@/map/mapFocus';
 import { courseLetter } from '@/plan/CourseCard';
 import { stopClock, type DayStart, type ItineraryItemDto } from '@/plan/itinerary';
 import { formatTravelLabel, totalTravelMinutes } from '@/plan/itinerarySummary';
@@ -137,12 +138,13 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
     txf(tx, '장소 %s곳', '%s places', items.length),
     totalTravelMinutes(items) > 0 ? txf(tx, '이동 %s분', '%s min travel', totalTravelMinutes(items)) : null,
   ].filter(Boolean).join(' · ');
-  const bigMapHeight = Math.max(520, windowHeight - 260);
   // 시안 3a 의 지도는 카드 위끝에서 **화면 아래까지** 내려온다(아래 여백 = 본문 아래 여백). 카드 열이 그보다 길면
   // 카드 열에 맞춘다. 둘 다 모르는 첫 그림에서는 440.
   // 본문 위 여백(styles.body 의 paddingTop)까지 빼야 딱 맞는다 — 안 빼면 4px 넘쳐 쓸데없는 스크롤이 생긴다.
   const fillHeight = viewportHeight && bodyTop ? viewportHeight - bodyTop - spacing[1] - spacing[8] : 0;
   const cardsMapHeight = Math.max(MAP_WIDTH, leftHeight, fillHeight);
+  // 큰 지도는 보이는 영역 높이만큼만 — 길면 맞춘 범위 아래쪽이 첫 화면 밖으로 나간다(S15P21E201-1987, mapFocus.bigMapHeight).
+  const bigMapH = bigMapHeight(windowHeight, fillHeight);
 
   const mapPanel = (height: number) => (
     <View style={[styles.mapPanel, { height }]}>
@@ -377,7 +379,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
               })}
               {anyEstimatedLine ? <View style={styles.lineNote}><Text variant="caption" color={color.text.body}>{tx('옅은 선은 어림한 길이라 실제로 가는 길과 다를 수 있어요. 이동 시간도 어림값이에요.', 'Faded lines are estimates and may differ from the way you actually go. Travel times are estimates too.')}</Text></View> : null}
             </View>
-            <View style={styles.bigMap}>{mapPanel(bigMapHeight)}</View>
+            <View style={styles.bigMap}>{mapPanel(bigMapH)}</View>
           </View>
         )}
       </ScrollView>

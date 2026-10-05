@@ -96,12 +96,18 @@ export type TripNameStep = {
   discardedCount: number;
 };
 
+/** 「2026-10-21 ~ 2026-10-21」처럼 시작과 끝이 같은 날짜 범위를 한 날짜로 줄인다. 다른 글자는 그대로 둔다. */
+export function collapseSameDayRange(text: string): string {
+  return text.replace(/([0-9]{4}-[0-9]{2}-[0-9]{2})\s*[~–-]\s*\1(?![0-9])/g, '$1');
+}
+
 /** 후보를 받아 온 결과로 화면이 어느 자리에 서는지 정한다 */
 export function planNameStep(result: TripNameSuggestionsResult): TripNameStep {
   if (result.state !== 'success') {
     return { step: 'empty', suggestions: [], source: 'TEMPLATE', discardedCount: 0 };
   }
-  const shown = result.suggestions.slice(0, MAX_SHOWN_SUGGESTIONS);
+  // 🔴 당일 여행에 「2026-10-21 ~ 2026-10-21」 후보가 왔다(S15P21E201-1987) — 같은 날짜 두 번은 한 번만. 겹치면 한 번만 보인다.
+  const shown = [...new Set(result.suggestions.map(collapseSameDayRange))].slice(0, MAX_SHOWN_SUGGESTIONS);
   return {
     step: shown.length > 0 ? 'suggestions' : 'empty',
     suggestions: shown,

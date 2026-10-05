@@ -235,7 +235,7 @@ export function buildKakaoMapHtml(appKey: string): string {
       // 넓고 낮은 지도(탭 가로)는 높이의 45% 를 맞출 자리로 남긴다 — mapFocus.fitPadding 의 WIDE_MIN_ROOM 과 같은 규칙(S15P21E201-1980).
       // 세로 지도는 높이의 25% — TALL_MIN_ROOM 과 같은 규칙(S15P21E201-1986).
       var room = Math.max(0, h - Math.max(60, Math.round(h * (w > h * 1.3 ? 0.45 : 0.25))));
-      if (h > 0 && pad[0] + pad[2] > room) { var k = room / (pad[0] + pad[2]); pad[0] = Math.round(pad[0] * k); pad[2] = Math.round(pad[2] * k); }
+      if (h > 0 && pad[0] + pad[2] > room) { var up = Math.min(pad[0] + pad[2] - room, Math.max(0, pad[0] - 60)); pad[0] -= up; if (pad[0] + pad[2] > room) { var k = room / (pad[0] + pad[2]); pad[0] = Math.round(pad[0] * k); pad[2] = room - pad[0]; } } // 넘친 만큼은 위 여백에서 먼저 덜어 낸다 — 맨 아래 점이 창 윗변에 걸리지 않게(mapFocus.fitPadding, S15P21E201-1987)
       if (fitStops.length <= 1) { map.setCenter(new maps.LatLng(fitStops[0].latitude, fitStops[0].longitude)); map.setLevel(5); } else map.setBounds(bounds, pad[0], pad[1], pad[2], pad[3]); focusOn(selectedNow); };
     fit();
     // 맞추면 줌이 바뀐다 — 줌 사건이 안 오는 환경도 있어 맞춘 뒤 한 번 더 셈한다.
