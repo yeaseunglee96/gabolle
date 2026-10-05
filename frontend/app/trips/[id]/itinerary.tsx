@@ -77,7 +77,7 @@ import { initialDayIndex } from '@/trip/openDay';
 // 영업시간 경고/-858) — 편집 다섯 갈래 중 넷(더하기 제외, 재계산은 비동기라
 // 이 응답에 못 싣는다)이 warnings·notChecked를 함께 돌려준다. 되돌리기는 여러 날에 걸친
 // 위반이 함께 올 수 있어 하루가 아니라 일정 전체에서 항목을 찾는다.
-function describeOpeningHoursIssues(itinerary: ItineraryDto, warnings: ItineraryOpeningHoursWarning[], notChecked: ItineraryOpeningHoursNotChecked[], tx: (ko: string, en: string) => string): string[] {
+export function describeOpeningHoursIssues(itinerary: ItineraryDto, warnings: ItineraryOpeningHoursWarning[], notChecked: ItineraryOpeningHoursNotChecked[], tx: (ko: string, en: string) => string): string[] {
   const itemsById = new Map(itinerary.days.flatMap((day) => day.items).map((item) => [item.id, item]));
   const closedMessages = warnings
     .filter((warning) => warning.code === 'OPENING_HOURS_CLOSED')
@@ -88,7 +88,8 @@ function describeOpeningHoursIssues(itinerary: ItineraryDto, warnings: Itinerary
   const notCheckedMessages = notChecked.map((entry) => entry.reason === 'NOT_COLLECTED'
     ? tx('일부 장소는 영업시간 정보가 없어 확인하지 못했어요.', "We couldn't check opening hours for some places — no data yet.")
     : tx('시각이 없는 항목이 있어 일부는 확인하지 못했어요.', "Some items have no visit time, so we couldn't check them."));
-  return [...closedMessages, ...notCheckedMessages];
+  // 확인 못 한 장소마다 같은 문장이 한 줄씩 붙어 세 줄이 똑같이 나왔다(S15P21E201-1984) — 같은 문장은 한 번만.
+  return [...new Set([...closedMessages, ...notCheckedMessages])];
 }
 
 // 🔴 'ko-KR' 이 박혀 있었다 — 어떤 언어를 골라도 한국식으로 나왔다 (S15P21E201-1355).

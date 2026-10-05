@@ -357,13 +357,13 @@ export default function Bus() {
                           <View style={[styles.routeBadge, lines.has(arrival.routeNo) && styles.routeBadgeMatch]}>
                             <Text variant="caption" weight="bold" color={color.text.onAction}>{arrival.routeNo}</Text>
                           </View>
-                          <Text variant="title" weight="bold" style={styles.arrivalTime}>{arrivalText(arrival.arrivalSeconds)}</Text>
+                          <Text variant="title" weight="bold" numberOfLines={1} style={styles.arrivalTime}>{arrivalText(arrival.arrivalSeconds)}</Text>
                           {/* 몇 정류장 전인지도 없을 수 있다 — 없으면 아예 안 적는다.
                               0은 안 적는다. 「0정류장 전」은 사람이 쓰는 말이 아니고
                               그 경우는 옆의 「곧 도착」이 이미 같은 것을 말하고 있다.
                           */}
                           {arrival.remainingStops != null && arrival.remainingStops > 0 ? (
-                            <Text variant="caption" color={color.text.muted}>{tx(`${arrival.remainingStops}정류장 전`, `${arrival.remainingStops} stops away`)}</Text>
+                            <Text variant="caption" color={color.text.muted} style={styles.stopsAway}>{tx(`${arrival.remainingStops}정류장 전`, `${arrival.remainingStops} stops away`)}</Text>
                           ) : null}
                           {located ? verdictChip(catchVerdict(arrival.arrivalSeconds, walkMinutes(straightDistanceM(coords, { latitude: stop.lat, longitude: stop.lng })))) : null}
                         </View>
@@ -449,7 +449,9 @@ const styles = StyleSheet.create({
   // 목적지로 가는 버스 — 경로 상세의 버스 칩과 같은 색(S15P21E201-1834).
   routeBadgeMatch: { backgroundColor: color.state.info },
   routeBadge: { minWidth: 56, minHeight: 32, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[2], borderRadius: radius.sm, backgroundColor: color.brand.navy },
-  arrivalTime: { flex: 1 },
+  // 🔴 좁은 두 칸 화면(폴드)에서 「13분」이 「13 / 분」으로 꺾였다(S15P21E201-1984) — 도착 시각은 줄지 않고, 옆 글이 줄어든다.
+  arrivalTime: { flexGrow: 1, flexShrink: 0 },
+  stopsAway: { flexShrink: 1 },
   blockedBody: { lineHeight: 22 },
   cta: { marginTop: spacing[2] },
   refresh: { marginTop: spacing[4] },

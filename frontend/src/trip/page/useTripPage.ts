@@ -3,8 +3,8 @@
 // 🔴 둘이 따로 부르면 두 화면이 서로 다른 숫자를 말하는 날이 온다(한쪽만 고치고 끝나기 때문이다).
 //    그래서 «무엇을 불러와서 어떻게 세는가» 는 여기 한 벌만 두고, 화면은 그리기만 한다.
 //    1단계 때 TripPageDesktop 안에 있던 것을 그대로 옮겼다 — 옮기면서 바꾼 것은 아래 🔴 둘뿐이다.
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { useRouter } from 'expo-router';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { useAuth } from '@/auth/AuthProvider';
@@ -114,6 +114,17 @@ export function useTripPage(source: TripPageSource) {
     });
     return () => { alive = false; };
   }, [course?.itineraryId, course?.id, course?.preview, accessToken, itineraryNonce]);
+
+  // 🔴 일정 편집 화면(trips/[id]/itinerary)에서 순서를 바꾸고 돌아오면, 이 화면은 이미 받은 일정이라며 다시 받지
+  //    않아 옛 순서·옛 길 안내가 앱을 다시 켤 때까지 남았다(S15P21E201-1984, 폴드 점검). 처음 열 때는 위에서 받으니
+  //    건너뛰고, 다른 화면에 갔다가 돌아올 때마다 같은 일정을 한 번 더 받는다 — 같은 번호면 지금 것을 비우지 않아 깜박이지 않는다.
+  const focusedOnce = useRef(false);
+  // 시험의 expo-router 흉내에는 useFocusEffect 가 없는 것이 많다 — 없으면 건너뛴다(앱에는 늘 있다).
+  (typeof useFocusEffect === 'function' ? useFocusEffect : () => {})(useCallback(() => {
+    if (!focusedOnce.current) { focusedOnce.current = true; return; }
+    shownItineraryId.current = null;
+    setItineraryNonce((n) => n + 1);
+  }, []));
 
   const loaded = itinerary?.value ?? null;
   // 다른 여행을 열면 1일차부터 본다.
