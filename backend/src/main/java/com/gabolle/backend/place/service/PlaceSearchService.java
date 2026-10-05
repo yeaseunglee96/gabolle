@@ -88,7 +88,11 @@ public class PlaceSearchService {
 		List<Place> rankable = rankTruncated ? candidates.subList(0, MAX_RANKED) : candidates;
 
 		List<RankedPlace> ranked = rank(rankable, trimmedQuery);
+		String landmarkQuery = compact(trimmedQuery).toLowerCase(Locale.ROOT);
 		ranked.sort(Comparator.comparingInt(RankedPlace::tier)
+				// S15P21E201-1995 — 같은 등급(예: 「광안리」 접두일치 38곳) 안에서는 대표 관광지를 먼저.
+				// 전에는 이름 가나다순이라 「광안리해수욕장」이 16번째였다(택시 카드 첫 화면에 없음).
+				.thenComparingInt(rankedPlace -> landmarkRank(rankedPlace.place(), landmarkQuery))
 				.thenComparing(rankedPlace -> rankedPlace.place().getNameKo(),
 						Comparator.nullsLast(Comparator.naturalOrder()))
 				.thenComparing(rankedPlace -> rankedPlace.place().getPlaceId()));
@@ -271,6 +275,37 @@ public class PlaceSearchService {
 	}
 
 	/** 후보 하나에 매긴 등급과, 어느 이름 칸이 그 등급을 만들었는가. */
+	/** 검색어 뒤에 이것이 붙은 이름은 그 지명의 대표 장소다(「광안리」+「해수욕장」). */
+	private static final List<String> LANDMARK_SUFFIXES = List.of(
+			"해수욕장", "해변", "문화마을", "전통시장", "시장", "공원", "해상케이블카", "케이블카", "역", "beach");
+
+	/** 사람들이 「거기 가자」고 할 때 떠올리는 갈래가 앞이다. 식당·숙소·갈래 없음은 뒤. */
+	private static final List<String> LANDMARK_CATEGORIES = List.of(
+			"SEA_BEACH", "NATURE_WALK", "CULTURE_TEMPLE", "CITY", "MARKET", "FESTIVAL_EVENT");
+
+	/**
+	 * 같은 등급 안의 순서. 작을수록 앞이다.
+	 * 0~ : 이름이 「검색어+대표 꼬리말」이면 꼬리말 순번(가장 앞)
+	 * 20~: 그 밖은 갈래 순번(관광 갈래가 앞), 영어 이름이 있으면(공공 관광 자료로 정리된 곳) 한 칸 더 앞
+	 */
+	private static int landmarkRank(Place place, String queryLower) {
+		for (String name : new String[] { place.getNameKo(), place.getNameEn() }) {
+			if (name == null) {
+				continue;
+			}
+			String n = compact(name).toLowerCase(Locale.ROOT);
+			for (int i = 0; i < LANDMARK_SUFFIXES.size(); i++) {
+				if (n.equals(queryLower + LANDMARK_SUFFIXES.get(i))) {
+					return i;
+				}
+			}
+		}
+		int category = place.getCategory() == null ? -1 : LANDMARK_CATEGORIES.indexOf(place.getCategory());
+		int base = 20 + (category < 0 ? LANDMARK_CATEGORIES.size() : category) * 2;
+		boolean curated = place.getNameEn() != null && !place.getNameEn().isBlank();
+		return curated ? base : base + 1;
+	}
+
 	private record RankedPlace(Place place, int tier, MatchedField matchedField) {
 	}
 }

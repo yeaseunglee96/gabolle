@@ -85,7 +85,7 @@ public class TripNameSuggestionService {
 		Trip trip = view.trip();
 
 		if (language != NameLanguage.KO) {
-			List<String> names = this.vocabulary.placeNamesOf(tripId, true);
+			List<String> names = leadWithForeignName(this.vocabulary.placeNamesOf(tripId, true));
 			return language == NameLanguage.EN ? englishTemplate(trip, names) : localizedTemplate(trip, names, language);
 		}
 
@@ -120,6 +120,37 @@ public class TripNameSuggestionService {
 	 * 저장할 수 있는 이름인가. {@link Trip#rename} 이 거부할 이름은 후보로 내놓지 않는다 —
 	 * 고른 순간 400 이 나면 막다른 길이다.
 	 */
+	/**
+	 * S15P21E201-1995 — 영어·일본어·중국어 틀의 맨 앞 이름. 다국어 이름이 없는 곳은 한글 그대로 와서, 영어 화면에
+	 * 「젤라또조이 + 11 more · 2 days」가 나왔다(10/5 녹화). 다국어 이름이 있는 첫 장소를 앞세우고, 하나도 없으면
+	 * 지명 「Busan」을 앞세운다. 개수(+N)는 그대로라 거짓이 되지 않는다.
+	 */
+	static List<String> leadWithForeignName(List<String> names) {
+		if (names.isEmpty()) {
+			return names;
+		}
+		for (int i = 0; i < names.size(); i++) {
+			if (!HANGUL.matcher(names.get(i)).find()) {
+				if (i == 0) {
+					return names;
+				}
+				List<String> reordered = new java.util.ArrayList<>(names.size());
+				reordered.add(names.get(i));
+				for (int j = 0; j < names.size(); j++) {
+					if (j != i) {
+						reordered.add(names.get(j));
+					}
+				}
+				return reordered;
+			}
+		}
+		List<String> withBusan = new java.util.ArrayList<>(names);
+		withBusan.set(0, "Busan");
+		return withBusan;
+	}
+
+	private static final java.util.regex.Pattern HANGUL = java.util.regex.Pattern.compile("[\uAC00-\uD7A3\u3131-\u318E]");
+
 	private boolean isUsable(String candidate) {
 		if (candidate == null || candidate.isBlank()) {
 			return false;
