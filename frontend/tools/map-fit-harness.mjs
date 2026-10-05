@@ -17,15 +17,20 @@ const require = createRequire(path.join(root, 'package.json'));
 const ts = require('typescript');
 const { chromium } = require('playwright');
 
+// MAP_SRC_ROOT 를 주면 그 폴더의 지도 소스로 돈다 — 고치기 전(origin 소스를 꺼내 둔 폴더)과 비교할 때(S15P21E201-1991).
+const srcRoot = process.env.MAP_SRC_ROOT || root;
 function load(rel) {
-  const src = readFileSync(path.join(root, rel), 'utf8');
+  const src = readFileSync(path.join(srcRoot, rel), 'utf8');
   const out = ts.transpileModule(src, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText;
   const mod = { exports: {} };
   new Function('module', 'exports', 'require', out)(mod, mod.exports, require);
   return mod.exports;
 }
 const { buildKakaoMapHtml } = load('src/map/kakaoMapHtml.ts');
-const { fitPadding } = load('src/map/mapFocus.ts');
+const { fitPadding, isNarrowBand } = load('src/map/mapFocus.ts');
+// 좁은 띠(일정 창을 연 폰)에서는 «다 보이게»가 아니라 «고른 곳(1번)이 가까이 보이게»가 목표다(S15P21E201-1991).
+//    고치기 전 소스(isNarrowBand 없음)는 옛 기준(다 보이게)으로만 판정한다.
+const NEAR_MAX_LEVEL = 5;
 
 const key = process.env.KAKAO_MAP_JS_KEY;
 if (!key) { console.error('KAKAO_MAP_JS_KEY 가 없다'); process.exit(2); }
@@ -47,6 +52,9 @@ const devices = [
   phone('폴드접음', 369, 905, 32, false, 'collapsed'),
   phone('S24+', 384, 832, 32, false, 'open'),
   phone('S24+', 384, 832, 32, true, 'collapsed'),
+  // 폴드 펼침(1856x2160 @420dpi ≈ 707x823dp) — 빌드 47 에서 창을 연 지도가 김해~송정까지 물러났다(S15P21E201-1991).
+  phone('폴드펼침', 707, 823, 32, false, 'open'),
+  phone('폴드펼침', 707, 823, 32, false, 'collapsed'),
   // 넓은 판(TripPageDesktop) 큰 지도: 위에 「장소 N곳」 칩(top 12, 높이 34) — 범례가 있으면 그 아래까지 80.
   { name: '탭가로·큰지도', w: 760, h: 600, top: 54, bottom: 0 },
   { name: '탭가로·큰지도·범례', w: 760, h: 600, top: 80, bottom: 0 },
@@ -90,6 +98,7 @@ for (const d of devices) {
         done({ level: map.getLevel(), pts: stops.map((s) => { const p = proj.containerPointFromCoords(new m.LatLng(s.latitude, s.longitude)); return { n: s.number, x: p.x, y: p.y }; }) });
       }, 900));
     }, { stops, pad, colors, collPad });
+    const narrowNow = typeof isNarrowBand === 'function' && isNarrowBand(d.h, pad);
     const bad = res.pts.filter((p) => p.y - R < d.top || p.y + R > d.h - d.bottom || p.x - R < 0 || p.x + R > d.w).map((p) => p.n);
     let minGap = Infinity;
     for (let i = 0; i < res.pts.length; i++) for (let j = i + 1; j < res.pts.length; j++) minGap = Math.min(minGap, Math.hypot(res.pts[i].x - res.pts[j].x, res.pts[i].y - res.pts[j].y));
@@ -101,14 +110,16 @@ for (const d of devices) {
     const shot = path.join(outDir, `${d.name}-${tripName}.png`.replace(/[\\/:*?"<>|]/g, '_'));
     await page.screenshot({ path: shot });
     const band = d.h - d.top - d.bottom;
-    const ok = bad.length === 0;
+    const s1 = res.pts[0];
+    const s1Hidden = s1.y - R < d.top || s1.y + R > d.h - d.bottom;
+    const ok = narrowNow ? (!s1Hidden && res.level <= NEAR_MAX_LEVEL) : bad.length === 0;
     if (!ok) fails++;
-    rows.push({ device: d.name, trip: tripName, band, pad: pad.join('/'), level: res.level, minGap: Math.round(minGap), hidden: bad.join(',') || '-', ok });
+    rows.push({ device: d.name, trip: tripName, band, pad: pad.join('/'), level: res.level, minGap: Math.round(minGap), hidden: bad.join(',') || '-', mode: narrowNow ? '고른곳' : '전체', ok });
   }
   await ctx.close();
 }
 await browser.close();
 writeFileSync(path.join(outDir, 'result.json'), JSON.stringify(rows, null, 2));
-for (const r of rows) console.log(`${r.ok ? 'PASS' : 'FAIL'}  ${r.device.padEnd(16)} ${r.trip.padEnd(8)} 보이는띠=${r.band} 여백=${r.pad} level=${r.level} 점간최소=${r.minGap}px 가림=${r.hidden}`);
+for (const r of rows) console.log(`${r.ok ? 'PASS' : 'FAIL'}  ${r.device.padEnd(16)} ${r.trip.padEnd(8)} 보이는띠=${r.band} 여백=${r.pad} 방식=${r.mode} level=${r.level} 점간최소=${r.minGap}px 가림=${r.hidden}`);
 console.log(fails ? `실패 ${fails}` : '모두 통과');
 process.exit(fails ? 1 : 0);

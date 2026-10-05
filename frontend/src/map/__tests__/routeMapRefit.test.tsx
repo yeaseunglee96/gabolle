@@ -63,7 +63,8 @@ describe('웹 지도 — 창을 접을 때 다시 맞추기', () => {
   it('🔴 refitKey 가 새 값이 되면 줄어든 아래 여백·위 여백으로 다시 맞춘다 — null 로 돌아갈 때는 안 맞춘다', () => {
     let tree!: ReturnType<typeof create>;
     act(() => { tree = create(<RouteMap {...props} bottomInset={600} refitKey={null} />, { createNodeMock: () => ({ clientHeight: 844 }) }); });
-    expect(lastPad()).toEqual([124, 60, 624, 60]); // 위·아래 가림 + 점 반지름 24 를 따로 둔다(S15P21E201-1988)
+    // 창을 연 채 처음 그린다 — 보이는 띠가 좁아(844−124−624=96) 전체를 맞추지 않고 고른 곳을 가까이 본다(S15P21E201-1991).
+    expect(setBounds).not.toHaveBeenCalled();
     const before = setBounds.mock.calls.length;
     // 창만 접혔다(가린 높이만 바뀜) — 맞추지 않는다
     act(() => { tree.update(<RouteMap {...props} bottomInset={200} refitKey={null} />); });
@@ -90,8 +91,8 @@ describe('앱 지도(WebView 안의 HTML) — 다시 맞추기', () => {
 
   it('🔴 __fitKakaoMap 은 새 여백으로 같은 범위를 다시 맞춘다', () => {
     const win = boot();
-    win.__renderKakaoMap!({ stops, points: [], routes: [], selectedId: 'a', currentLocation: null, fitPadding: [160, 60, 624, 60], colors, focus: false, shiftY: 0 });
-    expect(lastPad()).toEqual([160, 60, 624, 60]);
+    win.__renderKakaoMap!({ stops, points: [], routes: [], selectedId: 'a', currentLocation: null, fitPadding: [160, 60, 400, 60], colors, focus: false, shiftY: 0 });
+    expect(lastPad()).toEqual([160, 60, 400, 60]);
     expect(typeof win.__fitKakaoMap).toBe('function');
     win.__fitKakaoMap!({ fitPadding: [160, 60, 260, 60], shiftY: 100 });
     expect(lastPad()).toEqual([160, 60, 260, 60]);

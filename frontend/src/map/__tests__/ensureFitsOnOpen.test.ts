@@ -16,11 +16,12 @@ class Polyline { setMap() {} }
 let screenY: Record<string, number> = {};
 const setBounds = jest.fn();
 const panTo = jest.fn();
+const setLevel = jest.fn();
 class FakeMap {
   relayout() {}
   setBounds = setBounds;
   setCenter() {}
-  setLevel() {}
+  setLevel = setLevel;
   getLevel() { return 6; }
   panTo = panTo;
   getProjection() {
@@ -56,18 +57,37 @@ const render = (win: Record<string, ((data: unknown) => void) | undefined>) =>
 // 창을 연 여백 — 위 104, 아래 680 → 보이는 띠는 y 104 ~ 220.
 const OPEN = { fitPadding: [104, 60, 680, 60], shiftY: 200 };
 
-beforeEach(() => { setBounds.mockClear(); panTo.mockClear(); screenY = {}; });
+beforeEach(() => { setBounds.mockClear(); panTo.mockClear(); setLevel.mockClear(); screenY = {}; });
 
 describe('앱 지도 — 창을 열 때 가려진 점이 있을 때만 다시 맞춘다', () => {
-  it('🔴 아래쪽 점이 창 뒤로 숨으면 새 여백으로 다시 맞춘다', () => {
+  it('🔴 띠가 넓으면 — 아래쪽 점이 창 뒤로 숨을 때 새 여백으로 다시 맞춘다', () => {
     const win = boot();
     render(win);
     const before = setBounds.mock.calls.length;
-    screenY[key(stops[1])] = 600; // 6번 점이 창(220 아래) 뒤에 있다
-    expect(typeof win.__ensureKakaoMapFits).toBe('function');
-    win.__ensureKakaoMapFits!(OPEN);
+    screenY[key(stops[1])] = 700; // 6번 점이 창(600 아래) 뒤에 있다
+    win.__ensureKakaoMapFits!({ fitPadding: [104, 60, 300, 60], shiftY: 100 }); // 보이는 띠 104 ~ 600(넓다)
     expect(setBounds.mock.calls.length).toBe(before + 1);
-    expect(setBounds.mock.calls[setBounds.mock.calls.length - 1].slice(1)).toEqual([104, 60, 680, 60]);
+    expect(setBounds.mock.calls[setBounds.mock.calls.length - 1].slice(1)).toEqual([104, 60, 300, 60]);
+  });
+
+  it('🔴 띠가 좁으면(S15P21E201-1991) — 6번이 숨어도 고른 곳(1번)이 보이면 그대로 둔다(다 넣으려다 김해~송정까지 물러나지 않게)', () => {
+    const win = boot();
+    render(win);
+    const before = setBounds.mock.calls.length;
+    screenY[key(stops[0])] = 150; screenY[key(stops[1])] = 600;
+    win.__ensureKakaoMapFits!(OPEN);
+    expect(setBounds.mock.calls.length).toBe(before);
+    expect(setLevel).not.toHaveBeenCalled();
+  });
+
+  it('🔴 띠가 좁고 고른 곳도 띠 밖이면 — 전체 맞춤 대신 고른 곳을 가까이(FOCUS_LEVEL + 1) 본다', () => {
+    const win = boot();
+    render(win);
+    const before = setBounds.mock.calls.length;
+    screenY[key(stops[0])] = 600; screenY[key(stops[1])] = 600;
+    win.__ensureKakaoMapFits!(OPEN);
+    expect(setBounds.mock.calls.length).toBe(before);
+    expect(setLevel).toHaveBeenLastCalledWith(5);
   });
 
   it('점이 다 보이면 맞추지 않는다 — 창을 열 때마다 지도가 튀지 않게', () => {

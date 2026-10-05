@@ -33,6 +33,24 @@ export function fitPadding(bottomInset: number, mapHeight: number, topInset = 0,
 }
 
 /**
+ * 보이는 띠(지도 높이 − 위 여백 − 아래 여백)가 이보다 좁으면 «좁은 띠»다 — S15P21E201-1991.
+ * 일정 창을 연 폰 지도는 띠가 120~150 뿐이라, 번호 장소 전부를 그 띠에 맞추면 김해~송정까지 물러나 점이 한 덩어리로 겹쳤다
+ * (빌드 47 폴드 펼침·접음). 그때는 전체 맞춤 대신 고른 곳(없으면 1번)을 가까이 보여 준다 — 창 안 목록에서 다른 곳을 고르면 그리로 간다.
+ * 앱의 지도(kakaoMapHtml.ts)도 같은 값을 쓴다.
+ */
+export const NARROW_BAND = 200;
+
+/**
+ * 맞출 띠가 좁은가 — 높이를 아직 모르면(0) 좁다고 하지 않는다.
+ * 🔴 «아래가 무언가에 가려 있을 때만»(아래 여백이 기본 60 보다 클 때) 좁다고 한다 — 처음부터 작은 지도(길 안내 속 작은 지도 등)는
+ *    가린 것이 없으니 전처럼 전체를 맞춘다.
+ */
+export function isNarrowBand(mapHeight: number, pad: readonly number[]): boolean {
+  if (!(mapHeight > 0) || !(pad[2] > EDGE)) return false;
+  return mapHeight - pad[0] - pad[2] < NARROW_BAND;
+}
+
+/**
  * 고른 곳을 보이는 부분의 가운데에 두려면 지도 중심을 얼마나 «아래로» 옮기나(px).
  * 보이는 부분의 가운데는 지도 가운데보다 (아래 가림 − 위 가림)의 절반만큼 위다.
  *
