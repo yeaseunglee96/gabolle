@@ -4,7 +4,7 @@ declare const __dirname: string;
 const fs = require('fs');
 const path = require('path');
 
-import { bigMapHeight, fitPadding } from '../mapFocus';
+import { MARKER_CLEARANCE, bigMapHeight, fitPadding } from '../mapFocus';
 import { collapseSameDayRange, planNameStep } from '@/trip/tripNaming';
 
 describe('큰 지도 높이는 보이는 영역에 맞춘다', () => {
@@ -28,25 +28,39 @@ describe('큰 지도 높이는 보이는 영역에 맞춘다', () => {
   });
 });
 
-describe('여백이 넘치면 위에서 먼저 덜어 낸다 — 맨 아래 점이 아래 창 윗변에 걸리지 않게', () => {
-  it('폴드 바깥 화면: 아래 여백은 같은 비율로 줄일 때보다 크고, 맞출 자리(높이의 25%)는 그대로다', () => {
-    const [top, , bottom] = fitPadding(560, 700, 80);
-    // 위 60+80=140, 아래는 지도 높이에서 위·가장자리를 뺀 500 으로 먼저 잘린다. 둘의 합 640 이 남길 수 있는 525 를 넘는다.
-    const proportionalBottom = Math.round(500 * (525 / 640));
-    expect(700 - top - bottom).toBe(Math.round(700 * 0.25));
-    // 위는 60 까지 덜어 낸 뒤(남은 넘침 35) 둘을 같은 비율로 줄인다 — 위 56, 아래 469.
-    expect(top).toBe(56);
-    expect(bottom).toBe(469);
-    expect(bottom).toBeGreaterThan(proportionalBottom + 40);
+describe('위·아래 여백은 따로 — 가림 띠 + 점 반지름(S15P21E201-1988)', () => {
+  // 빌드 45: 아래 점이 창 윗변에 걸림 · 빌드 46: 위 점이 「장소 N곳」 칩 뒤로 숨음. 한쪽에서 덜어 내지 않는다.
+  it('폴드 바깥·창 연 상태(높이 945, 위 가림 100, 아래 가림 703): 위도 아래도 가림 + 반지름을 지킨다', () => {
+    const [top, , bottom] = fitPadding(703, 945, 100);
+    expect(top).toBe(100 + MARKER_CLEARANCE);
+    expect(bottom).toBe(703 + MARKER_CLEARANCE);
   });
 
-  it('넘치지 않으면 그대로다', () => {
+  it('범례까지 떠 있어도(위 가림 132) 위를 덜어 내지 않는다', () => {
+    const [top] = fitPadding(703, 945, 132);
+    expect(top).toBe(132 + MARKER_CLEARANCE);
+  });
+
+  it('지도 높이를 거의 다 덮을 때만 줄인다 — 맞출 자리 48 은 남기고, 아래부터', () => {
+    const [top, , bottom] = fitPadding(380, 500, 60);
+    expect(500 - top - bottom).toBe(48);
+    expect(top).toBe(60 + MARKER_CLEARANCE);
+  });
+
+  it('가림이 없으면 네 변 60', () => {
     expect(fitPadding(0, 700, 0)).toEqual([60, 60, 60, 60]);
   });
 
-  it('앱 지도(kakaoMapHtml)도 같은 규칙이다', () => {
+  it('넓은 화면 큰 지도는 「장소 N곳」 칩 높이를 위 가림으로 넘긴다', () => {
+    const src = fs.readFileSync(path.join(__dirname, '../../trip/page/TripPageDesktop.tsx'), 'utf8');
+    expect(src).toContain('topInset={routeLegend ? LEGEND_COVER : BIG_MAP_CHIP_COVER}');
+  });
+
+  it('앱 지도(kakaoMapHtml)는 높이 비율로 덜어 내지 않는다 — 같은 규칙(48 을 남길 때만 아래부터)', () => {
     const src = fs.readFileSync(path.join(__dirname, '../kakaoMapHtml.ts'), 'utf8');
-    expect(src).toContain('var up = Math.min(pad[0] + pad[2] - room, Math.max(0, pad[0] - 60))');
+    expect(src).not.toMatch(/0.45 : 0.25/);
+    expect(src).not.toContain('var up = Math.min(pad[0] + pad[2] - room');
+    expect(src).toContain('var over = pad[0] + pad[2] + 48 - h');
   });
 });
 

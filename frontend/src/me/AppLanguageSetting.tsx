@@ -34,7 +34,8 @@ export function AppLanguageSetting() {
     <Text weight="bold">{tx('앱 언어', 'App language')}</Text>
     <View style={styles.options} accessibilityRole="radiogroup" accessibilityLabel={tx('앱 언어', 'App language')}>
       {LANGUAGE_OPTIONS.map((option) => <Pressable key={option.code} accessibilityRole="radio" accessibilityLabel={option.endonym} accessibilityState={{ selected: language === option.code, disabled: saving }} disabled={saving} onPress={() => void change(option.code)} style={[styles.option, language === option.code && styles.selected, saving && styles.disabled]}>
-        <Text weight="bold" color={language === option.code ? color.text.onAction : color.text.heading}>{language === option.code ? '✓ ' : ''}{option.endonym}</Text>
+        {/* 🔴 한 문자열 · 한 줄 · 넘치면 글자를 줄인다(S15P21E201-1988) — 갤럭시 탭 세로에서 「繁體中文」이 「繁體中」으로 끝 글자가 잘렸다. */}
+        <Text weight="bold" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8} color={language === option.code ? color.text.onAction : color.text.heading}>{`${language === option.code ? '✓ ' : ''}${option.endonym}`}</Text>
       </Pressable>)}
     </View>
     {saving && <Text accessibilityLiveRegion="polite">{tx('언어를 저장하고 있어요.', 'Saving language…')}</Text>}

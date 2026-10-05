@@ -62,7 +62,7 @@ describe('웹 지도 — 창을 접을 때 다시 맞추기', () => {
   it('🔴 refitKey 가 새 값이 되면 줄어든 아래 여백·위 여백으로 다시 맞춘다 — null 로 돌아갈 때는 안 맞춘다', () => {
     let tree!: ReturnType<typeof create>;
     act(() => { tree = create(<RouteMap {...props} bottomInset={600} refitKey={null} />, { createNodeMock: () => ({ clientHeight: 844 }) }); });
-    expect(lastPad()).toEqual([56, 60, 577, 60]); // 세로도 높이의 25% 는 맞출 자리(S15P21E201-1986). 넘친 만큼은 위에서 먼저 덜어 낸다(S15P21E201-1987)
+    expect(lastPad()).toEqual([124, 60, 624, 60]); // 위·아래 가림 + 점 반지름 24 를 따로 둔다(S15P21E201-1988)
     const before = setBounds.mock.calls.length;
     // 창만 접혔다(가린 높이만 바뀜) — 맞추지 않는다
     act(() => { tree.update(<RouteMap {...props} bottomInset={200} refitKey={null} />); });
@@ -70,7 +70,7 @@ describe('웹 지도 — 창을 접을 때 다시 맞추기', () => {
     // 「지도 보기」 — 한 번 다시 맞춘다
     act(() => { tree.update(<RouteMap {...props} bottomInset={200} refitKey="collapsed:0" />); });
     expect(setBounds.mock.calls.length).toBe(before + 1);
-    expect(lastPad()).toEqual([160, 60, 260, 60]);
+    expect(lastPad()).toEqual([124, 60, 224, 60]);
     // 창을 다시 연다 — 맞추지 않는다
     act(() => { tree.update(<RouteMap {...props} bottomInset={600} refitKey={null} />); });
     expect(setBounds.mock.calls.length).toBe(before + 1);
