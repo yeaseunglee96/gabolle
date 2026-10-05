@@ -36,7 +36,7 @@ export async function loadLedger(tripId: string, accessToken: string | null): Pr
   try {
     return { state: 'success', ledger: await apiRequest<Ledger>(`${base(tripId)}/expenses`, { accessToken }) };
   } catch (error) {
-    return failure(error, '여행 돈을 불러오지 못했어요.');
+    return failure(error, '여행 경비를 불러오지 못했어요.');
   }
 }
 
@@ -44,7 +44,7 @@ export async function addExpense(tripId: string, expense: NewExpense, accessToke
   try {
     return { state: 'success', ledger: await apiRequest<Ledger>(`${base(tripId)}/expenses`, { method: 'POST', accessToken, body: expense }) };
   } catch (error) {
-    return failure(error, '쓴 돈을 적지 못했어요.');
+    return failure(error, '지출을 추가하지 못했어요.');
   }
 }
 

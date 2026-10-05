@@ -53,7 +53,7 @@ afterEach(() => { act(() => { jest.runOnlyPendingTimers(); }); jest.useRealTimer
 describe('여행 돈 입구', () => {
   it('도구 줄의 「여행 돈」은 그 여행의 여행 돈 화면을 연다', () => {
     mount();
-    fireEvent.press(screen.getByLabelText('여행 돈'));
+    fireEvent.press(screen.getByLabelText('여행 경비'));
     expect(mockPush).toHaveBeenCalledWith('/trip-1/money');
   });
 });

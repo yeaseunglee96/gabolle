@@ -121,7 +121,7 @@ function TripMoneyForTrip({ tripId }: { tripId: string }) {
     <Screen scroll>
       <View style={styles.top}>
         <Pressable accessibilityRole="button" accessibilityLabel={tx('뒤로 가기', 'Go back')} onPress={() => (router.canGoBack() ? router.back() : router.replace('/trips'))} style={styles.back}><Text variant="title">‹</Text></Pressable>
-        <Text variant="title" weight="bold">{tx('여행 돈', 'Trip money')}</Text>
+        <Text variant="title" weight="bold">{tx('여행 경비', 'Trip expenses')}</Text>
       </View>
 
       {error ? <View accessibilityRole="alert" style={styles.errorBox}><Text color={color.state.danger}>{localizeMessage(tx, error)}</Text></View> : null}
@@ -129,7 +129,7 @@ function TripMoneyForTrip({ tripId }: { tripId: string }) {
       {/* 요약 — 쓴 돈이 먼저, 예산은 옆에 작게 */}
       <View style={styles.card}>
         <View style={styles.rowBetween}>
-          <Text variant="caption" weight="bold" color={color.text.muted}>{tx('쓴 돈', 'Spent')}</Text>
+          <Text variant="caption" weight="bold" color={color.text.muted}>{tx('지출', 'Spent')}</Text>
           {canEdit ? (
             <Pressable accessibilityRole="button" onPress={() => setEditingBudget(true)} style={styles.linkButton}>
               <Text variant="caption" weight="bold" color={color.text.body}>{budget ? txf(tx, '예산 %s · 바꾸기 ›', 'Budget %s · change ›', won(budget)) : tx('예산 정하기 ›', 'Set a budget ›')}</Text>
@@ -170,8 +170,8 @@ function TripMoneyForTrip({ tripId }: { tripId: string }) {
 
       {ledger && ledger.items.length === 0 ? (
         <View style={styles.card}>
-          <Text weight="bold">{tx('아직 적은 돈이 없어요', 'Nothing written down yet')}</Text>
-          <Text variant="caption" color={color.text.body}>{tx('밥값·교통비·입장료를 적으면\n남은 돈과 동행 정산을 계산해 드려요.', 'Write down meals, rides and tickets\nand we work out what is left and who owes whom.')}</Text>
+          <Text weight="bold">{tx('아직 적은 지출이 없어요', 'No expenses yet')}</Text>
+          <Text variant="caption" color={color.text.body}>{tx('밥값·교통비·입장료를 적으면\n남은 예산과 동행 정산을 계산해 드려요.', 'Add meals, rides and tickets\nand we work out your remaining budget and who owes whom.')}</Text>
         </View>
       ) : null}
 
@@ -194,7 +194,7 @@ function TripMoneyForTrip({ tripId }: { tripId: string }) {
 
     <View style={[styles.dock, { bottom: spacing[4] + insets.bottom }]} pointerEvents="box-none" testID="money-dock">
       <View style={styles.dockInner}>
-        <Button label={tx('쓴 돈 적기', 'Add an expense')} onPress={() => setAdding(true)} testID="money-add" />
+        <Button label={tx('지출 추가', 'Add expense')} onPress={() => setAdding(true)} testID="money-add" />
       </View>
     </View>
 
@@ -215,7 +215,7 @@ function ExpenseRow({ item, payer, won, tx, canDelete, onDelete }: { item: Expen
       <View style={styles.badge}><Text variant="micro" weight="bold">{tx(...CATEGORY_LABEL[item.category])}</Text></View>
       <View style={styles.grow}>
         <Text weight="bold" numberOfLines={1}>{item.placeName ?? item.note ?? tx(...CATEGORY_LABEL[item.category])}</Text>
-        <Text variant="caption" color={color.text.muted} numberOfLines={1}>{[hhmm, payer === null ? tx('내가 냄', 'I paid') : txf(tx, '%s 냄', 'paid by %s', payer), item.splitEven ? null : tx('혼자 쓴 돈', 'not split')].filter(Boolean).join(' · ')}</Text>
+        <Text variant="caption" color={color.text.muted} numberOfLines={1}>{[hhmm, payer === null ? tx('내가 냄', 'I paid') : txf(tx, '%s 냄', 'paid by %s', payer), item.splitEven ? null : tx('개인 지출', 'not split')].filter(Boolean).join(' · ')}</Text>
       </View>
       <Text weight="bold">{won(item.amountKrw)}</Text>
       {canDelete ? (
@@ -253,7 +253,7 @@ function AddExpenseSheet({ visible, planPlaces, placeLabel, members, meId, nameO
         <Pressable style={StyleSheet.absoluteFill} accessibilityRole="button" accessibilityLabel={tx('닫기', 'Close')} onPress={onClose} />
         <View style={styles.sheet}>
           <View style={styles.rowBetween}>
-            <Text variant="title" weight="bold">{tx('쓴 돈 적기', 'Add an expense')}</Text>
+            <Text variant="title" weight="bold">{tx('지출 추가', 'Add expense')}</Text>
             <Pressable accessibilityRole="button" accessibilityLabel={tx('닫기', 'Close')} onPress={onClose} style={styles.close}><Text variant="title">✕</Text></Pressable>
           </View>
           <Text variant="caption" weight="bold" color={color.text.muted}>{tx('얼마 (원)', 'How much (won)')}</Text>
