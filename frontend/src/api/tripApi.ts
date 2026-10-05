@@ -178,8 +178,10 @@ export function toCreateTripPayload(draft: PlanDraft): CreateTripPayload {
   };
 }
 
-function stableIdempotencyKey(payload: CreateTripPayload) {
-  const source = JSON.stringify(payload);
+// 🔴 시도 이름표(attemptId)를 섞는다 — S15P21E201-1994. 조건만 쓰면 같은 조건으로 «새로» 만든 여행이 서버의 멱등 처리로
+//    앞 여행을 그대로 돌려받았다(옛 이름·옛 확정 코스가 보였다). 같은 시도의 재전송은 여전히 같은 키다.
+export function stableIdempotencyKey(payload: CreateTripPayload, attemptId?: string | null) {
+  const source = JSON.stringify(payload) + (attemptId ? `|${attemptId}` : '');
   let hash = 2166136261;
   for (let index = 0; index < source.length; index += 1) {
     hash ^= source.charCodeAt(index);
@@ -196,7 +198,7 @@ export async function createTripAndRecommendationJob(
   const trip = await apiRequest<TripCreatedDto>('/api/v1/trips', {
     method: 'POST',
     accessToken,
-    headers: { 'Idempotency-Key': stableIdempotencyKey(payload) },
+    headers: { 'Idempotency-Key': stableIdempotencyKey(payload, draft.attemptId) },
     body: payload,
   });
 
@@ -231,7 +233,7 @@ export async function cloneSharedTripAndJob(
   const cloned = await apiRequest<CloneTripDto>(`/api/v1/shares/${encodeURIComponent(token)}/clone`, {
     method: 'POST',
     accessToken,
-    headers: { 'Idempotency-Key': stableIdempotencyKey(payload) },
+    headers: { 'Idempotency-Key': stableIdempotencyKey(payload, draft.attemptId) },
     body: payload,
   });
   if (!cloned.jobId) {

@@ -7,6 +7,7 @@ import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
+import { FieldBackButton } from '@/components/FieldBackButton';
 import { color, radius, spacing } from '@/design/tokens';
 import {
   defaultCurrencyFor,
@@ -164,6 +165,7 @@ export default function Exchange() {
 
   return (
     <Screen scroll wide>
+      <FieldBackButton />
       <Text variant="display" weight="bold">{tx('환율 계산', 'Currency')}</Text>
       <Text variant="caption" color={color.text.body} style={styles.subtitle}>
         {tx('가격표를 보고 바로 내 돈으로 바꿔 보세요.', 'Turn a price tag into your own money, right here.')}
