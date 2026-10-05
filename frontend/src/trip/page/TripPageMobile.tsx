@@ -571,7 +571,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
           {tripId ? <ActionTile icon="record" label={tx('기록 남기기', 'Write a record')} onPress={() => setOverlay('record')} /> : null}
           {tripId ? <ActionTile icon="weather" label={tx('날씨', 'Weather')} onPress={() => setOverlay('weather')} /> : null}
           {/* 여행 돈 — 쓴 돈·남은 돈·동행 정산(S15P21E201-1935). 적고 고치는 일이 많아 창이 아니라 화면으로 연다 */}
-          {tripId ? <ActionTile icon="money" label={tx('여행 돈', 'Trip money')} onPress={() => router.push(`/${tripId}/money` as never)} /> : null}
+          {tripId ? <ActionTile icon="money" label={tx('여행 경비', 'Trip expenses')} onPress={() => router.push(`/${tripId}/money` as never)} /> : null}
         </View>
       ) : null}
 

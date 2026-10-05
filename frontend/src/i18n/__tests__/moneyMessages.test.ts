@@ -9,7 +9,7 @@ import { pickLanguage } from '@/i18n/pick';
 
 const txFor = (language: LanguageCode) => (ko: string, en: string) => pickLanguage(language, { ko, en });
 
-const MONEY_FAILURES = ['여행 돈을 불러오지 못했어요.', '쓴 돈을 적지 못했어요.', '지우지 못했어요.', '예산을 저장하지 못했어요.'];
+const MONEY_FAILURES = ['여행 경비를 불러오지 못했어요.', '지출을 추가하지 못했어요.', '지우지 못했어요.', '예산을 저장하지 못했어요.'];
 const GENERIC = ['We could not complete that request.', '요청을 처리하지 못했어요.'];
 
 describe('여행 돈 실패 문구', () => {
