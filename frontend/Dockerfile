@@ -53,7 +53,7 @@ COPY . .
 #    번들러가 지도 코드를 죽은 코드로 보고 통째로 지웠다 — 그런데 빌드 로그에는
 #    아무 흔적도 안 남았다 (S15P21E201-163).
 RUN node tools/check-public-env.mjs
-RUN npx expo export --platform web
+RUN npx expo export --platform web && node tools/set-html-lang.cjs dist/index.html
 
 FROM nginx:alpine
 

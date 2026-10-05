@@ -146,6 +146,7 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
   topInsetRef.current = topInset;
   // 지도 칸의 실제 높이 — 여백이 칸보다 커지지 않게 잰다.
   const hostHeight = () => hostRef.current?.clientHeight || height;
+  const hostWidth = () => hostRef.current?.clientWidth || 0;
   const [failure, setFailure] = useState<MapFailure | null>(null);
   const appKey = process.env.EXPO_PUBLIC_KAKAO_MAP_JS_KEY;
   // 🔴 고른 곳·누를 때 부를 함수·현재 위치는 «다시 그리기» 조건이 아니다(S15P21E201-1654). 전에는 셋 중 하나만 바뀌어도
@@ -293,7 +294,7 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
         // bounds 대신 그 지점을 도시 단위 줌으로 그냥 센터링한다.
         const fit = () => {
           if (fitStops.length <= 1) { map.setCenter(new maps.LatLng(fitStops[0].latitude, fitStops[0].longitude)); map.setLevel(5); return; }
-          const [top, right, bottom, left] = fitPadding(insetRef.current, hostHeight(), topInsetRef.current);
+          const [top, right, bottom, left] = fitPadding(insetRef.current, hostHeight(), topInsetRef.current, hostWidth());
           map.setBounds(bounds, top, right, bottom, left);
         };
         // 🔴 모두 들어오게 맞춘 «다음에» 고른 곳으로 민다(panTo 는 부드럽게 옮긴다). 맞추기를 건너뛰면

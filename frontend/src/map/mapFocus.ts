@@ -8,18 +8,23 @@
 const EDGE = 60;
 /** 전체를 맞출 때 여백을 빼고도 남겨 둘 지도 높이(px) — 이보다 좁게 맞추면 너무 멀리 물러난다. */
 const MIN_FIT_ROOM = EDGE;
+/** 가로로 넓은 지도에서 맞출 자리로 남길 높이 비율 — S15P21E201-1980. */
+const WIDE_MIN_ROOM = 0.45;
 
 /**
  * 전체를 맞출 때의 여백 [위, 오른쪽, 아래, 왼쪽]. 아래는 가려진 만큼 더 — 다만 지도에 보일 자리(위아래 120)는 남긴다.
  * 위도 가려진 만큼(topInset — 상태바와 지도 위에 뜬 칩) 더 둔다(S15P21E201-1754). 전에는 위가 늘 60 이라
  * 폰에서 출발지·정차지가 상태바와 「장소 N곳」·지도 위 칩(지금은 색 범례) 밑으로 숨었다.
  */
-export function fitPadding(bottomInset: number, mapHeight: number, topInset = 0): [number, number, number, number] {
+export function fitPadding(bottomInset: number, mapHeight: number, topInset = 0, mapWidth = 0): [number, number, number, number] {
   let top = EDGE + Math.max(0, topInset);
   let bottom = Math.min(EDGE + Math.max(0, bottomInset), Math.max(EDGE, mapHeight - top - EDGE));
   // 🔴 위아래 여백이 지도 높이를 다 먹으면 카카오가 범위를 못 맞춰 동아시아 전체로 물러났다(S15P21E201-1903 — 폰을 가로로
   //    돌렸을 때: 높이 ~410 에 위 칩·범례와 아래 창이 거의 다 덮었다). 맞출 자리를 MIN_FIT_ROOM 만큼은 남기게 여백을 줄인다.
-  const room = Math.max(0, mapHeight - MIN_FIT_ROOM);
+  // 🔴 넓고 낮은 지도(탭·웹 가로)는 60px 띠에 부산 전체를 맞추면 통영·거제까지 물러났다(S15P21E201-1980). 가로일 때는
+  //    높이의 WIDE_MIN_ROOM 만큼을 맞출 자리로 남긴다 — 점 몇 개가 창 뒤로 가도 도시 단위 줌이 낫다. 세로(폰)는 전과 같다.
+  const wide = mapWidth > mapHeight * 1.3;
+  const room = Math.max(0, mapHeight - (wide ? Math.max(MIN_FIT_ROOM, Math.round(mapHeight * WIDE_MIN_ROOM)) : MIN_FIT_ROOM));
   if (mapHeight > 0 && top + bottom > room) {
     const scale = room / (top + bottom);
     top = Math.round(top * scale);

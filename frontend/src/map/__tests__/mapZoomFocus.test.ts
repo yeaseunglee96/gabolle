@@ -46,6 +46,8 @@ describe('가로 화면처럼 지도가 낮을 때의 여백', () => {
 describe('앱 지도 — 화면을 돌린 뒤 다시 맞출 때', () => {
   it('🔴 지금 지도 높이로 여백을 다시 줄인다 — 가로로 돌리면 동아시아 전체로 물러나던 것(S15P21E201-1903)', () => {
     const html = buildKakaoMapHtml('key');
-    expect(html).toContain("var h = document.getElementById('map').clientHeight || 0; var room = Math.max(0, h - 60);");
+    expect(html).toContain("var h = el.clientHeight || 0; var w = el.clientWidth || 0;");
+    // 세로는 60 을 남기고(1903), 넓고 낮은 지도(탭 가로)는 높이의 45% 를 남긴다(S15P21E201-1980).
+    expect(html).toContain("var room = Math.max(0, h - (w > h * 1.3 ? Math.max(60, Math.round(h * 0.45)) : 60));");
   });
 });

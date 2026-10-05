@@ -163,3 +163,16 @@ describe('주변 길이 가파른 곳 · 접근성 문구', () => {
     expect(message).not.toContain('큰 짐');
   });
 });
+
+describe('MUST_VISIT_NOT_PLACED — S15P21E201-1980', () => {
+  it('서버가 꼭 가는 곳을 다 못 넣었다고 하면 그대로 말한다(전에는 사전에 없어 조용히 사라졌다)', () => {
+    expect(describeWarningCodes(['MUST_VISIT_NOT_PLACED'], ko))
+      .toEqual(['꼭 가고 싶다고 고른 곳 중 일부는 일정에 넣지 못했어요. 일정을 고쳐 직접 넣을 수 있어요.']);
+    expect(describeWarningCodes(['MUST_VISIT_NOT_PLACED'], en)[0]).toMatch(/must-visit/i);
+  });
+  it('일본어·중국어 번역이 있다', () => {
+    const { TRANSLATIONS } = jest.requireActual('@/i18n/translations') as { TRANSLATIONS: Record<string, { ja: string; zhHans: string; zhHant: string }> };
+    const row = TRANSLATIONS[WARNING_LABEL.MUST_VISIT_NOT_PLACED[0]];
+    expect(row?.ja && row?.zhHans && row?.zhHant).toBeTruthy();
+  });
+});
