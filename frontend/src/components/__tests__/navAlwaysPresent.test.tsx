@@ -86,15 +86,13 @@ describe('어느 크기에서도 이동 수단이 하나는 있다', () => {
     expect(tabBarShown()).toBe(true);
     expect(topNavShown()).toBe(false);
     mockSize = { width: 795, height: 717 };
-    // 앱(시험 환경은 네이티브)의 넓은 화면은 탭 첫 화면에서 아래 탭 막대도 뜬다(S15P21E201-1999).
-    //   상단 바는 로고·언어·알림만 남는다. 웹은 wideAppTabBar.test 가 따로 본다.
-    expect(tabBarShown()).toBe(true);
+    expect(tabBarShown()).toBe(false);
     expect(topNavShown()).toBe(true);
   });
 
-  it('태블릿 앱은 아래 탭 막대로 오간다 — 상단 바는 로고·언어·알림만(S15P21E201-1999)', () => {
+  it('태블릿에서는 탭바가 비켜 준다 — 상단 바가 그 자리를 맡는다', () => {
     mockSize = { width: 1366, height: 1024 };
-    expect(tabBarShown()).toBe(true);
+    expect(tabBarShown()).toBe(false);
     expect(topNavShown()).toBe(true);
   });
 });
