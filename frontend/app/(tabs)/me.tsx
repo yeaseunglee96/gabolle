@@ -12,7 +12,7 @@ import { Button } from '@/components/Button';
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { Eyebrow } from '@/components/Eyebrow';
 import { Screen } from '@/components/Screen';
-import { TabBar } from '@/components/TabBar';
+import { TabBar, TAB_BAR_HEIGHT, tabBarBottomMargin } from '@/components/TabBar';
 import { Text } from '@/components/Text';
 import { Toggle } from '@/components/Toggle';
 import { color, desktopGutter, radius, spacing } from '@/design/tokens';
@@ -246,7 +246,8 @@ export default function Me() {
   //    화면 끝까지 못 간다. 데스크톱 홈이 이미 같은 이유로 직접 스크롤을 깐다.
   if (wide) {
     return <View style={styles.shell}>
-      <ScrollView style={styles.wideScroll} contentContainerStyle={styles.wideContent}>
+      {/* 앱(네이티브) 넓은 화면은 아래 탭 막대가 뜬다(S15P21E201-1999) — 마지막 카드가 그 밑에 깔리지 않게 바닥을 비운다. 웹은 위쪽 메뉴라 그대로. */}
+      <ScrollView style={styles.wideScroll} contentContainerStyle={[styles.wideContent, Platform.OS !== 'web' && { paddingBottom: spacing[8] + TAB_BAR_HEIGHT + tabBarBottomMargin(insets.bottom) }]}>
         <MyPageCover
           name={name}
           email={user?.email ?? null}
@@ -311,6 +312,7 @@ export default function Me() {
           </View>
         </View>
       </ScrollView>
+      <TabBar active="me" />
       {logoutModal}
       {panel ? (
         <MyPageModal

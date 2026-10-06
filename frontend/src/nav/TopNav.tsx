@@ -90,6 +90,8 @@ export function TopNav() {
   if (kind !== 'tablet' || isChromeless(pathname)) return null;
 
   const planActive = isPlanRoute(pathname);
+  // 앱(네이티브)은 메뉴·여행 만들기를 아래 탭 막대가 맡는다(S15P21E201-1999). 위에는 로고·언어·알림·로그인만 남긴다.
+  const menuInBottomBar = Platform.OS !== 'web';
 
   // 언어는 다섯 칸이라 누른 쪽 언어로 정한다. 버튼 하나를 눌러 뒤집는 방식이면
   // 다섯 중 어느 쪽으로 갈지 계산해야 하는데, 칸이 각 언어 하나씩이면 그럴 필요가 없다
@@ -100,7 +102,7 @@ export function TopNav() {
   // 바가 모든 화면에 뜨므로 그 처리도 같이 따라다녀야 한다 — 안 그러면 노치 있는 기기를
   // 가로로 눕혔을 때 바가 노치 밑에 깔린다. 배경색을 안전 영역까지 칠해야 틈이 안 뜬다.
   const morphSearch = search.active && pathname === '/';
-  const capsule = (
+  const capsule = menuInBottomBar ? null : (
     <View style={styles.capsule}>
       {/* 앱은 replace — 메뉴를 오갈 때마다 화면이 쌓여 사진 메모리가 찼다(S15P21E201-1975). 웹은 브라우저 뒤로 가기를 위해 push. */}
       {LINKS.map((item) => {
@@ -212,11 +214,11 @@ export function TopNav() {
           자리가 저절로 접힌다 — 빈 칸을 남겨 두지 않는다. */}
       <View style={styles.navRight}>
         <TopNavWeather forecast={weather} compact={width < 1000} />
-        <Pressable accessibilityRole="link" accessibilityState={{ selected: planActive }} onPress={() => router.push('/plan')} style={({ pressed }) => [styles.cta, pressed && styles.ctaPressed]}>
+        {menuInBottomBar ? null : <Pressable accessibilityRole="link" accessibilityState={{ selected: planActive }} onPress={() => router.push('/plan')} style={({ pressed }) => [styles.cta, pressed && styles.ctaPressed]}>
           {/* 한 줄로 묶는다. 옆에 날씨가 서면서 좁아져 「여행 / 만들기」로 접혔다. */}
           <Text weight="bold" color={color.action.outline} numberOfLines={1} style={styles.noUnderline}>{tx('여행 만들기', 'Plan a trip')}</Text>
           {planActive ? <ActiveMarker /> : null}
-        </Pressable>
+        </Pressable>}
       </View>
     </View>
   </SafeAreaView>;
