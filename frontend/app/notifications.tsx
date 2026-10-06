@@ -36,8 +36,9 @@ export default function Notifications() {
   );
 }
 
+// 🔴 머리 위 여백(spacing 6)을 뺐다 — Screen 이 이미 위 안전 영역·여백을 주는데 한 번 더 더해 알림 위가 비었다(S15P21E201-1998).
 const styles = StyleSheet.create({
-  header: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  header: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   backButton: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card },
   headerSpacer: { width: 44 },
 });

@@ -800,7 +800,8 @@ export default function Feed() {
   // 탭 아래 한 줄 — 왼쪽은 기준, 오른쪽은 갈래. 시안 4 02a 의 「최근 1시간 반응 기준 · 전체/내 근처」 자리.
   const subRow = tab === 'HOT' ? (
     <View style={styles.subRow}>
-      <Text variant="caption" color={color.text.muted} style={styles.subRowText}>{area === 'NEAR' && here === 'denied' ? tx('위치 권한이 없어 전체로 보여드려요', 'No location permission — showing all') : area === 'NEAR' && !here ? tx('내 위치 찾는 중…', 'Finding your location…') : tx('좋아요 많은 순 · 같으면 최신순', 'Most liked · newest first among ties')}</Text>
+      {/* 정렬 설명 줄(「좋아요 많은 순 · 같으면 최신순」)은 뺐다 — 사용자 지적(S15P21E201-1998). 위치 상태만 알린다. */}
+      <Text variant="caption" color={color.text.muted} style={styles.subRowText}>{area === 'NEAR' && here === 'denied' ? tx('위치 권한이 없어 전체로 보여드려요', 'No location permission — showing all') : area === 'NEAR' && !here ? tx('내 위치 찾는 중…', 'Finding your location…') : ''}</Text>
       <View accessibilityRole="radiogroup" style={styles.areaChips}>
         {chip(area === 'ALL', tx('전체', 'All'), () => setArea('ALL'))}
         {chip(area === 'NEAR', tx('내 근처', 'Near me'), () => setArea('NEAR'))}
@@ -808,7 +809,7 @@ export default function Feed() {
     </View>
   ) : tab === 'FOR_YOU' ? (
     <View style={styles.subRow}>
-      <Text variant="caption" color={color.text.muted} style={styles.subRowText}>{followingOnly ? tx('팔로우한 사람들의 기록', 'Records from people you follow') : tx('팔로우한 사람 먼저, 없으면 인기순', 'People you follow first; popular ones otherwise')}</Text>
+      <Text variant="caption" color={color.text.muted} style={styles.subRowText}>{''}</Text>
       <View accessibilityRole="radiogroup" style={styles.areaChips}>
         {chip(!followingOnly, tx('추천', 'For you'), () => setFollowingOnly(false))}
         {chip(followingOnly, tx('팔로잉만', 'Following only'), () => setFollowingOnly(true), !signedIn)}

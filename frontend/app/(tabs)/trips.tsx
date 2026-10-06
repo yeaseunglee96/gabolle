@@ -172,7 +172,9 @@ export default function Trips() {
   // 고를 여행이 없으면 「골라주세요」가 아니라 오늘 날씨를 제목으로 — 고를 것이 없는데 고르라고 하지 않는다
   const weatherOnly = open === 'prepare' && (!accessToken || (!loading && result.state === 'success' && trips.length === 0));
   useEffect(() => {
-    if (prepareTarget) router.replace(`/${prepareTarget.tripId}/prepare`);
+    // 🔴 replace 였다 — 탭 화면을 바꿔치기해 돌아갈 곳이 없어 날씨·준비물에서 뒤로 단추·스와이프가 안 먹었다(S15P21E201-1998).
+    //    open 을 먼저 지워 돌아왔을 때 다시 넘어가지 않게 하고, push 로 쌓는다.
+    if (prepareTarget) { router.setParams({ open: undefined }); router.push(`/${prepareTarget.tripId}/prepare`); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [prepareTarget?.tripId]);
   const menuTrip = menuTripId ? trips.find((item) => item.tripId === menuTripId) ?? null : null;
