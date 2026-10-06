@@ -5,7 +5,7 @@
 import { useEffect, useRef } from 'react';
 import { Animated, Easing, Image, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useGlobalSearchParams, usePathname, useRouter } from 'expo-router';
+import { useGlobalSearchParams, useRouter } from 'expo-router';
 
 import { color, radius, spacing } from '@/design/tokens';
 import { useLayout } from '@/layout/useLayout';
@@ -146,11 +146,7 @@ export function TabBar({
   //    못 갔다(app.json 이 orientation: default 라 실제로 돌아간다). kind 는 짧은 변으로
   //    정하므로 돌려도 안 바뀌고, 폴드는 펼칠 때 짧은 변이 커지므로 그때만 태블릿이 된다
   //    (frontend/CLAUDE.md 의 「폭 분기는 useLayout」 규칙이 바로 이 자리다).
-  // 🔴 앱(네이티브)의 넓은 화면(탭·폴드 펼침 가로)은 이 바를 쓴다 — 위쪽 메뉴 대신(S15P21E201-1999, 사용자 결정 2026-10-06).
-  //    손으로 드는 기기는 아래 단추가 손에 닿고, 폰과 같은 자리라 익숙하다. 웹(PC)은 위쪽 메뉴 그대로라 여기서 숨긴다.
-  //    넓은 화면에서는 탭의 첫 화면에서만 띄운다 — 여행 화면의 큰 지도 같은 곳 바닥을 가리지 않게.
-  const pathname = typeof usePathname === 'function' ? usePathname() : '';
-  if (kind === 'tablet' && !showsWideTabBar(Platform.OS, pathname)) return null;
+  if (kind === 'tablet') return null;
 
   // 받침(dock)에 담아 띄운다.
   return (
@@ -250,18 +246,6 @@ export function TabBar({
     </Animated.View>
     </Animated.View>
   );
-}
-
-/** 넓은 화면 앱에서 아래 탭 막대를 띄우는 탭 첫 화면들 (S15P21E201-1999). */
-export const WIDE_TAB_ROOTS = ['/home', '/feed', '/trips', '/me', '/saved'] as const;
-
-/**
- * 넓은 화면(kind tablet)에서 아래 탭 막대를 그리나 — 앱(네이티브)이고 탭 첫 화면일 때만.
- * 웹(PC)은 위쪽 메뉴(TopNav)가 같은 일을 한다.
- */
-export function showsWideTabBar(os: string, pathname: string): boolean {
-  if (os === 'web') return false;
-  return (WIDE_TAB_ROOTS as readonly string[]).includes(pathname);
 }
 
 export function tabBarBottomMargin(bottomInset: number) {
