@@ -11,6 +11,7 @@ import { Image, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-nat
 import Svg, { Path } from 'react-native-svg';
 
 import { Text } from '@/components/Text';
+import { useSheetBottomPadding } from '@/components/sheetBottomInset';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { LANGUAGE_OPTIONS, type LanguageCode, type LanguageOption } from '@/i18n/languages';
@@ -55,6 +56,8 @@ export function WelcomeLanguageSheet({ visible, language, onSelect, onClose, onS
   onStart: () => void;
 }) {
   const { tx } = useI18n();
+  // 아래 시스템 막대·삼성 작업 표시줄만큼 더 띄운다 — 「시작」 단추가 막대 뒤로 들어가지 않게(S15P21E201-1997).
+  const bottomPad = useSheetBottomPadding(spacing[6]);
   const current = LANGUAGE_OPTIONS.find((item) => item.code === language) ?? LANGUAGE_OPTIONS[0];
   const secondaryName = (item: LanguageOption) => (language === 'ko' ? KOREAN_NAMES[item.code] : item.englishName);
 
@@ -62,7 +65,7 @@ export function WelcomeLanguageSheet({ visible, language, onSelect, onClose, onS
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       {/* 시트 바깥을 누르면 닫힌다 — 시트 자체는 눌러도 안 닫혀야 해서 안쪽은 Pressable 이 아니다. */}
       <Pressable accessibilityRole="button" accessibilityLabel={tx('닫기', 'Close')} onPress={onClose} style={styles.backdrop} />
-      <View accessibilityViewIsModal style={styles.sheet}>
+      <View accessibilityViewIsModal style={[styles.sheet, { paddingBottom: bottomPad }]}>
         <View style={styles.grabber} />
         <View style={styles.head}>
           <View style={styles.headCopy}>
