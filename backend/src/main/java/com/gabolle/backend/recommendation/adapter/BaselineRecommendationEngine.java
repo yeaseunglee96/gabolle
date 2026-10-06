@@ -403,6 +403,24 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 				taken.merge(category.toString(), 1, Integer::sum);
 			}
 		}
+		// 🔴 S15P21E201-2001 — 고른 갈래가 몫보다 적으면(해운대·광안리의 바다는 2곳) 남은 몫을 점수 순에 맡기지 않는다.
+		//    점수 순은 밥집·카페라 하루가 카페 3·식당 2·바다 1 이 됐다. 그 빈 몫은 밥집·카페가 아닌 다른 명소가 먼저 받는다.
+		int shortfall = 0;
+		for (String category : chosenCategories) {
+			shortfall += Math.max(0, perChosen - taken.getOrDefault(category, 0));
+		}
+		for (EngineCandidate candidate : sorted) {
+			if (shortfall <= 0 || kept.size() >= limit) {
+				break;
+			}
+			Object category = candidate.featureValues() == null ? null : candidate.featureValues().get("category");
+			if (category == null || MEAL_CATEGORY.equals(category.toString()) || REST_CATEGORY.equals(category.toString())
+					|| kept.containsKey(candidate.placeId())) {
+				continue;
+			}
+			kept.put(candidate.placeId(), candidate);
+			shortfall--;
+		}
 		for (EngineCandidate candidate : sorted) {
 			if (kept.size() >= limit) {
 				break;

@@ -333,6 +333,17 @@ class BaselineRecommendationEngineCandidateCutTest {
 		assertThat(kept).doesNotContainKeys("SEA_BEACH", "NATURE_WALK");
 	}
 
+	/** 운영(2026-10-07): 해운대·광안리에서 바다만 고르면 바다가 2곳뿐이라 남은 자리가 카페·밥집으로 찼다 — 하루 카페 3·식당 2·바다 1. */
+	@Test
+	@DisplayName("🔴 고른 갈래가 몫보다 적으면 빈 몫은 카페·밥집이 아니라 다른 명소가 받는다")
+	void 고른_갈래가_모자라면_다른_명소로_채운다() {
+		Map<String, Long> kept = keptCategoriesChoosing("[\"SEA_BEACH\"]");
+
+		assertThat(kept.getOrDefault("SEA_BEACH", 0L)).isEqualTo(3L);
+		assertThat(kept.getOrDefault("NATURE_WALK", 0L)).as("고치기 전에는 0곳 — 자리를 밥집이 다 받았다").isEqualTo(3L);
+		assertThat(kept.getOrDefault("CAFE_HEALING", 0L)).isLessThanOrEqualTo(1L);
+	}
+
 	@Test
 	@DisplayName("바다·자연만 골라도 끼니를 채울 밥집이 남는다")
 	void 밥집을_안_골라도_끼니_몫이_있다() {
