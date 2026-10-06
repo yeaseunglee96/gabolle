@@ -10,6 +10,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ApiClientError } from '@/api/client';
 import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
+import { FieldBackButton } from '@/components/FieldBackButton';
 import { Text } from '@/components/Text';
 import { Eyebrow } from '@/components/Eyebrow';
 import { Button } from '@/components/Button';
@@ -191,6 +192,8 @@ function PrepareForTrip({ tripId }: { tripId: string }) {
 
   return (
     <Screen scroll>
+      {/* 뒤로 단추 — 홈 날씨에서 들어오면 나갈 길이 없었다(S15P21E201-1998). 돌아갈 화면이 없으면 홈으로. */}
+      <FieldBackButton fallback="/home" />
       <View style={styles.headerRow}>
         <View style={styles.headerCopy}>
           <Eyebrow>
