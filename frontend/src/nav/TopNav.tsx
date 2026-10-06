@@ -69,7 +69,13 @@ export function useTopNavShown() {
 
 /** 폰 TabBar 의 활성 표식과 같은 모양 — 5×5 점. */
 function ActiveMarker() {
-  return <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.marker} />;
+  // 칸 양끝에 붙인 감싸개가 점을 가운데에 세운다. 퍼센트(left: '50%')는 웹과 앱(Yoga)이 기준 폭을 다르게 잡아
+  // 앱에서 패딩 절반만큼 왼쪽으로 밀렸다(S15P21E201-2000).
+  return (
+    <View testID="topnav-active-marker" pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.markerRow}>
+      <View style={styles.marker} />
+    </View>
+  );
 }
 
 export function TopNav() {
@@ -274,8 +280,9 @@ const styles = StyleSheet.create({
   cta: { height: CTA_HEIGHT, paddingHorizontal: spacing[4], borderRadius: radius.md, borderWidth: 1, borderColor: color.action.outline, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
   ctaPressed: { opacity: 0.88 },
 
-  // 절대배치라 alignSelf 는 믿지 않는다 — 폭(5)의 절반을 왼쪽으로 당겨 가운데를 맞춘다.
-  marker: { position: 'absolute', bottom: CTA_MARKER_DROP, left: '50%', marginLeft: -2.5, width: 5, height: 5, borderRadius: radius.full, backgroundColor: color.state.dot },
+  // 점은 칸 바닥(바 바닥)에 선다. 감싸개가 칸 폭 전체를 차지하고 가운데 정렬해서 웹·앱이 같은 자리에 찍는다.
+  markerRow: { position: 'absolute', left: 0, right: 0, bottom: CTA_MARKER_DROP, alignItems: 'center' },
+  marker: { width: 5, height: 5, borderRadius: radius.full, backgroundColor: color.state.dot },
 
   // 웹에서 Pressable 안의 글자에 기본 밑줄이 붙는 경우가 있어 명시적으로 끈다.
   noUnderline: { textDecorationLine: 'none' },
