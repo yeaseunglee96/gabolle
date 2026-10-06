@@ -4,7 +4,7 @@
 // 🔴 금액은 원으로만 적는다 — 서버 합계가 원 정수다. 외화로 냈으면 환율 도구로 바꿔 적는다(안내 한 줄).
 // 🔴 정산은 화면이 계산한다(src/trip/expenses.ts settle) — 구성원이 들고 나면 바뀌는 값이라 서버에 저장하지 않는다.
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Modal, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -259,11 +259,15 @@ function AddExpenseSheet({ visible, planPlaces, placeLabel, members, meId, nameO
     setSaving(false);
     if (ok) setAmount('');
   };
+  // 창 맨 아래 「적기」가 아래 시스템 막대(탭 작업 표시줄·버튼 내비)에 깔리지 않게 그 높이만큼 띄우고,
+  // 내용이 길거나 키보드가 올라와도 단추까지 내려갈 수 있게 스크롤한다(S15P21E201-1996).
+  const insets = useSafeAreaInsets();
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
+      <KeyboardAvoidingView style={styles.backdrop} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <Pressable style={StyleSheet.absoluteFill} accessibilityRole="button" accessibilityLabel={tx('닫기', 'Close')} onPress={onClose} />
-        <View style={styles.sheet}>
+        <View testID="money-sheet" style={[styles.sheet, styles.sheetScrollable, { paddingBottom: spacing[6] + insets.bottom }]}>
+          <ScrollView testID="money-sheet-scroll" keyboardShouldPersistTaps="handled" contentContainerStyle={styles.sheetContent}>
           <View style={styles.rowBetween}>
             <Text variant="title" weight="bold">{tx('지출 추가', 'Add expense')}</Text>
             <Pressable accessibilityRole="button" accessibilityLabel={tx('닫기', 'Close')} onPress={onClose} style={styles.close}><Text variant="title">✕</Text></Pressable>
@@ -306,8 +310,9 @@ function AddExpenseSheet({ visible, planPlaces, placeLabel, members, meId, nameO
             </>
           ) : null}
           <Button variant="secondary" label={tx('적기', 'Save')} onPress={() => void submit()} disabled={!ready} testID="money-save" />
+          </ScrollView>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -384,6 +389,8 @@ const styles = StyleSheet.create({
   backdrop: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(25,25,25,0.45)' },
   backdropCenter: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: spacing[6], backgroundColor: 'rgba(25,25,25,0.45)' },
   sheet: { width: '100%', maxWidth: 640, alignSelf: 'center', gap: spacing[3], padding: spacing[6], borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg, backgroundColor: color.surface.card },
+  sheetScrollable: { maxHeight: '90%' },
+  sheetContent: { gap: spacing[3] },
   dialog: { width: '100%', maxWidth: 420, gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card },
   close: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   // 웹은 브라우저 테두리 대신 밑줄로 — 밑줄이 이미 「여기에 쓴다」를 말한다
