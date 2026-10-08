@@ -17,13 +17,17 @@ import { color, radius, spacing } from '@/design/tokens';
 
 type Tx = (ko: string, en: string) => string;
 
-export function LockToggle({ locked, name, busy = false, disabled = false, compact = false, onPress, tx }: {
-  locked: boolean; name: string; busy?: boolean; disabled?: boolean; compact?: boolean;
+export function LockToggle({ locked, mode = null, name, busy = false, disabled = false, compact = false, onPress, tx }: {
+  locked: boolean;
+  /** 고정 방식(S15P21E201-2017). 고정인데 없으면 순서 고정으로 적는다 — 옛 서버의 고정이 그 뜻이다. */
+  mode?: 'ORDER' | 'TIME' | null;
+  name: string; busy?: boolean; disabled?: boolean; compact?: boolean;
   /** 없으면 누를 수 없는 표시로만 그린다 — 보기 전용이면 고정된 곳에만 「고정됨」. */
   onPress?: () => void; tx: Tx;
 }) {
   const tint = locked ? color.text.onAction : color.text.body;
-  const label = locked ? tx('고정됨', 'Locked') : tx('고정하기', 'Lock');
+  // 「고정됨」 하나로는 무엇이 지켜지는지 안 읽혔다 — 순서인지 시각인지 말로 적는다(S15P21E201-2017).
+  const label = locked ? (mode === 'TIME' ? tx('시각 고정', 'Time pinned') : tx('순서 고정', 'Order pinned')) : tx('고정하기', 'Lock');
   const iconOnly = compact;
   const body = (
     <>

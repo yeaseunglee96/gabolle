@@ -31,6 +31,8 @@ import { TripPageDesktop } from '@/trip/page/TripPageDesktop';
 import { TripPageMobile } from '@/trip/page/TripPageMobile';
 import { formatManwon, tripPageKind } from '@/trip/page/tripPageModel';
 import {
+  addItineraryItem,
+  changeItineraryStay,
   loadItinerary,
   loadItineraryPace,
   loadItineraryRhythm,
@@ -46,6 +48,7 @@ import {
   type ItineraryDto,
   type ItineraryItemDto,
   type ItineraryLoadResult,
+  type ItineraryLockMode,
   type ItineraryOpeningHoursNotChecked,
   type ItineraryOpeningHoursWarning,
   type ItineraryPaceDto,
@@ -64,6 +67,10 @@ import { takeItineraryHint } from '@/onboarding/firstRun';
 import { ItineraryHint } from '@/onboarding/ItineraryHint';
 import { describeWarningCodes } from '@/plan/warningLabels';
 import { ExcludeConfirmModal, type ExcludeReason } from '@/components/ExcludeConfirmModal';
+import { AddPlaceSheet } from '@/components/AddPlaceSheet';
+import { LockModeSheet } from '@/components/LockModeSheet';
+import { StayStepper } from '@/components/StayStepper';
+import { describeAdjustWarnings, lockModeOf, stayMinutesOf, steppedStay } from '@/plan/itineraryAdjust';
 import { localizeMessage } from '@/i18n/messages';
 import { koreanToward } from '@/i18n/korean';
 import { humanTripTitle, tripNameOrDates } from '@/trip/tripNaming';
@@ -277,9 +284,13 @@ function StopPhoto({ placeId, wide }: { placeId: string; wide: boolean }) {
   return <View style={[styles.stopPhoto, styles.stopPhotoEmpty, wide && styles.stopPhotoWide]}><Text variant={wide ? 'title' : 'body'}>{categoryGlyph(photo?.category)}</Text></View>;
 }
 
-function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExpand, canEdit, lockBusy, excludeBusy, dayBusy, onLock, onExclude, reorderMode, canMoveUp, canMoveDown, moveBusy, onMoveUp, onMoveDown, pace, estimated, actualBusy, onRecordArrival, onRecordDeparture, accessToken, stepState }: { item: ItineraryItemDto; index: number; isLast: boolean; displayTime: string | null; wide: boolean; expanded: boolean; onToggleExpand: () => void; canEdit: boolean; lockBusy: boolean; excludeBusy: boolean; dayBusy: boolean; onLock: () => void; onExclude: () => void; reorderMode: boolean; canMoveUp: boolean; canMoveDown: boolean; moveBusy: boolean; onMoveUp: () => void; onMoveDown: () => void; pace?: ItineraryPaceItemDto; estimated?: boolean; actualBusy?: boolean; onRecordArrival?: () => void; onRecordDeparture?: () => void; accessToken: string | null;
+function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExpand, canEdit, lockBusy, excludeBusy, dayBusy, onLock, onExclude, reorderMode, canMoveUp, canMoveDown, moveBusy, onMoveUp, onMoveDown, pace, estimated, actualBusy, onRecordArrival, onRecordDeparture, accessToken, stepState, stayBusy = false, onStay }: { item: ItineraryItemDto; index: number; isLast: boolean; displayTime: string | null; wide: boolean; expanded: boolean; onToggleExpand: () => void; canEdit: boolean; lockBusy: boolean; excludeBusy: boolean; dayBusy: boolean; onLock: () => void; onExclude: () => void; reorderMode: boolean; canMoveUp: boolean; canMoveDown: boolean; moveBusy: boolean; onMoveUp: () => void; onMoveDown: () => void; pace?: ItineraryPaceItemDto; estimated?: boolean; actualBusy?: boolean; onRecordArrival?: () => void; onRecordDeparture?: () => void; accessToken: string | null;
   /** 시안 ⑤ — 다녀옴 · 현재 · 다음 · 이후. 모르면 안 준다(진행을 안 켠 화면). */
-  stepState?: 'done' | 'current' | 'next' | 'later' }) {
+  stepState?: 'done' | 'current' | 'next' | 'later';
+  /** 머무는 시간을 바꾸는 중(S15P21E201-2017). */
+  stayBusy?: boolean;
+  /** 머무는 시간 −/+ — 없으면 손잡이를 안 그린다(보기 전용 · 전체 보기). */
+  onStay?: (direction: 1 | -1) => void }) {
   const { tx, locale, language } = useI18n();
   const disabled = !canEdit || lockBusy || excludeBusy || dayBusy;
 
@@ -324,15 +335,15 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
 
   const lockControl = reorderMode
     ? (item.locked
-      ? <View style={styles.lockBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('고정됨', 'Locked')}</Text></View>
+      ? <View style={styles.lockBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>{lockModeOf(item) === 'TIME' ? tx('시각 고정', 'Time pinned') : tx('순서 고정', 'Order pinned')}</Text></View>
       : <View style={styles.moveButtons}>
         <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 위로 이동', 'Move %s up', item.title)} accessibilityState={{ disabled: !canMoveUp || moveBusy }} disabled={!canMoveUp || moveBusy} onPress={onMoveUp} style={[styles.moveButton, (!canMoveUp || moveBusy) && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>▲</Text></Pressable>
         <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 아래로 이동', 'Move %s down', item.title)} accessibilityState={{ disabled: !canMoveDown || moveBusy }} disabled={!canMoveDown || moveBusy} onPress={onMoveDown} style={[styles.moveButton, (!canMoveDown || moveBusy) && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>▼</Text></Pressable>
       </View>)
     : canEdit
       // 🔓/🔒 그림 글자 대신 상태를 말로 적는 알약 — 폰 여행 화면과 같은 부품(UI 캔버스 ④).
-      ? <LockToggle locked={item.locked} name={item.title} busy={lockBusy} disabled={disabled} onPress={onLock} tx={tx} />
-      : <LockToggle locked={item.locked} name={item.title} tx={tx} />;
+      ? <LockToggle locked={item.locked} mode={lockModeOf(item)} name={item.title} busy={lockBusy} disabled={disabled} onPress={onLock} tx={tx} />
+      : <LockToggle locked={item.locked} mode={lockModeOf(item)} name={item.title} tx={tx} />;
 
   return <>
     {/* 구간 — 세로선과 「도보 1.2km」. 넓은 화면은 위쪽 가로 노선도가 같은 것을 보여주므로 생략한다. */}
@@ -384,6 +395,8 @@ function StopRow({ item, index, isLast, displayTime, wide, expanded, onToggleExp
             {lockControl}
           </View>
         </View>
+        {/* 머무는 시간 −/+ (S15P21E201-2017). 펼치지 않아도 보인다 — 접힌 칸 안에 두면 아무도 못 찾는다. */}
+        {onStay && canEdit && !reorderMode ? <StayStepper minutes={stayMinutesOf(item)} name={item.title} busy={stayBusy} disabled={disabled} onStep={onStay} tx={tx} /> : null}
         {expanded ? <View style={styles.stopDetail}>
           {facts.length ? <View style={styles.metaRow}>{facts.map((fact) => <Text key={fact} variant="caption" color={color.text.muted}>{fact}</Text>)}</View> : null}
           {pace && !reorderMode ? <View style={styles.paceRow}>
@@ -444,6 +457,12 @@ function ItineraryClassic() {
   const openedDayRef = useRef(false);
   const [viewMode, setViewMode] = useState<ViewMode>(viewParam === 'all' ? 'all' : 'day');
   const [busyItemId, setBusyItemId] = useState<string | null>(null);
+  // 일정 조정(S15P21E201-2017) — 고정 방식을 고르는 곳 · 머무는 시간을 바꾸는 곳 · 장소 더하기 창.
+  const [lockTarget, setLockTarget] = useState<ItineraryItemDto | null>(null);
+  const [stayBusyItemId, setStayBusyItemId] = useState<string | null>(null);
+  const [addOpen, setAddOpen] = useState(false);
+  const [addBusy, setAddBusy] = useState(false);
+  const [addError, setAddError] = useState<string | null>(null);
   const [excludingItemId, setExcludingItemId] = useState<string | null>(null);
   const [excludeConfirming, setExcludeConfirming] = useState<ItineraryItemDto | null>(null);
   const [dayActionBusy, setDayActionBusy] = useState(false);
@@ -554,7 +573,7 @@ function ItineraryClassic() {
   // 이번 주기를 건너뛴다 — 편집이 끝나면 각 함수가 자체적으로 reload를 부른다.
   const pollBlockedRef = useRef(false);
   useEffect(() => {
-    pollBlockedRef.current = Boolean(busyItemId) || excludingItemId !== null || excludeConfirming !== null || dayActionBusy || revertBusy || orderDraft !== null || reorderBusy || replanBusy || actualBusyItemId !== null;
+    pollBlockedRef.current = Boolean(busyItemId) || stayBusyItemId !== null || addBusy || excludingItemId !== null || excludeConfirming !== null || dayActionBusy || revertBusy || orderDraft !== null || reorderBusy || replanBusy || actualBusyItemId !== null;
   });
   const failureStreakRef = useRef(0);
   // — 간격이 고정 5초가 아니라 「안 바뀌면 늘어나는」 값이 된다.
@@ -800,14 +819,51 @@ function ItineraryClassic() {
     }
   };
 
-  const toggleLock = async (item: ItineraryItemDto) => {
+  // 고정 방식 고르기 — 「순서 고정」·「시각 고정」·「고정 풀기」(S15P21E201-2017). 전에는 누르면 바로 켜고 꺼졌다.
+  const applyLock = async (item: ItineraryItemDto, locked: boolean, mode?: ItineraryLockMode) => {
     if (!itinerary) return;
+    setLockTarget(null);
     setBusyItemId(item.id); setConflict(null); setActionMessage(null); setOpeningHoursNotice([]);
-    const next = await setItineraryItemLocked({ itineraryId: itinerary.id, itemId: item.id, locked: !item.locked, baseVersion: itinerary.version, accessToken });
+    const next = await setItineraryItemLocked({ itineraryId: itinerary.id, itemId: item.id, locked, mode, baseVersion: itinerary.version, accessToken });
     setBusyItemId(null);
     if (next.state === 'success') { setResult({ state: 'success', itinerary: keepTripFields(next.itinerary, itinerary) }); setOpeningHoursNotice(describeOpeningHoursIssues(next.itinerary, next.warnings, next.notChecked, tx)); }
     else if (next.state === 'conflict') setConflict(next.message);
     else setResult(next);
+  };
+
+  // 머무는 시간 −/+ 한 번에 15분(S15P21E201-2017). 서버가 뒤 곳의 시각까지 다시 매긴 일정을 돌려준다.
+  const changeStay = async (item: ItineraryItemDto, direction: 1 | -1) => {
+    const current = stayMinutesOf(item);
+    if (!itinerary || current == null) return;
+    const next = steppedStay(current, direction);
+    if (next === current) return;
+    setStayBusyItemId(item.id); setConflict(null); setActionMessage(null); setOpeningHoursNotice([]);
+    const outcome = await changeItineraryStay({ itineraryId: itinerary.id, itemId: item.id, stayMinutes: next, baseVersion: itinerary.version, accessToken });
+    setStayBusyItemId(null);
+    if (outcome.state === 'success') {
+      setResult({ state: 'success', itinerary: keepTripFields(outcome.itinerary, itinerary) });
+      void refreshVersions(outcome.itinerary.id);
+      setOpeningHoursNotice([...describeAdjustWarnings(outcome.itinerary, outcome.warnings, tx), ...describeOpeningHoursIssues(outcome.itinerary, outcome.warnings, outcome.notChecked, tx)]);
+    }
+    else if (outcome.state === 'conflict') setConflict(outcome.message);
+    else setActionMessage(localizeMessage(tx, outcome.message));
+  };
+
+  // 고른 자리에 장소 더하기(S15P21E201-2017). 서버가 그 자리에 끼우고 구간·시각을 바로 매긴다 — 다시 계산을 안 부른다.
+  const addPlace = async (placeId: string, position: number) => {
+    if (!itinerary) return;
+    setAddBusy(true); setAddError(null); setConflict(null); setActionMessage(null); setOpeningHoursNotice([]);
+    const outcome = await addItineraryItem({ itineraryId: itinerary.id, placeId, dayIndex: selectedDay, baseVersion: itinerary.version, position, accessToken });
+    setAddBusy(false);
+    if (outcome.state === 'success') {
+      setAddOpen(false);
+      setResult({ state: 'success', itinerary: keepTripFields(outcome.itinerary, itinerary) });
+      void refreshVersions(outcome.itinerary.id);
+      setActionMessage(tx('장소를 더했어요. 뒤 일정의 시각을 다시 맞췄어요.', 'Place added. Later stops were retimed.'));
+      setOpeningHoursNotice([...describeAdjustWarnings(outcome.itinerary, outcome.warnings, tx), ...describeOpeningHoursIssues(outcome.itinerary, outcome.warnings, outcome.notChecked, tx)]);
+    }
+    else if (outcome.state === 'conflict') { setAddOpen(false); setConflict(outcome.message); }
+    else setAddError(localizeMessage(tx, outcome.message));
   };
 
   const excludeItem = async (item: ItineraryItemDto, reason: ExcludeReason | null) => {
@@ -1150,6 +1206,15 @@ function ItineraryClassic() {
             <Pressable testID="itinerary-cancel-order" accessibilityRole="button" accessibilityLabel={tx('순서 변경 취소', 'Cancel reordering')} accessibilityState={{ disabled: reorderBusy }} disabled={reorderBusy} onPress={cancelReorder} style={[styles.recalcButton, reorderBusy && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('취소', 'Cancel')}</Text></Pressable>
             <Pressable testID="itinerary-save-order" accessibilityRole="button" accessibilityLabel={tx('순서 저장', 'Save order')} accessibilityState={{ busy: reorderBusy }} disabled={reorderBusy} onPress={() => void saveReorder()} style={[styles.recalcButtonPrimary, reorderBusy && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.text.onAction}>{reorderBusy ? tx('저장 중', 'Saving') : tx('저장', 'Save')}</Text></Pressable>
           </View> : null}
+          {/* 일정 고치기 줄(S15P21E201-2017) — 편집 기능이 ⋯ 안에만 있어 아무도 못 찾았다. 자주 쓰는 둘을 늘 보이게 두고
+              무엇을 어디서 하는지 한 줄로 알린다. */}
+          {canEdit && !reorderMode ? <View testID="itinerary-edit-bar" style={styles.editBar}>
+            <Text variant="caption" color={color.text.body} style={styles.grow}>{tx('−/+ 로 머무는 시간을, 「고정하기」로 순서·시각을 지켜요.', 'Use −/+ to change time at a place, and “Lock” to keep its order or time.')}</Text>
+            <View style={styles.editBarActions}>
+              <Pressable testID="itinerary-add-place" accessibilityRole="button" disabled={addBusy || excludingItemId !== null} onPress={() => { setAddError(null); setAddOpen(true); }} style={[styles.recalcButtonPrimary, (addBusy || excludingItemId !== null) && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('장소 더하기', 'Add a place')}</Text></Pressable>
+              {canReorder ? <Pressable testID="itinerary-edit-reorder" accessibilityRole="button" disabled={excludingItemId !== null} onPress={startReorder} style={[styles.recalcButton, excludingItemId !== null && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('순서 변경', 'Reorder')}</Text></Pressable> : null}
+            </View>
+          </View> : null}
           {/* 가로 노선도는 넓은 화면에만 — 폰에서는 아래 세로 노선이 같은 일을 더 잘한다.
               순서를 바꾸는 중에는 숨긴다: 아직 저장 안 된 순서를 확정된 동선처럼 그리면
               무엇이 진짜인지 헷갈린다.
@@ -1157,7 +1222,7 @@ function ItineraryClassic() {
           {!reorderMode && wide ? <RouteStrip items={displayedItems} times={slotTimes} tx={tx} locale={locale} /> : null}
           {displayedItems.length ? <View style={wide ? styles.wideGrid : undefined}>
             <View style={wide ? styles.timelineColumn : undefined}>
-              <View style={styles.route}>{displayedItems.map((item, index) => <ImpressionView key={item.id} tracker={impressions} placeId={item.placeId} requestId={item.requestId}><StopRow key={item.id} item={item} index={index} isLast={index === displayedItems.length - 1} displayTime={slotTimes[index] ?? item.startsAt} wide={wide} expanded={expandedItemId === item.id} onToggleExpand={() => setExpandedItemId((current) => current === item.id ? null : item.id)} canEdit={canEdit} lockBusy={busyItemId === item.id} excludeBusy={excludingItemId === item.id} dayBusy={dayActionBusy || excludingItemId !== null} onLock={() => void toggleLock(item)} onExclude={() => setExcludeConfirming(item)} reorderMode={reorderMode} canMoveUp={index > 0 && !item.locked && !displayedItems[index - 1].locked} canMoveDown={index < displayedItems.length - 1 && !item.locked && !displayedItems[index + 1].locked} moveBusy={reorderBusy} onMoveUp={() => moveDraftItem(index, -1)} onMoveDown={() => moveDraftItem(index, 1)} pace={paceByItemId.get(item.id)} estimated={paceEstimated} actualBusy={actualBusyItemId === item.id} onRecordArrival={recordToday && !arrivalOf(item.id) ? () => void recordArrival(item) : undefined} onRecordDeparture={recordToday && arrivalOf(item.id) ? () => void recordDeparture(item) : undefined} accessToken={accessToken} stepState={dayStepStates[index]} /></ImpressionView>)}</View>
+              <View style={styles.route}>{displayedItems.map((item, index) => <ImpressionView key={item.id} tracker={impressions} placeId={item.placeId} requestId={item.requestId}><StopRow key={item.id} item={item} index={index} isLast={index === displayedItems.length - 1} displayTime={slotTimes[index] ?? item.startsAt} wide={wide} expanded={expandedItemId === item.id} onToggleExpand={() => setExpandedItemId((current) => current === item.id ? null : item.id)} canEdit={canEdit} lockBusy={busyItemId === item.id} excludeBusy={excludingItemId === item.id} dayBusy={dayActionBusy || excludingItemId !== null} onLock={() => setLockTarget(item)} onExclude={() => setExcludeConfirming(item)} reorderMode={reorderMode} stayBusy={stayBusyItemId === item.id} onStay={(direction) => void changeStay(item, direction)} canMoveUp={index > 0 && !item.locked && !displayedItems[index - 1].locked} canMoveDown={index < displayedItems.length - 1 && !item.locked && !displayedItems[index + 1].locked} moveBusy={reorderBusy} onMoveUp={() => moveDraftItem(index, -1)} onMoveDown={() => moveDraftItem(index, 1)} pace={paceByItemId.get(item.id)} estimated={paceEstimated} actualBusy={actualBusyItemId === item.id} onRecordArrival={recordToday && !arrivalOf(item.id) ? () => void recordArrival(item) : undefined} onRecordDeparture={recordToday && arrivalOf(item.id) ? () => void recordDeparture(item) : undefined} accessToken={accessToken} stepState={dayStepStates[index]} /></ImpressionView>)}</View>
             </View>
             {/* 이동 요약 — 시안 p6 의 3칸(장소 · 이동 합계 · 수단). 폰에도 둔다
                 「이 하루가 얼마나 걷는 하루인가」는 정차를 하나씩 봐서는 안 나오는 값이다.
@@ -1240,6 +1305,24 @@ function ItineraryClassic() {
   {/* 🔴 순서 수정 중에는 위 단추 줄이 사라져 스크롤 창이 떠 있는 탭바 밑까지 늘어났다 — 두 번째 장소의 위/아래
       화살표가 탭바에 깔려 못 눌렀다(S15P21E201-1872 실기). 같은 높이를 비워 창이 탭바 위에서 끝나게 한다. */}
   {!wide && itinerary && reorderMode ? <View testID="itinerary-reorder-tabbar-spacer" pointerEvents="none" style={{ height: bottomBarClearance(insets.bottom) }} /> : null}
+  <LockModeSheet
+    visible={lockTarget !== null}
+    placeName={lockTarget?.title ?? ''}
+    current={lockTarget ? lockModeOf(lockTarget) : null}
+    busy={busyItemId !== null}
+    onPick={(mode) => { if (lockTarget) void applyLock(lockTarget, true, mode); }}
+    onUnlock={() => { if (lockTarget) void applyLock(lockTarget, false); }}
+    onClose={() => setLockTarget(null)}
+  />
+  <AddPlaceSheet
+    visible={addOpen}
+    stops={day?.items ?? []}
+    accessToken={accessToken}
+    busy={addBusy}
+    error={addError}
+    onSubmit={(placeId, position) => void addPlace(placeId, position)}
+    onClose={() => setAddOpen(false)}
+  />
   <ExcludeConfirmModal
     visible={excludeConfirming !== null}
     placeTitle={excludeConfirming?.title ?? ''}
@@ -1338,6 +1421,8 @@ const styles = StyleSheet.create({ shell: { flex: 1, backgroundColor: color.canv
   menuPanel: { gap: spacing[3], marginTop: spacing[4], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
   menuActions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
   reorderBar: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: spacing[2], marginTop: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.soft },
+  editBar: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: spacing[2], marginTop: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card },
+  editBarActions: { flexDirection: 'row', gap: spacing[2] },
   // 하단 고정 줄 — 탭바 위에 형제로 놓는다. absolute 로 띄우면 목록 끝이 그만큼 가린다.
   // 🔴 아래 여백은 여기서 정하지 않는다 — bottomBarClearance 가 탭바와 안전영역을
   //    함께 센다. 8px 만 두었더니 단추가 탭바와 탐색줄 뒤로 완전히 들어갔다(빌드 29).

@@ -197,6 +197,8 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
           {tripId ? <HeadPill label={tx('공유', 'Share')} active={overlay === 'share'} onPress={() => setOverlay('share')} /> : null}
           {tripId ? <HeadPill label={tx('기록 남기기', 'Write a record')} active={overlay === 'record'} onPress={() => setOverlay('record')} /> : null}
           {tripId ? <HeadPill label={tx('날씨', 'Weather')} active={overlay === 'weather'} onPress={() => setOverlay('weather')} /> : null}
+          {/* 일정 고치기 — ⋯ 의 「일정 편집」을 머리에도 둔다. 메뉴 안에만 있어 아무도 못 찾았다(S15P21E201-2017). 보기 전용이면 안 그린다. */}
+          {course?.itineraryId && loaded?.canEdit !== false ? <HeadPill testID="trip-edit-open" label={tx('일정 고치기', 'Edit the plan')} onPress={() => router.push(`/trips/${course.itineraryId}/itinerary?classic=1`)} /> : null}
           {/* 여행 돈(S15P21E201-1935) — 화면으로 연다 */}
           {tripId ? <HeadPill label={tx('여행 경비', 'Trip expenses')} active={false} onPress={() => router.push(`/${tripId}/money` as never)} /> : null}
           <Pressable ref={menu.buttonRef} accessibilityRole="button" accessibilityLabel={tx('더 보기', 'More')} accessibilityState={{ expanded: menu.open }} onPress={menu.openMenu} style={({ pressed }) => [styles.circle40, pressed && styles.pressed]}>
@@ -419,9 +421,9 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
 // ── 부품 ────────────────────────────────────────────────────────────────────
 
 /** 시안: 열린 알약은 #191919 바탕 · 흰 글자. */
-function HeadPill({ label, active = false, onPress }: { label: string; active?: boolean; onPress: () => void }) {
+function HeadPill({ label, active = false, onPress, testID }: { label: string; active?: boolean; onPress: () => void; testID?: string }) {
   return (
-    <Pressable accessibilityRole="button" accessibilityState={{ expanded: active }} onPress={onPress} style={({ pressed }) => [styles.headPill, active && styles.headPillOn, pressed && styles.pressed]}>
+    <Pressable testID={testID} accessibilityRole="button" accessibilityState={{ expanded: active }} onPress={onPress} style={({ pressed }) => [styles.headPill, active && styles.headPillOn, pressed && styles.pressed]}>
       <Text variant="caption" weight="bold" color={active ? color.text.onAction : undefined}>{label}</Text>
     </Pressable>
   );
