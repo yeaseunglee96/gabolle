@@ -400,7 +400,9 @@ public class JpaItineraryRepository implements ItineraryRepository {
 				List.of(e.reasonCodes()),
 				List.of(e.warningCodes()),
 				e.sourceRequestId() != null ? e.sourceRequestId().toString() : null,
-				toInstant(e.createdAt()));
+				toInstant(e.createdAt()),
+				// NULL 이면서 locked 면 생성자가 순서 고정으로 읽는다 — 이 칸 이전의 고정.
+				e.lockMode() == null ? null : ItineraryItem.LockMode.valueOf(e.lockMode()));
 	}
 
 	private static ItineraryItemJpaEntity toEntity(UUID versionId, ItineraryItem item) {
@@ -421,7 +423,8 @@ public class JpaItineraryRepository implements ItineraryRepository {
 				item.reasonCodes().toArray(String[]::new),
 				item.warningCodes().toArray(String[]::new),
 				item.sourceRequestId() != null ? UUID.fromString(item.sourceRequestId()) : null,
-				toOffset(item.createdAt()));
+				toOffset(item.createdAt()),
+				item.lockMode() == null ? null : item.lockMode().name());
 	}
 
 	private static ItineraryLeg toDomain(ItineraryLegJpaEntity e) {

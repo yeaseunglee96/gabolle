@@ -572,6 +572,8 @@ class RouteAuthorizationRegistryTest {
 				"장소 더하기는 편집 권한자만. ItineraryAddItemIntegrationTest (-467)");
 		put(m, "POST /api/v1/itineraries/{}/days/{}/reorder", Policy.OWNED,
 				"편집 권한이 있는 참여자만. 비회원과 없는 일정이 같은 404, VIEWER 는 403. ItineraryReorderIntegrationTest");
+		put(m, "POST /api/v1/itineraries/{}/items/{}/stay", Policy.OWNED,
+				"머무는 시간 바꾸기는 편집 권한자만(requireEditor — 비회원 404, VIEWER 403). ItineraryAdjustIntegrationTest (-2017)");
 		put(m, "POST /api/v1/itineraries/{}/items/{}/lock", Policy.OWNED,
 				"고정은 편집 권한자만. ItineraryAccessIntegrationTest");
 		put(m, "DELETE /api/v1/itineraries/{}/items/{}/lock", Policy.OWNED,

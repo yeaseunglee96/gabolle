@@ -74,11 +74,21 @@ public record ItineraryEditResponse(
 	/** 순서 바꾸기 — 판정 결과를 함께 싣는다. */
 	public static ItineraryEditResponse of(ItineraryDetailResponse detail, ItineraryVersion saved,
 			ItineraryOpeningHoursChecker.Result openingHours) {
+		return of(detail, saved, openingHours, List.of());
+	}
 
-		List<Warning> warnings = openingHours.violations().stream()
+	/**
+	 * 영업시간 판정에 더해, 편집이 스스로 알게 된 것({@code extra} — 하루 끝을 넘김 · 시각 고정을 못 지킴, S15P21E201-2017)을
+	 * 같은 {@code warnings} 칸에 싣는다. 칸을 따로 만들지 않는 이유 — 화면이 이미 이 칸을 읽어 그린다.
+	 */
+	public static ItineraryEditResponse of(ItineraryDetailResponse detail, ItineraryVersion saved,
+			ItineraryOpeningHoursChecker.Result openingHours, List<Warning> extra) {
+
+		List<Warning> warnings = new java.util.ArrayList<>(extra);
+		openingHours.violations().stream()
 				.map((violation) -> new Warning(violation.code(), violation.itemKey(),
 						violation.placeId(), violation.at()))
-				.toList();
+				.forEach(warnings::add);
 		List<NotChecked> notChecked = openingHours.notChecked().stream()
 				.map((entry) -> new NotChecked(entry.check(), entry.reason()))
 				.toList();

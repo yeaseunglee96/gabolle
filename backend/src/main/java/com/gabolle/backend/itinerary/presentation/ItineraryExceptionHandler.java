@@ -160,6 +160,27 @@ public class ItineraryExceptionHandler {
 						requestId()));
 	}
 
+	/** 머무는 시간이 15분 단위·15분 이상·12시간 이하가 아니다 — 400 (S15P21E201-2017). */
+	@ExceptionHandler(ItineraryEditService.InvalidStayException.class)
+	public ResponseEntity<ApiResponse<Void>> handleInvalidStay(ItineraryEditService.InvalidStayException e) {
+		return ResponseEntity.badRequest()
+				.body(ApiResponse.failure(
+						new ApiError("ITINERARY_STAY_INVALID", e.getMessage(),
+								List.of("stayMinutes=" + e.stayMinutes(),
+										"step=" + ItineraryEditService.STAY_STEP_MINUTES,
+										"min=" + ItineraryEditService.MIN_ADJUSTED_STAY_MINUTES,
+										"max=" + ItineraryEditService.MAX_ADJUSTED_STAY_MINUTES)),
+						requestId()));
+	}
+
+	/** 모르는 고정 방식 — 400 (S15P21E201-2017). */
+	@ExceptionHandler(com.gabolle.backend.itinerary.presentation.dto.LockItemRequest.InvalidLockModeException.class)
+	public ResponseEntity<ApiResponse<Void>> handleInvalidLockMode(RuntimeException e) {
+		return ResponseEntity.badRequest()
+				.body(ApiResponse.failure(new ApiError("ITINERARY_LOCK_MODE_INVALID", e.getMessage(),
+						List.of("mode=ORDER|TIME")), requestId()));
+	}
+
 	@ExceptionHandler(ItineraryEditController.DayOutsideTripException.class)
 	public ResponseEntity<ApiResponse<Void>> handleDayOutsideTrip(
 			ItineraryEditController.DayOutsideTripException e) {

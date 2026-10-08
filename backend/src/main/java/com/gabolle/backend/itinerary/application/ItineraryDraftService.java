@@ -1598,6 +1598,42 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     private static final ZoneId ZONE = ZoneId.of("Asia/Seoul");
 
     /**
+     * 「시각 고정」 곳의 시작 시각을 지킨다(S15P21E201-2017). 하루를 새로 깐 결과({@code slots})에서 곳 사이 간격은 그대로 두고,
+     * 시각 고정 곳만 제 시각으로 돌려놓는다 — 앞 곳을 빼서 당겨졌으면 그 앞이 빈 시각이 되고, 그 뒤 곳들도 함께 밀린다.
+     * 제 시각에 못 닿으면(앞이 더 길다) 깐 시각 그대로 둔다 — 부르는 쪽의 {@code RECALC_TIMES_RESHUFFLED} 가 알린다.
+     * 시각을 못 깐 날이거나 자정을 넘기게 되면 손대지 않는다.
+     */
+    private static List<Slot> holdTimeFixed(List<Slot> slots, List<ItineraryItem> kept) {
+        boolean any = false;
+        for (int i = 0; i < kept.size() && i < slots.size(); i++) {
+            any |= kept.get(i).timeFixed() && kept.get(i).startTime() != null;
+        }
+        if (!any || slots.isEmpty() || slots.stream().anyMatch((slot) -> slot.start() == null)) {
+            return slots;
+        }
+        List<ItineraryDayRetimer.Stop> stops = new ArrayList<>(slots.size());
+        for (int i = 0; i < slots.size(); i++) {
+            Slot slot = slots.get(i);
+            boolean fixed = i < kept.size() && kept.get(i).timeFixed();
+            int lead = (i == 0) ? 0
+                    : (int) Math.max(0, java.time.Duration.between(slots.get(i - 1).end(), slot.start()).toMinutes());
+            stops.add(new ItineraryDayRetimer.Stop(String.valueOf(i), fixed ? kept.get(i).startTime() : slot.start(),
+                    slot.stayMinutes() == null ? 0 : slot.stayMinutes(), fixed, lead));
+        }
+        ItineraryDayRetimer.Result result = ItineraryDayRetimer.retime(slots.get(0).start(), stops);
+        if (!result.overflowing().isEmpty()) {
+            return slots;
+        }
+        List<Slot> held = new ArrayList<>(slots.size());
+        for (int i = 0; i < slots.size(); i++) {
+            Slot slot = slots.get(i);
+            held.add(new Slot(result.starts().get(String.valueOf(i)), result.ends().get(String.valueOf(i)),
+                    slot.stayMinutes(), slot.dataStatus()));
+        }
+        return held;
+    }
+
+    /**
      * 그 날 i번째 장소에 도착하기까지의 이동 시간(분)을 순서대로 뽑는다.
      * {@code ItineraryLegPlanner.buildLegs} 는 항목 하나에 구간 하나를 만들고, {@code sequence = i + 1}
      * 인 구간이 "i번째 장소로 가는 길" 이다. 첫 구간의 출발점은 여행의 출발 좌표라 첫 이동도
@@ -2014,6 +2050,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         List<Slot> timedToday = layoutDay(window, stopsToday,
                 travelMinutesFor(this.legPlanner.buildLegs(trip, todayOnly), dayIndex, countToday),
                 returnMinutesOf(trip, dayIndex, this.legPlanner.lodgingOf(trip), orderedToday));
+        timedToday = holdTimeFixed(timedToday, kept);
 
         List<ItineraryItem> dayResult = new ArrayList<>(countToday);
         boolean lockedTimeMoved = false;
@@ -2026,7 +2063,9 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             dayResult.add(new ItineraryItem(UUID.randomUUID().toString(), newVersionId, item.itemKey(),
                     dayIndex, visitDate, sequence, item.placeId(), slot.start(), slot.end(), slot.stayMinutes(),
                     item.locked(), item.estimatedCostKrw(), ItineraryItem.DataStatus.valueOf(slot.dataStatus()),
-                    item.reasonCodes(), item.warningCodes(), item.sourceRequestId(), now));
+                    item.reasonCodes(), item.warningCodes(), item.sourceRequestId(), now,
+                    // 고정 방식을 물려준다 — 빠뜨리면 시각 고정이 장소 하나 뺀 뒤 순서 고정으로 바뀐다.
+                    item.lockMode()));
             sequence++;
         }
         for (ItineraryDraftCommand.PlannedPlace fill : fills) {
