@@ -590,6 +590,18 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
       ) : null}
 
       {notice ? <View accessibilityRole="alert" style={styles.notice}><Text variant="caption" color={color.text.body}>{localizeMessage(tx, notice)}</Text></View> : null}
+      {/* 일정 고치기 — 편집이 ⋯ 메뉴 안에만 있어 「추천 일정을 못 고친다」로 읽혔다(S15P21E201-2017). 일정 바로 위에 늘 둔다. */}
+      {canEdit && loaded && course?.itineraryId ? (
+        <View testID="trip-edit-entry" style={styles.editEntry}>
+          <View style={styles.grow}>
+            <Text weight="bold">{tx('일정 고치기', 'Edit the plan')}</Text>
+            <Text variant="caption" color={color.text.muted}>{tx('장소 빼기·더하기 · 순서 · 머무는 시간 · 고정', 'Remove or add places · order · time at each place · pin')}</Text>
+          </View>
+          <Pressable testID="trip-edit-open" accessibilityRole="button" accessibilityLabel={tx('일정 고치기', 'Edit the plan')} onPress={openClassic} style={({ pressed }) => [styles.editEntryButton, pressed && styles.pressed]}>
+            <Text variant="caption" weight="bold" color={color.text.onAction}>{tx('고치기', 'Edit')}</Text>
+          </Pressable>
+        </View>
+      ) : null}
       {confirmed && loaded && loaded.canEdit === false ? <View style={styles.notice}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('보기 전용 — 이 일정을 편집할 권한이 없어요.', "View only — you don't have permission to edit this itinerary.")}</Text></View> : null}
 
       {!page ? <SheetSkeleton /> : page.state === 'error' ? (
@@ -1160,7 +1172,7 @@ function TimelineStop({ item, name, startKind, index, last, freeBefore, date, ph
               {reason ? <Text variant="caption" color={color.text.body} numberOfLines={2}>{reason}</Text> : null}
               {risky ? <Text variant="micro" weight="bold" color={color.state.danger}>{tx('하루 넘길 위험', 'May run past the day')}</Text> : null}
             </Pressable>
-            <LockToggle compact locked={item.locked} name={item.title} busy={busy} onPress={canEdit ? onLock : undefined} tx={tx} />
+            <LockToggle compact locked={item.locked} mode={item.lockMode} name={item.title} busy={busy} onPress={canEdit ? onLock : undefined} tx={tx} />
           </View>
           {expanded ? (
             <>
@@ -1370,6 +1382,8 @@ const styles = StyleSheet.create({
 
   budget: { gap: 10, marginTop: spacing[2] },
   reorder: { minHeight: 48, borderRadius: radius.md, backgroundColor: color.surface.soft, alignItems: 'center', justifyContent: 'center' },
+  editEntry: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], marginTop: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card },
+  editEntryButton: { minHeight: 36, paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.action.secondary, alignItems: 'center', justifyContent: 'center' },
 
   skeleton: { gap: spacing[3] },
   errorCard: { gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card },

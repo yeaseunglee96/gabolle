@@ -14,7 +14,8 @@ export function ItineraryHint({ onDone }: { onDone: () => void }) {
     <View accessibilityRole="alert" style={styles.card}>
       <Text variant="body" weight="bold" color={color.text.onAction}>{tx('이 일정은 초안이에요', 'This itinerary is a draft')}</Text>
       <Text variant="util" color={color.text.onDarkMuted}>
-        {tx('꼭 갈 곳은 핀을 눌러 「고정됨」으로, 빼고 싶은 곳은 「이 장소 제외」. 그다음 「다시 계산」이 나머지를 맞춰요.', 'Tap the pin on places you must visit, remove the ones you don’t want, then “Recalculate” fits the rest around them.')}
+        {/* 「고정」이 순서 고정·시각 고정 둘로 나뉘고 시간 바꾸기·장소 더하기가 생겼다(S15P21E201-2017) — 안내도 그것을 말한다. */}
+        {tx('꼭 갈 곳은 「고정하기」로 순서나 시각을 지키고, 머무는 시간은 −/+ 로 바꿔요. 「장소 더하기」로 넣고, 빼고 싶은 곳은 「이 장소 제외」.', 'Use “Lock” to keep a place’s order or time, −/+ to change how long you stay, “Add a place” to insert one, and “Remove this place” to drop one.')}
       </Text>
       <Pressable accessibilityRole="button" onPress={onDone} style={({ pressed }) => [styles.ok, pressed && styles.pressed]}>
         <Text variant="util" weight="bold" color={color.text.onAction}>{tx('알겠어요', 'Got it')}</Text>

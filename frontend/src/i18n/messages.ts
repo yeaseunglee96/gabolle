@@ -35,6 +35,10 @@ export const MESSAGE_EN: Record<string, string> = {
   '소셜 로그인 요청이 거절되었어요.': 'The social sign-in request was rejected.',
   '로그인 응답을 확인할 수 없어요.': 'Could not verify the sign-in response.',
   '일정의 장소 위치를 한 곳도 받지 못했어요.': 'None of the places in this itinerary came with a location.',
+  // 일정 조정 — 머무는 시간 바꾸기(S15P21E201-2017, plan/itinerary.ts changeItineraryStay).
+  '그날 일정에 이미 들어 있는 장소예요.': 'This place is already in that day.',
+  '머무는 시간은 15분 단위로, 15분 이상이어야 해요.': 'Time at a place must be in 15-minute steps, at least 15 minutes.',
+  '자정을 넘겨서 이 시간으로는 바꿀 수 없어요.': "That would run past midnight, so it can't be changed to this time.",
   '다른 변경이 먼저 반영됐어요. 최신 일정을 불러와 다시 시도해 주세요.': 'Another change was applied first. Reload the latest itinerary and try again.',
   '순서 목록이 이 날짜의 장소와 맞지 않아요. 새로고침 후 다시 시도해 주세요.': 'The order list does not match this day’s places. Refresh and try again.',
   '고정된 장소는 자리를 옮길 수 없어요. 고정을 먼저 풀어 주세요.': 'Locked places cannot be moved. Unlock them first.',
