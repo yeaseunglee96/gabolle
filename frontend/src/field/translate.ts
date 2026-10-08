@@ -6,7 +6,7 @@ import { isVendorNotReady } from '@/api/vendorReady';
 // 🔴 서버(back/dev 의 TranslationDirection)는 아직 EN_TO_KO · KO_TO_EN 둘뿐이다. 일본어·중국어 방향은
 //    백엔드에 요청해 둔 것(S15P21E201-1363)이고, 서버가 모르는 방향을 받으면 400 을 준다 — 그때는
 //    영어 방향으로 한 번 더 부른다(아래 translateText). 업체가 LLM 이라 일본어 입력도 대개 번역된다.
-export type TranslationDirection = 'EN_TO_KO' | 'KO_TO_EN' | 'JA_TO_KO' | 'ZH_HANS_TO_KO' | 'ZH_HANT_TO_KO';
+export type TranslationDirection = 'EN_TO_KO' | 'KO_TO_EN' | 'JA_TO_KO' | 'ZH_HANS_TO_KO' | 'ZH_HANT_TO_KO' | 'VI_TO_KO';
 
 /** 번역이 안 되는 이유. 화면이 이유마다 다르게 말해야 해서 뭉뚱그리지 않는다. */
 export type TranslationBlockedReason =
@@ -40,6 +40,7 @@ export function directionForLanguage(language: LanguageCode): TranslationDirecti
     case 'ja': return 'JA_TO_KO';
     case 'zh-Hans': return 'ZH_HANS_TO_KO';
     case 'zh-Hant': return 'ZH_HANT_TO_KO';
+    case 'vi': return 'VI_TO_KO';
     default: return resolveTextLanguage(language) === 'en' ? 'EN_TO_KO' : null;
   }
 }
@@ -58,6 +59,8 @@ export function directionForText(text: string, fallback: TranslationDirection | 
   if (/[぀-ヿ]/.test(text)) return 'JA_TO_KO';
   const han = /[一-鿿]/.test(text);
   if (han) return TRADITIONAL_ONLY.test(text) ? 'ZH_HANT_TO_KO' : (fallback === 'ZH_HANT_TO_KO' ? 'ZH_HANT_TO_KO' : 'ZH_HANS_TO_KO');
+  // 베트남어 성조·모음 글자(ă â đ ê ô ơ ư 와 성조 표시)가 있으면 베트남어다 — 라틴 글자라 영어로 잘못 보낸다(S15P21E201-2003).
+  if (/[ăâđêôơưĂÂĐÊÔƠỪ-̣Ạ-ỹ]/.test(text.normalize('NFC')) && !/[가-힣]/.test(text)) return 'VI_TO_KO';
   if (/[A-Za-z]/.test(text) && !/[가-힣]/.test(text)) return 'EN_TO_KO';
   if (/[가-힣]/.test(text)) return null;
   return fallback;

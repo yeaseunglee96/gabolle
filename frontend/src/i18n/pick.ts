@@ -53,8 +53,8 @@ export function pickLanguage(language: LanguageCode, text: LocalizedText) {
   //    getTranslation·numericShape 로 text.ko 의 글자를 만지므로 null 이면 그 자리에서 죽는다 —
   //    실기(웹, 2026-09-26, 장소 상세)로 한국어·영어는 멀쩡한데 이 세 언어에서만 화면이 하얗게
   //    죽는 것으로 드러났다. typeof 가드로 다섯 언어가 같은 값(빈 텍스트)으로 수렴하게 한다.
-  if ((language === 'ja' || language === 'zh-Hans' || language === 'zh-Hant') && typeof text.ko === 'string') {
-    const field = language === 'ja' ? 'ja' : language === 'zh-Hans' ? 'zhHans' : 'zhHant';
+  if ((language === 'ja' || language === 'zh-Hans' || language === 'zh-Hant' || language === 'vi') && typeof text.ko === 'string') {
+    const field = language === 'ja' ? 'ja' : language === 'zh-Hans' ? 'zhHans' : language === 'zh-Hant' ? 'zhHant' : 'vi';
     const translated = getTranslation(text.ko, field);
     if (translated) return translated;
     // 🔴 원문 그대로 못 찾았을 때만 «모양»으로 한 번 더 찾는다. 글자가 똑같은 줄이

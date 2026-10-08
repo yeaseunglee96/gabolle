@@ -60,6 +60,9 @@ type Tab = {
   route?: string;
 };
 
+/** 베트남어 탭 칸 전용 짧은 이름 — S15P21E201-2003. */
+const VI_SHORT_TAB: Record<string, string> = { schedule: 'Tạo mới', map: 'Chuyến đi', me: 'Tôi' };
+
 const TABS: Tab[] = [
   { key: 'home', icon: require('../../assets/icons/home/home.png'), labelKo: '홈', labelEn: 'Home', route: '/home' },
   { key: 'feed', icon: require('../../assets/icons/home/heart.png'), labelKo: '피드', labelEn: 'Feed', route: '/feed' },
@@ -106,7 +109,10 @@ export function TabBar({
   // 시험의 가짜 expo-router 에는 이 함수가 없을 수 있다 — 없으면 덧붙은 것이 없다고 본다.
   const params: Record<string, unknown> = typeof useGlobalSearchParams === 'function' ? useGlobalSearchParams() : {};
   const hasQuery = Object.keys(params).length > 0;
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
+  // 🔴 베트남어 이름은 길어서 폰 폭에서 「Tạo chuy…」처럼 잘렸다(S15P21E201-2003). 문장 속에서도 쓰는 공용 번역은 그대로 두고
+  //    탭 칸에만 짧은 이름을 쓴다. 읽기 프로그램(accessibilityLabel)은 긴 이름 그대로다.
+  const shortLabel = (tab: { key: string; labelKo: string; labelEn: string }) => (language === 'vi' ? VI_SHORT_TAB[tab.key] : undefined) ?? tx(tab.labelKo, tab.labelEn);
   const { kind, width: layoutWidth, isLandscape } = useLayout();
   const grow = useRef(new Animated.Value(0)).current;
   /** 0 이면 제자리, 1 이면 화면 아래로 내려가 사라진 상태. */
@@ -237,7 +243,7 @@ export function TabBar({
             <View style={[styles.iconWrap, tab.key === 'schedule' && styles.createIconWrap]}><Image source={tab.icon} resizeMode="contain" style={[styles.icon, tab.key !== 'schedule' && (selected ? styles.iconSelected : styles.iconInactive)]} /></View>
             {/* 🔴 한 줄로만 — 글자 크기 1.1 폰에서 「여행 만들기」가 두 줄로 꺾여 다른 탭보다 내려갔다(S15P21E201-1747). 넘치면 글자를 줄인다. */}
             <Text variant="micro" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8} weight={selected ? 'bold' : 'regular'} color={selected ? color.text.heading : color.text.inactiveTab}>
-              {tx(tab.labelKo, tab.labelEn)}
+              {shortLabel(tab)}
             </Text>
           </Pressable>
         );

@@ -53,6 +53,7 @@ function entryOf(key) {
     ja: /\bja:\s*'[^']/.test(body),
     zhHans: /\bzhHans:\s*'[^']/.test(body),
     zhHant: /\bzhHant:\s*'[^']/.test(body),
+    vi: /\bvi:\s*'[^']/.test(body),
   };
 }
 
@@ -65,14 +66,14 @@ for (const screen of SCREENS) {
     checked += 1;
     const entry = entryOf(key);
     if (entry === null) { missing.push(`${screen}  ${key}`); continue; }
-    const holes = ['ja', 'zhHans', 'zhHant'].filter((field) => !entry[field]);
+    const holes = ['ja', 'zhHans', 'zhHant', 'vi'].filter((field) => !entry[field]);
     if (holes.length > 0) incomplete.push(`${screen}  ${key}  (빠진 언어: ${holes.join(' · ')})`);
   }
 }
 
 for (const key of MUST_BE_TRANSLATED) {
   const entry = entryOf(key);
-  if (entry === null || !entry.ja || !entry.zhHans || !entry.zhHant) {
+  if (entry === null || !entry.ja || !entry.zhHans || !entry.zhHant || !entry.vi) {
     missing.push(`🔴 출처를 밝히는 문구  ${key}`);
   }
 }
@@ -87,7 +88,7 @@ if (checked < 10) {
 if (missing.length > 0 || incomplete.length > 0) {
   console.error('🔴 메뉴판 화면 문구가 카탈로그에 없습니다 (S15P21E201-1295).\n');
   for (const line of [...missing, ...incomplete]) console.error('  ' + line);
-  console.error('\nsrc/i18n/translations.ts 에 그 한국어 원문을 키로 ja·zhHans·zhHant 를 채우세요.');
+  console.error('\nsrc/i18n/translations.ts 에 그 한국어 원문을 키로 ja·zhHans·zhHant·vi 를 채우세요.');
   console.error('안 채우면 그 문구만 영어로 떨어집니다 — 한국어로 보면 안 보이는 결함입니다.');
   process.exit(1);
 }

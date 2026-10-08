@@ -27,6 +27,7 @@ const FLAG_IMAGES: Record<LanguageCode, ReturnType<typeof require>> = {
   ja: require('../../assets/flags/jp.png'),
   'zh-Hans': require('../../assets/flags/cn.png'),
   'zh-Hant': require('../../assets/flags/tw.png'),
+  vi: require('../../assets/flags/vn.png'),
 };
 
 // 넓은 화면의 단 하나의 상단 바다 에서 모양을, -970 에서 범위를, -994 에서
