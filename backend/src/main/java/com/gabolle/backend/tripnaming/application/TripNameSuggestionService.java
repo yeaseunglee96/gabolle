@@ -208,6 +208,10 @@ public class TripNameSuggestionService {
 					names.add(others > 0 ? first + " ほか" + others + "か所 · " + d + "日間" : first + " · " + d + "日間");
 					names.add(first + " " + d + "日間の旅");
 				}
+				case VI -> {
+					names.add(others > 0 ? first + " và " + others + " nơi khác · " + d + " ngày" : first + " · " + d + " ngày");
+					names.add(d + " ngày ở " + first);
+				}
 				case ZH_HANS -> {
 					names.add(others > 0 ? first + " 等" + (others + 1) + "处 · " + d + "天" : first + " · " + d + "天");
 					names.add(first + " " + d + "日游");
@@ -224,7 +228,7 @@ public class TripNameSuggestionService {
 
 	/** 이름 후보의 언어. {@code Accept-Language} 첫 태그만 본다({@code RequestLanguage} 와 같은 단순화). */
 	public enum NameLanguage {
-		KO, EN, JA, ZH_HANS, ZH_HANT;
+		KO, EN, JA, ZH_HANS, ZH_HANT, VI;
 
 		public static NameLanguage of(String acceptLanguage) {
 			if (acceptLanguage == null || acceptLanguage.isBlank()) {
@@ -236,6 +240,9 @@ public class TripNameSuggestionService {
 			}
 			if (tag.startsWith("ja")) {
 				return JA;
+			}
+			if (tag.startsWith("vi")) {
+				return VI;
 			}
 			if (tag.startsWith("zh")) {
 				// 번체: zh-Hant · 대만·홍콩·마카오. 나머지 중국어(zh · zh-Hans · zh-CN)는 간체.

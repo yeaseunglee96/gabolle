@@ -39,6 +39,8 @@ public final class RequestLanguage {
 			return false;
 		}
 		String primary = acceptLanguageHeader.split(",")[0].split(";")[0].trim();
-		return primary.toLowerCase(Locale.ROOT).startsWith(ENGLISH);
+		String lower = primary.toLowerCase(Locale.ROOT);
+		// 베트남어(vi) 이름·주소 데이터는 없다 — 한국어보다 영어가 읽힌다(S15P21E201-2004).
+		return lower.startsWith(ENGLISH) || lower.startsWith("vi");
 	}
 }

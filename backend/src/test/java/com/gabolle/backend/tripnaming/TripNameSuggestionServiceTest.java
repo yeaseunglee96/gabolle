@@ -272,4 +272,14 @@ class TripNameSuggestionServiceTest {
 		assertThat(TripNameSuggestionService.NameLanguage.of(null)).isEqualTo(TripNameSuggestionService.NameLanguage.KO);
 		assertThat(TripNameSuggestionService.NameLanguage.of("fr")).isEqualTo(TripNameSuggestionService.NameLanguage.KO);
 	}
+	@Test
+	@DisplayName("🔴 베트남어 화면이면 베트남어 틀 — S15P21E201-2004")
+	void vietnameseScreenGetsVietnameseNames() {
+		when(this.vocabulary.placeNamesOf(TRIP_ID, true)).thenReturn(List.of("Haeundae Beach", "광안리 해수욕장"));
+
+		assertThat(TripNameSuggestionService.NameLanguage.of("vi-VN")).isEqualTo(TripNameSuggestionService.NameLanguage.VI);
+		assertThat(this.service.suggest(TRIP_ID, this.requester, TripNameSuggestionService.NameLanguage.VI)
+				.suggestions()).containsExactly("Haeundae Beach và 1 nơi khác · 2 ngày", "2 ngày ở Haeundae Beach", "2026-09-19 ~ 2026-09-20");
+		verify(this.namer, never()).suggest(any(), anyInt(), anyInt());
+	}
 }
