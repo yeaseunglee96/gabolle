@@ -393,6 +393,11 @@ public class ItineraryEditService {
                         "바탕 판의 내용이 없습니다: itineraryId=" + itineraryId + ", version=" + baseVersion));
         LocalDate visitDate = tripStartDate.plusDays(dayIndex);
         requireAddable(base, placeId, dayIndex, visitDate, tripStartDate, tripFinishDate);
+        // 같은 날에 이미 있는 곳은 끼우지 않는다 — 바로 옆에 끼우면 「같은 장소로의 구간」이 생겨 구간 계산이 실패했고(운영 500,
+        //    2026-10-09), 하루에 같은 곳을 두 번 들르는 것은 고른 자리를 잘못 누른 경우가 거의 전부다. 다른 날에는 넣을 수 있다.
+        if (base.items().stream().anyMatch((item) -> item.dayIndex() == dayIndex && placeId.equals(item.placeId()))) {
+            throw new PlaceAlreadyInItineraryException(placeId, dayIndex, List.of(dayIndex));
+        }
 
         Instant now = clock.instant();
         String newVersionId = UUID.randomUUID().toString();

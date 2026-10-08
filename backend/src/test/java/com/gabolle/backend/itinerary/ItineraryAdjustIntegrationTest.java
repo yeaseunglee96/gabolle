@@ -245,6 +245,18 @@ class ItineraryAdjustIntegrationTest {
 		assertThat(legSequences).doesNotHaveDuplicates();
 	}
 
+	@Test
+	@DisplayName("🔴 그날 이미 있는 곳을 끼우면 409 ITINERARY_PLACE_ALREADY_ADDED — 500 이 아니고 판도 그대로다")
+	void insertingAPlaceAlreadyOnThatDayIsRejected() throws Exception {
+		UUID placeA = this.jdbc.queryForObject("SELECT place_id FROM itinerary_item WHERE item_key = ?", UUID.class, this.keyA);
+		String body = "{\"placeId\":\"" + placeA + "\",\"dayIndex\":0,\"baseVersion\":1,\"position\":2}";
+		this.mockMvc.perform(post("/api/v1/itineraries/{id}/items", this.itineraryId)
+				.contentType(MediaType.APPLICATION_JSON).principal(as(this.ownerId)).content(body))
+				.andExpect(status().isConflict())
+				.andExpect(jsonPath("$.error.code").value("ITINERARY_PLACE_ALREADY_ADDED"));
+		assertThat(latestVersion()).isEqualTo(1);
+	}
+
 	// ---- 도우미 ----
 
 	private ResultActions changeStay(UUID itemKey, int stayMinutes, int baseVersion) throws Exception {
