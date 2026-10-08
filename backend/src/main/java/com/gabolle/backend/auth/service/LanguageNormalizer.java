@@ -25,6 +25,10 @@ public final class LanguageNormalizer {
 		if (language.startsWith("ja")) {
 			return "JA";
 		}
+		// 여섯째 언어 — S15P21E201-2004. 빠지면 한국어로 저장돼 다음 로그인부터 화면이 한국어로 돌아간다.
+		if (language.startsWith("vi")) {
+			return "VI";
+		}
 		if (language.startsWith("zh")) {
 			return (language.contains("hant") || language.contains("-tw") || language.contains("-hk")
 					|| language.contains("-mo")) ? "ZH-HANT" : "ZH-HANS";

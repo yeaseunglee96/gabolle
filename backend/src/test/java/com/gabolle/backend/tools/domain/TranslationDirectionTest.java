@@ -26,7 +26,8 @@ class TranslationDirectionTest {
 			"EN", Language.ENGLISH,
 			"JA", Language.JAPANESE,
 			"ZH_HANS", Language.CHINESE_SIMPLIFIED,
-			"ZH_HANT", Language.CHINESE_TRADITIONAL);
+			"ZH_HANT", Language.CHINESE_TRADITIONAL,
+			"VI", Language.VIETNAMESE);
 
 	@ParameterizedTest
 	@EnumSource(TranslationDirection.class)

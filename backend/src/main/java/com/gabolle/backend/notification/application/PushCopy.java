@@ -22,7 +22,7 @@ import com.gabolle.backend.trip.domain.Trip;
  */
 public final class PushCopy {
 
-	public enum Lang { KO, EN, JA, ZH_HANS, ZH_HANT }
+	public enum Lang { KO, EN, JA, ZH_HANS, ZH_HANT, VI }
 
 	private PushCopy() {
 	}
@@ -41,6 +41,10 @@ public final class PushCopy {
 		}
 		if (value.startsWith("en")) {
 			return Lang.EN;
+		}
+		// 여섯째 언어 — S15P21E201-2004
+		if (value.startsWith("vi")) {
+			return Lang.VI;
 		}
 		return Lang.KO;
 	}
@@ -73,6 +77,8 @@ public final class PushCopy {
 			case KO -> withMonth ? m + "월 " + d + "일" : d + "일";
 			case EN -> withMonth ? MONTHS_EN[m - 1] + " " + d : String.valueOf(d);
 			case JA, ZH_HANS, ZH_HANT -> withMonth ? m + "月" + d + "日" : d + "日";
+			// 베트남어는 「8/10」 처럼 일/월 — 달을 빼면 숫자 하나만 남아 날짜로 안 읽힌다.
+			case VI -> d + "/" + m;
 		};
 	}
 
@@ -88,6 +94,7 @@ public final class PushCopy {
 			case EN -> "Your Busan trip plan is ready";
 			case JA -> "釜山旅行の旅程ができました";
 			case ZH_HANS, ZH_HANT -> "釜山旅行行程已完成";
+			case VI -> "Lịch trình du lịch Busan của bạn đã sẵn sàng";
 		};
 	}
 
@@ -98,6 +105,7 @@ public final class PushCopy {
 			case JA -> "タップして旅程を見る";
 			case ZH_HANS -> "点击查看行程";
 			case ZH_HANT -> "點擊查看行程";
+			case VI -> "Chạm để xem lịch trình";
 		};
 	}
 
@@ -119,6 +127,7 @@ public final class PushCopy {
 			case JA -> who + "さんが" + verbJa(operation);
 			case ZH_HANS -> who + verbZhHans(operation);
 			case ZH_HANT -> who + verbZhHant(operation);
+			case VI -> who + " " + verbVi(operation);
 		};
 	}
 
@@ -129,6 +138,7 @@ public final class PushCopy {
 			case JA -> "タップして変更を見る";
 			case ZH_HANS -> "点击查看更改";
 			case ZH_HANT -> "點擊查看變更";
+			case VI -> "Chạm để xem thay đổi";
 		};
 	}
 
@@ -144,6 +154,7 @@ public final class PushCopy {
 			case JA -> named ? who + "さんが旅程を" + count + "回変更しました" : "旅程が" + count + "回変更されました";
 			case ZH_HANS -> named ? who + "修改了" + count + "次行程" : "行程已更改" + count + "次";
 			case ZH_HANT -> named ? who + "修改了" + count + "次行程" : "行程已變更" + count + "次";
+			case VI -> named ? who + " đã thay đổi lịch trình " + count + " lần" : "Lịch trình đã thay đổi " + count + " lần";
 		};
 	}
 
@@ -224,6 +235,15 @@ public final class PushCopy {
 				case REVERT -> "撤銷" + n + "次";
 				case CREATE -> "建立行程";
 			};
+			case VI -> switch (kind) {
+				case ADD -> "thêm " + n + " nơi";
+				case REMOVE -> "bỏ " + n + " nơi";
+				case LOCK -> "cố định " + n + " nơi";
+				case REORDER -> "đổi thứ tự " + n + " lần";
+				case REPLAN -> "lên lại kế hoạch " + n + " lần";
+				case REVERT -> "hoàn tác " + n + " lần";
+				case CREATE -> "lịch trình mới";
+			};
 		};
 	}
 
@@ -272,6 +292,18 @@ public final class PushCopy {
 			case LOCK_ITEM -> "锁定了一个地点";
 			case REMOVE_ITEM -> "移除了一个地点";
 			case ADD_ITEM, REPLACE_ITEM -> "添加了一个地点";
+		};
+	}
+
+	private static String verbVi(ItineraryVersion.Operation operation) {
+		return switch (operation) {
+			case CREATE -> "đã tạo lịch trình";
+			case REGENERATE, REGENERATE_DAY, REPLAN_DAY -> "đã lên lại kế hoạch cho phần còn lại";
+			case REVERT -> "đã hoàn tác một thay đổi";
+			case REORDER -> "đã đổi thứ tự lịch trình";
+			case LOCK_ITEM -> "đã cố định một địa điểm";
+			case REMOVE_ITEM -> "đã bỏ một địa điểm";
+			case ADD_ITEM, REPLACE_ITEM -> "đã thêm một địa điểm";
 		};
 	}
 
@@ -335,6 +367,15 @@ public final class PushCopy {
 				case REMOVE_ITEM -> "地點已移除";
 				case ADD_ITEM, REPLACE_ITEM -> "地點已新增";
 			};
+			case VI -> switch (operation) {
+				case CREATE -> "Lịch trình đã được tạo";
+				case REGENERATE, REGENERATE_DAY, REPLAN_DAY -> "Phần còn lại của chuyến đi đã được lên lại kế hoạch";
+				case REVERT -> "Một thay đổi đã được hoàn tác";
+				case REORDER -> "Thứ tự lịch trình đã thay đổi";
+				case LOCK_ITEM -> "Một địa điểm đã được cố định";
+				case REMOVE_ITEM -> "Một địa điểm đã bị bỏ";
+				case ADD_ITEM, REPLACE_ITEM -> "Một địa điểm đã được thêm";
+			};
 		};
 	}
 
@@ -348,6 +389,7 @@ public final class PushCopy {
 			case EN -> named ? who + " joined your trip" : "A companion joined your trip";
 			case JA -> named ? who + "さんが旅行に参加しました" : "同行者が参加しました";
 			case ZH_HANS, ZH_HANT -> named ? who + "加入了旅行" : "同行者加入了旅行";
+			case VI -> named ? who + " đã tham gia chuyến đi của bạn" : "Một bạn đồng hành đã tham gia chuyến đi";
 		};
 	}
 
@@ -358,6 +400,7 @@ public final class PushCopy {
 			case JA -> canEdit ? "旅程を一緒に編集できるようになりました" : "旅程は閲覧のみになりました";
 			case ZH_HANS -> canEdit ? "现在可以一起编辑行程了" : "现在只能查看行程";
 			case ZH_HANT -> canEdit ? "現在可以一起編輯行程了" : "現在只能查看行程";
+			case VI -> canEdit ? "Giờ bạn có thể cùng chỉnh sửa lịch trình" : "Giờ bạn chỉ có thể xem lịch trình";
 		};
 	}
 
@@ -373,6 +416,7 @@ public final class PushCopy {
 			case JA -> who + "さんが変更しました";
 			case ZH_HANS -> "由" + who + "更改";
 			case ZH_HANT -> "由" + who + "變更";
+			case VI -> who + " đã thay đổi";
 		};
 	}
 }

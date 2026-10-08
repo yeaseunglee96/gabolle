@@ -230,6 +230,17 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 			'/plan' 등)를 그대로 쓴다 — 번역하지 않는다.
 			""";
 
+	/** 여섯째 언어 — S15P21E201-2004. 한국 지명은 한자가 아니라 영문 표기(로마자)로 적게 한다. */
+	private static final String VIETNAMESE_DIRECTIVE = """
+
+
+			🔴 답변 언어 — 이번 요청은 베트남어 사용자다. reply · label · korean(원문은 한국어 그대로
+			두되 설명은 베트남어로) · pronunciation 등 사용자에게 보여줄 모든 텍스트를 베트남어로 써라.
+			kind 값과 href 값 자체는 위에서 정한 그대로(navigate/phrase/help,
+			'/plan' 등)를 그대로 쓴다 — 번역하지 않는다.
+			🔴 한국 지명·가게 이름 — 영문 표기(로마자, 예: Haeundae · Gwangalli)로 적어라. 한자로 옮기지 않는다.
+			""";
+
 	private static final String JAPANESE_DIRECTIVE = """
 
 
@@ -360,7 +371,7 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 	}
 
 	/** {@code AssistantChatService.normalizeLanguage} 가 만든 다섯 값 중 하나를 받는다. */
-	private String languageDirective(String language) {
+	static String languageDirective(String language) {
 		if (language == null) {
 			return "";
 		}
@@ -369,6 +380,7 @@ public class GeminiAssistantAdapter implements AssistantVendorPort {
 			case "ja" -> JAPANESE_DIRECTIVE;
 			case "zh-Hans" -> CHINESE_SIMPLIFIED_DIRECTIVE;
 			case "zh-Hant" -> CHINESE_TRADITIONAL_DIRECTIVE;
+			case "vi" -> VIETNAMESE_DIRECTIVE;
 			default -> "";
 		};
 	}

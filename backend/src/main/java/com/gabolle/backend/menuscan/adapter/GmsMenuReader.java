@@ -182,6 +182,7 @@ public class GmsMenuReader {
 			case "ja" -> "일본어";
 			case "zh-Hans" -> "중국어(간체)";
 			case "zh-Hant" -> "중국어(번체)";
+			case "vi" -> "베트남어";
 			default -> "한국어";
 		};
 	}
