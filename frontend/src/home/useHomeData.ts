@@ -4,8 +4,9 @@ import { useMemo } from 'react';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { festivalDisplayTitle, getFestivals, type Festival } from '@/discovery/festivals';
-import { getFacets } from '@/discovery/localExplore';
-import { getPlacesByFacet, type PlaceSearchItem } from '@/discovery/places';
+import { getFacets, type FacetGroup } from '@/discovery/localExplore';
+import { type PlaceSearchItem } from '@/discovery/places';
+import { getAllLocalPlaces, LOCAL_PLACES_KEY } from '@/discovery/localPlaces';
 import { loadFeed, type StoryDto } from '@/social/stories';
 import { loadTrips, type TripSummaryDto } from '@/trip/trips';
 import { loadWeatherForecast, type CurrentWeather, type DailyForecastDto, type HourlyForecastDto } from '@/trip/weather';
@@ -22,10 +23,21 @@ const HERO_STORY_COUNT = 8;
  *    「지금 열리는」 줄에 2025년에 끝난 축제만 나왔다(운영 place_event_period 14건 전부 2025년).
  *    「전체 보기」도 날짜로 거르는 축제 화면(/festivals)으로 간다 — 줄과 화면이 같은 것을 말하게.
  */
-const HOME_FACET_ROWS = [
+export const HOME_FACET_ROWS = [
   { key: 'FESTIVAL', ko: '지금 열리는 부산 축제', en: 'Festivals happening now', href: '/festivals' },
-  { key: 'TRADITIONAL_MARKET', ko: '부산 전통시장 둘러보기', en: 'Browse traditional markets', href: '/explore?facet=TRADITIONAL_MARKET' },
+  // 로컬 탐색 줄은 「전통시장」 한 갈래가 아니라 여러 갈래를 섞은 「로컬 장소」다(S15P21E201-2024).
+  // 「전체 보기」는 로컬 탐색 화면의 첫 칸(로컬 장소)으로 연다 — 줄과 화면이 같은 것을 말하게.
+  // 제목은 로컬 탐색 화면 제목과 같은 문구라 번역표에 이미 있다.
+  { key: LOCAL_PLACES_KEY, ko: '부산 로컬 둘러보기', en: 'Explore local Busan', href: '/explore' },
 ] as const;
+
+/** 홈 로컬 장소 줄 — 서버가 준 로컬 갈래(EXPLORE 묶음)를 몇 곳씩 섞는다. 장소 0곳 갈래는 안 부른다. */
+export function loadHomeLocalPlaces(group: Pick<FacetGroup, 'placeFeatureType' | 'keys'>): Promise<HomeCardPlace[]> {
+  const facets = group.keys
+    .filter((entry) => entry.placeCount > 0)
+    .map((entry) => ({ featureKey: entry.featureKey, placeFeatureType: group.placeFeatureType }));
+  return getAllLocalPlaces(facets, undefined, FACET_ROW_COUNT);
+}
 
 /** 「지금 열리는」 축제를 묻는 기간 — 오늘부터 60일. */
 export const FESTIVAL_WINDOW_DAYS = 60;
@@ -189,13 +201,9 @@ export function useHomeData(enabled = true): HomeData {
     // 그건 「그 갈래에 장소가 없다」와 화면에서 구분이 안 된다.
     enabled: enabled && Boolean(exploreGroup),
     queryFn: async (): Promise<Record<string, HomeCardPlace[]>> => {
-      const type = exploreGroup!.placeFeatureType;
-      const rows = HOME_FACET_ROWS.filter((row) => row.key !== 'FESTIVAL');
-      const lists = await Promise.all(
-        // 한 줄이 비어도 그 줄만 빈다 — 다른 줄까지 같이 죽이지 않는다.
-        rows.map((row) => getPlacesByFacet(type, row.key, FACET_ROW_COUNT).catch(() => [])),
-      );
-      return Object.fromEntries(rows.map((row, index) => [row.key, lists[index]]));
+      // 한 줄이 비어도 그 줄만 빈다 — 다른 줄까지 같이 죽이지 않는다.
+      const places = await loadHomeLocalPlaces(exploreGroup!).catch(() => []);
+      return { [LOCAL_PLACES_KEY]: places };
     },
   });
 
