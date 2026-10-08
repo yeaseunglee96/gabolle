@@ -18,12 +18,13 @@ describe('withLocalPlacesFirst', () => {
 });
 
 describe('localPlacesLabel', () => {
-  it('다섯 언어로 말한다', () => {
+  it('여섯 언어로 말한다', () => {
     expect(localPlacesLabel('ko')).toBe('로컬 장소');
     expect(localPlacesLabel('en')).toBe('Local places');
     expect(localPlacesLabel('ja')).toBe('ローカルスポット');
     expect(localPlacesLabel('zh-Hans')).toBe('本地好去处');
     expect(localPlacesLabel('zh-Hant')).toBe('在地好去處');
+    expect(localPlacesLabel('vi')).toBe('Địa điểm địa phương');
   });
 });
 

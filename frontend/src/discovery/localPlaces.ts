@@ -12,10 +12,10 @@ import type { LanguageCode } from '@/i18n/languages';
 export const LOCAL_PLACES_KEY = 'LOCAL_PLACES';
 
 // 🔴 번역표(translations.ts)가 아니라 여기 둔다 — 이 문구는 갈래 이름이라 localFacetLabel 을
-//    거치지 않고 이 함수로만 그린다. 한 자리에서 다섯 언어를 다 본다.
+//    거치지 않고 이 함수로만 그린다. 한 자리에서 모든 언어를 다 본다.
 const LABELS: Record<LanguageCode, string> = {
-  ko: '로컬 장소', en: 'Local places', ja: 'ローカルスポット', 'zh-Hans': '本地好去处', 'zh-Hant': '在地好去處',
-} as Record<LanguageCode, string>;
+  ko: '로컬 장소', en: 'Local places', ja: 'ローカルスポット', 'zh-Hans': '本地好去处', 'zh-Hant': '在地好去處', vi: 'Địa điểm địa phương',
+};
 
 export function localPlacesLabel(language: LanguageCode): string {
   return LABELS[language] ?? LABELS.en;
