@@ -1,5 +1,5 @@
-// 로컬 탐색 화면 (상세설계서 v2 P-17). 8개 갈래(축제·야시장·전통시장·액티비티
-// 산책·자연·야경·기념품샵) 중 하나를 고르고, 내 근처와 부산 전체를 전환해 본다.
+// 로컬 탐색 화면 (상세설계서 v2 P-17). 첫 칸은 「로컬 장소」 묶음(S15P21E201-2024)이고, 그 뒤로 8개 갈래
+// (축제·야시장·전통시장·액티비티·산책·자연·야경·기념품샵) 중 하나를 고르며, 내 근처와 부산 전체를 전환해 본다.
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { AppImage } from '@/components/AppImage';
@@ -21,6 +21,7 @@ import { EXPLORE_GRID_GAP, exploreCardWidth } from '@/discovery/exploreGrid';
 import { PhotoSubjectBadge } from '@/components/PhotoSubjectBadge';
 import { color, gutter, radius, spacing } from '@/design/tokens';
 import { flattenLocalFacets, getFacets, getNearbyPlaces, localFacetLabel, localPlaceName, type FacetsLoadResult, type LocalFacetEntry, type NearbyPlacesLoadResult } from '@/discovery/localExplore';
+import { getAllLocalPlaces, getNearbyLocalPlaces, isLocalPlaces, localPlacesLabel, withLocalPlacesFirst } from '@/discovery/localPlaces';
 import { getPlacesByFacet, photoLabels, type PhotoSubject, type PlaceSearchItem } from '@/discovery/places';
 import { useI18n } from '@/i18n';
 import { romanizeKorean } from '@/discovery/romanize';
@@ -101,8 +102,12 @@ export default function LocalExplore() {
   const facets = flattenLocalFacets(result, KNOWN_FACET_KEYS);
   // 홈에서 특정 갈래를 눌러 들어온 경우 그 갈래를 맨 위에서 바로 펼친다. 선택값을 버린 채
   // 같은 첫 화면만 보여 주면 사용자는 버튼이 동작하지 않았다고 느낀다.
-  const visibleFacets = facets && requestedFacet
-    ? [...facets].sort((a, b) => Number(b.featureKey === requestedFacet) - Number(a.featureKey === requestedFacet))
+  // 첫 칸은 「로컬 장소」 묶음이다(S15P21E201-2024) — 전에는 서버 순서대로 「전통시장」이 첫 칸이었다.
+  // 홈에서 특정 갈래로 들어오면 그 갈래가 묶음 바로 뒤에 오고 선택된 채 열린다.
+  const visibleFacets = facets
+    ? withLocalPlacesFirst(requestedFacet
+      ? [...facets].sort((a, b) => Number(b.featureKey === requestedFacet) - Number(a.featureKey === requestedFacet))
+      : facets)
     : facets;
   useEffect(() => {
     if (!selectedKey && visibleFacets?.length) setSelectedKey(visibleFacets[0].featureKey);
@@ -194,8 +199,9 @@ export default function LocalExplore() {
           {selectedFacet ? (
             <View style={styles.resultHead}>
               <Text variant="display" weight="bold">
-                {localFacetLabel(selectedFacet, language, tx)}{' '}
-                <Text variant="display" weight="bold" color={color.text.muted}>{tx(`${selectedFacet.placeCount}곳`, `${selectedFacet.placeCount} places`)}</Text>
+                {isLocalPlaces(selectedFacet) ? localPlacesLabel(language) : localFacetLabel(selectedFacet, language, tx)}
+                {/* 묶음은 갈래끼리 겹쳐 개수를 모른다 — 숫자를 안 그린다. */}
+                {isLocalPlaces(selectedFacet) ? null : <>{' '}<Text variant="display" weight="bold" color={color.text.muted}>{tx(`${selectedFacet.placeCount}곳`, `${selectedFacet.placeCount} places`)}</Text></>}
               </Text>
               <Text variant="caption" style={styles.resultNote}>
                 {scope === 'all'
@@ -205,7 +211,7 @@ export default function LocalExplore() {
             </View>
           ) : null}
 
-          {selectedFacet ? <LocalBranchList facet={selectedFacet} scope={scope} coords={coords} canAskAgain={canAskAgain} onRetryLocation={() => void detectLocation()} cardWidth={cardWidth} /> : null}
+          {selectedFacet ? <LocalBranchList facet={selectedFacet} groupFacets={facets ?? []} scope={scope} coords={coords} canAskAgain={canAskAgain} onRetryLocation={() => void detectLocation()} cardWidth={cardWidth} /> : null}
         </View>
       ) : null}
       {locationGate.sheet}
@@ -243,13 +249,13 @@ function FacetPicker({ facets, selectedKey, onSelect, mode, language }: {
   useEffect(scrollToSelected, [selectedKey]);
   const chips = facets.map((entry) => {
     const selected = entry.featureKey === selectedKey;
-    const label = localFacetLabel(entry, language, tx);
+    const label = isLocalPlaces(entry) ? localPlacesLabel(language) : localFacetLabel(entry, language, tx);
     return (
       <Pressable key={entry.featureKey} onLayout={(event) => { chipX.current[entry.featureKey] = event.nativeEvent.layout.x; if (selected) scrollToSelected(); }} accessibilityRole="button" accessibilityState={{ selected }} onPress={() => onSelect(entry.featureKey)} style={[styles.categoryChip, selected && styles.categoryChipSelected]}>
         {/* 개수는 이름과 다른 굵기·흐린 색으로 둔다 — 「축제 12」가 한 덩어리로 읽히면
             12가 이름의 일부처럼 보인다 (시안 05). */}
         <Text weight="bold" numberOfLines={1} color={selected ? color.text.onAction : color.text.heading}>{selected ? '✓ ' : ''}{label}</Text>
-        <Text variant="caption" weight="bold" numberOfLines={1} color={selected ? color.text.onAction : color.text.muted} style={styles.chipCount}>{entry.placeCount}</Text>
+        {isLocalPlaces(entry) ? null : <Text variant="caption" weight="bold" numberOfLines={1} color={selected ? color.text.onAction : color.text.muted} style={styles.chipCount}>{entry.placeCount}</Text>}
       </Pressable>
     );
   });
@@ -259,8 +265,10 @@ function FacetPicker({ facets, selectedKey, onSelect, mode, language }: {
   return <View style={styles.facetWrap}>{chips}</View>;
 }
 
-function LocalBranchList({ facet, scope, coords, canAskAgain, onRetryLocation, cardWidth }: {
+function LocalBranchList({ facet, groupFacets, scope, coords, canAskAgain, onRetryLocation, cardWidth }: {
   facet: LocalFacetEntry;
+  /** 「로컬 장소」 묶음일 때 섞어 부를 실제 갈래들. */
+  groupFacets: LocalFacetEntry[];
   scope: ExploreScope;
   coords: { latitude: number; longitude: number } | null;
   canAskAgain: boolean;
@@ -277,6 +285,10 @@ function LocalBranchList({ facet, scope, coords, canAskAgain, onRetryLocation, c
   // 위치를 모르면 부산 중심으로 찾는다 — S15P21E201-982.
   const center = scope === 'nearby' && coords ? { lat: coords.latitude, lng: coords.longitude } : BUSAN_CENTER;
   const usingFallback = !coords;
+  const groupKeys = groupFacets.map((f) => f.featureKey).join(',');
+  const loadNearby = (signal?: AbortSignal) => isLocalPlaces(facet)
+    ? getNearbyLocalPlaces(groupFacets, center, signal)
+    : getNearbyPlaces({ lat: center.lat, lng: center.lng, facetKey: facet.featureKey }, signal);
 
   useEffect(() => {
     let active = true;
@@ -285,18 +297,21 @@ function LocalBranchList({ facet, scope, coords, canAskAgain, onRetryLocation, c
     (async () => {
       if (scope === 'all') {
         try {
-          const items = await getPlacesByFacet(facet.placeFeatureType, facet.featureKey, 20, controller.signal);
+          const items = isLocalPlaces(facet)
+            ? await getAllLocalPlaces(groupFacets, controller.signal)
+            : await getPlacesByFacet(facet.placeFeatureType, facet.featureKey, 20, controller.signal);
           if (active) { setAllItems(items); setAllError(null); setLoading(false); }
         } catch (error) {
           if (active) { setAllItems([]); setAllError(error instanceof Error ? error.message : tx('장소를 불러오지 못했어요.', 'Could not load places.')); setLoading(false); }
         }
         return;
       }
-      const next = await getNearbyPlaces({ lat: center.lat, lng: center.lng, facetKey: facet.featureKey }, controller.signal);
+      const next = await loadNearby(controller.signal);
       if (active) { setResult(next); setLoading(false); }
     })();
     return () => { active = false; controller.abort(); };
-  }, [center.lat, center.lng, facet.featureKey, facet.placeFeatureType, scope, tx]);
+    // groupFacets 는 렌더마다 새 배열이라 갈래 열쇠(groupKeys)로만 다시 부른다.
+  }, [center.lat, center.lng, facet.featureKey, facet.placeFeatureType, scope, tx, groupKeys]);
 
   if (loading || (scope === 'nearby' && !result) || (scope === 'all' && !allItems)) {
     return <View accessibilityLiveRegion="polite" style={styles.branchBody}><ActivityIndicator color={color.action.primary} /></View>;
@@ -310,7 +325,7 @@ function LocalBranchList({ facet, scope, coords, canAskAgain, onRetryLocation, c
   if (result.state !== 'success') {
     return <View style={styles.branchBody}>
       <Text color={color.text.body}>{localizeMessage(tx, result.message)}</Text>
-      <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void getNearbyPlaces({ lat: center.lat, lng: center.lng, facetKey: facet.featureKey }).then(setResult)} compact containerStyle={styles.branchRetry} />
+      <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void loadNearby().then(setResult)} compact containerStyle={styles.branchRetry} />
     </View>;
   }
   if (result.items.length === 0) {
