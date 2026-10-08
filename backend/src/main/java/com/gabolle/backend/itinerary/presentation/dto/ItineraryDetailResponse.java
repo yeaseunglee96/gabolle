@@ -263,6 +263,25 @@ public record ItineraryDetailResponse(
 			 */
 			String nameEn,
 			/** 일본어·중국어 이름 — 장소 상세의 {@code localNames} 와 같은 키(ja·zh-Hans·zh-Hant). 비면 칸째 빠진다. */
-			@JsonInclude(JsonInclude.Include.NON_EMPTY) Map<String, String> localNames) {
+			@JsonInclude(JsonInclude.Include.NON_EMPTY) Map<String, String> localNames,
+
+			/**
+			 * 고정 방식 — {@code "ORDER"}(순서 고정) · {@code "TIME"}(시각 고정). 고정이 아니면 {@code null}(S15P21E201-2017).
+			 * 이 칸 이전의 고정은 {@code "ORDER"} 로 나간다. 옛 앱은 이 칸을 모르고 {@code locked} 만 본다.
+			 */
+			String lockMode) {
+
+		/** 고정 방식 없이 만들던 자리 — 시험·옛 호출부. 고정이면 순서 고정이다. */
+		public Item(String id, String startsAt, String endsAt, String title, String description,
+				Integer estimatedCostKrw, Integer walkingMeters, boolean locked, String dataStatus,
+				String actualArrivedAt, String actualDepartedAt, String placeId, Integer travelDurationMin,
+				String travelDataStatus, Integer travelFareKrw, List<double[]> travelPath, List<Piece> travelPieces,
+				List<String> warningCodes, List<String> reasonCodes, String requestId, Double lat, Double lng,
+				String nameEn, Map<String, String> localNames) {
+			this(id, startsAt, endsAt, title, description, estimatedCostKrw, walkingMeters, locked, dataStatus,
+					actualArrivedAt, actualDepartedAt, placeId, travelDurationMin, travelDataStatus, travelFareKrw,
+					travelPath, travelPieces, warningCodes, reasonCodes, requestId, lat, lng, nameEn, localNames,
+					locked ? "ORDER" : null);
+		}
 	}
 }

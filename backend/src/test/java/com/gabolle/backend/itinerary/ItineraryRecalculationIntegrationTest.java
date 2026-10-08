@@ -162,6 +162,31 @@ class ItineraryRecalculationIntegrationTest {
 		this.keyD = insertItem(versionId, 1, "2026-09-11", 1, this.placeD, false, "09:00", "18:00");
 	}
 
+	/**
+	 * S15P21E201-2017 — 「시각 고정」 한 곳은 앞 곳을 빼도 제 시각을 지킨다. 앞이 당겨진 만큼은 빈 시각이 된다.
+	 * 부수기: {@code ItineraryDraftService.holdTimeFixed} 를 부르지 않으면 B 가 09:00 으로 당겨져 빨개진다.
+	 */
+	@Test
+	@DisplayName("🔴 시각 고정한 곳은 앞 곳을 빼도 제 시각(12:00)을 지키고, 시각이 흔들렸다는 경고도 없다")
+	void timeLockedItemKeepsItsStartAfterEarlierRemoval() {
+		this.jdbc.update("UPDATE itinerary_item SET lock_mode = 'TIME' WHERE item_key = ?::uuid", this.keyB);
+		this.engine.willReturn(FakeRecommendationEngine.batchOf(List.of(
+				FakeRecommendationEngine.passing(this.placeE, 0.90),
+				FakeRecommendationEngine.passing(this.placeF, 0.80))));
+
+		RecommendationJob job = runSynchronously(removeCommand(1, this.keyA));
+
+		assertThat(job.getJobStatus()).as("errorCode=%s stage=%s", job.getErrorCode(), job.getFailureStage())
+				.isEqualTo(JobStatus.SUCCEEDED);
+		ItineraryContent v2 = content(2);
+		List<ItineraryItem> day0 = day(v2, 0);
+		assertThat(day0.get(0).itemKey()).isEqualTo(this.keyB);
+		assertThat(day0.get(0).lockMode()).isEqualTo(ItineraryItem.LockMode.TIME);
+		assertThat(day0.get(0).startTime()).isEqualTo(LocalTime.of(12, 0));
+		assertThat(day0.get(1).startTime()).isAfterOrEqualTo(day0.get(0).endTime());
+		assertThat(v2.version().warningCodes()).doesNotContain(ItineraryWarningCodes.RECALC_TIMES_RESHUFFLED);
+	}
+
 	private UUID insertPlace(String name) {
 		UUID placeId = UUID.randomUUID();
 		this.jdbc.update("INSERT INTO place (place_id, name_ko, lat, lng, created_at) VALUES (?, ?, 35.15, 129.05, now())",

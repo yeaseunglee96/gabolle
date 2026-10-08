@@ -375,7 +375,9 @@ public class ItineraryQueryService {
 				place.getLng(),
 				// 다른 언어 화면이 장소 이름을 고른다 — 장소 상세와 같은 모양(S15P21E201-1937).
 				place.getNameEn(),
-				place.localNames());
+				place.localNames(),
+				// 고정 방식 — 순서 고정/시각 고정(S15P21E201-2017). 고정이 아니면 null.
+				item.lockMode() == null ? null : item.lockMode().name());
 	}
 
 	/** {@code visit_date} + {@code start_time} 을 ISO-8601 로 합친다. 시간대는 항상 Asia/Seoul 이다(API-03). */
