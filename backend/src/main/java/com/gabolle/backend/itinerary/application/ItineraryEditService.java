@@ -398,7 +398,11 @@ public class ItineraryEditService {
         String newVersionId = UUID.randomUUID().toString();
         ItineraryRevision.Draft added = ItineraryRevision.withAddedItem(base, newVersionId, placeId, dayIndex,
                 visitDate, position, now);
-        List<ItineraryLeg> legs = withRebuiltDayLegs(itinerary, added, dayIndex, newVersionId, now);
+        // withAddedItem 은 그날 옛 구간까지 복사해 준다. 끼우면 순서가 바뀌어 옛 구간은 참이 아니고, 그대로 두면 다시 만든 구간과
+        //    (판·날·순번) 자리가 겹쳐 uq_itinerary_leg_slot 으로 500 이 난다(운영 2026-10-09). 순서 바꾸기처럼 그날 것은 버리고 다시 만든다.
+        ItineraryRevision.Draft withoutDayLegs = new ItineraryRevision.Draft(added.items(),
+                added.legs().stream().filter((leg) -> leg.dayIndex() != dayIndex).toList(), added.exclusions());
+        List<ItineraryLeg> legs = withRebuiltDayLegs(itinerary, withoutDayLegs, dayIndex, newVersionId, now);
 
         Set<String> baseKeys = new HashSet<>();
         base.items().forEach((item) -> baseKeys.add(item.itemKey()));
