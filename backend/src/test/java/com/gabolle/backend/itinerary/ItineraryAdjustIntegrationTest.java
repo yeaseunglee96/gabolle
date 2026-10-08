@@ -216,6 +216,35 @@ class ItineraryAdjustIntegrationTest {
 		assertThat(items.get(1).get("start_time").toString()).isNotEqualTo("09:00:00");
 	}
 
+	@Test
+	@DisplayName("🔴 그날 구간이 이미 있는 일정에 끼워 넣어도 500 이 아니다 — 옛 구간을 버리고 새 순서로 다시 만든다")
+	void addAtPositionReplacesExistingDayLegs() throws Exception {
+		// 운영(2026-10-09)에서 uq_itinerary_leg_slot 중복으로 500 이 났다. 시험 여행에 구간이 없어서 못 잡았다.
+		this.jdbc.update("UPDATE trip SET origin_lat = 35.158, origin_lng = 129.160");
+		this.jdbc.update("UPDATE place SET lat = 35.15, lng = 129.15 WHERE place_id IN (SELECT place_id FROM itinerary_item)");
+		this.jdbc.update("UPDATE place SET lat = 35.16, lng = 129.12 WHERE place_id = ?", this.placeC);
+		UUID v1 = this.jdbc.queryForObject("SELECT itinerary_version_id FROM itinerary_versions WHERE itinerary_id = ? AND version = 1",
+				UUID.class, this.itineraryId);
+		for (int sequence = 1; sequence <= 2; sequence++) {
+			UUID to = this.jdbc.queryForObject("SELECT place_id FROM itinerary_item WHERE itinerary_version_id = ? AND sequence = ?",
+					UUID.class, v1, sequence);
+			this.jdbc.update("INSERT INTO itinerary_leg (itinerary_leg_id, itinerary_version_id, day_index, sequence, "
+					+ "to_place_id, travel_mode, duration_min, created_at) VALUES (?, ?, 0, ?, ?, 'WALK', 10, now())",
+					UUID.randomUUID(), v1, sequence, to);
+		}
+
+		String body = "{\"placeId\":\"" + this.placeC + "\",\"dayIndex\":0,\"baseVersion\":1,\"position\":2}";
+		this.mockMvc.perform(post("/api/v1/itineraries/{id}/items", this.itineraryId)
+				.contentType(MediaType.APPLICATION_JSON).principal(as(this.ownerId)).content(body))
+				.andExpect(status().isCreated());
+
+		List<Integer> legSequences = this.jdbc.queryForList(
+				"SELECT l.sequence FROM itinerary_leg l JOIN itinerary_versions v ON v.itinerary_version_id = l.itinerary_version_id "
+						+ "WHERE v.itinerary_id = ? AND v.version = 2 AND l.day_index = 0 ORDER BY l.sequence",
+				Integer.class, this.itineraryId);
+		assertThat(legSequences).doesNotHaveDuplicates();
+	}
+
 	// ---- 도우미 ----
 
 	private ResultActions changeStay(UUID itemKey, int stayMinutes, int baseVersion) throws Exception {
