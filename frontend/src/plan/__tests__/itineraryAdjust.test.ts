@@ -92,6 +92,12 @@ describe('2. 요청 본문', () => {
     expect(mockedApi).toHaveBeenLastCalledWith('/api/v1/itineraries/it/items', expect.objectContaining({ body: { placeId: 'p9', dayIndex: 0, baseVersion: 2 } }));
   });
 
+  it('🔴 그날 이미 있는 곳(409 ITINERARY_PLACE_ALREADY_ADDED)은 판 충돌이 아니라 그 사실을 말한다', async () => {
+    mockedApi.mockRejectedValueOnce(new ApiClientError('x', 'ITINERARY_PLACE_ALREADY_ADDED', 409, []));
+    const result = await addItineraryItem({ itineraryId: 'it', placeId: 'p9', dayIndex: 0, baseVersion: 2, position: 2, accessToken: 't' });
+    expect(result).toEqual({ state: 'error', message: '그날 일정에 이미 들어 있는 장소예요.' });
+  });
+
   it('고정 방식 — mode 를 싣는다', async () => {
     mockedApi.mockResolvedValue(dto);
     await setItineraryItemLocked({ itineraryId: 'it', itemId: 'i1', locked: true, mode: 'TIME', baseVersion: 2, accessToken: 't' });

@@ -223,6 +223,10 @@ export async function addItineraryItem(input: { itineraryId: string; placeId: st
     const dto = await apiRequest<ItineraryDto & { warnings?: ItineraryOpeningHoursWarning[]; notChecked?: ItineraryOpeningHoursNotChecked[] }>(`/api/v1/itineraries/${encodeURIComponent(input.itineraryId)}/items`, { method: 'POST', accessToken: input.accessToken, body });
     return { state: 'success', itinerary: dto, ...parseOpeningHoursFields(dto) };
   } catch (error) {
+    // 이미 담긴 장소(409)는 판 충돌이 아니다 — 「최신 일정을 불러오라」고 하면 틀린 안내다(S15P21E201-2017).
+    if (error instanceof ApiClientError && error.status === 409 && error.code === 'ITINERARY_PLACE_ALREADY_ADDED') {
+      return { state: 'error', message: '그날 일정에 이미 들어 있는 장소예요.' };
+    }
     return failure(error);
   }
 }
