@@ -87,6 +87,15 @@ dependencies {
 	//    반드시 `./gradlew dependencies --write-locks` 로 잠금 파일을 다시 쓴다.
 	//    안 하면 "Did not resolve … which is locked" 로 빌드가 멈춘다.
 	implementation 'org.springframework.boot:spring-boot-starter-kafka'
+	// 🔴 S15P21E201-2004 — kafka-clients 가 끌고 오는 lz4-java 1.10.1 에 HIGH 취약점(GHSA-mcr4-qmvw-px4g, 2026-10-07 공개 —
+	//    압축 해제용 네이티브 파일을 공용 임시 폴더에 풀어서 같은 기계의 다른 사용자가 바꿔치기할 수 있다)이 나와
+	//    backend:dependency-scan 이 모든 백엔드 MR 을 막았다. 고친 판(1.11.4)으로 올린다. kafka-clients 가 이 판을
+	//    직접 고르게 되면 이 줄을 지운다.
+	constraints {
+		implementation('at.yawk.lz4:lz4-java:1.11.4') {
+			because 'GHSA-mcr4-qmvw-px4g 외 5건 — 1.11.4 에서 고쳐졌다'
+		}
+	}
 	testImplementation 'org.springframework.boot:spring-boot-starter-actuator-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-flyway-test'
