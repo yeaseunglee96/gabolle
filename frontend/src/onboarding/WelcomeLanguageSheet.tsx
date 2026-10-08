@@ -24,12 +24,13 @@ export const FLAG_IMAGES: Record<LanguageCode, ReturnType<typeof require>> = {
   ja: require('../../assets/flags/jp.png'),
   'zh-Hans': require('../../assets/flags/cn.png'),
   'zh-Hant': require('../../assets/flags/tw.png'),
+  vi: require('../../assets/flags/vn.png'),
 };
 
 /** 그 언어를 모르는 사람이 읽을 이름 — 화면 언어가 한국어면 한국어로, 아니면 영어로. */
-const KOREAN_NAMES: Record<LanguageCode, string> = { ko: '한국어', en: '영어', ja: '일본어', 'zh-Hans': '중국어 간체', 'zh-Hant': '중국어 번체' };
+const KOREAN_NAMES: Record<LanguageCode, string> = { ko: '한국어', en: '영어', ja: '일본어', 'zh-Hans': '중국어 간체', 'zh-Hant': '중국어 번체', vi: '베트남어' };
 /** 「○○로 시작하기」 — 고른 언어 **그 언어로** 적는다. 일본어를 고른 사람이 읽을 단추라 한국어면 안 된다. */
-const START_LABEL: Record<LanguageCode, string> = { ko: '한국어로 시작하기', en: 'Start in English', ja: '日本語で始める', 'zh-Hans': '用简体中文开始', 'zh-Hant': '用繁體中文開始' };
+const START_LABEL: Record<LanguageCode, string> = { ko: '한국어로 시작하기', en: 'Start in English', ja: '日本語で始める', 'zh-Hans': '用简体中文开始', 'zh-Hant': '用繁體中文開始', vi: 'Bắt đầu bằng tiếng Việt' };
 
 function CloseIcon() {
   return (

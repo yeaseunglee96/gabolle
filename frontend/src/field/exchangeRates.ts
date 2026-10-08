@@ -38,6 +38,8 @@ export function defaultCurrencyFor(language: string): string {
   if (language === 'ja') return 'JPY';
   if (language === 'zh-Hans') return 'CNY';
   if (language === 'zh-Hant') return 'TWD';
+  // 수출입은행 고시에 VND(100) 이 있다. 없으면 pickRate 가 USD 로 물러선다.
+  if (language === 'vi') return 'VND';
   return 'USD';
 }
 

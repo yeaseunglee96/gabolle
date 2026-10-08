@@ -85,7 +85,8 @@ export function addressForLanguage(place: AddressSource, language: LanguageCode)
   if (official) return official;
 
   const split = address ? splitBusanAddress(address) : null;
-  if (language === 'en') {
+  // 베트남어(vi)는 관광공사 번역 주소가 없다 — 영어 주소로 보여 준다(S15P21E201-2003).
+  if (language === 'en' || language === 'vi') {
     if (addressEn) return addressEn;
     if (!split) return address;
     const gu = BUSAN_GU[split.gu];

@@ -8,6 +8,6 @@ describe('구 이름 번역', () => {
   it.each(Object.keys(BUSAN_DISTRICTS_EN))('%s — 번역표가 주소 표와 같은 한자', (gu) => {
     const row = (TRANSLATIONS as Record<string, { ja: string; zhHans: string; zhHant: string }>)[gu];
     expect(row).toBeDefined();
-    expect(row).toEqual({ ja: BUSAN_GU[gu].ja, zhHans: BUSAN_GU[gu].zhHans, zhHant: BUSAN_GU[gu].zhHant });
+    expect(row).toEqual({ ja: BUSAN_GU[gu].ja, zhHans: BUSAN_GU[gu].zhHans, zhHant: BUSAN_GU[gu].zhHant, vi: BUSAN_GU[gu].en });
   });
 });

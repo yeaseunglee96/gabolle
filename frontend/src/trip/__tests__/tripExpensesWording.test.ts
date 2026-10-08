@@ -41,8 +41,8 @@ describe('여행 경비 화면 말투', () => {
 
   it('새 이름은 다섯 언어가 다 있다', () => {
     const table = TRANSLATIONS as Record<string, { ja: string; zhHans: string; zhHant: string }>;
-    expect(table['여행 경비']).toEqual({ ja: '旅費', zhHans: '旅行费用', zhHant: '旅行費用' });
-    expect(table['지출 추가']).toEqual({ ja: '支出を追加', zhHans: '添加支出', zhHant: '新增支出' });
-    expect(table['지출']).toEqual({ ja: '支出', zhHans: '支出', zhHant: '支出' });
+    expect(table['여행 경비']).toEqual({ ja: '旅費', zhHans: '旅行费用', zhHant: '旅行費用', vi: 'Chi phí chuyến đi' });
+    expect(table['지출 추가']).toEqual({ ja: '支出を追加', zhHans: '添加支出', zhHant: '新增支出', vi: 'Thêm khoản chi' });
+    expect(table['지출']).toEqual({ ja: '支出', zhHans: '支出', zhHant: '支出', vi: 'Khoản chi' });
   });
 });

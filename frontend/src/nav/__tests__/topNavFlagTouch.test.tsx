@@ -20,9 +20,9 @@ jest.mock('@/i18n', () => ({ useI18n: () => ({ tx: (ko: string) => ko, language:
 const TOUCH_MIN = 44;
 
 describe('언어 국기 단추', () => {
-  it('🔴 다섯 개 모두 가로 44 이상 — 탭에서 손가락으로 누른다', () => {
+  it('🔴 여섯 개 모두 가로 44 이상 — 탭에서 손가락으로 누른다', () => {
     const flags = render(<TopNav />).getAllByLabelText(/^언어를 .+로 변경$/);
-    expect(flags).toHaveLength(5);
+    expect(flags).toHaveLength(6); // 베트남어가 여섯째 — S15P21E201-2003
     for (const flag of flags) {
       const style = StyleSheet.flatten(flag.props.style);
       expect(style.width).toBeGreaterThanOrEqual(TOUCH_MIN);
