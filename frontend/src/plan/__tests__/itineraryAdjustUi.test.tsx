@@ -79,5 +79,7 @@ describe('3. 「일정 고치기」 입구', () => {
     const screenSource = source('app/trips/[id]/itinerary.tsx');
     expect(screenSource).toContain('testID="itinerary-edit-bar"');
     expect(screenSource).toContain('testID="itinerary-add-place"');
+    // 폰은 아래 「순서 수정」 단추가 있다 — 편집 줄의 「순서 변경」은 넓은 화면에만(같은 단추 두 번 금지).
+    expect(screenSource).toContain('{canReorder && wide ? <Pressable testID="itinerary-edit-reorder"');
   });
 });

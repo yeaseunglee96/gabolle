@@ -1212,7 +1212,8 @@ function ItineraryClassic() {
             <Text variant="caption" color={color.text.body} style={styles.grow}>{tx('−/+ 로 머무는 시간을, 「고정하기」로 순서·시각을 지켜요.', 'Use −/+ to change time at a place, and “Lock” to keep its order or time.')}</Text>
             <View style={styles.editBarActions}>
               <Pressable testID="itinerary-add-place" accessibilityRole="button" disabled={addBusy || excludingItemId !== null} onPress={() => { setAddError(null); setAddOpen(true); }} style={[styles.recalcButtonPrimary, (addBusy || excludingItemId !== null) && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.text.onAction}>{tx('장소 더하기', 'Add a place')}</Text></Pressable>
-              {canReorder ? <Pressable testID="itinerary-edit-reorder" accessibilityRole="button" disabled={excludingItemId !== null} onPress={startReorder} style={[styles.recalcButton, excludingItemId !== null && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('순서 변경', 'Reorder')}</Text></Pressable> : null}
+              {/* 폰은 화면 아래 「순서 수정」 단추가 이미 있다 — 여기에도 두면 같은 단추가 두 번 보인다(캡처로 확인). 넓은 화면에만. */}
+              {canReorder && wide ? <Pressable testID="itinerary-edit-reorder" accessibilityRole="button" disabled={excludingItemId !== null} onPress={startReorder} style={[styles.recalcButton, excludingItemId !== null && styles.actionDisabled]}><Text variant="caption" weight="bold" color={color.brand.navy}>{tx('순서 변경', 'Reorder')}</Text></Pressable> : null}
             </View>
           </View> : null}
           {/* 가로 노선도는 넓은 화면에만 — 폰에서는 아래 세로 노선이 같은 일을 더 잘한다.
