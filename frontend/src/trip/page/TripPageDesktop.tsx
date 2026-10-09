@@ -376,8 +376,9 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
                       </View>
                       <View style={styles.bigCopy}>
                         <View style={styles.rowCenter}><NumberDot n={index + 1} size={20} /><StopName weight="bold" title={item.title} nameEn={itemOtherName(item, photo, language)} /></View>
-                        {/* 어떤 곳인지 한 줄(S15P21E201-2029) — 없으면 줄째 안 그린다 */}
-                        {oneLineFor(item.oneLine, language) ? <Text variant="caption" color={color.text.body} numberOfLines={1}>{oneLineFor(item.oneLine, language)}</Text> : null}
+                        {/* 어떤 곳인지 한 줄(S15P21E201-2029) — 없으면 줄째 안 그린다. 세로 목록 줄이라 두 줄이 돼도 옆 카드와
+                            어긋나지 않아 두 줄까지 둔다. 격자 카드(아래 StopCard)는 그림 높이가 어긋나 한 줄 그대로. */}
+                        {oneLineFor(item.oneLine, language) ? <Text variant="caption" color={color.text.body} numberOfLines={2}>{oneLineFor(item.oneLine, language)}</Text> : null}
                         <Text variant="caption" color={color.text.muted} numberOfLines={1}>{[stopClock(item.startsAt), legParams ? null : leg].filter(Boolean).join(' · ')}</Text>
                       </View>
                     </Pressable>
