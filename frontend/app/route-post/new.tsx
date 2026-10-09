@@ -43,7 +43,7 @@ export default function NewRoutePostScreen() {
 
   if (!accessToken) {
     return <Screen scroll><View style={styles.card}><Text weight="bold">{tx('로그인하면 내 여행을 루트로 올릴 수 있어요.', 'Sign in to post your trip as a route.')}</Text>
-      <Button label={tx('로그인', 'Sign in')} compact onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: `/route-post/new?itineraryId=${itineraryId}` } } as never)} /></View></Screen>;
+      <Button label={tx('로그인', 'Sign in')} variant="secondary" compact onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: `/route-post/new?itineraryId=${itineraryId}` } } as never)} /></View></Screen>;
   }
   if (query.isLoading) return <Screen scroll><View style={styles.center}><ActivityIndicator color={color.action.primary} /></View></Screen>;
   if (!itinerary) {

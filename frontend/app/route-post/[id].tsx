@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
   dayLabel: { marginTop: spacing[3] },
   stop: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], padding: spacing[3], borderRadius: radius.lg, backgroundColor: color.surface.card, minHeight: 72 },
   pressed: { opacity: 0.85 },
-  num: { width: 26, height: 26, borderRadius: 13, backgroundColor: color.action.primary, alignItems: 'center', justifyContent: 'center' },
+  num: { width: 26, height: 26, borderRadius: 13, backgroundColor: color.brand.navy, alignItems: 'center', justifyContent: 'center' },
   photo: { width: 56, height: 56, borderRadius: radius.md },
   photoEmpty: { backgroundColor: color.surface.soft },
   stopText: { flex: 1, gap: 2 },
