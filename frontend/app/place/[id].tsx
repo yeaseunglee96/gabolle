@@ -27,6 +27,7 @@ import { otherNameFor } from '@/discovery/localNames';
 import { addressForLanguage, koreanAddressLine } from '@/discovery/localAddress';
 import { GuideCallout } from '@/onboarding/GuideCallout';
 import { PlaceDetailExtras } from '@/place/PlaceDetailExtras';
+import { PlaceRoutesSection } from '@/routepost/PlaceRoutesSection';
 import { takeScreenGuide } from '@/onboarding/firstRun';
 
 // 데모 3곳·저장 키는 src/discovery/savedPlaces.ts 로 옮겼다 — (tabs)/saved.tsx 도 같은 값을 쓴다.
@@ -336,6 +337,8 @@ export default function Place() {
             <Text color={color.text.body} style={styles.noticeCopy}>{tx('영업시간·가격대 같은 상세 정보는 곧 추가돼요. 확인되지 않은 정보는 임의로 보여드리지 않아요.', "Details like hours and price level are coming soon. We never show unverified information.")}</Text>
           </View>
         ) : null}
+        {/* 이 장소가 들어간 루트 — 다른 여행자가 이곳을 넣어 다녀온 코스, 인기순(S15P21E201-2028). 없으면 칸째 안 그린다. */}
+        {resolved.apiPlace?.placeId ? <PlaceRoutesSection placeId={resolved.apiPlace.placeId} wide={wide} /> : null}
         </View>
         <View style={wide ? styles.asideColumn : undefined}>
         {/* 사용자 리포트 — 버튼 네 개가 전폭으로 세로로 쌓여 가독성이 떨어졌다. 2열 그리드로

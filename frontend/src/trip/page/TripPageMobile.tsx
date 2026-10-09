@@ -735,6 +735,8 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   const menuItems: DropdownMenuItem[] = [
     ...(tripId ? [{ key: 'rename', label: tx('이름 바꾸기', 'Rename'), onPress: () => setNaming(true) }] : []),
     ...(course?.itineraryId ? [{ key: 'edit', label: tx('일정 편집', 'Edit itinerary'), hint: tx('순서·고정·제외·다시 계산', 'Order, pin, remove, recalculate'), onPress: openClassic }] : []),
+    // 루트로 올리기 — 이 코스를 피드 루트로(S15P21E201-2027). 숙소는 서버가 빼고 올린다.
+    ...(course?.itineraryId ? [{ key: 'route-post', label: tx('루트로 올리기', 'Post as a route'), hint: tx('이 코스를 피드에 올려요', 'Share this course on the feed'), onPress: () => router.push(`/route-post/new?itineraryId=${encodeURIComponent(course.itineraryId!)}` as never) }] : []),
   ];
 
   // 🔴 여행이나 일정을 못 불러왔으면 지도와 창을 그리지 않는다(S15P21E201-1660, 사용자 결정). 전에는 같은 겹친 구조 그대로라

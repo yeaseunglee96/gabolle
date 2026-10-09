@@ -26,6 +26,7 @@ import { useI18n } from '@/i18n';
 import { BlockUserDialog } from '@/social/BlockUserDialog';
 import { CoauthorByline } from '@/social/CoauthorByline';
 import { findCourseLink, withoutCourseLink } from '@/social/courseLink';
+import { PlaceRoutesSection } from '@/routepost/PlaceRoutesSection';
 import { CourseLinkCard } from '@/social/CourseLinkCard';
 import { regionText } from '@/social/districtNames';
 import { regionBesidePlace } from '@/social/placeRegion';
@@ -777,6 +778,9 @@ export default function StoryDetail() {
           {/* 좋아요·인용·저장 — 카드 «안»에 둔다(사용자 지적 2026-09-24, S15P21E201-1576). 카드 밖에 두면 그 기록의 것인지
               아래 댓글의 것인지 흐려진다. 목록(feed.tsx)과 같은 부품이다. */}
           <StoryReactionRow story={story} reacting={reacting} onReact={(reaction) => void react(reaction)} saved={savedIds.has(story.id)} saving={saving} onToggleSave={() => void toggleSave()} onQuote={() => void copyLink()} style={styles.inCardReactions} />
+
+          {/* 이 기록의 장소가 들어간 루트 — 「장소 포스트도 이거 포함한 루트들 추천해주면 좋겠다」(S15P21E201-2028). 없으면 안 그린다. */}
+          {story.place && !postEditing ? <PlaceRoutesSection placeId={story.place.id} /> : null}
 
  {/*— 삭제·신고·차단은 우상단 ⋯ 메뉴로 옮겼다. 공동 작성자는
               "더 보기" 성격이 아니라 주된 이동이라 그대로 남긴다. 삭제 확인은 메뉴에서
