@@ -519,6 +519,8 @@ function PlaceCard({ item, startKind, index, items, width, photo, selected, risk
         <Text variant="title" weight="bold" numberOfLines={2}>{item.title}</Text>
         {/* 영어(일·중) 화면 — 한글 아래에 영어 이름이나 로마자 한 줄(S15P21E201-1735). 넘치면 이 줄만 줄임표로 자른다 — 한글은 안 자른다. */}
         {nameParts.other ? <Text variant="caption" color={color.text.muted} numberOfLines={1}>{nameParts.other}</Text> : null}
+        {/* 어떤 곳인지 한 줄(S15P21E201-2029) — 없으면 줄째 안 그린다 */}
+        {oneLineFor(item.oneLine, language) ? <Text variant="caption" color={color.text.body} numberOfLines={1}>{oneLineFor(item.oneLine, language)}</Text> : null}
         {leg ? <Text variant="caption" color={color.text.muted} numberOfLines={1}>{leg}</Text> : null}
         {/* 왜 이 곳인지 한 줄 — 없으면 줄째 안 그린다(S15P21E201-1645). */}
         {reason ? <Text variant="caption" color={color.text.body} numberOfLines={1}>{reason}</Text> : null}
