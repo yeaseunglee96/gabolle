@@ -4,40 +4,16 @@ import { useMemo } from 'react';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { festivalDisplayTitle, getFestivals, type Festival } from '@/discovery/festivals';
-import { getFacets, type FacetGroup } from '@/discovery/localExplore';
-import { type PlaceSearchItem } from '@/discovery/places';
-import { getAllLocalPlaces, LOCAL_PLACES_KEY } from '@/discovery/localPlaces';
-import { loadFeed, type StoryDto } from '@/social/stories';
+import { getPlace, type PlaceSearchItem } from '@/discovery/places';
+import { getStory, loadFeed, type StoryDto } from '@/social/stories';
+import { currentFeaturedFestival, FEATURED_STORY_IDS, featuredFirst, LOCAL_PICK_ORDER, LOCAL_PICK_PLACES, pickFestival, type LocalPickKey } from './homeCuration';
+import type { LanguageCode } from '@/i18n/languages';
 import { loadTrips, type TripSummaryDto } from '@/trip/trips';
 import { loadWeatherForecast, type CurrentWeather, type DailyForecastDto, type HourlyForecastDto } from '@/trip/weather';
 
 
 // 줄 배치로 바뀌면서 한 줄에 일곱 장이 보인다 — 셋이면 줄이 반도 안 찬다.
 const HERO_STORY_COUNT = 8;
-
-/**
- * 홈의 로컬 탐색 줄 둘. 전통시장은 로컬 탐색 화면의 「부산 전체」와 **같은 조회**를 쓴다 —
- * 홈에서 본 것과 화면을 열어서 본 것이 다르면 사용자가 둘 중 어느 쪽을 믿을지 모른다.
- *
- * 🔴 축제는 장소 검색(FESTIVAL 갈래)이 아니라 날짜를 아는 축제 조회다(S15P21E201-1594). 장소 검색은 날짜를 몰라서
- *    「지금 열리는」 줄에 2025년에 끝난 축제만 나왔다(운영 place_event_period 14건 전부 2025년).
- *    「전체 보기」도 날짜로 거르는 축제 화면(/festivals)으로 간다 — 줄과 화면이 같은 것을 말하게.
- */
-export const HOME_FACET_ROWS = [
-  { key: 'FESTIVAL', ko: '지금 열리는 부산 축제', en: 'Festivals happening now', href: '/festivals' },
-  // 로컬 탐색 줄은 「전통시장」 한 갈래가 아니라 여러 갈래를 섞은 「로컬 장소」다(S15P21E201-2024).
-  // 「전체 보기」는 로컬 탐색 화면의 첫 칸(로컬 장소)으로 연다 — 줄과 화면이 같은 것을 말하게.
-  // 제목은 로컬 탐색 화면 제목과 같은 문구라 번역표에 이미 있다.
-  { key: LOCAL_PLACES_KEY, ko: '부산 로컬 둘러보기', en: 'Explore local Busan', href: '/explore' },
-] as const;
-
-/** 홈 로컬 장소 줄 — 서버가 준 로컬 갈래(EXPLORE 묶음)를 몇 곳씩 섞는다. 장소 0곳 갈래는 안 부른다. */
-export function loadHomeLocalPlaces(group: Pick<FacetGroup, 'placeFeatureType' | 'keys'>): Promise<HomeCardPlace[]> {
-  const facets = group.keys
-    .filter((entry) => entry.placeCount > 0)
-    .map((entry) => ({ featureKey: entry.featureKey, placeFeatureType: group.placeFeatureType }));
-  return getAllLocalPlaces(facets, undefined, FACET_ROW_COUNT);
-}
 
 /** 「지금 열리는」 축제를 묻는 기간 — 오늘부터 60일. */
 export const FESTIVAL_WINDOW_DAYS = 60;
@@ -66,9 +42,6 @@ export function festivalCards(festivals: Festival[]): HomeCardPlace[] {
   });
 }
 
-/** 한 줄에 실을 장소 수. 일곱 장이 보이고 캐러셀로 더 넘긴다. */
-const FACET_ROW_COUNT = 10;
-
 
 function today() {
   return localDateKey(new Date());
@@ -78,10 +51,50 @@ function today() {
  * 히어로에 올릴 기록 셋을 고른다. 사진이 있는 글을 먼저 쓴다 — 카드가 사진 자리를
  * 가지고 있어서, 사진 없는 글만 걸리면 회색 칸 셋이 된다.
  */
-export function pickHeroStories(items: StoryDto[]): StoryDto[] {
+export function pickHeroStories(items: StoryDto[], featured: StoryDto[] = []): StoryDto[] {
   const withImage = items.filter((item) => item.images.length > 0);
   const rest = items.filter((item) => item.images.length === 0);
-  return [...withImage, ...rest].slice(0, HERO_STORY_COUNT);
+  // 고른 글(homeCuration — S15P21E201-2021)이 맨 앞. 피드 첫 쪽에 없어도 따로 불러 와서 세운다.
+  return featuredFirst(featured, [...withImage, ...rest]).slice(0, HERO_STORY_COUNT);
+}
+
+/** 고정 글을 하나씩 부른다. 지워졌거나 못 부른 글은 빠진다 — 다른 글은 산다. */
+export async function loadFeaturedStories(accessToken: string | null, ids: readonly string[] = FEATURED_STORY_IDS): Promise<StoryDto[]> {
+  const results = await Promise.all(ids.map((id) => getStory(id, accessToken).catch(() => null)));
+  return results.flatMap((r) => (r && r.state === 'success' && r.story.visibility === 'PUBLIC' ? [r.story] : []));
+}
+
+/**
+ * 로컬 탐색 한 칸. `title` 이 있으면 장소 이름 대신 그것을 쓴다(축제 칸의 BIFF — 장소는 영화의전당).
+ * 「더 보기」는 그 갈래의 로컬 탐색 화면(축제는 날짜로 거르는 축제 화면).
+ */
+export type HomeLocalPick = { key: LocalPickKey; place: HomeCardPlace; title?: Partial<Record<LanguageCode, string>>; href: string };
+
+export function localPickHref(key: LocalPickKey): string {
+  return key === 'FESTIVAL' ? '/festivals' : `/explore?facet=${key}`;
+}
+
+/**
+ * 홈 로컬 탐색 여섯 칸 — S15P21E201-2021. 전에는 「지금 열리는 부산 축제」「부산 로컬 둘러보기」 두 줄에
+ * 스무 장이 섰다(어지럽다는 피드백). 이제 갈래마다 대표 하나씩.
+ * 축제 칸: 기간 안의 대표 축제(BIFF) → 없으면 축제 데이터에서 오늘 열리는 것. 한 칸이 실패하면 그 칸만 빠진다.
+ */
+export async function loadLocalPicks(now: Date = new Date()): Promise<HomeLocalPick[]> {
+  const today = localDateKey(now);
+  const featured = currentFeaturedFestival(today);
+  const festivalPick = async (): Promise<HomeLocalPick | null> => {
+    if (featured) {
+      const place = await getPlace(featured.placeId);
+      return { key: 'FESTIVAL', place, title: featured.title, href: localPickHref('FESTIVAL') };
+    }
+    const window = festivalWindow(now);
+    const chosen = pickFestival(await getFestivals(window.startDate, window.endDate), today);
+    return chosen ? { key: 'FESTIVAL', place: festivalCards([chosen])[0], href: localPickHref('FESTIVAL') } : null;
+  };
+  const settled = await Promise.allSettled(LOCAL_PICK_ORDER.map((key) => key === 'FESTIVAL'
+    ? festivalPick()
+    : (async (): Promise<HomeLocalPick> => ({ key, place: await getPlace(LOCAL_PICK_PLACES[key]), href: localPickHref(key) }))()));
+  return settled.flatMap((r) => (r.status === 'fulfilled' && r.value ? [r.value] : []));
 }
 
 
@@ -107,21 +120,12 @@ export function pickActiveTrip(trips: TripSummaryDto[], now: Date = new Date()):
   return [...active].sort(byStart)[0] ?? null;
 }
 
-/** 홈의 로컬 탐색 줄 하나. `places` 가 `null` 이면 아직 불러오는 중이다. */
-export type HomeFacetRow = {
-  facetKey: string;
-  titleKo: string;
-  titleEn: string;
-  /** 「전체 보기」가 여는 곳. */
-  href: string;
-  places: HomeCardPlace[] | null;
-};
-
 export type HomeData = {
   signedIn: boolean;
   stories: StoryDto[] | null;
   weather: HomeWeather | null;
-  facetRows: HomeFacetRow[];
+  /** 로컬 탐색 여섯 칸. null 이면 아직 불러오는 중. */
+  localPicks: HomeLocalPick[] | null;
   trip: TripSummaryDto | null;
   tripsLoaded: boolean;
   /** 여행이 하나라도 있나 — 지난 여행만 있어도 참(S15P21E201-1770). 빈 칸 문구를 가른다. */
@@ -183,36 +187,20 @@ export function useHomeData(enabled = true): HomeData {
     queryFn: () => loadFeed({ scope: 'ALL', limit: 12, accessToken }),
   });
 
-  const facetsQuery = useQuery({ queryKey: ['home', 'facets'], enabled, queryFn: () => getFacets() });
-
   const weather = useHomeWeather(enabled);
 
-  /**
-   * 갈래 줄이 쓸 조회 종류(`placeFeatureType`)는 서버가 정한다 — 코드에 박지 않는다.
-   * 로컬 탐색 화면도 같은 값을 `getFacets()` 에서 받아 쓴다.
-   */
-  const exploreGroup = facetsQuery.data?.state === 'success'
-    ? facetsQuery.data.facets.find((item) => item.userInputCode === 'EXPLORE')
-    : undefined;
-
-  const facetRowsQuery = useQuery({
-    queryKey: ['home', 'facetRows', exploreGroup?.placeFeatureType ?? ''],
-    // 조회 종류를 모르면 부르지 않는다. 짐작한 값으로 부르면 빈 줄이 나오는데,
-    // 그건 「그 갈래에 장소가 없다」와 화면에서 구분이 안 된다.
-    enabled: enabled && Boolean(exploreGroup),
-    queryFn: async (): Promise<Record<string, HomeCardPlace[]>> => {
-      // 한 줄이 비어도 그 줄만 빈다 — 다른 줄까지 같이 죽이지 않는다.
-      const places = await loadHomeLocalPlaces(exploreGroup!).catch(() => []);
-      return { [LOCAL_PLACES_KEY]: places };
-    },
+  // 고정 글 — 피드 목록과 따로 부른다(첫 쪽에서 밀려나도 앞에 선다). 실패하면 빈 배열 — 피드는 그대로 산다.
+  const featuredQuery = useQuery({
+    queryKey: ['home', 'featuredStories', signedIn ? 'member' : 'guest'],
+    enabled: enabled && ready,
+    queryFn: () => loadFeaturedStories(accessToken).catch(() => []),
   });
 
-  // 축제 — 오늘부터 60일 안에 열리는 것. 없으면 빈 배열이고 줄이 접힌다(PlaceRow). 실패도 빈 줄로 — 다른 줄은 산다.
-  const window = festivalWindow();
-  const festivalsQuery = useQuery({
-    queryKey: ['home', 'festivals', window.startDate],
+  // 로컬 탐색 여섯 칸 — 날짜가 바뀌면(축제 칸) 다시 고른다.
+  const localPicksQuery = useQuery({
+    queryKey: ['home', 'localPicks', today()],
     enabled,
-    queryFn: () => getFestivals(window.startDate, window.endDate).then((items) => festivalCards(items).slice(0, FACET_ROW_COUNT)).catch(() => []),
+    queryFn: () => loadLocalPicks().catch(() => []),
   });
 
   const tripsQuery = useQuery({
@@ -226,20 +214,13 @@ export function useHomeData(enabled = true): HomeData {
     // 스켈레톤을 영원히 그린다 — 서버가 죽었을 때 실제로 그랬다. 실패는 빈 배열로 내려
     // 「아직 기록이 없어요」 자리로 보낸다.
     signedIn,
-    stories: storiesQuery.isPending
+    // 고정 글을 기다린다 — 먼저 그리고 나중에 앞에 끼우면 줄이 한 번 밀린다.
+    stories: storiesQuery.isPending || featuredQuery.isPending
         ? null
-        : storiesQuery.data?.state === 'success' ? pickHeroStories(storiesQuery.data.items) : [],
+        : pickHeroStories(storiesQuery.data?.state === 'success' ? storiesQuery.data.items : [], featuredQuery.data ?? []),
     weather,
     // 여기서도 null 은 「아직 불러오는 중」만 뜻한다. 실패는 빈 배열로 내려 「없어요」 자리로 보낸다.
-    facetRows: HOME_FACET_ROWS.map((row) => ({
-      facetKey: row.key,
-      titleKo: row.ko,
-      titleEn: row.en,
-      href: row.href,
-      places: row.key === 'FESTIVAL'
-        ? festivalsQuery.data ?? (festivalsQuery.isPending ? null : [])
-        : facetRowsQuery.data ? facetRowsQuery.data[row.key] ?? [] : facetRowsQuery.isPending ? null : [],
-    })),
+    localPicks: localPicksQuery.data ?? (localPicksQuery.isPending ? null : []),
     trip: tripsQuery.data?.state === 'success' ? pickActiveTrip(tripsQuery.data.trips) : null,
     tripsLoaded: tripsQuery.data?.state === 'success',
     hasTrips: tripsQuery.data?.state === 'success' && tripsQuery.data.trips.length > 0,
