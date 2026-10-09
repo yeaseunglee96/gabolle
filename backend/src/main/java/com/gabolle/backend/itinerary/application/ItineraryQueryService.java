@@ -391,7 +391,9 @@ public class ItineraryQueryService {
 				place.getNameEn(),
 				place.localNames(),
 				// 고정 방식 — 순서 고정/시각 고정(S15P21E201-2017). 고정이 아니면 null.
-				item.lockMode() == null ? null : item.lockMode().name());
+				item.lockMode() == null ? null : item.lockMode().name(),
+				// 코스 카드의 한 줄 소개 — 언어별(S15P21E201-2029).
+				place.oneLine());
 	}
 
 	/** {@code visit_date} + {@code start_time} 을 ISO-8601 로 합친다. 시간대는 항상 Asia/Seoul 이다(API-03). */

@@ -138,6 +138,20 @@ class ItineraryQueryServiceTest {
 	}
 
 	@Test
+	@DisplayName("items[] 는 장소의 한 줄 소개를 언어별로 싣는다 — 코스 카드가 이름 밑에 그린다(S15P21E201-2029)")
+	void itemCarriesOneLine() {
+		stubTripMembership(threeDayTrip());
+		when(this.place.oneLine()).thenReturn(Map.of("ko", "광안대교가 정면으로 보이는 백사장", "en", "Sandy beach facing Gwangan Bridge"));
+		String itineraryId = seedItinerary(1,
+				List.of(itemOf("itemkey_" + UUID.randomUUID(), 0, LocalDate.of(2026, 9, 10), 1, null, null)));
+
+		ItineraryDetailResponse.Item item = this.service.getDetail(itineraryId, this.requesterId).days().get(0).items().get(0);
+
+		assertThat(item.oneLine()).containsEntry("ko", "광안대교가 정면으로 보이는 백사장")
+				.containsEntry("en", "Sandy beach facing Gwangan Bridge");
+	}
+
+	@Test
 	@DisplayName("items[].id 는 item_key 다 — PK 가 아니다")
 	void itemIdIsItemKey() {
 		stubTripMembership(threeDayTrip());

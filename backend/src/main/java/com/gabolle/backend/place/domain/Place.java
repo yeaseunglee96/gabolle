@@ -13,6 +13,9 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 /**
  * 장소 정본 한 건. setter 가 없고 만드는 길은 {@link #imported} 하나뿐이다 — 한 번 넣은 행을
  * 어떻게 갱신할지(폐업·이전·상호 변경)는 아직 정하지 않았다.
@@ -45,6 +48,14 @@ public class Place {
 
 	@Column(name = "name_zh_hant", length = 200)
 	private String nameZhHant;
+
+	/**
+	 * 한 줄 소개 — 언어 열쇠(ko·en·ja·zh-Hans·zh-Hant·vi)별 짧은 문장(S15P21E201-2029, V20261009220000).
+	 * 관광공사 개요를 줄이거나, 저장된 사실(분류·메뉴·소개 근거)만으로 생성한 것을 미리 담아 둔다. 없는 장소는 {@code null}.
+	 */
+	@JdbcTypeCode(SqlTypes.JSON)
+	@Column(name = "one_line", columnDefinition = "jsonb")
+	private Map<String, String> oneLine;
 
 	/**
 	 * 주소의 일본어·중국어(간체·번체) — 관광공사 다국어 서비스가 번역해 둔 주소(V20260930180000, S15P21E201-1876).
@@ -277,6 +288,15 @@ public class Place {
 		putIfPresent(names, "zh-Hans", nameZhHans);
 		putIfPresent(names, "zh-Hant", nameZhHant);
 		return names;
+	}
+
+	/** 응답에 싣는 한 줄 소개 — 비어 있는 언어는 빠진다. 없으면 빈 지도. */
+	public Map<String, String> oneLine() {
+		Map<String, String> lines = new LinkedHashMap<>();
+		if (oneLine != null) {
+			oneLine.forEach((lang, text) -> putIfPresent(lines, lang, text));
+		}
+		return lines;
 	}
 
 	/** 응답에 싣는 언어별 주소 — {@link #localNames()} 와 같은 키·규칙. */
