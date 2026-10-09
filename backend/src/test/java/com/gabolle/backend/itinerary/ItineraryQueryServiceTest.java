@@ -193,6 +193,31 @@ class ItineraryQueryServiceTest {
 	}
 
 	@Test
+	@DisplayName("🔴 S15P21E201-2018 — 직접 짜기로 만든 일정은 origin=SELF, 고친 뒤에도 그대로다 — 화면이 코스 확정 표시를 숨긴다")
+	void selfPlannedItineraryCarriesSelfOrigin() {
+		stubTripMembership(threeDayTrip());
+		String itineraryId = "itn_" + UUID.randomUUID();
+		this.itineraryRepository.create(new Itinerary(itineraryId, this.tripId, 1),
+				new ItineraryVersion(UUID.randomUUID().toString(), itineraryId, 1, null,
+						ItineraryVersion.Operation.CREATE, this.requesterId, "self_plan", null, Instant.now()),
+				List.of(), List.of());
+		assertThat(this.service.getDetail(itineraryId, this.requesterId).origin()).isEqualTo("SELF");
+
+		this.itineraryRepository.appendVersion(new ItineraryVersion(UUID.randomUUID().toString(), itineraryId, 2, 1,
+				ItineraryVersion.Operation.ADD_ITEM, this.requesterId, "req_edit_1", null, Instant.now()),
+				List.of(), List.of(), List.of());
+		assertThat(this.service.getDetail(itineraryId, this.requesterId).origin()).isEqualTo("SELF");
+	}
+
+	@Test
+	@DisplayName("S15P21E201-2018 — 추천이 만든 일정은 origin=RECOMMENDATION")
+	void recommendedItineraryCarriesRecommendationOrigin() {
+		stubTripMembership(threeDayTrip());
+		String itineraryId = seedItinerary(1, List.of());
+		assertThat(this.service.getDetail(itineraryId, this.requesterId).origin()).isEqualTo("RECOMMENDATION");
+	}
+
+	@Test
 	@DisplayName("🔴 S15P21E201-218 — 판의 warningCodes 가 응답에 그대로 실린다")
 	void warningCodesAreIncluded() {
 		stubTripMembership(threeDayTrip());
