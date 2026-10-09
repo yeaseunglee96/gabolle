@@ -14,6 +14,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ApiClientError } from '@/api/client';
+import { createTripForSelfPlan } from '@/api/tripApi';
 import { useAuth } from '@/auth/AuthProvider';
 import { updateMyConsents } from '@/auth/authApi';
 import { Button } from '@/components/Button';
@@ -203,6 +204,23 @@ function PlanConditions() {
     }
   };
 
+  // 직접 짜기(S15P21E201-2018) — 같은 조건으로 여행만 만들고 빈 일정을 붙여, 곳은 사람이 고른다. AI 추천을 부르지 않는다.
+  const [selfPlanBusy, setSelfPlanBusy] = useState(false);
+  const [selfPlanError, setSelfPlanError] = useState<string | null>(null);
+  const startSelfPlan = async () => {
+    if (submittingNow.current || selfPlanBusy) return;
+    submittingNow.current = true; setSelfPlanBusy(true); setSelfPlanError(null);
+    try {
+      const { itineraryId } = await createTripForSelfPlan(draft, accessToken);
+      void clearQuestionState();
+      router.push(`/trips/${encodeURIComponent(itineraryId)}/self-plan`);
+    } catch (cause) {
+      setSelfPlanError(cause instanceof ApiClientError ? localizeMessage(tx, cause.message) : tx('여행을 만들지 못했어요. 잠시 후 다시 시도해 주세요.', 'Could not create the trip. Please try again shortly.'));
+    } finally {
+      submittingNow.current = false; setSelfPlanBusy(false);
+    }
+  };
+
   const grantHealthConsentAndRetry = async () => {
     // 동의는 계정에 기록으로 남아야 해서 비회원은 여기서 로그인한다. 답한 조건은 로그인한 계정이 이어받는다(planDraftCarry).
     if (!accessToken) { router.push({ pathname: '/sign-in', params: { returnTo: '/plan' } }); return; }
@@ -253,6 +271,7 @@ function PlanConditions() {
           <Button label={accessToken ? tx('동의하고 계속', 'Agree and continue') : tx('로그인하고 만들기', 'Sign in and create')} variant="tertiary" onPress={() => void grantHealthConsentAndRetry()} />
         </View>
       ) : null}
+      {selfPlanError ? <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{selfPlanError}</Text> : null}
       {job?.errorMessage && job.state !== 'consent-required' ? (
         <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{localizeMessage(tx, job.errorMessage)}</Text>
       ) : null}
@@ -274,6 +293,16 @@ function PlanConditions() {
           disabled={Boolean(blocker) || (review && (submitting || !readyToBuild))}
           onPress={onPrimary}
         />
+        {review ? (
+          <Button
+            testID="plan-self-plan"
+            variant="outline"
+            accessibilityState={{ busy: selfPlanBusy }}
+            label={selfPlanBusy ? tx('만드는 중…', 'Building…') : tx('AI 없이 직접 짜기', 'Plan it myself (no AI)')}
+            disabled={submitting || selfPlanBusy || !readyToBuild}
+            onPress={() => { completeStep(step + 1); void startSelfPlan(); }}
+          />
+        ) : null}
       </View>
     </View>
   );
@@ -429,7 +458,7 @@ const styles = StyleSheet.create({
   bottomStack: { gap: spacing[2] },
   navRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
   prev: { width: 88, minHeight: 48, alignItems: 'center', justifyContent: 'center', borderRadius: radius.md, backgroundColor: color.surface.soft },
-  next: { flex: 1 },
+  next: { flex: 1, gap: spacing[2] },
   pressed: { opacity: 0.8 },
   sheetLayer: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 25 },
   sheetLayerWide: { alignItems: 'center', backgroundColor: color.canvas },

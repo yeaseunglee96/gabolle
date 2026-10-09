@@ -218,6 +218,24 @@ export async function createTripAndRecommendationJob(
   );
 }
 
+/**
+ * 직접 짜기 — AI 추천 없이 여행을 만들고 «곳이 하나도 없는» 일정을 붙인다 (S15P21E201-2018).
+ * 여행은 추천 때와 같은 값으로 만든다(날짜·인원·출발지·숙소). 곳은 그 뒤 「장소 더하기」로 넣고 서버가 구간·시각을 매긴다.
+ *
+ * 🔴 멱등 키에 `self` 를 붙인다 — 같은 조건으로 AI 추천 여행을 만든 적이 있으면 같은 키가 그 여행(이미 일정이 있다)을 돌려준다.
+ */
+export async function createTripForSelfPlan(draft: PlanDraft, accessToken: string | null): Promise<{ tripId: string; itineraryId: string }> {
+  const payload = toCreateTripPayload(draft);
+  const trip = await apiRequest<TripCreatedDto>('/api/v1/trips', {
+    method: 'POST',
+    accessToken,
+    headers: { 'Idempotency-Key': stableIdempotencyKey(payload, `${draft.attemptId ?? ''}|self`) },
+    body: payload,
+  });
+  const blank = await apiRequest<{ itineraryId: string }>(`/api/v1/trips/${encodeURIComponent(trip.tripId)}/itineraries/blank`, { method: 'POST', accessToken });
+  return { tripId: trip.tripId, itineraryId: blank.itineraryId };
+}
+
 type CloneTripDto = { tripId: string; jobId: string | null };
 
 /**

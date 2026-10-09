@@ -1323,6 +1323,9 @@ function ItineraryClassic() {
     error={addError}
     onSubmit={(placeId, position) => void addPlace(placeId, position)}
     onClose={() => setAddOpen(false)}
+    dayPlaceIds={(day?.items ?? []).map((item) => item.placeId)}
+    startDate={itinerary?.days[0]?.date ?? null}
+    endDate={itinerary?.days[itinerary.days.length - 1]?.date ?? null}
   />
   <ExcludeConfirmModal
     visible={excludeConfirming !== null}

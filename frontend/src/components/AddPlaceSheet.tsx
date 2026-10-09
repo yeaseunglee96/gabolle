@@ -14,13 +14,15 @@ import { resolveSavedPlace } from '@/discovery/savedPlaceCards';
 import { isDemoPlaceId, loadSavedPlaceIds } from '@/discovery/savedPlaces';
 import { useI18n } from '@/i18n';
 import { insertPositionOptions } from '@/plan/itineraryAdjust';
+import { ReferenceSightsList } from '@/plan/ReferenceSightsList';
 
-type Source = 'search' | 'saved';
+// 「참고 명소」(S15P21E201-2019) — 갈래별 부산 대표 관광지를 한 번에 넣는다.
+type Source = 'search' | 'sights' | 'saved';
 type Candidate = { placeId: string; title: string; subtitle: string };
 
 const MIN_QUERY = 2;
 
-export function AddPlaceSheet({ visible, stops, accessToken, busy = false, error, onSubmit, onClose }: {
+export function AddPlaceSheet({ visible, stops, accessToken, busy = false, error, onSubmit, onClose, dayPlaceIds = [], startDate, endDate }: {
   visible: boolean;
   /** 그날 곳들의 이름(순서대로) — 「○○ 다음」 자리를 만든다. */
   stops: { title: string }[];
@@ -30,6 +32,11 @@ export function AddPlaceSheet({ visible, stops, accessToken, busy = false, error
   error?: string | null;
   onSubmit: (placeId: string, position: number) => void;
   onClose: () => void;
+  /** 그날 이미 있는 장소 번호 — 참고 명소에서 「넣음」으로 그린다. */
+  dayPlaceIds?: string[];
+  /** 여행 첫날·마지막 날 — 참고 명소의 축제를 그 기간으로 찾는다. */
+  startDate?: string | null;
+  endDate?: string | null;
 }) {
   const { tx, language } = useI18n();
   const positions = insertPositionOptions(stops, tx);
@@ -78,7 +85,7 @@ export function AddPlaceSheet({ visible, stops, accessToken, busy = false, error
   }, [visible, source, saved, accessToken, language]);
 
   const list = source === 'search' ? results : saved ?? [];
-  const loading = source === 'search' ? searching : saved === null;
+  const loading = source === 'search' ? searching : source === 'saved' ? saved === null : false;
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -99,7 +106,7 @@ export function AddPlaceSheet({ visible, stops, accessToken, busy = false, error
           </ScrollView>
 
           <View style={styles.tabs} accessibilityRole="tablist">
-            {([['search', tx('검색', 'Search')], ['saved', tx('저장한 후보', 'Saved places')]] as const).map(([key, label]) => (
+            {([['search', tx('검색', 'Search')], ['sights', tx('참고 명소', 'Top sights')], ['saved', tx('저장한 후보', 'Saved places')]] as const).map(([key, label]) => (
               <Pressable key={key} testID={`add-place-tab-${key}`} accessibilityRole="tab" accessibilityState={{ selected: source === key }} onPress={() => setSource(key)} style={[styles.tab, source === key && styles.tabSelected]}>
                 <Text variant="caption" weight="bold" color={source === key ? color.text.onAction : color.text.body}>{label}</Text>
               </Pressable>
@@ -113,6 +120,11 @@ export function AddPlaceSheet({ visible, stops, accessToken, busy = false, error
             </View>
           ) : null}
 
+          {source === 'sights' ? (
+            <ScrollView style={styles.list} contentContainerStyle={styles.listContent}>
+              <ReferenceSightsList compact startDate={startDate} endDate={endDate} addedPlaceIds={new Set(dayPlaceIds)} busyPlaceId={busy ? '' : null} onAdd={(placeId) => onSubmit(placeId, position)} />
+            </ScrollView>
+          ) : (
           <ScrollView style={styles.list} contentContainerStyle={styles.listContent}>
             {loading ? <ActivityIndicator color={color.brand.navy} /> : null}
             {!loading && list.length === 0 ? (
@@ -132,6 +144,7 @@ export function AddPlaceSheet({ visible, stops, accessToken, busy = false, error
               </Pressable>
             ))}
           </ScrollView>
+          )}
 
           {error ? <Text variant="caption" weight="bold" color={color.state.danger}>{error}</Text> : null}
 
