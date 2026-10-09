@@ -131,4 +131,26 @@ class WalkGraphFlatFloorResourceTest {
 		System.out.printf("감천 초록 %.1f%% 노랑 %.1f%% 빨강 %.1f%%%n", s[0] * 100, s[1] * 100, s[2] * 100);
 		assertThat(s[2]).isGreaterThan(0.5);
 	}
+
+	private static final double[] CHORYANG = { 35.114, 35.122, 129.030, 129.038 };
+
+	@Test
+	@DisplayName("🔴 S15P21E201-2039 — 지면 고도(국토지리정보원 수치지형도)로 서면 대로(길 20786, SRTM 때 7.4%)가 평탄이다")
+	void seomyeonAvenueIsFlatOnGroundElevation() {
+		assertThat(waySlope[20786]).isBetween((short) 0, (short) 30);
+	}
+
+	@Test
+	@DisplayName("🔴 S15P21E201-2039 — 서면 중심의 노랑·빨강이 길이로 5% 안이다(SRTM 때 27%)")
+	void seomyeonNearlyAllGreenOnGroundElevation() {
+		double[] s = shares(SEOMYEON);
+		assertThat(s[1] + s[2]).isLessThan(0.05);
+	}
+
+	@Test
+	@DisplayName("S15P21E201-2039 — 초량 산복도로는 노랑·빨강이 절반 넘게 남는다 — 지면 고도가 진짜 언덕을 지우지 않는다")
+	void choryangStaysSteep() {
+		double[] s = shares(CHORYANG);
+		assertThat(s[1] + s[2]).isGreaterThan(0.5);
+	}
 }
