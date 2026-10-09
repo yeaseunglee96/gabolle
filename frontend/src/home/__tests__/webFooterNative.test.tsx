@@ -1,7 +1,7 @@
 // 앱 안(탭의 넓은 화면 판)에서는 「앱 받기」 띠를 숨긴다(S15P21E201-1964).
 // 이미 앱을 쓰는 사람에게 앱을 받으라고 하고, 안드로이드 앱 안에서 「Google Play 심사 중」이 보였다.
-import { Platform } from 'react-native';
-import { render, screen } from '@testing-library/react-native';
+import { Linking, Platform } from 'react-native';
+import { fireEvent, render, screen } from '@testing-library/react-native';
 
 jest.mock('expo-router', () => ({ useRouter: () => ({ push: jest.fn() }) }));
 jest.mock('@/layout/useLayout', () => ({ useLayout: () => ({ kind: 'desktop', desktop: true, width: 1280, height: 800, isLandscape: true }) }));
@@ -28,5 +28,23 @@ describe('WebFooter — 앱과 웹', () => {
     Platform.OS = 'web';
     mount();
     expect(screen.getByText('여행 중에는 앱이 더 편해요')).toBeTruthy();
+  });
+
+  it('🔴 웹에서 Google Play 는 눌러서 받는 링크다 — 「심사 중」은 없다, QR 은 둘(S15P21E201-2037)', () => {
+    Platform.OS = 'web';
+    const openURL = jest.spyOn(Linking, 'openURL').mockResolvedValue(true);
+    mount();
+    expect(screen.queryByText(/심사 중/)).toBeNull();
+    fireEvent.press(screen.getByLabelText('Google Play에서 가볼래 받기'));
+    expect(openURL).toHaveBeenCalledWith('https://play.google.com/store/apps/details?id=com.gabolle.app');
+    expect(screen.getByText('iPhone 카메라로 찍어 받기')).toBeTruthy();
+    expect(screen.getByText('Android 카메라로 찍어 받기')).toBeTruthy();
+    expect(screen.getByLabelText('Google Play 내려받기 QR 코드')).toBeTruthy();
+  });
+
+  it('바닥 언어 목록에 고를 수 있는 여섯 언어가 다 있다 — Tiếng Việt 포함', () => {
+    Platform.OS = 'web';
+    mount();
+    expect(screen.getByText(/Tiếng Việt/)).toBeTruthy();
   });
 });
