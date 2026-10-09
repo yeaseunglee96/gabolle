@@ -147,6 +147,11 @@ export type ItineraryDto = {
   slopeAvoid?: boolean;
   /** 이 여행이 「그늘 많은 곳 우선」을 골랐나 — slopeAvoid 와 같은 규칙(초안 대신: shadePreference). */
   shadePrefer?: boolean;
+  /**
+   * 이 일정이 어디서 왔나 — `SELF` 는 「AI 없이 직접 짜기」로 만든 일정(S15P21E201-2018), `RECOMMENDATION` 은 추천이 만든 일정.
+   * 직접 짠 일정에는 고른 추천 코스가 없어서 여행 화면이 「코스 A 확정」·코스 바꾸기를 안 그린다. 옛 서버에는 칸이 없다(추천으로 본다).
+   */
+  origin?: 'SELF' | 'RECOMMENDATION' | null;
 };
 
 export type ItineraryVersionEntryDto = {

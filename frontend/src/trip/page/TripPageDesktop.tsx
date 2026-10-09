@@ -101,7 +101,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
 
   // 불러오기·세기는 폰과 같이 쓴다(useTripPage). 여기 남은 것은 넓은 화면에만 있는 상태다.
   const {
-    page, load, courses, course, courseIndex, setCourseIndex, confirmed, setConfirmed, tripId,
+    page, load, courses, course, courseIndex, setCourseIndex, confirmed, setConfirmed, tripId, selfPlanned,
     itinerary, setItinerary, loaded, dayIndex, setDayIndex, items, selectedId, setSelectedId, photos, pace,
     map, routes, routeLegend, points, anyEstimatedLine, travelTotal, budget, atRisk, allEstimated, title, headSub, confirm, confirming,
   } = useTripPage(source);
@@ -209,6 +209,8 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
 
         {/* ── 코스 줄 — 추천 코스 알약 · 확정 · (오른쪽) 장소 카드 | 큰 지도 ───────── */}
         <View style={styles.courseRow}>
+          {/* 직접 짠 여행에는 추천 코스가 없다 — 「추천 코스」·확정·코스 바꾸기를 다 접고 보기 전환만 남긴다(S15P21E201-2018). */}
+          {selfPlanned ? null : <>
           <Text variant="caption" weight="bold" color={color.text.muted} style={styles.noShrink}>{tx('추천 코스', 'Courses')}</Text>
           {confirmed && course ? (
             <>
@@ -238,6 +240,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
               ) : null}
             </>
           )}
+          </>}
           {/* 🔴 한 안뿐일 때 코스 비교가 준비 중이라고 말하던 줄을 뺐다 — 발표·심사에서 덜 만든 것처럼 보였다(S15P21E201-1662, 사용자 결정). */}
           <ViewSwitch layout={layout} onChange={setLayout} tx={tx} />
         </View>

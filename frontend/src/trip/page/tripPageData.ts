@@ -24,12 +24,19 @@ export type TripPageCourses =
     confirmedCourseId: string | null;
     /** 코스 목록을 아직 받는 중이다 — 연 일정 하나로 먼저 그렸다(S15P21E201-1599). 이때 `full` 은 아직 모른다. */
     coursesLoading: boolean;
+    /** 「AI 없이 직접 짜기」로 만든 일정이다 — 추천 코스가 없으니 코스 확정 표시·코스 바꾸기를 안 그린다(S15P21E201-2018). */
+    selfPlanned: boolean;
   }
   | { state: 'error'; message: string };
 
+/** 직접 짜기로 만든 일정인가 — 서버가 실어 준 origin 으로만 판단한다. 칸이 없는 옛 서버는 추천으로 본다. */
+export function isSelfPlanned(itinerary: ItineraryDto | null | undefined): boolean {
+  return itinerary?.origin === 'SELF';
+}
+
 /** 연 일정 하나로 먼저 그릴 판 — 코스 목록은 아직 오는 중이다. */
 export function itineraryFirstPage(itinerary: ItineraryDto): TripPageCourses {
-  return { state: 'ready', tripId: itinerary.tripId ?? '', courses: [courseFromItinerary(itinerary)], full: false, confirmedCourseId: itinerary.id, coursesLoading: true };
+  return { state: 'ready', tripId: itinerary.tripId ?? '', courses: [courseFromItinerary(itinerary)], full: false, confirmedCourseId: itinerary.id, coursesLoading: true, selfPlanned: isSelfPlanned(itinerary) };
 }
 
 /**
@@ -55,13 +62,18 @@ export async function loadTripPageCourses(
     const fallback = job ? (await loadRecommendationResult(job, accessToken)).itineraryId : null;
     const result = await loadTripCourses(source.tripId, fallback, accessToken);
     if (result.state !== 'success') return { state: 'error', message: result.message };
-    return { state: 'ready', tripId: source.tripId, courses: result.courses, full: result.full, confirmedCourseId: null, coursesLoading: false };
+    return { state: 'ready', tripId: source.tripId, courses: result.courses, full: result.full, confirmedCourseId: null, coursesLoading: false, selfPlanned: false };
   }
 
   const opened = await loadItinerary(source.itineraryId, accessToken);
   if (opened.state !== 'success') return { state: 'error', message: opened.message };
   onItinerary?.(opened.itinerary);
   const tripId = opened.itinerary.tripId ?? '';
+  // 🔴 직접 짠 일정은 추천 코스 목록을 묻지 않는다 — 물으면 받은 추천 안이 옆에 끼어 「코스 A 확정」·바꾸기가 다시 생긴다(S15P21E201-2018).
+  if (isSelfPlanned(opened.itinerary)) {
+    const own = courseFromItinerary(opened.itinerary);
+    return { state: 'ready', tripId, courses: [own], full: false, confirmedCourseId: own.id, coursesLoading: false, selfPlanned: true };
+  }
   // 🔴 여행 번호를 모르는 옛 서버면 코스 목록을 물을 곳이 없다 — 이 일정 하나만 코스로 쓴다.
   //    목록이 비었을 때 대신 쓸 일정은 넘기지 않는다 — 연 일정이 이미 손에 있어서, 넘기면 같은 것을 한 번 더 받는다.
   const listed = tripId ? await loadTripCourses(tripId, null, accessToken) : null;
@@ -72,5 +84,5 @@ export async function loadTripPageCourses(
   const own = courses.find((course) => course.itineraryId === source.itineraryId);
   const withOwn = own ? courses : [courseFromItinerary(opened.itinerary), ...courses];
   const confirmed = own ?? withOwn[0];
-  return { state: 'ready', tripId, courses: withOwn, full, confirmedCourseId: confirmed.id, coursesLoading: false };
+  return { state: 'ready', tripId, courses: withOwn, full, confirmedCourseId: confirmed.id, coursesLoading: false, selfPlanned: false };
 }
