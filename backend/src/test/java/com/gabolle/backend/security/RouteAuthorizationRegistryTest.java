@@ -655,6 +655,24 @@ class RouteAuthorizationRegistryTest {
 				"수정은 작성자만 — requireAuthor. StoryCrudIntegrationTest");
 		put(m, "DELETE /api/v1/stories/{}", Policy.OWNED,
 				"삭제는 작성자만 — requireAuthor. StoryCrudIntegrationTest");
+		// ── 루트 포스트(-2027)·장소별 루트(-2028). 공개 글만 있고, 차단·지움·탈퇴는 404 — RoutePostIntegrationTest
+		put(m, "POST /api/v1/route-posts", Policy.AUTHENTICATED_ONLY,
+				"새로 쓰는 것이다. 원본 일정은 멤버만 읽힌다 — RoutePostIntegrationTest.cannotPublishSomeoneElsesItinerary");
+		put(m, "GET /api/v1/route-posts", Policy.AUTHENTICATED_ONLY,
+				"공개 루트 목록. 차단 사이는 빠진다 — RoutePostIntegrationTest.blockedAuthorIsHidden");
+		put(m, "GET /api/v1/route-posts/{}", Policy.OTHER_USER_OK,
+				"남의 루트를 보는 것이 기능이다 — RoutePostIntegrationTest.blockedAuthorIsHidden");
+		put(m, "DELETE /api/v1/route-posts/{}", Policy.OWNED,
+				"작성자만 — RoutePostIntegrationTest.deleteOnlyByAuthor");
+		put(m, "PUT /api/v1/route-posts/{}/like", Policy.OTHER_USER_OK, "남의 루트에 좋아요. 반응 행은 요청자 것이다");
+		put(m, "DELETE /api/v1/route-posts/{}/like", Policy.OTHER_USER_OK, "요청자 자신의 좋아요만 지운다");
+		put(m, "PUT /api/v1/route-posts/{}/save", Policy.OTHER_USER_OK, "남의 루트를 내 목록에 저장");
+		put(m, "DELETE /api/v1/route-posts/{}/save", Policy.OTHER_USER_OK, "요청자 자신의 저장만 지운다");
+		put(m, "POST /api/v1/route-posts/{}/copies", Policy.OTHER_USER_OK,
+				"남의 루트를 따라 했다고 센다. 같은 사람은 한 번 — RoutePostIntegrationTest.reactionsAreIdempotent");
+		put(m, "GET /api/v1/me/saved-route-posts", Policy.OWNED, "경로에 남의 id 가 없다. 요청자 자신의 저장 목록");
+		put(m, "GET /api/v1/places/{}/route-posts", Policy.OTHER_USER_OK,
+				"장소에 들어간 공개 루트 — RoutePostIntegrationTest.routesForPlaceArePopularFirst");
 		// ── 기록 공동 작성
 		// 다섯 경로 전부 AUTHENTICATED_ONLY 다. 경로 자체에 남의 것과 내 것을 가르는 별도의 자원
 		// 식별자가 없고, storyId 는 이미 StoryService.requireVisible 의 404/403 판정 뒤에 있다.
