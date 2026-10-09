@@ -1,4 +1,4 @@
-// 지도 위 경로 색의 범례 — 초록·노랑·빨강·회색이 무엇이고, 어떤 규칙으로 칠했는지 한 줄 (S15P21E201-1896).
+// 지도 위 경로 색의 범례 — 초록·노랑·빨강·회색이 무엇인지 말로 한 줄 (S15P21E201-1896 · 숫자 뺌 S15P21E201-2023).
 //
 // 전에 이 자리에는 「경사」·「그늘」 칩(MobilityLayerToggle)이 있었다 — 눌러야 경로와 무관한 겹이 깔렸다. 이제 고른 조건이
 // 경로 선 자체를 칠하므로(routeGrading.ts) 누를 것이 없고, 색의 뜻만 알려 준다. 눌리지 않는다(pointerEvents none).
@@ -17,55 +17,45 @@ type Tx = (ko: string, en: string) => string;
 
 const ORDER: Grade[] = ['good', 'fair', 'bad', 'unknown'];
 
-/** 범례에 적을 말 — 색마다 이름, 칠한 규칙 한 줄, (있으면) 덧붙일 한 마디. 그리는 것과 떼어 두어 시험이 글자를 바로 본다. */
-export function legendCopy(legend: RouteLegend, tx: Tx): { labels: Record<Grade, string>; rule: string; note: string | null } {
-  const labels: Record<Grade, string> = {
-    good: tx('잘 맞아요', 'Good fit'),
-    fair: tx('보통', 'Fair'),
-    bad: tx('안 맞아요', 'Poor fit'),
-    unknown: tx('모름', 'Unknown'),
-  };
+/**
+ * 범례에 적을 말 — 색마다 이름, (있으면) 덧붙일 한 마디. 그리는 것과 떼어 두어 시험이 글자를 바로 본다.
+ *
+ * 🔴 S15P21E201-2023: % 숫자와 칠한 규칙 줄을 뺐다. 「여행 갈 때 경사·그늘은 크게 신경 안 쓴다, 퍼센트 수치는 어렵고 복잡하다」(모진성)
+ *    — 그리고 경사 % 자체가 ±3~5%p 오차를 품고 있어(2026-10-09 조사) 소수점 숫자는 정밀하다는 착각만 준다.
+ *    색의 이름이 곧 뜻이다: 경사만이면 평탄·조금 가파름·가파름(계단 포함), 그늘만이면 그늘 많음·보통·그늘 적음.
+ *    문턱(5% · 8.33%)은 그대로 slopeGrades.ts 에 있다 — 화면에 안 적을 뿐이다.
+ */
+export function legendCopy(legend: RouteLegend, tx: Tx): { labels: Record<Grade, string>; note: string | null } {
   const { slope, shade } = legend.grading;
+  const unknown = tx('모름', 'Unknown');
   if (slope && shade) {
     return {
-      labels,
-      rule: tx(
-        '경사 60% + 그늘 40%를 합친 점수 · 계단은 빨강 · 그늘 자료가 없는 곳은 경사만',
-        'Slope 60% + shade 40% combined · stairs are red · slope only where shade data is missing',
-      ),
+      labels: { good: tx('걷기 편함', 'Easy walk'), fair: tx('보통', 'Fair'), bad: tx('걷기 힘듦', 'Hard walk'), unknown },
       // 그늘을 아는 조각이 하나도 없으면 사실상 경사만으로 칠한 것이다 — 그렇게 말한다.
-      note: legend.hasShade ? null : tx('지금 보이는 길은 그늘 자료가 아직 없어 경사로만 칠했어요', 'The routes shown have no shade data yet, so they are colored by slope only'),
+      note: legend.hasShade ? null : tx('그늘 자료가 없어 경사로만 칠했어요', 'No shade data here, so colored by slope only'),
     };
   }
   if (shade) {
     return {
-      labels,
-      rule: tx(
-        '‘그늘 많은 곳 우선’ 기준 · 그늘이 많을수록 초록, 적을수록 빨강 · 계단은 빨강',
-        'By “Prefer shadier places” · more shade is greener, less is red · stairs are red',
-      ),
-      note: legend.hasShade ? null : tx('지금 보이는 길은 그늘 자료가 아직 없어 회색으로 보여요', 'The routes shown have no shade data yet, so they show in gray'),
+      labels: { good: tx('그늘 많음', 'Shady'), fair: tx('보통', 'Fair'), bad: tx('그늘 적음', 'Little shade'), unknown },
+      note: legend.hasShade ? null : tx('그늘 자료가 아직 없어요', 'No shade data yet'),
     };
   }
   return {
-    labels,
-    rule: tx(
-      '‘가파른 경사 피하기’ 기준 · 초록 5% 미만 · 노랑 5~8.33% · 빨강 8.33% 초과 또는 계단',
-      'By “Avoid steep slopes” · green under 5% · yellow 5–8.33% · red over 8.33% or stairs',
-    ),
+    labels: { good: tx('평탄', 'Flat'), fair: tx('조금 가파름', 'A bit steep'), bad: tx('가파름·계단', 'Steep or stairs'), unknown },
     note: null,
   };
 }
 
 export function RouteColorLegend({ legend, tx, style }: { legend: RouteLegend | null | undefined; tx: Tx; style?: StyleProp<ViewStyle> }) {
   if (!legend) return null;
-  const { labels, rule, note } = legendCopy(legend, tx);
+  const { labels, note } = legendCopy(legend, tx);
   return (
     // 눌리지 않는 안내라 지도의 끌기·누르기를 막지 않는다.
     <View pointerEvents="none" style={style}>
       <View
         accessible
-        accessibilityLabel={`${ORDER.map((grade) => labels[grade]).join(', ')}. ${rule}${note ? `. ${note}` : ''}`}
+        accessibilityLabel={`${ORDER.map((grade) => labels[grade]).join(', ')}${note ? `. ${note}` : ''}`}
         style={styles.card}
       >
         <View style={styles.row}>
@@ -76,7 +66,6 @@ export function RouteColorLegend({ legend, tx, style }: { legend: RouteLegend | 
             </View>
           ))}
         </View>
-        <Text variant="micro" color={color.text.body}>{rule}</Text>
         {note ? <Text variant="micro" color={color.text.muted}>{note}</Text> : null}
       </View>
     </View>

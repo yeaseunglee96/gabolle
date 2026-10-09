@@ -78,8 +78,9 @@ const mount = () => render(<TripPageMobile source={{ kind: 'itinerary', itinerar
 const last = () => mockMapProps[mockMapProps.length - 1];
 const legendRoutes = () => (last().routes ?? []).find((route) => route.pieces?.length);
 
-const SLOPE_RULE = '‘가파른 경사 피하기’ 기준 · 초록 5% 미만 · 노랑 5~8.33% · 빨강 8.33% 초과 또는 계단';
-const BOTH_RULE = '경사 60% + 그늘 40%를 합친 점수 · 계단은 빨강 · 그늘 자료가 없는 곳은 경사만';
+// 범례는 말로만 나온다(S15P21E201-2023) — 경사만 고른 여행의 이름표와 둘 다 고른 여행의 이름표로 알아본다.
+const SLOPE_RULE = '조금 가파름';
+const BOTH_RULE = '걷기 힘듦';
 
 beforeEach(() => { mockMapProps.length = 0; mockDraft = null; loadItinerary.mockReset(); jest.useFakeTimers(); });
 // 창의 움직임을 끝까지 돌리고 정리한다 — 안 그러면 시험이 끝난 뒤에도 움직임이 돌아 경고가 쏟아진다(tripSheet.test 와 같은 사정).
@@ -121,7 +122,7 @@ describe('여행 페이지 — 경로 선 색', () => {
     expect(gradedSegments(route.path as never, route.pieces as never, route.grading)).toBeNull();
     expect(screen.queryByText(SLOPE_RULE)).toBeNull();
     expect(screen.queryByText(BOTH_RULE)).toBeNull();
-    expect(screen.queryByText('잘 맞아요')).toBeNull();
+    expect(screen.queryByText('평탄')).toBeNull();
   });
 
   it('🔴 서버가 false 라고 답하면 기기 초안이 «경사 피하기» 여도 따르지 않는다 — 초안은 새 여행의 답이다', async () => {
@@ -161,6 +162,6 @@ describe('여행 페이지 — 경로 선 색', () => {
     });
     mount();
     await waitFor(() => expect(legendRoutes()).toBeTruthy());
-    expect(screen.getByText('지금 보이는 길은 그늘 자료가 아직 없어 경사로만 칠했어요')).toBeTruthy();
+    expect(screen.getByText('그늘 자료가 없어 경사로만 칠했어요')).toBeTruthy();
   });
 });

@@ -93,7 +93,7 @@ describe('정보 줄', () => {
 
   it('🔴 운영 금정산(경사 8.8%) — 「경사」 줄이 가파라요면 걷기 난이도도 힘듦이다 (전에는 보통이라 같은 화면에서 엇갈렸다)', () => {
     const geumjeongsan = { stat: 'p50', score: 8.8, radiusM: 200, segments: 7, walkLengthM: 6175 };
-    expect(formatSlopePercent(place(geumjeongsan, 'ESTIMATED'), ko)).toBe('가파라요 · 8.8% (추정)');
+    expect(formatSlopePercent(place(geumjeongsan, 'ESTIMATED'), ko)).toBe('가파라요 (추정)');
     expect(walkDifficultyRow('NATURE_WALK', [f('SLOPE_PERCENT', geumjeongsan, 'ESTIMATED')], ko)?.value).toBe('힘듦 (추정)');
   });
 

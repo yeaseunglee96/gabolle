@@ -370,7 +370,7 @@ export function formatStairsPresent(place: Place, tx: (ko: string, en: string) =
   return slot.evidenceStatus === 'ESTIMATED' ? txf(tx, '%s (추정)', '%s (est.)', label) : label;
 }
 
-// 경사도(SLOPE_PERCENT) — 점수형 피처. 단위 없는 숫자는 뜻이 안 통하므로 % 를 붙인다.
+// 경사도(SLOPE_PERCENT) — 점수형 피처. 화면에는 숫자 대신 말(완만해요·조금 가파라요·가파라요)로 낸다(S15P21E201-2023).
 /** 경사도 표시용 숫자 추출 — 못 꺼내면 null */
 function slopeText(value: unknown): string | null {
   if (typeof value === 'number') return `${value}%`;
@@ -388,10 +388,12 @@ export function formatSlopePercent(place: Place, tx: (ko: string, en: string) =>
   // JSON.stringify 금지 자리 — 서버 값이 숫자에서 객체로 바뀌면 화면에 그대로 찍힌다.
   const text = slopeText(slot.value);
   if (text === null) return tx('확인했지만 형식을 읽지 못했어요', "We checked, but couldn't read the format");
-  const number = slot.evidenceStatus === 'ESTIMATED' ? txf(tx, '%s (추정)', '%s (est.)', text) : text;
-  // 숫자만으로는 판단이 안 선다 — 지도의 경사 색과 같은 기준으로 먼저 말한다(slopeGrades.ts: 5% · 8.33%).
+  // 🔴 S15P21E201-2023: % 숫자는 보이지 않는다 — 말로만. 경사 % 는 SRTM 30m 고도에서 낸 값이라 ±3~5%p 오차를 품고 있어
+  //    소수점 숫자는 정밀하다는 착각만 주고(2026-10-09 조사), 사용자는 수치가 어렵다고 했다(모진성). 문턱은 지도 색과 같다(5% · 8.33%).
   const percent = Number.parseFloat(text);
-  return Number.isFinite(percent) ? `${slopeWord(percent, tx)} · ${number}` : number;
+  if (!Number.isFinite(percent)) return tx('확인했지만 형식을 읽지 못했어요', "We checked, but couldn't read the format");
+  const word = slopeWord(percent, tx);
+  return slot.evidenceStatus === 'ESTIMATED' ? txf(tx, '%s (추정)', '%s (est.)', word) : word;
 }
 
 /** 지도 경사 색과 같은 문턱 — 5% 미만 초록 · 8.33% 이하 노랑 · 그 위 빨강. */
