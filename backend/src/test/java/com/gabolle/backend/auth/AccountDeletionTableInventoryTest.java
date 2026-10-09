@@ -40,6 +40,10 @@ class AccountDeletionTableInventoryTest extends AuthPostgresIntegrationTest {
 			// 기기 푸시 토큰. 탈퇴 때 AccountDeletionService 가 직접 지운다 — CASCADE 는 안 돈다
 			// (app_user 행을 익명화만 하므로). 안 지우면 탈퇴한 사람 폰에 알림이 계속 간다.
 			"push_token",
+			// 루트 포스트(S15P21E201-2027)와 그 좋아요·저장·복사. 탈퇴는 app_user 행을 지우지 않고 deleted_at 을
+			// 찍으므로 CASCADE 는 안 돈다 — 대신 RoutePostService.VISIBLE 이 작성자의 deleted_at 을 봐서 글이 어디에도
+			// 안 나온다(상세·피드·장소별 모두 그 한 조건을 지난다).
+			"route_post", "route_post_reaction",
 			"saved_place", "story", "story_coauthor",
 			"story_invite", "story_link_copy", "story_reaction",
 			"story_save", "story_view", "trip_invite", "trip_member",
