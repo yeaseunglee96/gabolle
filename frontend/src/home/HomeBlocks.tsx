@@ -220,10 +220,6 @@ function LocalPickCard({
           photoLicense={place.photoLicense}
           style={styles.placePhoto}
         />
-        {/* 갈래 이름표 — 사진 왼쪽 위. 여섯 장이 무엇을 대표하는지 한눈에. */}
-        <View style={styles.pickBadge}>
-          <Text variant="micro" weight="bold" color={color.brand.navy} numberOfLines={1}>{category}</Text>
-        </View>
       </Pressable>
 
       <Pressable
@@ -236,7 +232,9 @@ function LocalPickCard({
         <HeartIcon filled={liked} />
       </Pressable>
 
-      <Text variant="body" weight="bold" color={color.text.heading} numberOfLines={1} style={styles.placeName}>{shownName}</Text>
+      {/* 갈래 이름표 — 사진 «아래». 사진 왼쪽 위는 PlaceVisual 의 「주변 사진」 표시 자리라 덮으면 안 된다(배포본에서 광안리 SUP Zone 표시를 가렸다). */}
+      <Text variant="caption" weight="bold" color={color.action.outline} numberOfLines={1} style={styles.placeName}>{category}</Text>
+      <Text variant="body" weight="bold" color={color.text.heading} numberOfLines={1}>{shownName}</Text>
       <Text variant="caption" color={color.text.body} numberOfLines={1}>{sub}</Text>
       <Pressable
         accessibilityRole="link"
@@ -395,7 +393,6 @@ const styles = StyleSheet.create({
   placeName: { marginTop: spacing[3] },
   // 누르는 자리는 44 로 두고 보이는 원은 28 이다 — 손가락은 44 를 필요로 하는데
   // 28 보다 큰 동그라미를 사진 위에 얹으면 사진을 가린다.
-  pickBadge: { position: 'absolute', top: spacing[2], left: spacing[2], maxWidth: '70%', paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.card },
   pickMore: { alignSelf: 'flex-start', marginTop: spacing[1], minHeight: 24, justifyContent: 'center' },
   heartButton: { position: 'absolute', top: 0, right: 0, width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
 
