@@ -25,9 +25,11 @@ public interface UploadedImageRepository extends JpaRepository<UploadedImage, UU
 	/**
 	 * 어디에도 안 붙은 채 오래된 사진.
 	 *
-	 * <p>사진이 붙는 자리는 넷이다 — {@code story_image}, 동영상 썸네일
+	 * <p>사진이 붙는 자리는 여섯이다 — {@code story_image}, 동영상 썸네일
 	 * ({@code story_video.thumbnailUploadId}), 프로필 사진({@code app_user.avatar_url}),
-	 * 커버 사진({@code app_user.cover_url}). 하나라도 빠뜨리면 붙어 있는 파일이 고아로 판정돼
+	 * 커버 사진({@code app_user.cover_url}), 그리고 현지인 장소 제안의 사진({@code place_suggestion.photo_url})과
+	 * 승인되어 장소에 옮겨 붙은 사진({@code place.photo_url}) — S15P21E201-2031. 제안 표는 엔티티가 아니라서
+	 * 이 질의를 SQL 로 바꿨다. 하나라도 빠뜨리면 붙어 있는 파일이 고아로 판정돼
 	 * 조용히 지워지므로, 자리가 늘어나면 이 질의도 같이 늘려야 한다.
 	 *
 	 * <p>계정 쪽은 업로드 식별자가 아니라 주소 문자열을 들고 있어 주소로 잇는다. 청소가 하루 한
@@ -40,15 +42,17 @@ public interface UploadedImageRepository extends JpaRepository<UploadedImage, UU
 	 * 않기 위한 유예다
 	 * @param limit 한 번에 가져올 상한. 이상한 일이 생겨도 피해가 한 판 크기로 묶인다
 	 */
-	@Query("""
-			SELECT i FROM UploadedImage i
-			 WHERE i.createdAt < :cutoff
-			   AND i.deletedAt IS NULL
-			   AND NOT EXISTS (SELECT 1 FROM StoryImage si WHERE si.uploadedImageId = i.uploadedImageId)
-			   AND NOT EXISTS (SELECT 1 FROM StoryVideo sv WHERE sv.thumbnailUploadId = i.uploadedImageId)
-			   AND NOT EXISTS (SELECT 1 FROM AppUser u
-			                    WHERE u.avatarUrl = i.imageUrl OR u.coverUrl = i.imageUrl)
-			 ORDER BY i.createdAt ASC
-			""")
+	@Query(value = """
+			SELECT i.* FROM uploaded_image i
+			 WHERE i.created_at < :cutoff
+			   AND i.deleted_at IS NULL
+			   AND NOT EXISTS (SELECT 1 FROM story_image si WHERE si.uploaded_image_id = i.uploaded_image_id)
+			   AND NOT EXISTS (SELECT 1 FROM story_video sv WHERE sv.thumbnail_upload_id = i.uploaded_image_id)
+			   AND NOT EXISTS (SELECT 1 FROM app_user u
+			                    WHERE u.avatar_url = i.image_url OR u.cover_url = i.image_url)
+			   AND NOT EXISTS (SELECT 1 FROM place_suggestion ps WHERE ps.photo_url = i.image_url)
+			   AND NOT EXISTS (SELECT 1 FROM place p WHERE p.photo_url = i.image_url)
+			 ORDER BY i.created_at ASC
+			""", nativeQuery = true)
 	List<UploadedImage> findOrphansOlderThan(@Param("cutoff") Instant cutoff, Pageable limit);
 }
