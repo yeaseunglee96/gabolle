@@ -127,6 +127,8 @@ export function useTripPage(source: TripPageSource) {
   }, []));
 
   const loaded = itinerary?.value ?? null;
+  /** 직접 짠 여행 — 화면이 코스 칩·「코스 A 확정」·코스 바꾸기를 안 그린다(S15P21E201-2018). */
+  const selfPlanned = (page?.state === 'ready' && page.selfPlanned) || loaded?.origin === 'SELF';
   // 다른 여행을 열면 1일차부터 본다.
   useEffect(() => { setDayIndex(0); openedDayFor.current = null; }, [sourceKey]);
   // 🔴 여행 중이면 오늘 칸을 연다(S15P21E201-1941) — 셋째 날에 열어도 1일차가 보였다. 여행마다 처음 한 번만.
@@ -286,7 +288,7 @@ export function useTripPage(source: TripPageSource) {
   };
 
   return {
-    page, load, courses, course, courseIndex, setCourseIndex, confirmed, setConfirmed, tripId,
+    page, load, courses, course, courseIndex, setCourseIndex, confirmed, setConfirmed, tripId, selfPlanned,
     itinerary, setItinerary, loaded, reloadItinerary: () => { shownItineraryId.current = null; setItineraryNonce((n) => n + 1); },
     dayIndex, setDayIndex, items, selectedId, setSelectedId, photos, pace, reloadPace: () => setPaceNonce((n) => n + 1),
     map, routes, routeLegend, points, anyEstimatedLine, allItems, travelTotal, budget, atRisk, allEstimated,

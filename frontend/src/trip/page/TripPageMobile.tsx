@@ -154,7 +154,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   const narrowTools = width / PixelRatio.getFontScale() < TOOL_ROW_MIN_WIDTH;
 
   const {
-    page, load, courses, course, courseIndex, setCourseIndex, confirmed, setConfirmed, tripId,
+    page, load, courses, course, courseIndex, setCourseIndex, confirmed, setConfirmed, tripId, selfPlanned,
     itinerary, setItinerary, loaded, reloadItinerary, dayIndex, setDayIndex, items, selectedId, setSelectedId,
     photos, pace, reloadPace, map, routes, routeLegend, points, budget, atRisk, allEstimated, title, headSub, confirm, confirming,
   } = useTripPage(source);
@@ -541,7 +541,8 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
         <View style={styles.headCopy}>
           <Text variant="display" weight="bold" numberOfLines={2}>{ready && loaded ? title : tx('여행', 'Trip')}</Text>
           {headSub ? <Text variant="caption" color={color.text.muted}>{headSub}</Text> : null}
-          {confirmed && course ? (
+          {/* 직접 짠 여행에는 고른 추천 코스가 없다 — 「코스 A 확정」을 안 그린다(S15P21E201-2018). */}
+          {confirmed && course && !selfPlanned ? (
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={tx('코스 바꾸기', 'Change course')}
@@ -639,7 +640,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
           ) : null}
 
           <CourseCardMobile
-            open={!confirmed}
+            open={!confirmed && !selfPlanned}
             courses={courses}
             index={courseIndex}
             full={page.full}
