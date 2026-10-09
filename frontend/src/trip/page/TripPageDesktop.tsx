@@ -61,6 +61,7 @@ import { localToday } from '@/plan/tripBasics';
 import { StoryComposeForm } from '@/social/StoryComposeForm';
 import { ImpressionView, useImpressionTracker } from '@/analytics/impressions';
 import { itemOtherName } from '@/plan/itineraryItemName';
+import { oneLineFor } from '@/plan/placeOneLine';
 
 type Tx = (ko: string, en: string) => string;
 type Layout = 'cards' | 'map';
@@ -375,6 +376,8 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
                       </View>
                       <View style={styles.bigCopy}>
                         <View style={styles.rowCenter}><NumberDot n={index + 1} size={20} /><StopName weight="bold" title={item.title} nameEn={itemOtherName(item, photo, language)} /></View>
+                        {/* 어떤 곳인지 한 줄(S15P21E201-2029) — 없으면 줄째 안 그린다 */}
+                        {oneLineFor(item.oneLine, language) ? <Text variant="caption" color={color.text.body} numberOfLines={1}>{oneLineFor(item.oneLine, language)}</Text> : null}
                         <Text variant="caption" color={color.text.muted} numberOfLines={1}>{[stopClock(item.startsAt), legParams ? null : leg].filter(Boolean).join(' · ')}</Text>
                       </View>
                     </Pressable>

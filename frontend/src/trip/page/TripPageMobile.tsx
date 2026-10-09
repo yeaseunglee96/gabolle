@@ -88,6 +88,7 @@ import { weatherDayFor } from '@/trip/weatherDay';
 import { localToday } from '@/plan/tripBasics';
 import { StoryComposeForm } from '@/social/StoryComposeForm';
 import { itemOtherName } from '@/plan/itineraryItemName';
+import { oneLineFor } from '@/plan/placeOneLine';
 
 type Tx = (ko: string, en: string) => string;
 type Panel = 'trip' | 'collapsed';
@@ -1067,6 +1068,7 @@ function TimelineStop({ item, name, startKind, index, last, freeBefore, date, ph
   const nameParts = stopNameParts(item.title, itemOtherName(item, photo, language), language);
   const leg = formatTravelLabel(item, tx, index === 0 && startKind);
   const reason = pickReasonLine(item.reasonCodes);
+  const intro = oneLineFor(item.oneLine, language);
   const done = step === 'done';
   // 지금 머무는 곳(도착만 적혔고 그 뒤 도착이 없는 곳) — 「✓ 다녀옴」 대신 「머무는 중」(S15P21E201-1690, 조율 세션 결정).
   const staying = step === 'staying';
@@ -1167,6 +1169,8 @@ function TimelineStop({ item, name, startKind, index, last, freeBefore, date, ph
                 {staying ? <View style={styles.chipStaying}><Text variant="micro" weight="bold" color={color.text.body}>{tx('머무는 중', 'Here now')}</Text></View> : null}
               </View>
               {nameParts.other ? <Text variant="caption" color={color.text.muted} numberOfLines={1}>{nameParts.otherFirst ? nameParts.hangul : nameParts.other}</Text> : null}
+              {/* 어떤 곳인지 한 줄(S15P21E201-2029) — 없으면 줄째 안 그린다. 이름 바로 밑, 한 줄 말줄임 */}
+              {intro ? <Text variant="caption" color={color.text.body} numberOfLines={1}>{intro}</Text> : null}
               {meta ? <Text variant="caption" color={color.text.muted}>{meta}</Text> : null}
               {/* 왜 이 곳인지 하나 — 없으면 줄째 안 그린다(S15P21E201-1645). 폰 카드는 글자 칸이 좁아 한 줄이면
                   「다른 곳보다 거리가 돋…」처럼 핵심 말이 잘려서 두 줄까지 둔다. */}
