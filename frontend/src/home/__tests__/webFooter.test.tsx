@@ -1,6 +1,6 @@
 // 웹 맨 아래 안내(S15P21E201-1930) — 링크가 실제로 있는 화면으로 가는가. 없는 화면으로 가는 링크는
 // 「눌렀더니 찾을 수 없음」이라 맨 아래 안내 전체를 못 믿게 만든다. 화면을 옮기거나 지우면 여기서 걸린다.
-import { APP_STORE_URL, FOOTER_GROUPS } from '../WebFooter';
+import { APP_STORE_URL, FOOTER_GROUPS, PLAY_STORE_URL } from '../WebFooter';
 
 declare const require: (id: string) => any;
 declare const __dirname: string;
@@ -27,5 +27,11 @@ describe('WebFooter', () => {
 
   it('앱 받기는 심사를 통과한 App Store 주소로 간다 — 포스터·팸플릿 QR 과 같다', () => {
     expect(APP_STORE_URL).toBe('https://apps.apple.com/app/id6811252919');
+  });
+
+  it('🔴 Google Play 받기는 프로덕션 심사를 통과한 앱 주소로 간다 — app.json 의 안드로이드 패키지와 같다(S15P21E201-2037)', () => {
+    const appJson = require(join(__dirname, '..', '..', '..', 'app.json'));
+    expect(PLAY_STORE_URL).toBe(`https://play.google.com/store/apps/details?id=${appJson.expo.android.package}`);
+    expect(PLAY_STORE_URL).toBe('https://play.google.com/store/apps/details?id=com.gabolle.app');
   });
 });
