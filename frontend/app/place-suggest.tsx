@@ -25,6 +25,7 @@ import { useI18n } from '@/i18n';
 import { txf } from '@/i18n/format';
 import { useLayout } from '@/layout/useLayout';
 import { readCurrentPosition } from '@/location/currentPosition';
+import { useLocationGate } from '@/personalization/useLocationGate';
 import { resizeForUpload } from '@/social/imageResize';
 import { resolveStoryImageUrl, uploadStoryImage } from '@/social/stories';
 
@@ -53,6 +54,8 @@ export default function PlaceSuggestScreen() {
   const { tx } = useI18n();
   const { accessToken, user, ready } = useAuth();
   const { desktop } = useLayout();
+  // 「내 위치로」도 위치 동의 문을 지난다 — 다른 화면과 같다(locationConsent 시험).
+  const locationGate = useLocationGate(accessToken);
 
   const [name, setName] = useState(typeof params.name === 'string' ? params.name.slice(0, NAME_MAX) : '');
   const [category, setCategory] = useState<string | null>(null);
@@ -92,6 +95,7 @@ export default function PlaceSuggestScreen() {
   const canSend = problems.length === 0 && duplicates.length === 0 && !sending && !photoBusy;
 
   async function useMyLocation() {
+    if (!(await locationGate.request())) return;
     setLocating(true);
     try {
       const position = await readCurrentPosition();
@@ -250,6 +254,7 @@ export default function PlaceSuggestScreen() {
   return (
     <Screen scroll wide={desktop}>
       <Header tx={tx} onBack={() => (router.canGoBack() ? router.back() : router.replace('/home'))} />
+      {locationGate.sheet}
       {sent ? (
         <View style={styles.card}>
           <Text variant="title" weight="bold">{tx('제안을 받았어요', 'Suggestion received')}</Text>
