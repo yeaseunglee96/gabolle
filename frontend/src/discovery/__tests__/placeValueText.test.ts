@@ -23,7 +23,7 @@ function placeWith(featureType: string, value: unknown, evidenceStatus = 'ESTIMA
 describe('경사도 — JSON 을 화면에 내보내지 않는다', () => {
   it('🔴 서버가 객체로 줘도 사람이 읽는 값이 나간다', () => {
     const text = formatSlopePercent(placeWith('SLOPE_PERCENT', SLOPE_VALUE), tx);
-    expect(text).toBe('완만해요 · 2.7% (추정)');
+    expect(text).toBe('완만해요 (추정)');
   });
 
   it('🔴 어떤 모양이 와도 중괄호가 화면에 안 나간다', () => {
@@ -34,8 +34,8 @@ describe('경사도 — JSON 을 화면에 내보내지 않는다', () => {
     }
   });
 
-  it('숫자로 오면 예전처럼 % 를 붙인다', () => {
-    expect(formatSlopePercent(placeWith('SLOPE_PERCENT', 3.5), tx)).toBe('완만해요 · 3.5% (추정)');
+  it('🔴 숫자로 와도 % 숫자 없이 말로만 낸다 (S15P21E201-2023)', () => {
+    expect(formatSlopePercent(placeWith('SLOPE_PERCENT', 3.5), tx)).toBe('완만해요 (추정)');
   });
 
   it('못 읽는 모양이면 JSON 이 아니라 문장으로 물러선다', () => {
@@ -44,11 +44,11 @@ describe('경사도 — JSON 을 화면에 내보내지 않는다', () => {
   });
 });
 
-describe('경사 — 숫자보다 말을 먼저(지도 경사 색과 같은 문턱)', () => {
+describe('경사 — 숫자 없이 말로만(지도 경사 색과 같은 문턱)', () => {
   it('5% 미만은 완만 · 8.33% 까지는 조금 가파름 · 그 위는 가파름', () => {
-    expect(formatSlopePercent(placeWith('SLOPE_PERCENT', 4.9, 'VERIFIED'), tx)).toBe('완만해요 · 4.9%');
-    expect(formatSlopePercent(placeWith('SLOPE_PERCENT', 8.33, 'VERIFIED'), tx)).toBe('조금 가파라요 · 8.33%');
-    expect(formatSlopePercent(placeWith('SLOPE_PERCENT', 12, 'VERIFIED'), tx)).toBe('가파라요 · 12%');
+    expect(formatSlopePercent(placeWith('SLOPE_PERCENT', 4.9, 'VERIFIED'), tx)).toBe('완만해요');
+    expect(formatSlopePercent(placeWith('SLOPE_PERCENT', 8.33, 'VERIFIED'), tx)).toBe('조금 가파라요');
+    expect(formatSlopePercent(placeWith('SLOPE_PERCENT', 12, 'VERIFIED'), tx)).toBe('가파라요');
   });
 });
 
