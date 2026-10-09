@@ -37,6 +37,9 @@ class AccountDeletionTableInventoryTest extends AuthPostgresIntegrationTest {
 			// 외래키를 뗐다 — 비회원(익명 세션)도 일정을 만들고 고친다. 탈퇴는 app_user 행을 지우지 않아 영향이 없다.
 			"local_credential", "menu_scan_usage", "oauth_signup_ticket", "place_review",
 			"place_visit_verification",
+			// 현지인 장소 제안(S15P21E201-2031). 탈퇴해도 남긴다 — 승인된 장소의 출처 기록이고, 표시 이름은 app_user 를
+			// 익명화하면 함께 익명이 된다(local-pick 이 display_name 을 읽는다). 대기 중인 제안은 운영자가 마저 판단한다.
+			"place_suggestion",
 			// 기기 푸시 토큰. 탈퇴 때 AccountDeletionService 가 직접 지운다 — CASCADE 는 안 돈다
 			// (app_user 행을 익명화만 하므로). 안 지우면 탈퇴한 사람 폰에 알림이 계속 간다.
 			"push_token",
