@@ -132,5 +132,29 @@
    "untouched": "계단 · 모름(-1) · 이미 초록 · 고도 못 뽑은 길",
    "dem": "terrarium z15 + dem-clean.mjs (slope.mjs 와 같다)"
   }
+ },
+ "dtmSlope": {
+  "step": "process/walk-graph-dtm-slope",
+  "builtAt": "2026-10-09",
+  "input": {
+   "path": "walk-graph.bin.gz",
+   "sha256_16": "1e061cec40f21dee"
+  },
+  "output": {
+   "path": "walk-graph.bin.gz",
+   "bytes": 4993509,
+   "sha256_16": "ba5a7271fc7d7ef1"
+  },
+  "counts": {
+   "targets": 41541,
+   "changed": 29000,
+   "missingElevation": 11935
+  },
+  "rules": {
+   "elevation": "국토지리정보원 1:5,000 수치지형도 Ver2.0(2025) 등고선·표고점·해안선 → 5m DTM(process/ngii-dtm.py) → terrarium z15",
+   "slope": "10m 표본 · 기준선 50m · 절댓값 p50 · ‰",
+   "untouched": "계단 · 모름(-1) · 고도 못 뽑은 길(원래 값)",
+   "supersedes": "flatFloor (SRTM 오차용 임시 대책 — 이 값이 덮어쓴다)"
+  }
  }
 }
