@@ -116,5 +116,15 @@ await t('걷는 길에 그늘 붙이기 (process/walk-graph-shade.mjs)', async (
   ok('단위 시험 통과')
 })
 
+await t('평지 잡음 바닥 (process/walk-graph-flat-floor.mjs)', async () => {
+  // 높낮이 폭이 고도 오차(5m) 안인 길을 평탄으로 낮추는 규칙. 계단·모름은 그대로(S15P21E201-2023).
+  try {
+    execFileSync(process.execPath, ['--test', join(ROOT, 'test/walk-graph-flat-floor.test.mjs')], { stdio: 'pipe' })
+  } catch (e) {
+    throw new Error('단위 시험 실패' + '\n' + String(e.stdout || '').split('\n').slice(-25).join('\n'))
+  }
+  ok('단위 시험 통과')
+})
+
 console.log(failed ? `\n🔴 ${failed}건 실패` : '\n전부 통과')
 process.exit(failed ? 1 : 0)
