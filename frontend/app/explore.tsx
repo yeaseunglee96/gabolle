@@ -30,6 +30,7 @@ import { txf } from '@/i18n/format';
 import { localizeMessage } from '@/i18n/messages';
 import { syncLocationConsent } from '@/personalization/locationConsent';
 import { useLocationGate } from '@/personalization/useLocationGate';
+import { SuggestPlaceLink } from '@/discovery/SuggestPlaceLink';
 
 // 여덟 갈래의 실제 값(jaehyeon 님 확인) — 서버가 이 여덟을 항상 함께 돌려주므로, 응답에서
 // 이 값과 일치하는 항목만 골라 순서는 서버가 준 그대로 둔다. 화면 쪽에서 새로 만들지 않는다.
@@ -151,6 +152,9 @@ export default function LocalExplore() {
         </Text>
         <Text color={color.text.body}>{tx('갈래를 고르고, 내 근처 또는 부산 전체에서 찾아보세요.', 'Choose a category, then search nearby or across Busan.')}</Text>
       </View>
+
+      {/* 현지인이 직접 장소를 알려 주는 입구(S15P21E201-2031). */}
+      <View style={styles.suggest}><SuggestPlaceLink tx={tx} variant="card" /></View>
 
       {loading ? (
         <View accessibilityLiveRegion="polite" style={styles.stateCard}><ActivityIndicator color={color.action.primary} /><Text color={color.text.body}>{tx('갈래를 불러오고 있어요', 'Loading categories')}</Text></View>
@@ -417,6 +421,7 @@ function PlaceRows({ items, showDistance = false, cardWidth }: {
 }
 
 const styles = StyleSheet.create({
+  suggest: { marginBottom: spacing[4] },
   screen: { backgroundColor: color.canvas },
   topBar: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[3] },
   back: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card },

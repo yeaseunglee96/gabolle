@@ -13,6 +13,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import type { MustVisitPlace } from '@/plan/PlanProvider';
 import { txf } from '@/i18n/format';
 import type { LanguageCode } from '@/i18n/languages';
+import { SuggestPlaceLink } from '@/discovery/SuggestPlaceLink';
 import { KOREAN_OR_ENGLISH_HINT, needsKoreanOrEnglishName } from '@/discovery/nameSearchHint';
 
 /** 날짜를 모를 때 쓰는 기본 상한 — 검색 결과를 몇 개까지 보여 줄지에도 쓴다. */
@@ -131,7 +132,7 @@ export function MustVisitSearch({
             //    있는 장소를 없다고 단정하게 된다 — 찾아지는 글자를 말해 준다.
             <View style={styles.note}><Text variant="caption" color={color.text.muted}>{needsKoreanOrEnglishName(query)
               ? tx(KOREAN_OR_ENGLISH_HINT.ko, KOREAN_OR_ENGLISH_HINT.en)
-              : tx('그런 이름의 장소가 없어요.', 'No place with that name.')}</Text></View>
+              : tx('그런 이름의 장소가 없어요.', 'No place with that name.')}</Text>{needsKoreanOrEnglishName(query) ? null : <SuggestPlaceLink tx={tx} name={query} />}</View>
           ) : results.map((item) => {
             const already = picked.some((place) => place.placeId === item.placeId);
             return (
@@ -192,7 +193,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card,
     overflow: 'hidden',
   },
-  note: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], padding: spacing[3] },
+  note: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing[2], padding: spacing[3] },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], minHeight: 48, paddingHorizontal: spacing[3], paddingVertical: spacing[2] },
   rowPressed: { backgroundColor: color.surface.tint },
   badge: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center', borderRadius: radius.sm, backgroundColor: color.surface.soft },

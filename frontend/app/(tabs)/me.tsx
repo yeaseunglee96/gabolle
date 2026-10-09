@@ -161,6 +161,8 @@ export default function Me() {
       <InfoRow label={tx('저장한 장소', 'Saved places')} value="›" onPress={() => openPanel('saved-places')} />
       {/* 원글이 지워지거나 가려지면 내 댓글로 가는 길이 없어진다 — 여기서 모아 찾고 지운다(S15P21E201-1652). */}
       <InfoRow label={tx('내 댓글', 'My comments')} value="›" onPress={() => openPanel('replies')} disabled={!user} />
+      {/* 현지인이 앱에 없는 장소를 알려 주는 곳 — 보낸 제안과 승인 여부도 여기서 본다(S15P21E201-2031). */}
+      <InfoRow label={tx('장소 제안하기', 'Suggest a place')} description={tx('앱에 없는 맛집·명소를 알려 주세요', 'Share a spot we are missing')} value="›" onPress={() => router.push('/place-suggest')} />
       {/* 🔴 「팔로워」「팔로잉」 행도 여기 없다 — 위 프로필 카드의 타일(기록·팔로워·팔로잉)이 같은 곳으로
           간다(S15P21E201-1331). 같은 문이 둘이면 한쪽만 고쳐진다 — 「내 기록」과 같은 이유(1379). 되살리지 마라 — S15P21E201-1390. */}
       <InfoRow

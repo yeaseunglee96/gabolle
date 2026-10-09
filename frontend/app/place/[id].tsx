@@ -7,6 +7,7 @@ import { ApiClientError } from '@/api/client';
 import { sendAppEvent } from '@/analytics/appEvents';
 import { useBehaviorConsentAsk } from '@/personalization/consentAsk';
 import { useAuth } from '@/auth/AuthProvider';
+import { LocalPickBadge } from '@/discovery/LocalPickBadge';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { Button } from '@/components/Button';
 import { PhotoSubjectBadge } from '@/components/PhotoSubjectBadge';
@@ -272,6 +273,8 @@ export default function Place() {
         */}
         <View style={wide ? styles.wideGrid : undefined}>
         <View style={wide ? styles.mainColumn : undefined}>
+        {/* 현지인이 제안해 승인된 장소면 「현지인 추천」과 누가·왜를 맨 위에 보인다(S15P21E201-2031). 아니면 아무것도 안 그린다. */}
+        {resolved.apiPlace ? <LocalPickBadge placeId={resolved.apiPlace.placeId} accessToken={accessToken} /> : null}
         {resolved.apiPlace && (formatFeatureSlot(resolved.apiPlace.openingHours, tx) || formatFeatureSlot(resolved.apiPlace.priceLevel, tx) || formatCheckInOut(resolved.apiPlace, tx)) ? (
           <View style={styles.infoRows}>
             {formatFeatureSlot(resolved.apiPlace.openingHours, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted} style={styles.infoLabel}>{tx('영업시간', 'Hours')}</Text><Text variant="body" style={styles.infoValue}>{formatFeatureSlot(resolved.apiPlace.openingHours, tx)}</Text></View> : null}

@@ -14,6 +14,7 @@ import { resolveSavedPlace } from '@/discovery/savedPlaceCards';
 import { isDemoPlaceId, loadSavedPlaceIds } from '@/discovery/savedPlaces';
 import { useI18n } from '@/i18n';
 import { insertPositionOptions } from '@/plan/itineraryAdjust';
+import { SuggestPlaceLink } from '@/discovery/SuggestPlaceLink';
 import { ReferenceSightsList } from '@/plan/ReferenceSightsList';
 
 // 「참고 명소」(S15P21E201-2019) — 갈래별 부산 대표 관광지를 한 번에 넣는다.
@@ -134,6 +135,8 @@ export function AddPlaceSheet({ visible, stops, accessToken, busy = false, error
                   : query.trim().length < MIN_QUERY ? tx('두 글자 이상 입력해 주세요.', 'Type at least two characters.') : tx('찾는 장소가 없어요.', 'No places found.')}
               </Text>
             ) : null}
+            {/* 검색해도 없으면 현지인이 직접 제안할 수 있다(S15P21E201-2031). 친 이름을 들고 간다. */}
+            {!loading && list.length === 0 && source !== 'saved' && query.trim().length >= MIN_QUERY ? <SuggestPlaceLink tx={tx} name={query} onNavigate={onClose} /> : null}
             {list.map((candidate) => (
               <Pressable key={candidate.placeId} testID={`add-place-pick-${candidate.placeId}`} accessibilityRole="button" disabled={busy} onPress={() => onSubmit(candidate.placeId, position)} style={({ pressed }) => [styles.row, (pressed || busy) && styles.dim]}>
                 <View style={styles.rowCopy}>
