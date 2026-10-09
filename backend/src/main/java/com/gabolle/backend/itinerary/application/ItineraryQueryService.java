@@ -122,7 +122,19 @@ public class ItineraryQueryService {
 
 		return render(itineraryId, latestVersion, trip, content.items(), content.legs(), actualsByItemKey,
 				resolveFallbackMode(content.version()), access.role().name(), access.role().canEdit(),
-				content.version().warningCodes());
+				content.version().warningCodes(), originOf(itineraryId, content.version()));
+	}
+
+	/**
+	 * 직접 짜기로 시작한 일정인가 — 첫 판의 {@code request_id} 가 {@link SelfPlanItineraryService#REQUEST_ID} 면
+	 * {@code SELF}(S15P21E201-2018). 최신 판이 첫 판이면 다시 묻지 않는다.
+	 */
+	private String originOf(String itineraryId, ItineraryVersion latest) {
+		ItineraryVersion first = latest.version() == 1 ? latest
+				: this.itineraryRepository.findVersion(itineraryId, 1).orElse(null);
+		return first != null && SelfPlanItineraryService.REQUEST_ID.equals(first.requestId())
+				? ItineraryDetailResponse.ORIGIN_SELF
+				: ItineraryDetailResponse.ORIGIN_RECOMMENDATION;
 	}
 
 	/**
@@ -138,12 +150,13 @@ public class ItineraryQueryService {
 	@Transactional(readOnly = true)
 	public ItineraryDetailResponse preview(String previewId, Trip trip, TripMember.Role role,
 			List<ItineraryItem> items, List<ItineraryLeg> legs, List<String> warningCodes) {
-		return render(previewId, 0, trip, items, legs, Map.of(), null, role.name(), false, warningCodes);
+		return render(previewId, 0, trip, items, legs, Map.of(), null, role.name(), false, warningCodes,
+				ItineraryDetailResponse.ORIGIN_RECOMMENDATION);
 	}
 
 	private ItineraryDetailResponse render(String id, int version, Trip trip, List<ItineraryItem> contentItems,
 			List<ItineraryLeg> contentLegs, Map<String, ItineraryItemActual> actualsByItemKey,
-			FallbackMode fallbackMode, String myRole, boolean canEdit, List<String> warningCodes) {
+			FallbackMode fallbackMode, String myRole, boolean canEdit, List<String> warningCodes, String origin) {
 
 		Map<UUID, Place> placesByPlaceId = lookupPlaces(contentItems);
 
@@ -197,7 +210,8 @@ public class ItineraryQueryService {
 				this.legPlanner != null && this.legPlanner.needsStepFree(trip),
 				// 지도가 경로 선을 칠할 조건 — 사용자가 추천 단계에서 고른 것만 true (S15P21E201-1895).
 				paint.slopeAvoid(),
-				paint.shadePrefer());
+				paint.shadePrefer(),
+				origin);
 	}
 
 	/**

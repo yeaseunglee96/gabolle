@@ -72,7 +72,31 @@ public record ItineraryDetailResponse(
 		 * 사용자가 「그늘길 우선」을 <b>골랐나</b>(S15P21E201-1895). {@code slopeAvoid} 와 같은 규칙이다. 둘 다
 		 * {@code true} 면 지도가 경사와 그늘을 합친 점수로 칠한다.
 		 */
-		boolean shadePrefer) {
+		boolean shadePrefer,
+
+		/**
+		 * 이 일정이 어디서 왔나 — {@code SELF}(「AI 없이 직접 짜기」로 만든 빈 일정에서 시작, S15P21E201-2018) 또는
+		 * {@code RECOMMENDATION}(추천이 만든 일정). 첫 판의 {@code request_id} 로 정하므로 고친 뒤에도 바뀌지 않는다.
+		 * 화면은 {@code SELF} 일 때 「코스 A 확정」·코스 바꾸기를 안 그린다 — 고른 추천 코스가 없다.
+		 * 저장 전 미리보기(2안·3안)는 추천이므로 {@code RECOMMENDATION}.
+		 */
+		String origin) {
+
+	/** 직접 짜기 칸 이전의 생성자 — 추천이 만든 일정으로 본다. */
+	public ItineraryDetailResponse(String id, String title, int version, List<Day> days,
+			Integer totalEstimatedCostKrw, Integer totalWalkingMeters, FallbackMode fallbackMode, String myRole,
+			boolean canEdit, List<String> warningCodes, String tripId, int accessibilityUnverifiedCount,
+			int partySize, Integer budgetCapKrw, boolean stepFree, boolean slopeAvoid, boolean shadePrefer) {
+		this(id, title, version, days, totalEstimatedCostKrw, totalWalkingMeters, fallbackMode, myRole, canEdit,
+				warningCodes, tripId, accessibilityUnverifiedCount, partySize, budgetCapKrw, stepFree, slopeAvoid,
+				shadePrefer, ORIGIN_RECOMMENDATION);
+	}
+
+	/** {@link #origin} 값 — 직접 짜기. */
+	public static final String ORIGIN_SELF = "SELF";
+
+	/** {@link #origin} 값 — 추천. */
+	public static final String ORIGIN_RECOMMENDATION = "RECOMMENDATION";
 
 	/** 경사·그늘 선택 칸 이전의 생성자 — 조건을 안 골랐다고 본다. */
 	public ItineraryDetailResponse(String id, String title, int version, List<Day> days,
