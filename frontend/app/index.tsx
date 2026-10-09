@@ -15,7 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Text } from '@/components/Text';
 import { GabolleMascot } from '@/components/DongbaekMascot';
-import { MyTripCard, PlaceRow, StoryRow } from '@/home/HomeBlocks';
+import { LocalPicksRow, MyTripCard, StoryRow } from '@/home/HomeBlocks';
 import { useHomeData } from '@/home/useHomeData';
 import { AssistantBackdrop, AssistantMenu, assistantSubtitle } from '@/home/AssistantMenu';
 import { useSavedPlaces } from '@/home/useSavedPlaces';
@@ -275,9 +275,8 @@ export default function Welcome() {
     */}
     <StoryRow stories={home.stories} width={width} />
 
-    {home.facetRows.map((row) => (
-      <PlaceRow key={row.facetKey} row={row} width={width} likedIds={saved.likedIds} onToggleLike={onToggleLike} />
-    ))}
+    {/* 로컬 탐색 — 축제·로컬 두 줄을 여섯 갈래 한 줄로(S15P21E201-2021). */}
+    <LocalPicksRow picks={home.localPicks} width={width} likedIds={saved.likedIds} onToggleLike={onToggleLike} />
 
     {/* 하트를 누른 결과는 말로 한 번 알린다 — 서버에 못 보냈으면 그것도 사실대로. */}
     {saved.feedback ? (

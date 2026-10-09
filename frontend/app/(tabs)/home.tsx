@@ -19,7 +19,7 @@ import { TAB_BAR_HEIGHT, TabBar, bottomDockPosition, tabBarBottomMargin } from '
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
-import { PlaceRow, StoryRow, headerWeatherLabel } from '@/home/HomeBlocks';
+import { LocalPicksRow, StoryRow, headerWeatherLabel } from '@/home/HomeBlocks';
 import { headerWeather, localTimeText } from '@/trip/weather';
 import { useHomeData } from '@/home/useHomeData';
 import { AssistantBackdrop, AssistantMenu } from '@/home/AssistantMenu';
@@ -301,18 +301,16 @@ export default function Home() {
             데스크톱과 같은 줄 부품을 쓴다 — 두 화면이 어긋나면 나란히 놓고 봐야만 보인다. */}
         <StoryRow stories={home.stories} width={width} cardWidth={MOBILE_CARD} gutter={spacing[6]} arrows={false} />
 
-        {home.facetRows.map((row) => (
-          <PlaceRow
-            key={row.facetKey}
-            row={row}
-            width={width}
-            cardWidth={MOBILE_CARD}
-            gutter={spacing[6]}
-            arrows={false}
-            likedIds={saved.likedIds}
-            onToggleLike={saved.toggle}
-          />
-        ))}
+        {/* 로컬 탐색 — 축제·전통시장 두 줄을 여섯 갈래 한 줄로(S15P21E201-2021). */}
+        <LocalPicksRow
+          picks={home.localPicks}
+          width={width}
+          cardWidth={MOBILE_CARD}
+          gutter={spacing[6]}
+          arrows={false}
+          likedIds={saved.likedIds}
+          onToggleLike={saved.toggle}
+        />
 
         {/* ── 내 여행 (로그인만) ── */}
         {signedIn ? (

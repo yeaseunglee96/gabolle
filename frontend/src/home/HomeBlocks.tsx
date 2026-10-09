@@ -20,7 +20,8 @@ import { AuthorAvatar } from '@/social/AuthorAvatar';
 import { useAuth } from '@/auth/AuthProvider';
 import { resolveHomeTripDestination } from './tripNavigation';
 import { HomeRow, homeCardWidth } from './HomeRow';
-import type { HomeCardPlace, HomeFacetRow } from './useHomeData';
+import type { HomeLocalPick } from './useHomeData';
+import { localSectionTitle, moreLabel, pickLabel } from './homeCuration';
 import { addressForLanguage } from '@/discovery/localAddress';
 import { otherNameFor } from '@/discovery/localNames';
 import { placeNameForLanguage } from '@/discovery/romanize';
@@ -175,34 +176,41 @@ export function StoryRow({
   );
 }
 
-// ── 로컬 탐색 줄 (축제 · 전통시장) ────────────────────────────────────────────
+// ── 로컬 탐색 (갈래마다 대표 한 곳 — S15P21E201-2021) ─────────────────────────
+//
+// 전에는 「지금 열리는 부산 축제」「부산 로컬 둘러보기」 두 줄에 스무 장이 섰다 — 홈이 어지럽다는 피드백.
+// 이제 한 줄에 여섯 장: 축제·전통시장·액티비티·산책·자연·야경 하나씩, 카드마다 갈래 이름표와 「더 보기」.
 
-function PlaceCard({
-  place,
+function LocalPickCard({
+  pick,
   cardWidth,
   liked,
   onToggleLike,
 }: {
-  place: HomeCardPlace;
+  pick: HomeLocalPick;
   cardWidth: number;
   liked: boolean;
   onToggleLike: () => void;
 }) {
   const router = useRouter();
   const { tx, language } = useI18n();
+  const place = pick.place;
   // 🔴 이름·주소가 언어와 상관없이 한국어였다(S15P21E201-1877). 한국어 화면은 그대로 둔다.
-  const shownName = language === 'ko' ? place.nameKo : placeNameForLanguage(place.nameKo, otherNameFor(place.nameEn, place.localNames, language), language);
+  const placeName = language === 'ko' ? place.nameKo : placeNameForLanguage(place.nameKo, otherNameFor(place.nameEn, place.localNames, language), language);
+  // 축제 칸의 BIFF 처럼 장소(영화의전당)와 보여 줄 이름(영화제)이 다르면 이름은 title, 장소 이름은 둘째 줄로.
+  const title = pick.title?.[language] ?? pick.title?.en ?? null;
+  const shownName = title ?? placeName;
+  const sub = title ? placeName : addressForLanguage(place, language);
+  const category = pickLabel(pick.key, language);
   return (
     <View style={{ width: cardWidth }}>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={txf(tx, '%s 상세 보기', 'View details for %s', place.nameKo)}
+        accessibilityLabel={txf(tx, '%s 상세 보기', 'View details for %s', `${category} · ${shownName}`)}
         onPress={() => router.push(`/place/${place.placeId}`)}
         style={({ pressed }) => [styles.placeCard, pressed && styles.pressed]}
       >
-        {/* PlaceVisual 의 기본 비율은 4:3 이다. style 이 뒤에 붙으므로 여기서 정사각으로 덮는다
-            — 부품을 고치지 않는다. 사진이 없으면 BUSAN 자리표시가 그대로 나온다(회색 판 금지).
-            출처 띠도 PlaceVisual 이 그린다 — 공공누리 표기는 이용 조건이라 빼면 안 된다. */}
+        {/* 출처 띠는 PlaceVisual 이 그린다 — 공공누리 표기는 이용 조건이라 빼면 안 된다. */}
         <PlaceVisual
           name={place.nameKo}
           address={place.address}
@@ -212,16 +220,16 @@ function PlaceCard({
           photoLicense={place.photoLicense}
           style={styles.placePhoto}
         />
+        {/* 갈래 이름표 — 사진 왼쪽 위. 여섯 장이 무엇을 대표하는지 한눈에. */}
+        <View style={styles.pickBadge}>
+          <Text variant="micro" weight="bold" color={color.brand.navy} numberOfLines={1}>{category}</Text>
+        </View>
       </Pressable>
 
-      {/* 하트 — 누르면 빨갛게 찬다(HeartIcon). 전에는 켜지면 흰 원이 생겨 좋아요로 안 읽혔다(사용자 의견 2026-10-02).
-          색만으로 상태를 말하지 않는다 — 꺼짐은 빈 하트(옅은 어둠), 켜짐은 찬 하트로 모양부터 다르다. */}
       <Pressable
         accessibilityRole="button"
         accessibilityState={{ selected: liked }}
-        accessibilityLabel={liked
-          ? txf(tx, '%s 저장 해제', 'Unsave %s', place.nameKo)
-          : txf(tx, '%s 저장', 'Save %s', place.nameKo)}
+        accessibilityLabel={liked ? txf(tx, '%s 저장 해제', 'Unsave %s', place.nameKo) : txf(tx, '%s 저장', 'Save %s', place.nameKo)}
         onPress={onToggleLike}
         style={styles.heartButton}
       >
@@ -229,13 +237,22 @@ function PlaceCard({
       </Pressable>
 
       <Text variant="body" weight="bold" color={color.text.heading} numberOfLines={1} style={styles.placeName}>{shownName}</Text>
-      <Text variant="caption" color={color.text.body} numberOfLines={1}>{addressForLanguage(place, language)}</Text>
+      <Text variant="caption" color={color.text.body} numberOfLines={1}>{sub}</Text>
+      <Pressable
+        accessibilityRole="link"
+        accessibilityLabel={`${category} · ${moreLabel(language)}`}
+        onPress={() => router.push(pick.href as Href)}
+        hitSlop={8}
+        style={({ pressed }) => [styles.pickMore, pressed && styles.pressed]}
+      >
+        <Text variant="caption" weight="bold" color={color.brand.navy} numberOfLines={1}>{`${moreLabel(language)} →`}</Text>
+      </Pressable>
     </View>
   );
 }
 
-export function PlaceRow({
-  row,
+export function LocalPicksRow({
+  picks,
   width,
   likedIds,
   onToggleLike,
@@ -243,7 +260,7 @@ export function PlaceRow({
   gutter,
   arrows,
 }: {
-  row: HomeFacetRow;
+  picks: HomeLocalPick[] | null;
   width: number;
   likedIds: Set<string>;
   onToggleLike: (placeId: string) => void;
@@ -252,35 +269,28 @@ export function PlaceRow({
   arrows?: boolean;
 }) {
   const router = useRouter();
-  const { tx, language } = useI18n();
+  const { language } = useI18n();
   const cardWidth = cardWidthOverride ?? homeCardWidth(width);
-  const places = row.places;
-
   // 한 곳도 못 받았으면 줄을 통째로 접는다 — 제목만 남고 아래가 비면 고장난 화면으로 보인다.
-  if (places !== null && places.length === 0) return null;
-
+  if (picks !== null && picks.length === 0) return null;
   return (
     <HomeRow
-      eyebrow={tx('로컬 탐색', 'Explore locally')}
-      title={tx(row.titleKo, row.titleEn)}
-      openLabel={tx('이 갈래 전체 보기', 'See all in this category')}
-      // 줄마다 여는 곳이 다르다 — 축제는 날짜로 거르는 축제 화면, 나머지는 로컬 탐색(S15P21E201-1594).
-      onOpen={() => router.push(row.href as Href)}
+      title={localSectionTitle(language)}
+      openLabel={moreLabel(language)}
+      onOpen={() => router.push('/explore')}
       width={width}
       gutter={gutter}
       arrows={arrows}
     >
-      {places === null
-        ? [0, 1, 2, 3, 4, 5, 6].map((slot) => (
-            <View key={slot} style={[styles.storySkeleton, { width: cardWidth, height: cardWidth }]} />
-          ))
-        : places.map((place) => (
-            <PlaceCard
-              key={place.placeId}
-              place={place}
+      {picks === null
+        ? [0, 1, 2, 3, 4, 5].map((slot) => <View key={slot} style={[styles.storySkeleton, { width: cardWidth, height: cardWidth }]} />)
+        : picks.map((pick) => (
+            <LocalPickCard
+              key={pick.key}
+              pick={pick}
               cardWidth={cardWidth}
-              liked={likedIds.has(place.placeId)}
-              onToggleLike={() => onToggleLike(place.placeId)}
+              liked={likedIds.has(pick.place.placeId)}
+              onToggleLike={() => onToggleLike(pick.place.placeId)}
             />
           ))}
     </HomeRow>
@@ -385,6 +395,8 @@ const styles = StyleSheet.create({
   placeName: { marginTop: spacing[3] },
   // 누르는 자리는 44 로 두고 보이는 원은 28 이다 — 손가락은 44 를 필요로 하는데
   // 28 보다 큰 동그라미를 사진 위에 얹으면 사진을 가린다.
+  pickBadge: { position: 'absolute', top: spacing[2], left: spacing[2], maxWidth: '70%', paddingHorizontal: spacing[2], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.card },
+  pickMore: { alignSelf: 'flex-start', marginTop: spacing[1], minHeight: 24, justifyContent: 'center' },
   heartButton: { position: 'absolute', top: 0, right: 0, width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
 
   tripBlock: { width: 360, gap: spacing[3] },
