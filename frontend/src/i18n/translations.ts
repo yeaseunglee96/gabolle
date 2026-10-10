@@ -2181,9 +2181,9 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '보통': { ja: '普通', zhHans: '一般', zhHant: '一般', vi: 'Vừa phải' },
   // ── 지도 경로 색의 범례 (S15P21E201-1896 · % 숫자와 규칙 줄을 뺀 S15P21E201-2023) — src/map/RouteColorLegend.tsx ──
   '모름': { ja: '不明', zhHans: '未知', zhHant: '未知', vi: 'Không rõ' },
-  '평탄': { ja: '平坦', zhHans: '平坦', zhHant: '平坦', vi: 'Bằng phẳng' },
+  '평탄': { ja: '平坦', zhHans: '平坦', zhHant: '平坦', vi: 'Phẳng' },
   '조금 가파름': { ja: 'やや急', zhHans: '有点陡', zhHant: '有點陡', vi: 'Hơi dốc' },
-  '가파름·계단': { ja: '急坂・階段', zhHans: '陡坡·台阶', zhHant: '陡坡·階梯', vi: 'Dốc · cầu thang' },
+  '가파름·계단': { ja: '急坂・階段', zhHans: '陡坡·台阶', zhHant: '陡坡·階梯', vi: 'Dốc/bậc' },
   '그늘 많음': { ja: '日陰が多い', zhHans: '阴凉多', zhHant: '陰涼多', vi: 'Nhiều bóng râm' },
   '그늘 적음': { ja: '日陰が少ない', zhHans: '阴凉少', zhHant: '陰涼少', vi: 'Ít bóng râm' },
   '걷기 편함': { ja: '歩きやすい', zhHans: '好走', zhHant: '好走', vi: 'Dễ đi' },

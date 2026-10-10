@@ -55,6 +55,10 @@ export function pickLanguage(language: LanguageCode, text: LocalizedText) {
   //    죽는 것으로 드러났다. typeof 가드로 다섯 언어가 같은 값(빈 텍스트)으로 수렴하게 한다.
   if ((language === 'ja' || language === 'zh-Hans' || language === 'zh-Hant' || language === 'vi') && typeof text.ko === 'string') {
     const field = language === 'ja' ? 'ja' : language === 'zh-Hans' ? 'zhHans' : language === 'zh-Hant' ? 'zhHant' : 'vi';
+    if (field === 'vi') {
+      const won = vietnameseWon(text);
+      if (won) return won;
+    }
     const translated = getTranslation(text.ko, field);
     if (translated) return translated;
     // 🔴 원문 그대로 못 찾았을 때만 «모양»으로 한 번 더 찾는다. 글자가 똑같은 줄이
@@ -66,4 +70,17 @@ export function pickLanguage(language: LanguageCode, text: LocalizedText) {
     }
   }
   return text[resolveTextLanguage(language)] ?? text.ko;
+}
+
+/**
+ * 🔴 베트남어에 「만원」을 옮기지 않는다 — 「3,0 vạn won」은 베트남 사람이 안 쓰는 셈이다(10/10 점검, S15P21E201-2043).
+ * 「30.000 won」처럼 원 단위 전체 금액을 베트남식 천 단위 점으로 적는다. 영어 쪽 「₩30,000」이 있으면 그 정확한 값을 쓴다.
+ */
+function vietnameseWon(text: LocalizedText): string | null {
+  const man = /^(\d+(?:\.\d+)?)만\s?원$/.exec(text.ko.trim());
+  if (!man) return null;
+  const exact = typeof text.en === 'string' ? /^₩([\d,]+)$/.exec(text.en.trim()) : null;
+  const krw = exact ? Number(exact[1].replace(/,/g, '')) : Math.round(Number(man[1]) * 10000);
+  if (!Number.isFinite(krw)) return null;
+  return `${String(krw).replace(/\B(?=(\d{3})+(?!\d))/g, '.')} won`;
 }

@@ -213,7 +213,8 @@ function PlanConditions() {
     try {
       const { itineraryId } = await createTripForSelfPlan(draft, accessToken);
       void clearQuestionState();
-      router.push(`/trips/${encodeURIComponent(itineraryId)}/self-plan`);
+      // 🔴 만들기 흐름을 스택에서 대체한다 — push 면 여행 화면에서 뒤로 가기가 「이대로 만들까요?」로 돌아갔다(10/10 점검, S15P21E201-2043).
+      router.replace(`/trips/${encodeURIComponent(itineraryId)}/self-plan`);
     } catch (cause) {
       setSelfPlanError(cause instanceof ApiClientError ? localizeMessage(tx, cause.message) : tx('여행을 만들지 못했어요. 잠시 후 다시 시도해 주세요.', 'Could not create the trip. Please try again shortly.'));
     } finally {

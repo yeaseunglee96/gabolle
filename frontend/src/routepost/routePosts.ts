@@ -179,7 +179,7 @@ export async function copyRouteIntoNewTrip(post: RoutePostDto, accessToken: stri
       }
     }
     // 따라 했다고 센다 — 인기 점수에 들어간다. 실패해도 여행은 이미 만들어졌으니 묻지 않는다.
-    void apiRequest(`/api/v1/route-posts/${encodeURIComponent(post.routePostId)}/copies`, { method: 'POST', accessToken }).catch(() => undefined);
+    void apiRequest(`/api/v1/route-posts/${encodeURIComponent(post.routePostId)}/copies?itineraryId=${encodeURIComponent(itineraryId)}`, { method: 'POST', accessToken }).catch(() => undefined);
     return { state: 'success', itineraryId, added, skipped };
   } catch (error) {
     return failure(error);

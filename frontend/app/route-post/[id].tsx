@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
   wideRight: { flex: 1, gap: spacing[4] },
   head: { gap: spacing[2] },
   author: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], alignSelf: 'flex-start', minHeight: 44 },
-  avatar: { width: 28, height: 28, borderRadius: 14 },
+  avatar: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
   mapCard: { borderRadius: radius.lg, overflow: 'hidden', borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
   actions: { gap: spacing[3] },
   reactRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], flexWrap: 'wrap' },

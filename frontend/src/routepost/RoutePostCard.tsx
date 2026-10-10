@@ -73,5 +73,5 @@ const styles = StyleSheet.create({
   footer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2], marginTop: spacing[1] },
   author: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], flexShrink: 1 },
   authorName: { flexShrink: 1 },
-  avatar: { width: 24, height: 24, borderRadius: 12 },
+  avatar: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
 });

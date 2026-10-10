@@ -71,6 +71,9 @@ function formatTime(value: string | null | undefined): string | null {
   const date = parseDate(value);
   // 날짜만 있는 값(길이 10)에서 시각을 만들지 않는다. 00:00 이 출발 시각인 척한다.
   if (!date || !value || value.length === 10) return null;
+  // 🔴 기기 시간대로 옮기지 않는다 — 문자열의 벽시계(여행지 시각)를 그대로 쓴다(S15P21E201-2043).
+  const wall = /^\d{4}-\d{2}-\d{2}T(\d{2}):(\d{2})/.exec(value);
+  if (wall) return `${wall[1]}:${wall[2]}`;
   return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
 }
 
