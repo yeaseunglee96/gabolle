@@ -29,6 +29,8 @@ export function RouteMapLayer({ data, appKey, onReady, onFail }: { data: MiniRou
     let alive = true;
     const stop = loadKakao(appKey, () => {
       if (!alive || !hostRef.current) return;
+      // 다시 그릴 때 앞의 지도를 걷어 낸다 — 같은 칸에 지도가 겹겹이 쌓이지 않게.
+      hostRef.current.innerHTML = '';
       try { drawMiniRoute(window.kakao.maps, hostRef.current, data); onReady(); } catch { onFail(); }
     }, () => { if (alive) onFail(); });
     return () => { alive = false; stop(); };

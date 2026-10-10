@@ -59,7 +59,8 @@ export function RouteThumb({ path, stops, height = 160, eager = false }: { path:
   const near = useNearViewport(boxRef, eager);
   const appKey = process.env.EXPO_PUBLIC_KAKAO_MAP_JS_KEY;
   const data = useMemo(() => miniRouteData(path, stops), [path, stops]);
-  useEffect(() => setMap('idle'), [data]);
+  // 🔴 값이 바뀌어도 'idle' 로 되돌리지 않는다 — 자식(지도)의 effect 가 부모보다 먼저 돌아, 다시 그려 'ready' 를 알린 직후
+  //    부모가 'idle' 로 덮어 지도가 투명한 채 남았다(상세 화면 — 글을 다시 받아 오면 path·stops 가 새 배열이 된다).
   const onLayout = (e: LayoutChangeEvent) => {
     const w = Math.round(e.nativeEvent.layout.width);
     if (w && w !== width) setWidth(w);
