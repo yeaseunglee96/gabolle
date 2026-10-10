@@ -3324,8 +3324,6 @@ export const TRANSLATIONS: Record<string, Translation> = {
   'Google Play에서 받기': { ja: 'Google Play で入手', zhHans: '在 Google Play 下载', zhHant: '在 Google Play 下載', vi: 'Tải trên Google Play' },
   'Google Play에서 가볼래 받기': { ja: 'Google Play で GABOLLE を入手', zhHans: '在 Google Play 下载 GABOLLE', zhHant: '在 Google Play 下載 GABOLLE', vi: 'Tải GABOLLE trên Google Play' },
   'Google Play 내려받기 QR 코드': { ja: 'Google Play ダウンロード用 QR コード', zhHans: 'Google Play 下载二维码', zhHant: 'Google Play 下載 QR 碼', vi: 'Mã QR tải trên Google Play' },
-  'Android 카메라로 찍어 받기': { ja: 'Android のカメラで読み取り', zhHans: '用 Android 相机扫码下载', zhHant: '用 Android 相機掃描下載', vi: 'Quét bằng camera Android để tải' },
-  'iPhone 카메라로 찍어 받기': { ja: 'iPhone のカメラで読み取り', zhHans: '用 iPhone 相机扫码下载', zhHant: '用 iPhone 相機掃描下載', vi: 'Quét bằng camera iPhone để tải' },
   '검색창 닫기': { ja: '検索を閉じる', zhHans: '关闭搜索', zhHant: '關閉搜尋', vi: 'Đóng ô tìm kiếm' },
   '문의하기': { ja: 'お問い合わせ', zhHans: '联系我们', zhHant: '聯絡我們', vi: 'Liên hệ' },
   '가볼래': { ja: 'GABOLLE', zhHans: 'GABOLLE', zhHant: 'GABOLLE', vi: 'GABOLLE' },

@@ -37,8 +37,9 @@ describe('WebFooter — 앱과 웹', () => {
     expect(screen.queryByText(/심사 중/)).toBeNull();
     fireEvent.press(screen.getByLabelText('Google Play에서 가볼래 받기'));
     expect(openURL).toHaveBeenCalledWith('https://play.google.com/store/apps/details?id=com.gabolle.app');
-    expect(screen.getByText('iPhone 카메라로 찍어 받기')).toBeTruthy();
-    expect(screen.getByText('Android 카메라로 찍어 받기')).toBeTruthy();
+    expect(screen.getByText('App Store')).toBeTruthy();
+    expect(screen.getByText('Google Play')).toBeTruthy();
+    expect(screen.getByText('iOS')).toBeTruthy();
     expect(screen.getByLabelText('Google Play 내려받기 QR 코드')).toBeTruthy();
   });
 
