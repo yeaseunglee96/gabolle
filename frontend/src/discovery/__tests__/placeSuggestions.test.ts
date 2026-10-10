@@ -11,7 +11,7 @@ import { absolutePhotoUrl } from '@/discovery/places';
 import { suggestHref } from '@/discovery/SuggestPlaceLink';
 
 const mocked = apiRequest as jest.MockedFunction<typeof apiRequest>;
-const draft = { name: '민락 국밥', category: 'FOOD', lat: 35.15, lng: 129.11, reason: '아침 7시에 문을 여는 국밥집', photoUrl: '/api/v1/uploads/images/a.jpg' };
+const draft = { name: '민락 국밥', category: 'FOOD', lat: 35.15, lng: 129.11, reason: '가'.repeat(50), photoUrl: '/api/v1/uploads/images/a.jpg' };
 
 beforeEach(() => mocked.mockReset());
 
@@ -20,26 +20,21 @@ describe('draftProblems', () => {
     expect(draftProblems(draft)).toEqual([]);
   });
   it('이름·갈래·위치·이유가 비면 각각 알려 준다', () => {
-    expect(draftProblems({ name: ' ', reason: '' })).toEqual(['name', 'category', 'location', 'reason', 'photo']);
+    expect(draftProblems({ name: ' ', reason: '' })).toEqual(['name', 'category', 'location', 'reason']);
   });
   it('숙소처럼 고를 수 없는 갈래는 막는다', () => {
     expect(draftProblems({ ...draft, category: 'LODGING' })).toEqual(['category']);
   });
-  it('추천 이유는 80자까지', () => {
-    expect(draftProblems({ ...draft, reason: '가'.repeat(81) })).toEqual(['reason']);
-  });
 });
 
-describe('🔴 장소·사진·추천 이유 모두 필수 (사용자 지시 2026-10-10)', () => {
-  it('사진이 없으면 보낼 수 없다', () => {
-    expect(draftProblems({ ...draft, photoUrl: null })).toEqual(['photo']);
+describe('🔴 추천 이유 50~100자 필수, 사진은 선택 (사용자 지시 2026-10-10)', () => {
+  it('사진이 없어도 보낼 수 있다', () => {
+    expect(draftProblems({ ...draft, photoUrl: null })).toEqual([]);
   });
-  it('추천 이유는 10자 이상', () => {
-    expect(draftProblems({ ...draft, reason: '맛있어요' })).toEqual(['reason']);
-  });
-  it('서버의 사진 필수 거절을 읽는다', async () => {
-    mocked.mockRejectedValueOnce(new ApiClientError('', 'PLACE_SUGGESTION_PHOTO_REQUIRED', 400, ['photoUrl']));
-    await expect(submitPlaceSuggestion(draft, 't')).resolves.toEqual({ state: 'photoRequired' });
+  it('추천 이유는 50자 이상 100자 이하', () => {
+    expect(draftProblems({ ...draft, reason: '가'.repeat(49) })).toEqual(['reason']);
+    expect(draftProblems({ ...draft, reason: '가'.repeat(101) })).toEqual(['reason']);
+    expect(draftProblems({ ...draft, reason: '가'.repeat(100) })).toEqual([]);
   });
 });
 
