@@ -358,7 +358,8 @@ public class ItineraryLegPlanner {
      *
      * <p>🔴 <b>동네도 숙소다</b> (S15P21E201-1565). 앱은 홈에서 「해운대」처럼 동네를 숙소로 고르게 하고, 서버는
      * 그 값을 {@code accommodation_area} 에 저장만 하고 아무도 안 읽었다 — 운영의 최근 여행 20개 중 숙소가
-     * 쓰인 여행이 0개였다. 동네 중심 좌표는 {@link TravelArea} 가 가진 것을 그대로 쓴다(여행 범위와 같은 점).
+     * 쓰인 여행이 0개였다. 동네는 중심이 아니라 그 동네의 지하철역에 선다({@link TravelArea#lodgingLat}, S15P21E201-2046) —
+     * 중심은 앱이 «어림»으로 보고 곧은 점선을 그리던 자리다. 읽을 때마다 여기서 정하므로 이미 만든 여행에도 적용된다.
      */
     public Anchor lodgingOf(Trip trip) {
         String id = trip.accommodationPlaceId();
@@ -374,7 +375,7 @@ public class ItineraryLegPlanner {
             }
         }
         return TravelArea.of(trip.accommodationArea())
-                .map(area -> new Anchor(area.lat(), area.lng(), Anchor.LODGING, area.koreanName()))
+                .map(area -> new Anchor(area.lodgingLat(), area.lodgingLng(), Anchor.LODGING, area.koreanName()))
                 .orElse(null);
     }
 
