@@ -3564,6 +3564,8 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '현지인이세요? 장소 제안하기': { ja: '地元の方ですか？場所を提案する', zhHans: '您是本地人吗？推荐地点', zhHant: '您是在地人嗎？推薦地點', vi: 'Bạn là người địa phương? Đề xuất địa điểm' },
   '앱에 없는 맛집·명소를 알려 주세요. 확인 뒤 「현지인 추천」으로 올라가요.': { ja: 'アプリにないグルメ・名所を教えてください。確認後「地元のおすすめ」として掲載されます。', zhHans: '告诉我们应用中没有的美食和景点。确认后会以「本地人推荐」上线。', zhHant: '告訴我們應用程式中沒有的美食和景點。確認後會以「在地人推薦」上線。', vi: 'Hãy giới thiệu quán ngon, điểm đến chưa có trong ứng dụng. Sau khi duyệt sẽ hiển thị là "Người địa phương gợi ý".' },
   '찾는 곳이 없나요? 장소 제안하기': { ja: '見つかりませんか？場所を提案する', zhHans: '没找到？推荐地点', zhHant: '沒找到？推薦地點', vi: 'Không tìm thấy? Đề xuất địa điểm' },
+  '%s자 이상 %s자 이하로 적어 주세요.': { ja: '%s文字以上%s文字以下で入力してください。', zhHans: '请输入%s到%s个字。', zhHant: '請輸入%s到%s個字。', vi: 'Vui lòng viết từ %s đến %s ký tự.' },
+  '사진을 넣으면 검토가 빨라져요.': { ja: '写真を添えると審査が早くなります。', zhHans: '添加照片可以加快审核。', zhHant: '加上照片可以加快審核。', vi: 'Thêm ảnh giúp việc xét duyệt nhanh hơn.' },
 };
 
 export function getTranslation(ko: string, field: 'ja' | 'zhHans' | 'zhHant' | 'vi'): string | null {

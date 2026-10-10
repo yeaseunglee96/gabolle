@@ -18,7 +18,7 @@ import { LocationPickMap } from '@/discovery/LocationPickMap';
 import { type LatLng } from '@/discovery/LocationPickParts';
 import { BUSAN_CENTER } from '@/discovery/locationPickHtml';
 import {
-  draftProblems, fetchMySuggestions, findDuplicates, NAME_MAX, REASON_MAX, submitPlaceSuggestion, SUGGEST_CATEGORIES,
+  draftProblems, fetchMySuggestions, findDuplicates, NAME_MAX, REASON_MAX, REASON_MIN, submitPlaceSuggestion, SUGGEST_CATEGORIES,
   type DuplicatePlace, type PlaceSuggestion, type SubmitResult,
 } from '@/discovery/placeSuggestions';
 import { useI18n } from '@/i18n';
@@ -91,7 +91,7 @@ export default function PlaceSuggestScreen() {
     return () => { controller.abort(); if (dupTimer.current) clearTimeout(dupTimer.current); };
   }, [accessToken, center, name]);
 
-  const problems = useMemo(() => draftProblems({ name, category: category ?? undefined, lat: center?.lat, lng: center?.lng, reason }), [name, category, center, reason]);
+  const problems = useMemo(() => draftProblems({ name, category: category ?? undefined, lat: center?.lat, lng: center?.lng, reason, photoUrl }), [name, category, center, reason, photoUrl]);
   const canSend = problems.length === 0 && duplicates.length === 0 && !sending && !photoBusy;
 
   async function useMyLocation() {
@@ -202,7 +202,8 @@ export default function PlaceSuggestScreen() {
 
       <Field label={tx('추천 이유 한 줄', 'Why you recommend it (one line)')}>
         <TextInput value={reason} onChangeText={setReason} maxLength={REASON_MAX} placeholder={tx('예: 아침 7시 돼지국밥, 동네 사람만 아는 집', 'e.g. 7am pork soup only locals know')} placeholderTextColor={color.text.muted} style={styles.input} accessibilityLabel={tx('추천 이유 한 줄', 'Why you recommend it (one line)')} />
-        <Text variant="caption" color={color.text.muted} style={styles.counter}>{`${reason.length}/${REASON_MAX}`}</Text>
+        <Text variant="caption" color={color.text.muted} style={styles.counter}>{`${[...reason].length}/${REASON_MAX}`}</Text>
+        {reason.trim().length > 0 && [...reason.trim()].length < REASON_MIN ? <Text variant="caption" color={color.state.danger}>{txf(tx, '%s자 이상 %s자 이하로 적어 주세요.', 'Please write %s–%s characters.', String(REASON_MIN), String(REASON_MAX))}</Text> : null}
       </Field>
 
       <Field label={tx('사진 (선택)', 'Photo (optional)')} hint={tx('직접 찍은 사진만 올려 주세요. 촬영 위치 정보는 지워져요.', 'Only photos you took. Location data is removed.')}>
@@ -225,6 +226,7 @@ export default function PlaceSuggestScreen() {
         </Field>
       </View>
 
+      {!photoUrl ? <Text variant="caption" color={color.text.muted}>{tx('사진을 넣으면 검토가 빨라져요.', 'Adding a photo speeds up the review.')}</Text> : null}
       {message ? <Text accessibilityRole="alert" color={message.danger ? color.state.danger : color.text.body}>{message.text}</Text> : null}
       <Button label={sending ? tx('보내는 중…', 'Sending…') : tx('제안 보내기', 'Send suggestion')} onPress={() => void send()} disabled={!canSend} />
       <Text variant="caption" color={color.text.muted}>{tx('운영자가 확인한 뒤 앱에 올라가고, 장소에 「현지인 추천」과 내 이름이 붙어요. 승인되면 알림을 보내 드려요.', 'After review it goes live with a "Local pick" badge and your name. We will notify you when approved.')}</Text>

@@ -18,7 +18,9 @@ export const SUGGEST_CATEGORIES: ReadonlyArray<{ code: string; ko: string; en: s
 ];
 
 export const NAME_MAX = 60;
-export const REASON_MAX = 80;
+/** 추천 이유 글자 수 — 사용자 지시(2026-10-10): 50자 이상 100자 이하. 서버 REASON_MIN·REASON_MAX 와 같다. 사진은 선택. */
+export const REASON_MIN = 50;
+export const REASON_MAX = 100;
 
 export type SuggestionStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 
@@ -65,7 +67,8 @@ export function draftProblems(draft: Partial<SuggestionDraft>): DraftProblem[] {
   if (!draft.category || !SUGGEST_CATEGORIES.some((c) => c.code === draft.category)) problems.push('category');
   if (typeof draft.lat !== 'number' || typeof draft.lng !== 'number') problems.push('location');
   const reason = draft.reason?.trim() ?? '';
-  if (!reason || reason.length > REASON_MAX) problems.push('reason');
+  const reasonLength = [...reason].length;
+  if (reasonLength < REASON_MIN || reasonLength > REASON_MAX) problems.push('reason');
   return problems;
 }
 
