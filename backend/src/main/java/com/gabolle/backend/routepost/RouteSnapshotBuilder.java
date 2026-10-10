@@ -62,7 +62,11 @@ public final class RouteSnapshotBuilder {
 							anyTime = true;
 						}
 						if (item.travelPath() != null && item.travelPath().size() >= 2) {
-							path.addAll(item.travelPath());
+							// 🔴 travelPath 는 [경도, 위도](GeoJSON 순서)다. 사본은 [위도, 경도]로 둔다 — 섞으면 점이
+							//    지구 반대편으로 튀어 거리가 6,800km 로 나왔다(2026-10-10 운영 확인).
+							for (double[] p : item.travelPath()) {
+								path.add(new double[] { p[1], p[0] });
+							}
 						}
 						else {
 							path.add(new double[] { item.lat(), item.lng() });
