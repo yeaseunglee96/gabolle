@@ -100,8 +100,11 @@ public class RoutePostController {
 	 * 한다 — 여기는 인기 점수에 넣을 수만 센다. 같은 사람은 한 번만 센다.
 	 */
 	@PostMapping("/api/v1/route-posts/{routePostId}/copies")
-	public ApiResponse<RoutePostResponse> copied(@PathVariable UUID routePostId, Authentication authentication) {
-		return react(routePostId, authentication, RoutePostService.Kind.COPY);
+	public ApiResponse<RoutePostResponse> copied(@PathVariable UUID routePostId,
+			@org.springframework.web.bind.annotation.RequestParam(required = false) String itineraryId,
+			Authentication authentication) {
+		// 만든 여행을 알려 주면 그 여행을 지울 때 「따라 간 사람」에서 뺀다(S15P21E201-2043). 없어도 센다(옛 앱).
+		return ApiResponse.success(this.service.copied(routePostId, AuthenticatedUsers.requireId(authentication), itineraryId), requestId());
 	}
 
 	@GetMapping("/api/v1/me/saved-route-posts")

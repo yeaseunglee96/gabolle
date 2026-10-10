@@ -208,6 +208,65 @@ public class RoutePostService {
 		return get(routePostId, actor);
 	}
 
+	/**
+	 * 「이 루트로 여행 만들기」를 센다 — 같은 사람은 한 번(S15P21E201-2043). 만든 일정을 알려 주면 그 여행을 적어 두고,
+	 * 그 여행을 지우면 {@link #onTripDeleted} 가 뺀다. 남의 일정이면 적지 않는다(센 것은 그대로).
+	 */
+	@Transactional
+	public RoutePostResponse copied(UUID routePostId, UUID actor, String itineraryId) {
+		get(routePostId, actor);
+		UUID tripId = ownedTripOf(itineraryId, actor);
+		Boolean inserted = this.jdbc.queryForObject("""
+				INSERT INTO route_post_reaction (route_post_id, user_id, kind, created_at, trip_id)
+				VALUES (:id, :user, 'COPY', :now, :trip)
+				ON CONFLICT (route_post_id, user_id, kind)
+				DO UPDATE SET trip_id = COALESCE(EXCLUDED.trip_id, route_post_reaction.trip_id)
+				RETURNING (xmax = 0)
+				""", new MapSqlParameterSource("id", routePostId).addValue("user", actor)
+				.addValue("now", Timestamp.from(this.clock.instant())).addValue("trip", tripId), Boolean.class);
+		if (Boolean.TRUE.equals(inserted)) {
+			bump(routePostId, Kind.COPY, 1);
+		}
+		return get(routePostId, actor);
+	}
+
+	private UUID ownedTripOf(String itineraryId, UUID actor) {
+		if (itineraryId == null || itineraryId.isBlank()) {
+			return null;
+		}
+		UUID parsed;
+		try {
+			parsed = UUID.fromString(itineraryId.trim());
+		}
+		catch (IllegalArgumentException e) {
+			return null;
+		}
+		List<UUID> trips = this.jdbc.queryForList("""
+				SELECT i.trip_id FROM itineraries i
+				  JOIN trip_member m ON m.trip_id = i.trip_id AND m.user_id = :user AND m.role = 'OWNER'
+				 WHERE i.itinerary_id = :it
+				""", new MapSqlParameterSource("it", parsed).addValue("user", actor), UUID.class);
+		return trips.isEmpty() ? null : trips.get(0);
+	}
+
+	/** 여행을 지우면 그 여행으로 센 「따라 간 사람」을 뺀다 (S15P21E201-2043). 지운 트랜잭션 안에서 돈다. */
+	@org.springframework.context.event.EventListener
+	public void onTripDeleted(com.gabolle.backend.trip.domain.TripDeleted event) {
+		UUID tripId;
+		try {
+			tripId = UUID.fromString(event.tripId());
+		}
+		catch (IllegalArgumentException e) {
+			return;
+		}
+		List<UUID> posts = this.jdbc.queryForList(
+				"DELETE FROM route_post_reaction WHERE kind = 'COPY' AND trip_id = :trip RETURNING route_post_id",
+				new MapSqlParameterSource("trip", tripId), UUID.class);
+		for (UUID post : posts) {
+			bump(post, Kind.COPY, -1);
+		}
+	}
+
 	/** 좋아요·저장을 거둔다. 없던 것을 거둬도 성공이다. 복사는 거둘 수 없다. */
 	@Transactional
 	public RoutePostResponse unreact(UUID routePostId, UUID actor, Kind kind) {

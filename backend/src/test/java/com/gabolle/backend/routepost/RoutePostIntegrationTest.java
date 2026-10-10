@@ -145,6 +145,32 @@ class RoutePostIntegrationTest {
 				.andExpect(jsonPath("$.error.code").value("INVALID_TITLE"));
 	}
 
+	@Autowired
+	private RoutePostService service;
+
+	@Test
+	@DisplayName("🔴 복사로 만든 여행을 지우면 「따라 간 사람」에서 빠진다 — 모르는 여행을 지우면 그대로다 (S15P21E201-2043)")
+	void deletingTheCopiedTripUncounts() throws Exception {
+		String id = publish(this.author, "따라가기", this.placeA, this.placeB);
+		this.mvc.perform(post("/api/v1/route-posts/{id}/copies", id).param("itineraryId", "not-a-uuid")
+				.principal(StoryFixture.as(this.reader))).andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.copyCount").value(1));
+		UUID trip = UUID.randomUUID();
+		this.jdbc.update("UPDATE route_post_reaction SET trip_id = ? WHERE route_post_id = ?::uuid AND kind = 'COPY'", trip, id);
+
+		this.service.onTripDeleted(new com.gabolle.backend.trip.domain.TripDeleted(UUID.randomUUID().toString()));
+		this.mvc.perform(get("/api/v1/route-posts/{id}", id).principal(StoryFixture.as(this.reader)))
+				.andExpect(jsonPath("$.data.copyCount").value(1));
+
+		this.service.onTripDeleted(new com.gabolle.backend.trip.domain.TripDeleted(trip.toString()));
+		this.mvc.perform(get("/api/v1/route-posts/{id}", id).principal(StoryFixture.as(this.reader)))
+				.andExpect(jsonPath("$.data.copyCount").value(0));
+
+		// 다시 따라 하면 다시 하나 — 지운 뒤 새 여행은 새로 센다.
+		this.mvc.perform(post("/api/v1/route-posts/{id}/copies", id).principal(StoryFixture.as(this.reader)))
+				.andExpect(jsonPath("$.data.copyCount").value(1));
+	}
+
 	@Test
 	@DisplayName("🔴 좋아요는 연타해도 한 번, 복사는 같은 사람이 여러 번 해도 한 번 센다")
 	void reactionsAreIdempotent() throws Exception {

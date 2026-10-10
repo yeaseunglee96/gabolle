@@ -477,6 +477,11 @@ public class ItineraryEditService {
             Trip trip = tripRepository.findById(itinerary.tripId()).orElse(null);
             DayWindow window = trip == null ? null : DayWindow.of(trip);
             dayStart = (window != null && window.known()) ? window.start() : null;
+            // 🔴 활동 시작은 «출발지를 나서는» 시각이다 — 첫 곳에는 출발지에서 가는 이동 뒤에 닿는다(S15P21E201-2043).
+            //    직접 짜기에서 서면역→해운대 45분을 빼고 첫 곳을 09:00 에 세웠다. 바탕 판에 첫 곳이 있으면 그 시각이 이미 이동을 품고 있다.
+            if (dayStart != null && !day.isEmpty()) {
+                dayStart = arrivalAfterOriginLeg(dayStart, travelBySequence.get(day.get(0).sequence()));
+            }
         }
         if (dayStart == null || day.isEmpty()) {
             return new Retimed(withStay, new ItineraryDayRetimer.Result(Map.of(), Map.of(), List.of(), List.of()));
@@ -507,6 +512,15 @@ public class ItineraryEditService {
             throw new ReplanOverflowsDayException(dayIndex, result.overflowing());
         }
         return new Retimed(withStay, result);
+    }
+
+    /** 출발지를 나선 시각에 첫 구간 이동을 더한 도착 시각. 이동을 모르거나 자정을 넘기면 나선 시각 그대로. */
+    static LocalTime arrivalAfterOriginLeg(LocalTime leaveAt, Integer originLegMinutes) {
+        if (originLegMinutes == null || originLegMinutes <= 0) {
+            return leaveAt;
+        }
+        int arrive = leaveAt.toSecondOfDay() / 60 + originLegMinutes;
+        return arrive >= 24 * 60 ? leaveAt : leaveAt.plusMinutes(originLegMinutes);
     }
 
     private static int stayOf(ItineraryItem item, Map<String, Integer> stayOverride) {
