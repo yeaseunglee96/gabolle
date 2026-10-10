@@ -156,12 +156,12 @@ class PlaceSuggestionIntegrationTest {
 	@DisplayName("🔴 욕설·광고 문구는 받지 않는다")
 	void abusiveTextIsRejected() throws Exception {
 		Map<String, Object> b = body(uniqueName("어느 가게"), IN_LAT, IN_LNG);
-		b.put("reason", "씨발 여기 최고");
+		b.put("reason", "씨발 여기 진짜 최고의 집이다. " + "가".repeat(40));
 		submit(this.local, b).andExpect(status().isBadRequest())
 				.andExpect(jsonPath("$.error.code").value("PLACE_SUGGESTION_TEXT_BLOCKED"));
 
 		Map<String, Object> ad = body(uniqueName("광고 가게"), IN_LAT, IN_LNG);
-		ad.put("reason", "카톡 문의 http://spam.example");
+		ad.put("reason", "카톡 문의 http://spam.example " + "가".repeat(40));
 		submit(this.local, ad).andExpect(status().isBadRequest())
 				.andExpect(jsonPath("$.error.code").value("PLACE_SUGGESTION_TEXT_BLOCKED"));
 	}
@@ -228,7 +228,7 @@ class PlaceSuggestionIntegrationTest {
 
 		this.mockMvc.perform(get("/api/v1/places/" + placeId + "/local-pick").with(as(this.local)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.data.suggesterName").value("부산토박이"))
-				.andExpect(jsonPath("$.data.reason").value("현지인만 아는 곳"))
+				.andExpect(jsonPath("$.data.reason").value("현지인만 아는 아침 국밥집이에요. 새벽 시장 상인들이 먼저 와서 먹고 가는 곳이라 일곱 시 전에 가야 자리가 있어요"))
 				.andExpect(jsonPath("$.data.openingHours").value("11:00-22:00"));
 
 		// 두 번 승인은 안 된다
@@ -257,6 +257,26 @@ class PlaceSuggestionIntegrationTest {
 				.andExpect(status().isNotFound());
 	}
 
+	@Test
+	@DisplayName("사진은 선택이다 — 없어도 받는다(사용자 지시 2026-10-10)")
+	void photoIsOptional() throws Exception {
+		submit(this.local, body(uniqueName("사진 없는 가게"), IN_LAT, IN_LNG)).andExpect(status().isCreated());
+	}
+
+	@Test
+	@DisplayName("🔴 추천 이유는 50자 이상 100자 이하")
+	void reasonLength() throws Exception {
+		Map<String, Object> b = body(uniqueName("짧은 이유"), IN_LAT, IN_LNG);
+		b.put("reason", "가".repeat(49));
+		submit(this.local, b).andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.error.code").value("PLACE_SUGGESTION_INVALID"))
+				.andExpect(jsonPath("$.error.fields[0]").value("reason"));
+		b.put("reason", "가".repeat(101));
+		submit(this.local, b).andExpect(status().isBadRequest());
+		b.put("reason", "가".repeat(100));
+		submit(this.local, b).andExpect(status().isCreated());
+	}
+
 	// ── 도우미 ────────────────────────────────────────────────
 
 	private ResultActions submit(UUID who, Map<String, Object> body) throws Exception {
@@ -269,13 +289,13 @@ class PlaceSuggestionIntegrationTest {
 				.path("suggestionId").asString();
 	}
 
-	private static Map<String, Object> body(String name, double lat, double lng) {
+	private Map<String, Object> body(String name, double lat, double lng) {
 		Map<String, Object> b = new java.util.HashMap<>();
 		b.put("name", name);
 		b.put("category", "FOOD");
 		b.put("lat", lat);
 		b.put("lng", lng);
-		b.put("reason", "현지인만 아는 곳");
+		b.put("reason", "현지인만 아는 아침 국밥집이에요. 새벽 시장 상인들이 먼저 와서 먹고 가는 곳이라 일곱 시 전에 가야 자리가 있어요");
 		return b;
 	}
 

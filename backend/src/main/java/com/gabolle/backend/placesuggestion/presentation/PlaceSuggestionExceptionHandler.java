@@ -26,9 +26,10 @@ import com.gabolle.backend.placesuggestion.application.PlaceSuggestionService;
 public class PlaceSuggestionExceptionHandler {
 
 	@ExceptionHandler(PlaceSuggestionService.InvalidSuggestionException.class)
-	public ResponseEntity<ApiResponse<Void>> invalid(RuntimeException e) {
-		return fail(HttpStatus.BAD_REQUEST, "PLACE_SUGGESTION_INVALID", e.getMessage(), List.of());
+	public ResponseEntity<ApiResponse<Void>> invalid(PlaceSuggestionService.InvalidSuggestionException e) {
+		return fail(HttpStatus.BAD_REQUEST, "PLACE_SUGGESTION_INVALID", e.getMessage(), e.fields());
 	}
+
 
 	@ExceptionHandler({ HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class,
 			MissingServletRequestParameterException.class })

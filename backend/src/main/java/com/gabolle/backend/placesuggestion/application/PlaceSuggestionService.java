@@ -46,6 +46,11 @@ public class PlaceSuggestionService {
 
 	static final int DAILY_LIMIT = 5;
 
+	/** 추천 이유의 글자 수 — 사용자 지시(2026-10-10): 50자 이상 100자 이하. */
+	public static final int REASON_MIN = 50;
+
+	public static final int REASON_MAX = 100;
+
 	/** 추천 결과의 datasetVersion 이 비지 않게 — 이 줄은 수집분이 아니라 사람이 넣은 것이다. */
 	static final String DATASET_VERSION = "user-suggestion-v1";
 
@@ -88,10 +93,15 @@ public class PlaceSuggestionService {
 		String hours = trimToNull(c.openingHours());
 		String phone = trimToNull(c.phone());
 		String photoUrl = trimToNull(c.photoUrl());
-		if (name == null || name.length() > 60 || reason == null || reason.length() > 80
+		if (name == null || name.length() > 60 || reason == null
 				|| c.category() == null || !CATEGORIES.contains(c.category()) || c.lat() == null || c.lng() == null
 				|| (hours != null && hours.length() > 120) || (phone != null && !phone.matches("[0-9+()\\- ]{4,30}"))) {
 			throw new InvalidSuggestionException("이름·갈래·위치·추천 이유를 확인해 주세요.");
+		}
+		// 사용자 지시(2026-10-10): 추천 이유는 50자 이상 100자 이하. 사진은 선택이다.
+		int reasonLength = reason.codePointCount(0, reason.length());
+		if (reasonLength < REASON_MIN || reasonLength > REASON_MAX) {
+			throw new InvalidSuggestionException("추천 이유를 " + REASON_MIN + "자 이상 " + REASON_MAX + "자 이하로 적어 주세요.", "reason");
 		}
 		if (!BusanBoundary.contains(c.lat(), c.lng())) {
 			throw new OutsideBusanException();
@@ -278,10 +288,18 @@ public class PlaceSuggestionService {
 
 	public static class InvalidSuggestionException extends RuntimeException {
 
-		public InvalidSuggestionException(String message) {
+		private final java.util.List<String> fields;
+
+		public InvalidSuggestionException(String message, String... fields) {
 			super(message);
+			this.fields = java.util.List.of(fields);
+		}
+
+		public java.util.List<String> fields() {
+			return this.fields;
 		}
 	}
+
 
 	public static class OutsideBusanException extends RuntimeException {
 
