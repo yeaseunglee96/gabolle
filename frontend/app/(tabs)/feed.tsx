@@ -566,6 +566,13 @@ export default function Feed() {
   //    실시간 인기 = 서버 인기순(1368) + 1·2·3위 배지 + 「전체 / 내 근처」. 맞춤 추천 = FOR_YOU(팔로잉은 그 안의 갈래).
   //    내 피드 = 내 기록 — 비었으면 02c 동백이.
   const [tab, setTab] = useState<FeedTab>('HOT');
+  // 폰 탭 줄이 옆으로 밀릴 때 고른 탭을 화면 안으로 데려온다(S15P21E201-2027).
+  const tabScroll = useRef<ScrollView>(null);
+  const tabX = useRef<Partial<Record<FeedTab, number>>>({});
+  useEffect(() => {
+    const x = tabX.current[tab];
+    if (x != null) tabScroll.current?.scrollTo({ x: Math.max(0, x - 24), animated: true });
+  }, [tab]);
   const [followingOnly, setFollowingOnly] = useState(false);
   const [area, setArea] = useState<'ALL' | 'NEAR'>('ALL');
   const [here, setHere] = useState<{ latitude: number; longitude: number } | null | 'denied'>(null);
@@ -738,6 +745,15 @@ export default function Feed() {
   };
 
   // 시안 4 의 탭 — 글자 아래 붉은 점이 「지금 여기」다. 셋 다 손님도 누를 수 있다(내 피드는 로그인 안내를 그린다).
+  const tabRow = () => (
+    <View accessibilityRole="tablist" style={[styles.tabs, compact && styles.tabsPhone]}>
+      {tabButton('HOT', tx('실시간 인기', 'Trending'))}
+      {tabButton('FOR_YOU', tx('맞춤 추천', 'For you'))}
+      {/* 「내 피드」는 시안 4 의 02c — 마이페이지 기록 탭과 같은 목록이지만, 피드에서 「내 것도 여기 있다」를 확인하는 자리(S15P21E201-1431). */}
+      {tabButton('MINE', tx('내 피드', 'My feed'))}
+      {tabButton('ROUTES', tx('루트', 'Routes'))}
+    </View>
+  );
   const tabButton = (target: FeedTab, label: string) => {
     const selected = tab === target;
     return <Pressable
@@ -745,6 +761,7 @@ export default function Feed() {
       accessibilityRole="tab"
       accessibilityState={{ selected }}
       onPress={() => setTab(target)}
+      onLayout={(e) => { tabX.current[target] = e.nativeEvent.layout.x; }}
       style={styles.tab}
     >
       <Text variant={compact ? 'body' : 'title'} weight={selected ? 'bold' : 'medium'} color={selected ? color.text.heading : color.text.muted}>{label}</Text>
@@ -777,13 +794,13 @@ export default function Feed() {
     {/* 폰에서는 이 칸이 내용 폭만 차지해 밑줄이 「내 피드」 뒤에서 끊겼다(S15P21E201-1806).
         폰만 전체 폭으로 편다 — 넓은 화면은 옆에 지도가 있어 지금 그대로가 맞다. */}
     <View style={[styles.headerActions, compact && styles.headerActionsPhone]}>
-      <View accessibilityRole="tablist" style={[styles.tabs, compact && styles.tabsPhone]}>
-        {tabButton('HOT', tx('실시간 인기', 'Trending'))}
-        {tabButton('FOR_YOU', tx('맞춤 추천', 'For you'))}
-        {/* 「내 피드」는 시안 4 의 02c — 마이페이지 기록 탭과 같은 목록이지만, 피드에서 「내 것도 여기 있다」를 확인하는 자리(S15P21E201-1431). */}
-        {tabButton('MINE', tx('내 피드', 'My feed'))}
-        {tabButton('ROUTES', tx('루트', 'Routes'))}
-      </View>
+      {/* 폰에서는 탭 줄을 옆으로 밀 수 있게 감싼다 — 일본어·베트남어는 네 칸이 폭을 넘어
+          「루트」가 화면 밖으로 밀려 누를 수 없었다(S15P21E201-2027). 넓은 화면은 그대로. */}
+      {compact ? (
+        <ScrollView ref={tabScroll} horizontal showsHorizontalScrollIndicator={false} style={styles.tabsScroll} contentContainerStyle={styles.tabsScrollContent}>
+          {tabRow()}
+        </ScrollView>
+      ) : tabRow()}
       {/* 폰의 글쓰기 진입은 아래 떠 있는 단추(FAB)로 옮겼다 (시안 5번).
           여기 남겨 두면 같은 행동이 한 화면에 두 자리에 있게 된다. composeEntryFor 의
           'headerButton' 은 이제 「폰이다」를 뜻하고, 그 자리를 FAB 가 맡는다.
@@ -1057,6 +1074,8 @@ const styles = StyleSheet.create({
   // 넓은 화면은 붙은 세그먼트, 폰은 떨어진 칩.
   headerActionsPhone: { width: '100%', alignSelf: 'stretch', justifyContent: 'flex-start' },
   tabsPhone: { flexGrow: 1 },
+  tabsScroll: { alignSelf: 'stretch', flexGrow: 1 },
+  tabsScrollContent: { flexGrow: 1 },
   tabs: { flexDirection: 'row', gap: spacing[6], borderBottomWidth: 1, borderBottomColor: color.surface.field, alignSelf: 'stretch' },
   tab: { minHeight: 46, alignItems: 'center', justifyContent: 'center', gap: 2, paddingHorizontal: spacing[1] },
   tabDot: { width: 5, height: 5, borderRadius: radius.full, backgroundColor: color.action.outline },
