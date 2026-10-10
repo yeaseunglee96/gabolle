@@ -18,7 +18,7 @@ import { LocationPickMap } from '@/discovery/LocationPickMap';
 import { type LatLng } from '@/discovery/LocationPickParts';
 import { BUSAN_CENTER } from '@/discovery/locationPickHtml';
 import {
-  draftProblems, fetchMySuggestions, findDuplicates, NAME_MAX, REASON_MAX, submitPlaceSuggestion, SUGGEST_CATEGORIES,
+  draftProblems, fetchMySuggestions, findDuplicates, NAME_MAX, REASON_MAX, REASON_MIN, submitPlaceSuggestion, SUGGEST_CATEGORIES,
   type DuplicatePlace, type PlaceSuggestion, type SubmitResult,
 } from '@/discovery/placeSuggestions';
 import { useI18n } from '@/i18n';
@@ -36,6 +36,7 @@ function failureText(result: Exclude<SubmitResult, { state: 'success' } | { stat
     case 'outside': return tx('부산 안의 장소만 제안할 수 있어요. 핀을 부산 안으로 옮겨 주세요.', 'Only places in Busan can be suggested. Move the pin inside Busan.');
     case 'limited': return tx('오늘은 더 제안할 수 없어요. 하루 5곳까지예요.', 'You can suggest up to 5 places a day. Please try again tomorrow.');
     case 'blocked': return tx('욕설·링크·연락처 광고는 넣을 수 없어요.', 'Profanity, links and contact ads are not allowed.');
+    case 'photoRequired': return tx('사진을 한 장 이상 올려 주세요.', 'Please add at least one photo.');
     case 'photo': return tx('사진이 올라가지 않았어요. 다시 골라 주세요.', 'The photo was not uploaded. Please choose it again.');
     case 'login': return tx('로그인이 필요해요.', 'Please sign in.');
     default: return tx('보내지 못했어요. 잠시 후 다시 시도해 주세요.', 'Could not send. Please try again shortly.');
@@ -91,7 +92,7 @@ export default function PlaceSuggestScreen() {
     return () => { controller.abort(); if (dupTimer.current) clearTimeout(dupTimer.current); };
   }, [accessToken, center, name]);
 
-  const problems = useMemo(() => draftProblems({ name, category: category ?? undefined, lat: center?.lat, lng: center?.lng, reason }), [name, category, center, reason]);
+  const problems = useMemo(() => draftProblems({ name, category: category ?? undefined, lat: center?.lat, lng: center?.lng, reason, photoUrl }), [name, category, center, reason, photoUrl]);
   const canSend = problems.length === 0 && duplicates.length === 0 && !sending && !photoBusy;
 
   async function useMyLocation() {
@@ -203,9 +204,10 @@ export default function PlaceSuggestScreen() {
       <Field label={tx('추천 이유 한 줄', 'Why you recommend it (one line)')}>
         <TextInput value={reason} onChangeText={setReason} maxLength={REASON_MAX} placeholder={tx('예: 아침 7시 돼지국밥, 동네 사람만 아는 집', 'e.g. 7am pork soup only locals know')} placeholderTextColor={color.text.muted} style={styles.input} accessibilityLabel={tx('추천 이유 한 줄', 'Why you recommend it (one line)')} />
         <Text variant="caption" color={color.text.muted} style={styles.counter}>{`${reason.length}/${REASON_MAX}`}</Text>
+        {reason.trim().length > 0 && [...reason.trim()].length < REASON_MIN ? <Text variant="caption" color={color.state.danger}>{txf(tx, '%s자 이상 적어 주세요.', 'Please write at least %s characters.', String(REASON_MIN))}</Text> : null}
       </Field>
 
-      <Field label={tx('사진 (선택)', 'Photo (optional)')} hint={tx('직접 찍은 사진만 올려 주세요. 촬영 위치 정보는 지워져요.', 'Only photos you took. Location data is removed.')}>
+      <Field label={tx('사진', 'Photo')} hint={tx('직접 찍은 사진만 올려 주세요. 촬영 위치 정보는 지워져요.', 'Only photos you took. Location data is removed.')}>
         {photoUrl ? (
           <View style={styles.photoRow}>
             <AppImage source={{ uri: resolveStoryImageUrl(photoUrl) }} style={styles.photo} />
@@ -225,6 +227,7 @@ export default function PlaceSuggestScreen() {
         </Field>
       </View>
 
+      {!photoUrl ? <Text variant="caption" color={color.text.muted}>{tx('장소·사진·추천 이유를 모두 적어야 보낼 수 있어요.', 'Place, photo and reason are all required to send.')}</Text> : null}
       {message ? <Text accessibilityRole="alert" color={message.danger ? color.state.danger : color.text.body}>{message.text}</Text> : null}
       <Button label={sending ? tx('보내는 중…', 'Sending…') : tx('제안 보내기', 'Send suggestion')} onPress={() => void send()} disabled={!canSend} />
       <Text variant="caption" color={color.text.muted}>{tx('운영자가 확인한 뒤 앱에 올라가고, 장소에 「현지인 추천」과 내 이름이 붙어요. 승인되면 알림을 보내 드려요.', 'After review it goes live with a "Local pick" badge and your name. We will notify you when approved.')}</Text>

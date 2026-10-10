@@ -19,6 +19,8 @@ export const SUGGEST_CATEGORIES: ReadonlyArray<{ code: string; ko: string; en: s
 
 export const NAME_MAX = 60;
 export const REASON_MAX = 80;
+/** 추천 이유 최소 글자 수 — 사용자 지시(2026-10-10): 장소·사진·추천 이유를 모두 적게 한다. 서버 REASON_MIN 과 같다. */
+export const REASON_MIN = 10;
 
 export type SuggestionStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 
@@ -56,7 +58,7 @@ export type SuggestionDraft = {
 };
 
 /** 보내기 전에 화면이 막을 것 — 서버도 같은 것을 다시 본다. 비어 있으면 보낼 수 있다. */
-export type DraftProblem = 'name' | 'category' | 'location' | 'reason';
+export type DraftProblem = 'name' | 'category' | 'location' | 'reason' | 'photo';
 
 export function draftProblems(draft: Partial<SuggestionDraft>): DraftProblem[] {
   const problems: DraftProblem[] = [];
@@ -65,7 +67,8 @@ export function draftProblems(draft: Partial<SuggestionDraft>): DraftProblem[] {
   if (!draft.category || !SUGGEST_CATEGORIES.some((c) => c.code === draft.category)) problems.push('category');
   if (typeof draft.lat !== 'number' || typeof draft.lng !== 'number') problems.push('location');
   const reason = draft.reason?.trim() ?? '';
-  if (!reason || reason.length > REASON_MAX) problems.push('reason');
+  if ([...reason].length < REASON_MIN || reason.length > REASON_MAX) problems.push('reason');
+  if (!draft.photoUrl?.trim()) problems.push('photo');
   return problems;
 }
 
@@ -77,6 +80,7 @@ export type SubmitResult =
   | { state: 'limited' }
   | { state: 'blocked' }
   | { state: 'photo' }
+  | { state: 'photoRequired' }
   | { state: 'login' }
   | { state: 'error'; message: string };
 
@@ -111,6 +115,7 @@ export async function submitPlaceSuggestion(draft: SuggestionDraft, accessToken:
         case 'PLACE_SUGGESTION_RATE_LIMITED': return { state: 'limited' };
         case 'PLACE_SUGGESTION_TEXT_BLOCKED': return { state: 'blocked' };
         case 'PLACE_SUGGESTION_PHOTO_INVALID': return { state: 'photo' };
+        case 'PLACE_SUGGESTION_PHOTO_REQUIRED': return { state: 'photoRequired' };
         default: break;
       }
     }
