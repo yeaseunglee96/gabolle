@@ -3483,6 +3483,7 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '두 곳 이상 있어야 루트로 올릴 수 있어요.': { ja: 'ルートとして投稿するには2か所以上必要です。', zhHans: '至少需要两个地点才能发布为路线。', zhHant: '至少需要兩個地點才能發佈為路線。', vi: 'Cần ít nhất hai điểm để đăng thành lộ trình.' },
   '들른 곳': { ja: '立ち寄った場所', zhHans: '去过的地方', zhHant: '去過的地方', vi: 'Các điểm đã ghé' },
   '따라 간 사람 %d': { ja: 'たどった人 %d', zhHans: '跟着走的人 %d', zhHant: '跟著走的人 %d', vi: '%d người đã đi theo' },
+  '따라 감 %d': { ja: 'たどった %d', zhHans: '跟走 %d', zhHant: '跟走 %d', vi: 'Đi theo %d' },
   '로그인하면 내 여행을 루트로 올릴 수 있어요.': { ja: 'ログインすると自分の旅行をルートとして投稿できます。', zhHans: '登录后即可将我的旅行发布为路线。', zhHant: '登入後即可將我的旅行發佈為路線。', vi: 'Đăng nhập để đăng chuyến đi của bạn thành lộ trình.' },
   '루트': { ja: 'ルート', zhHans: '路线', zhHant: '路線', vi: 'Lộ trình' },
   '루트로 올리기': { ja: 'ルートとして投稿', zhHans: '发布为路线', zhHant: '發佈為路線', vi: 'Đăng thành lộ trình' },
