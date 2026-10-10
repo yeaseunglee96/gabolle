@@ -157,6 +157,11 @@ export async function copyRouteIntoNewTrip(post: RoutePostDto, accessToken: stri
   try {
     const { itineraryId } = await createTripForSelfPlan({
       ...EMPTY_PLAN,
+      // 🔴 출발지 좌표가 없으면 서버가 여행을 안 만든다(400 originLat). 루트의 첫 곳을 출발지로 둔다 —
+      //    공개된 장소라 새는 것이 없고, 사람은 여행 화면에서 바꿀 수 있다(2026-10-10 운영 확인).
+      origin: post.stops[0]?.name ?? '',
+      originLat: post.stops[0]?.lat ?? null,
+      originLng: post.stops[0]?.lng ?? null,
       startDate: ymd(start),
       endDate: ymd(end),
       // 같은 루트를 두 번 눌러도 새 여행이 되게 — 멱등 키에 시각을 섞는다.
@@ -190,4 +195,13 @@ export function durationParts(min: number | null | undefined): { h: number; m: n
 export function distanceKm(meters: number | null | undefined): string | null {
   if (meters == null || meters <= 0) return null;
   return (meters / 1000).toFixed(meters < 10_000 ? 1 : 0);
+}
+
+/**
+ * 숫자가 끼는 문구 — 번역표 열쇠는 '%d곳' 모양 그대로 찾고, 고른 언어의 문구에서 %d 를 차례로 채운다.
+ * 🔴 txf 는 %s 만 채운다(%d 는 그대로 화면에 나왔다 — 2026-10-10 운영 확인). 그래서 따로 둔다.
+ */
+export function txd(tx: (ko: string, en: string) => string, ko: string, en: string, ...values: number[]): string {
+  let i = 0;
+  return tx(ko, en).replace(/%d/g, () => String(values[i++] ?? ''));
 }

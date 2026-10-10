@@ -14,11 +14,10 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
-import { txf } from '@/i18n/format';
 import { localizeMessage } from '@/i18n/messages';
 import { useLayout } from '@/layout/useLayout';
 import { loadItinerary } from '@/plan/itinerary';
-import { publishRoutePost, ROUTE_POSTS_KEY } from '@/routepost/routePosts';
+import { publishRoutePost, ROUTE_POSTS_KEY, txd } from '@/routepost/routePosts';
 
 const TITLE_MAX = 80;
 const BODY_MAX = 500;
@@ -83,7 +82,7 @@ export default function NewRoutePostScreen() {
             <Text weight="bold">{tx('어느 날을 올릴까요?', 'Which day?')}</Text>
             <View accessibilityRole="radiogroup" style={styles.chips}>
               {chip(null, tx('전체 일정', 'Whole trip'))}
-              {days.map((_, index) => chip(index, txf(tx, '%d일차', 'Day %d', index + 1)))}
+              {days.map((_, index) => chip(index, txd(tx, '%d일차', 'Day %d', index + 1)))}
             </View>
           </View>
         ) : null}
@@ -98,7 +97,7 @@ export default function NewRoutePostScreen() {
         </View>
 
         <View style={styles.card}>
-          <Text weight="bold">{txf(tx, '올라갈 곳 %d곳', '%d stops to post', chosen.length)}</Text>
+          <Text weight="bold">{txd(tx, '올라갈 곳 %d곳', '%d stops to post', chosen.length)}</Text>
           <Text variant="caption" color={color.text.body} numberOfLines={4}>{chosen.map((item, index) => `${index + 1} ${item.title}`).join('  →  ')}</Text>
           <Text variant="caption" color={color.text.muted}>{tx('🔒 숙소와 숙소를 오가는 길은 올라가지 않아요.', '🔒 Your lodging and the way to and from it are not posted.')}</Text>
         </View>
