@@ -218,23 +218,40 @@ export function walkIntoStopIds(days: ReadonlyArray<{ items: ReadonlyArray<Pick<
  * 🔴 조각이 있는 구간만 쓴다. 조각 없는 길까지 여기서 쓰면 지금 받아 오는 길(걷기·자동차)과 모양이 달라진다 — 그건 이 일이 아니다.
  * 🔴 지도의 이웃 정차지가 일정의 이웃 항목일 때만 쓴다. 좌표 없는 곳을 건너뛰면 지도의 두 점 사이 구간은 그 길이 아니다.
  * 🔴 조각 번호가 길 밖이면(slopeSegments 가 null) 버린다 — 그때는 전처럼 길을 받아 온다.
+ * 🔴 하루 시작 구간(출발점 → 첫 곳)도 같다 — 첫 항목의 travelPath·travelPieces 가 그 구간의 길이다(S15P21E201-2044).
+ *    대중교통 여행은 걸어서 간 구간에도 walkingMeters 가 비어 있어서 화면이 이 구간을 걷기로 묻지 않았고, 조각 없는 길이 와
+ *    지도에 남색 한 줄로 남았다(폰 2026-10-10, 서면). start 를 주면 그 구간 열쇠(START_DAY_OFFSET)에도 싣는다.
+ *    동네 숙소(어림)에서 시작하면 싣지 않는다 — 그 구간은 곧은 점선이다.
  */
-export function itineraryLegs(items: ItineraryItemDto[], map: DayMap, dayNumber: number): Record<string, LegPath> {
+export function itineraryLegs(items: ItineraryItemDto[], map: DayMap, dayNumber: number, start?: DayStart | null): Record<string, LegPath> {
   const legs: Record<string, LegPath> = {};
+  const begin = startTrip(map, dayNumber, start);
+  const first = items[0];
+  if (begin && !begin.approximate && first && map.stops[0]?.id === first.id) {
+    const leg = knownLeg(first);
+    if (leg) legs[legKey(begin.day.day, 0)] = leg;
+  }
   for (let i = 0; i + 1 < map.stops.length; i += 1) {
     const from = map.stops[i];
     const to = map.stops[i + 1];
     if (to.number !== from.number + 1) continue;
     const item = items[to.number - 1];
-    if (!item || item.id !== to.id || !Array.isArray(item.travelPath) || !item.travelPieces?.length) continue;
-    const valid = item.travelPath.every((point) => Array.isArray(point) && Number.isFinite(point[0]) && Number.isFinite(point[1]));
-    if (!valid || item.travelPath.length < 2) continue;
-    // 서버는 [경도, 위도] 순서다(courseRoutePaths.ts 와 같은 까닭 — S15P21E201-1567).
-    const path = item.travelPath.map(([lng, lat]) => ({ latitude: lat, longitude: lng }));
-    if (slopeSegments(path, item.travelPieces) == null) continue;
-    legs[legKey(dayNumber, i)] = { path, estimated: false, pieces: item.travelPieces };
+    if (!item || item.id !== to.id) continue;
+    const leg = knownLeg(item);
+    if (leg) legs[legKey(dayNumber, i)] = leg;
   }
   return legs;
+}
+
+/** 항목에 실려 온 들어오는 길 — 길과 조각이 다 있고 조각 번호가 길 안일 때만. */
+function knownLeg(item: ItineraryItemDto): LegPath | null {
+  if (!Array.isArray(item.travelPath) || !item.travelPieces?.length) return null;
+  const valid = item.travelPath.every((point) => Array.isArray(point) && Number.isFinite(point[0]) && Number.isFinite(point[1]));
+  if (!valid || item.travelPath.length < 2) return null;
+  // 서버는 [경도, 위도] 순서다(courseRoutePaths.ts 와 같은 까닭 — S15P21E201-1567).
+  const path = item.travelPath.map(([lng, lat]) => ({ latitude: lat, longitude: lng }));
+  if (slopeSegments(path, item.travelPieces) == null) return null;
+  return { path, estimated: false, pieces: item.travelPieces };
 }
 
 /**

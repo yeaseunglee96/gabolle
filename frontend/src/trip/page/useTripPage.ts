@@ -194,9 +194,10 @@ export function useTripPage(source: TripPageSource) {
   // 🔴 휠체어·유아차·계단 피하기 여행이면 계단을 피하는 길로 묻는다 — 안 그러면 일정은 계단 없는 길로 짜 놓고
   //    지도에는 계단 길을 그린다. 서버가 stepFree 를 안 보내면(옛 서버) 전처럼 보통 길이다.
   const stepFree = loaded?.stepFree === true;
+  // 하루 시작 구간도 첫 항목에 실려 온 조각으로 칠한다 — 대중교통 여행의 걸은 출발 구간이 남색으로 남던 것(S15P21E201-2044).
   // 일정 응답에 경사 조각 길(travelPath + travelPieces)이 실려 온 구간은 길을 다시 묻지 않고 그것으로 칠한다.
   // 옛 서버(칸 없음)면 빈 객체라 전처럼 전부 받아 온다.
-  const known = useMemo(() => itineraryLegs(items, map, dayIndex + 1), [items, map, dayIndex]);
+  const known = useMemo(() => itineraryLegs(items, map, dayIndex + 1, dayStart), [items, map, dayIndex, dayStart]);
   const legs = useCourseRoutePaths(legDays, accessToken, { walkInto, stepFree, known });
   // 🔴 걷는 길을 무엇으로 칠하나 — 사용자가 고른 «경사 피하기»·«그늘 우선» 이다(S15P21E201-1896). 서버가 알려 준 값이 먼저이고,
   //    옛 서버(칸 없음)일 때만 기기의 초안으로 대신한다. 둘 다 안 골랐으면 경로는 자기 색(남색) 한 가지다.
