@@ -755,6 +755,22 @@ class RouteAuthorizationRegistryTest {
 		put(m, "POST /api/v1/admin/story-reports/{}/dismiss", Policy.ADMIN_ONLY,
 				"운영자 기각. 같은 경로 규칙이 막는다. AdminModerationQueueIntegrationTest");
 
+		// ── 현지인 장소 제안 (S15P21E201-2031)
+		put(m, "POST /api/v1/place-suggestions", Policy.AUTHENTICATED_ONLY,
+				"제안한 사람은 인증에서만 읽는다 — 남의 이름으로 낼 자리가 없다. 사진은 본인이 올린 것만. PlaceSuggestionIntegrationTest");
+		put(m, "GET /api/v1/place-suggestions/duplicates", Policy.AUTHENTICATED_ONLY,
+				"이미 있는 장소 찾기. 누구에게나 같은 답이다. PlaceSuggestionIntegrationTest");
+		put(m, "GET /api/v1/place-suggestions/mine", Policy.OWNED,
+				"요청자 자신의 제안만 낸다(경로에 남의 번호를 받는 자리가 없다). PlaceSuggestionIntegrationTest");
+		put(m, "GET /api/v1/places/{}/local-pick", Policy.OTHER_USER_OK,
+				"승인된 장소를 추천한 사람의 표시 이름·이유를 보여 주는 것이 기능이다. 대기·거절 제안은 안 나온다. PlaceSuggestionIntegrationTest");
+		put(m, "GET /api/v1/admin/place-suggestions", Policy.ADMIN_ONLY,
+				"제안 검토 목록. /api/v1/admin/** → hasRole(ADMIN) 과 @PreAuthorize. PlaceSuggestionIntegrationTest");
+		put(m, "POST /api/v1/admin/place-suggestions/{}/approve", Policy.ADMIN_ONLY,
+				"승인 — 장소를 만든다. 같은 경로 규칙이 막는다. PlaceSuggestionIntegrationTest");
+		put(m, "POST /api/v1/admin/place-suggestions/{}/reject", Policy.ADMIN_ONLY,
+				"거절. 같은 경로 규칙이 막는다. PlaceSuggestionIntegrationTest");
+
 		// ── 방문 인증과 리뷰
 		put(m, "POST /api/v1/places/{}/visit-verifications", Policy.AUTHENTICATED_ONLY,
 				"주체를 인증에서만 읽고 좌표는 저장하지 않으므로 남의 인증을 대신 만들 자리가 없다. VisitVerificationIntegrationTest");
