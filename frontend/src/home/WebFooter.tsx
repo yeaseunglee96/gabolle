@@ -60,11 +60,11 @@ export function WebFooter() {
   // 폰 폭 — 띠를 세로로 쌓는다(글 → 단추 → QR 둘). 옆으로 두면 글 칸이 손가락 폭으로 줄었다.
   const phone = width < 640;
   const storeButtons = <>
-    <Pressable accessibilityRole="link" accessibilityLabel={tx('App Store에서 가볼래 받기', 'Get GABOLLE on the App Store')} onPress={() => { void Linking.openURL(APP_STORE_URL).catch(() => {}); }} style={({ pressed }) => [styles.storeButton, pressed && styles.pressed]}>
-      <Text variant="micro" color={color.text.muted}>iPhone</Text>
+    <Pressable accessibilityRole="link" accessibilityLabel={tx('App Store에서 가볼래 받기', 'Get GABOLLE on the App Store')} onPress={() => { void Linking.openURL(APP_STORE_URL).catch(() => {}); }} style={({ pressed }) => [styles.storeButton, !phone && styles.storeButtonStacked, pressed && styles.pressed]}>
+      <Text variant="micro" color={color.text.muted}>iOS</Text>
       <Text weight="bold">{tx('App Store에서 받기', 'Get it on the App Store')}</Text>
     </Pressable>
-    <Pressable accessibilityRole="link" accessibilityLabel={tx('Google Play에서 가볼래 받기', 'Get GABOLLE on Google Play')} onPress={() => { void Linking.openURL(PLAY_STORE_URL).catch(() => {}); }} style={({ pressed }) => [styles.storeButton, pressed && styles.pressed]}>
+    <Pressable accessibilityRole="link" accessibilityLabel={tx('Google Play에서 가볼래 받기', 'Get GABOLLE on Google Play')} onPress={() => { void Linking.openURL(PLAY_STORE_URL).catch(() => {}); }} style={({ pressed }) => [styles.storeButton, !phone && styles.storeButtonStacked, pressed && styles.pressed]}>
       <Text variant="micro" color={color.text.muted}>Android</Text>
       <Text weight="bold">{tx('Google Play에서 받기', 'Get it on Google Play')}</Text>
     </Pressable>
@@ -79,27 +79,29 @@ export function WebFooter() {
       {Platform.OS === 'web' ? (
       <View style={[styles.appBand, narrow && styles.appBandNarrow, phone && styles.appBandPhone]}>
         {narrow ? null : <GabolleMascot state="idle" still style={styles.mascot} />}
-        <View style={styles.appMain}>
+        <View style={[styles.appMain, narrow && !phone && styles.appMainNarrow]}>
           <View style={styles.appCopy}>
             <Text variant="title" weight="bold" color={color.text.onAction}>{tx('여행 중에는 앱이 더 편해요', 'The app is handier on the road')}</Text>
             <Text color={color.text.onDarkMuted}>{tx('버스·지하철에서 내릴 곳까지 남은 정류장을 세어 주고, 다가오면 진동으로 알려 줘요.\n웹에서 만든 여행이 그대로 이어져요.', 'It counts the stops left on the bus or subway and buzzes as yours gets close.\nTrips you made on the web carry right over.')}</Text>
           </View>
-          {narrow ? <View style={[styles.actions, phone && styles.actionsPhone]}>{storeButtons}</View> : null}
+          {phone ? <View style={[styles.actions, styles.actionsPhone]}>{storeButtons}</View> : null}
         </View>
-        {narrow ? null : <View style={styles.actionsStacked}>{storeButtons}</View>}
+        <View style={[styles.getRow, phone && styles.qrRowPhone]}>
+        {phone ? null : <View style={styles.actionsStacked}>{storeButtons}</View>}
         <View style={[styles.qrRow, phone && styles.qrRowPhone]}>
           <View style={styles.qrBlock}>
             <View style={styles.qrFrame}>
               <Image source={qrAppStore} accessibilityLabel={tx('App Store 내려받기 QR 코드', 'QR code to the App Store')} style={styles.qr} />
             </View>
-            <Text variant="caption" weight="medium" color={color.text.onDarkMuted} style={styles.qrLabel}>{tx('iPhone 카메라로 찍어 받기', 'Scan with your iPhone camera')}</Text>
+            <Text variant="caption" weight="medium" color={color.text.onDarkMuted} numberOfLines={1} style={styles.qrLabel}>{'App Store'}</Text>
           </View>
           <View style={styles.qrBlock}>
             <View style={styles.qrFrame}>
               <Image source={qrPlayStore} accessibilityLabel={tx('Google Play 내려받기 QR 코드', 'QR code to Google Play')} style={styles.qr} />
             </View>
-            <Text variant="caption" weight="medium" color={color.text.onDarkMuted} style={styles.qrLabel}>{tx('Android 카메라로 찍어 받기', 'Scan with your Android camera')}</Text>
+            <Text variant="caption" weight="medium" color={color.text.onDarkMuted} numberOfLines={1} style={styles.qrLabel}>{'Google Play'}</Text>
           </View>
+        </View>
         </View>
       </View>
       ) : null}
@@ -132,6 +134,7 @@ export function WebFooter() {
 }
 
 // 🔴 맨 아래 줄이 오른쪽 아래에 떠 있는 「AI에게 물어보기」 단추(높이 84 + 바닥 32) 밑에 깔리지 않게 그만큼 비운다(캡처 2026-10-02).
+const QR_FRAME = 112 + spacing[2] * 2;
 const FLOATING_ASSISTANT_CLEARANCE = 84 + spacing[8] + spacing[4];
 
 const styles = StyleSheet.create({
@@ -139,18 +142,26 @@ const styles = StyleSheet.create({
   // 앱 받기 띠 — 짙은 판. 웹 홈에서 유일하게 어두운 면이라 「여기서 앱을 받는다」가 바로 읽힌다.
   appBand: { flexDirection: 'row', alignItems: 'center', gap: spacing[8], paddingVertical: spacing[8], paddingHorizontal: spacing[8] + spacing[2], borderRadius: radius.lg, backgroundColor: color.action.secondary },
   // 좁으면(세로 탭) 동백이를 빼고 안쪽 여백을 줄여 글 폭을 번다 — QR 은 그대로 오른쪽에
-  appBandNarrow: { gap: spacing[6], paddingHorizontal: spacing[8] },
+  // 🔴 좁으면(폴드 가로 등) 글을 위 한 줄로, 그 아래에 넓은 판과 같은 「단추 둘 + QR 둘」 묶음을 둔다.
+  //  단추를 글 밑에 가로로 두면 「Google Play에서 받기」가 두 줄로 꺾였다(캡처 2026-10-10).
+  appBandNarrow: { flexDirection: 'column', alignItems: 'flex-start', gap: spacing[6], paddingHorizontal: spacing[8] },
   mascot: { width: 72, height: 72, alignSelf: 'flex-start' },
   appMain: { flex: 1, minWidth: 0, gap: spacing[4] + spacing[1] },
+  appMainNarrow: { flexGrow: 0, flexShrink: 0, flexBasis: 'auto', alignSelf: 'stretch' },
   appCopy: { gap: spacing[2] },
   actions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing[3] },
   // 넓으면 단추 둘을 세로로 쌓아 QR 옆에 — 같은 폭으로 늘린다
-  actionsStacked: { width: 240, gap: spacing[3] },
+  // 🔴 단추 둘의 높이 합 = QR 판 높이(112 + 위아래 여백 8×2 = 128), 단추 사이 = QR 사이(16). 그래서 단추 위·아래 끝이
+  //  QR 판 위·아래 끝과 맞는다(사용자 지적 2026-10-10 「단추와 QR 이 어색하다」). 캡션 몫은 아래로 남는다.
+  actionsStacked: { width: 240, gap: spacing[4] },
+  storeButtonStacked: { height: (QR_FRAME - spacing[4]) / 2, minHeight: 0 },
   storeButton: { minHeight: 52, justifyContent: 'center', paddingHorizontal: spacing[4] + spacing[1], borderRadius: radius.md, backgroundColor: color.surface.card },
   appBandPhone: { flexDirection: 'column', alignItems: 'stretch', paddingHorizontal: spacing[6] },
   actionsPhone: { flexDirection: 'column', alignItems: 'stretch' },
   // QR 둘을 나란히 — 폰 폭에서는 띠 가운데로
   qrRow: { flexDirection: 'row', gap: spacing[4], alignItems: 'flex-start' },
+  // 단추 묶음과 QR 둘을 한 줄로 — 위 끝을 맞춘다
+  getRow: { flexDirection: 'row', gap: spacing[4], alignItems: 'flex-start' },
   qrRowPhone: { justifyContent: 'center' },
   qrBlock: { alignItems: 'center', gap: spacing[2], width: 128 },
   qrLabel: { textAlign: 'center' },
