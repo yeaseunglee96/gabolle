@@ -73,6 +73,8 @@ function areaWord(rest: string, language: 'en' | 'ja' | 'zh-Hans' | 'zh-Hant'): 
   return rest.replace(/\s*(일원|일대)$/, AREA_WORD[language]);
 }
 
+const HANGUL = /[가-힣ㄱ-ㆎ]/;
+
 export type AddressSource = { address?: string | null; addressEn?: string | null; localAddresses?: LocalAddresses | null };
 
 /** 화면 언어로 보여 줄 주소 한 줄. 주소가 전혀 없으면 빈 문자열. */
@@ -88,9 +90,14 @@ export function addressForLanguage(place: AddressSource, language: LanguageCode)
   // 베트남어(vi)는 관광공사 번역 주소가 없다 — 영어 주소로 보여 준다(S15P21E201-2003).
   if (language === 'en' || language === 'vi') {
     if (addressEn) return addressEn;
-    if (!split) return address;
+    // 🔴 베트남어 화면에는 한글 조각을 섞지 않는다 — 「신창로4가 area, Jung-gu, Busan」이 나왔다(10/10 점검, S15P21E201-2043).
+    //    도로명을 로마자로 모르면 빼고 구·시만 적는다. 한국어 원문은 koreanAddressLine 이 곁에 적는다.
+    //    영어 화면은 전처럼 한글 도로명을 둔다(S15P21E201-1877 — 부산 도로명판의 글자).
+    const dropHangul = language === 'vi';
+    if (!split) return dropHangul && HANGUL.test(address) ? '' : address;
     const gu = BUSAN_GU[split.gu];
-    return [areaWord(split.rest, 'en'), gu.en, CITY.en].filter(Boolean).join(', ');
+    const rest = areaWord(split.rest, 'en');
+    return [dropHangul && HANGUL.test(rest) ? '' : rest, gu.en, CITY.en].filter(Boolean).join(', ');
   }
   if (!split) return addressEn ?? address;
 
