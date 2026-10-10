@@ -11,12 +11,11 @@ import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
-import { txf } from '@/i18n/format';
 import { localizeMessage } from '@/i18n/messages';
 import { useLayout } from '@/layout/useLayout';
 import { routeMetaLine, stopName } from '@/routepost/RoutePostCard';
 import { RouteThumb } from '@/routepost/RouteThumb';
-import { copyRouteIntoNewTrip, deleteRoutePost, getRoutePost, ROUTE_POSTS_KEY, routePostKey, setRouteReaction, type RoutePostDto } from '@/routepost/routePosts';
+import { copyRouteIntoNewTrip, deleteRoutePost, getRoutePost, ROUTE_POSTS_KEY, routePostKey, setRouteReaction, txd, type RoutePostDto } from '@/routepost/routePosts';
 import { AuthorAvatar } from '@/social/AuthorAvatar';
 
 export default function RoutePostScreen() {
@@ -61,7 +60,7 @@ export default function RoutePostScreen() {
     void queryClient.invalidateQueries({ queryKey: ROUTE_POSTS_KEY });
     // 몇 곳이 빠졌으면 숨기지 않고 말한다 — 그사이 없어진 장소일 수 있다.
     if (result.skipped > 0) {
-      setNotice(txf(tx, '%d곳은 지금 넣을 수 없어 뺐어요.', "%d stops couldn't be added and were left out.", result.skipped));
+      setNotice(txd(tx, '%d곳은 지금 넣을 수 없어 뺐어요.', "%d stops couldn't be added and were left out.", result.skipped));
       setCreated(result.itineraryId);
       return;
     }
@@ -120,7 +119,7 @@ export default function RoutePostScreen() {
         <Pressable accessibilityRole="button" accessibilityState={{ selected: post.savedByMe, busy: busy === 'save' }} onPress={() => void toggle(post, 'save')} style={[styles.react, post.savedByMe && styles.reactOn]}>
           <Text weight="bold" color={post.savedByMe ? color.action.primary : color.text.body}>{`★ ${tx('저장', 'Save')} ${post.saveCount}`}</Text>
         </Pressable>
-        <Text variant="caption" color={color.text.muted}>{txf(tx, '따라 간 사람 %d', '%d followed', post.copyCount)}</Text>
+        <Text variant="caption" color={color.text.muted}>{txd(tx, '따라 간 사람 %d', '%d followed', post.copyCount)}</Text>
       </View>
       {notice ? <Text accessibilityLiveRegion="polite" variant="caption" color={color.state.danger}>{notice}</Text> : null}
       {created ? <Button label={tx('만든 여행 보기', 'Open the new trip')} variant="secondary" compact onPress={() => router.push(`/trips/${encodeURIComponent(created)}/self-plan` as never)} /> : null}
@@ -134,7 +133,7 @@ export default function RoutePostScreen() {
       {post.stops.map((stop, index) => (
         <View key={stop.seq}>
           {multiDay && (index === 0 || post.stops[index - 1].dayIndex !== stop.dayIndex)
-            ? <Text variant="caption" weight="bold" color={color.text.muted} style={styles.dayLabel}>{txf(tx, '%d일차', 'Day %d', dayOrder.indexOf(stop.dayIndex) + 1)}</Text>
+            ? <Text variant="caption" weight="bold" color={color.text.muted} style={styles.dayLabel}>{txd(tx, '%d일차', 'Day %d', dayOrder.indexOf(stop.dayIndex) + 1)}</Text>
             : null}
           <Pressable accessibilityRole="link" onPress={() => router.push(`/place/${stop.placeId}` as never)} style={({ pressed }) => [styles.stop, pressed && styles.pressed]}>
             <View style={styles.num}><Text variant="caption" weight="bold" color={color.text.onAction}>{String(index + 1)}</Text></View>
@@ -143,7 +142,7 @@ export default function RoutePostScreen() {
               : <View style={[styles.photo, styles.photoEmpty]} />}
             <View style={styles.stopText}>
               <Text weight="bold" numberOfLines={2} color={color.text.heading}>{stopName(stop, language)}</Text>
-              {stop.stayMinutes ? <Text variant="caption" color={color.text.muted}>{txf(tx, '머문 시간 %d분', 'Stayed %d min', stop.stayMinutes)}</Text> : null}
+              {stop.stayMinutes ? <Text variant="caption" color={color.text.muted}>{txd(tx, '머문 시간 %d분', 'Stayed %d min', stop.stayMinutes)}</Text> : null}
             </View>
             <Text color={color.text.muted}>›</Text>
           </Pressable>

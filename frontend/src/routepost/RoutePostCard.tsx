@@ -5,18 +5,17 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
-import { txf } from '@/i18n/format';
 import { AuthorAvatar } from '@/social/AuthorAvatar';
 
 import { RouteThumb } from './RouteThumb';
-import { distanceKm, durationParts, type RoutePostDto } from './routePosts';
+import { distanceKm, durationParts, txd, type RoutePostDto } from './routePosts';
 
 export function routeMetaLine(post: Pick<RoutePostDto, 'stops' | 'durationMin' | 'distanceM' | 'dayIndex' | 'dayCount'>, tx: (ko: string, en: string) => string): string {
   const parts: string[] = [];
-  parts.push(post.dayIndex == null && post.dayCount > 1 ? txf(tx, '%d일 코스', '%d-day route', post.dayCount) : tx('하루 코스', 'One-day route'));
-  parts.push(txf(tx, '%d곳', '%d stops', post.stops.length));
+  parts.push(post.dayIndex == null && post.dayCount > 1 ? txd(tx, '%d일 코스', '%d-day route', post.dayCount) : tx('하루 코스', 'One-day route'));
+  parts.push(txd(tx, '%d곳', '%d stops', post.stops.length));
   const d = durationParts(post.durationMin);
-  if (d) parts.push(d.h > 0 ? (d.m > 0 ? txf(tx, '약 %d시간 %d분', 'About %dh %dm', d.h, d.m) : txf(tx, '약 %d시간', 'About %dh', d.h)) : txf(tx, '약 %d분', 'About %d min', d.m));
+  if (d) parts.push(d.h > 0 ? (d.m > 0 ? txd(tx, '약 %d시간 %d분', 'About %dh %dm', d.h, d.m) : txd(tx, '약 %d시간', 'About %dh', d.h)) : txd(tx, '약 %d분', 'About %d min', d.m));
   const km = distanceKm(post.distanceM);
   if (km) parts.push(`${km}km`);
   return parts.join(' · ');
@@ -48,7 +47,7 @@ export function RoutePostCard({ post, rank, compact = false, onOpen }: { post: R
         <Text variant="title" weight="bold" numberOfLines={2} color={color.text.heading}>{post.title}</Text>
         <Text variant="caption" color={color.text.muted}>{routeMetaLine(post, tx)}</Text>
         <Text variant="caption" color={color.text.body} numberOfLines={2}>
-          {shown.map((name, index) => `${index + 1} ${name}`).join('  →  ')}{more > 0 ? txf(tx, '  외 %d곳', '  +%d more', more) : ''}
+          {shown.map((name, index) => `${index + 1} ${name}`).join('  →  ')}{more > 0 ? txd(tx, '  외 %d곳', '  +%d more', more) : ''}
         </Text>
         <View style={styles.footer}>
           <View style={styles.author}>
@@ -56,7 +55,7 @@ export function RoutePostCard({ post, rank, compact = false, onOpen }: { post: R
             <Text variant="caption" color={color.text.body} numberOfLines={1} style={styles.authorName}>{post.author.displayName}</Text>
           </View>
           <Text variant="caption" color={color.text.muted}>
-            {`♥ ${post.likeCount}   ★ ${post.saveCount}   ${txf(tx, '따라 간 사람 %d', '%d followed', post.copyCount)}`}
+            {`♥ ${post.likeCount}   ★ ${post.saveCount}   ${txd(tx, '따라 간 사람 %d', '%d followed', post.copyCount)}`}
           </Text>
         </View>
       </View>
