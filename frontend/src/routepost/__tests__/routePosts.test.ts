@@ -1,6 +1,6 @@
 // 루트 포스트(S15P21E201-2027) — 「이 루트로 여행 만들기」가 날·순서를 어떻게 옮기는지, 썸네일 좌표, 표시 문구.
 import { distanceKm, durationParts, copyPlan, type RoutePostStop } from '../routePosts';
-import { project } from '../RouteThumb';
+import { project } from '../miniRouteMap';
 
 const stop = (seq: number, dayIndex: number, placeId: string): RoutePostStop => ({ seq, dayIndex, placeId, name: placeId, lat: 35, lng: 129 });
 
