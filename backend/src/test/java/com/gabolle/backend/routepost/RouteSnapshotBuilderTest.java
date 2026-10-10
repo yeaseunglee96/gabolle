@@ -21,7 +21,10 @@ class RouteSnapshotBuilderTest {
 	private static final double[] HOTEL_AT = { 35.1000, 129.1000 };
 
 	private static ItineraryDetailResponse.Item item(UUID place, String name, double lat, double lng,
-			List<double[]> pathIn, Integer travelMin, String start, String end) {
+			List<double[]> pathLatLng, Integer travelMin, String start, String end) {
+		// 실제 응답처럼 [경도, 위도] 로 바꿔 싣는다 — 시험 본문은 읽기 쉽게 [위도, 경도] 로 적는다.
+		List<double[]> pathIn = pathLatLng == null ? null
+				: pathLatLng.stream().map(p -> new double[] { p[1], p[0] }).toList();
 		return new ItineraryDetailResponse.Item(UUID.randomUUID().toString(), start, end, name, null, null, null,
 				false, "OK", null, null, place.toString(), travelMin, null, null, pathIn, null, null, null, null, lat,
 				lng, null, null);
@@ -74,6 +77,9 @@ class RouteSnapshotBuilderTest {
 		// 머문 60 + 50, 이동은 숙소에서 온 20 을 빼고 10
 		assertThat(snap.durationMin()).isEqualTo(120);
 		assertThat(snap.distanceM()).isPositive();
+		// 🔴 해운대→동백섬 한 구간 — 수백 미터여야 한다. 경도·위도가 섞이면 수천 km 가 나온다.
+		assertThat(snap.distanceM()).isLessThan(5_000);
+		assertThat(snap.path()).allMatch(p -> p[0] > 33 && p[0] < 39 && p[1] > 124 && p[1] < 132);
 	}
 
 	@Test
