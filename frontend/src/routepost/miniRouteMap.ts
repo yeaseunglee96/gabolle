@@ -52,6 +52,9 @@ export function miniRouteData(path: Array<[number, number]>, stops: Array<{ lat:
 
 // 웹·앱이 같이 쓰는 그리기 — 아래 DRAW_SOURCE 와 한 글자씩 같은 일을 한다(앱은 Hermes 라 함수.toString() 을 못 쓴다).
 const PAD = 26;
+// 위쪽은 「루트」 라벨·인기 순위 배지가, 아래쪽은 카카오 축척·로고가 차지한다 — 경로를 그 모서리 밖에 맞춘다.
+const PAD_TOP = 52;
+const PAD_BOTTOM = 34;
 
 /** 웹: 이미 불러온 kakao.maps 로 el 안에 움직이지 않는 지도를 그린다. */
 export function drawMiniRoute(maps: any, el: HTMLElement, data: MiniRouteData, colors: MiniRouteColors = MINI_ROUTE_COLORS): any {
@@ -80,7 +83,7 @@ export function drawMiniRoute(maps: any, el: HTMLElement, data: MiniRouteData, c
     new maps.CustomOverlay({ map, position: pos, content: dot, yAnchor: 0.5, xAnchor: 0.5, zIndex: 2 });
   });
   data.line.forEach((p) => bounds.extend(new maps.LatLng(p[0], p[1])));
-  if (data.stops.length > 1 || data.line.length > 1) map.setBounds(bounds, PAD, PAD, PAD, PAD);
+  if (data.stops.length > 1 || data.line.length > 1) map.setBounds(bounds, PAD_TOP, PAD, PAD_BOTTOM, PAD);
   return map;
 }
 
@@ -109,7 +112,7 @@ new m.Polyline({map:map,path:path,strokeWeight:4,strokeColor:C.line,strokeOpacit
 var b=new m.LatLngBounds();
 D.stops.forEach(function(s){var pos=new m.LatLng(s.lat,s.lng);b.extend(pos);var d=document.createElement('div');d.textContent=String(s.n);d.setAttribute('style',S);new m.CustomOverlay({map:map,position:pos,content:d,yAnchor:0.5,xAnchor:0.5,zIndex:2});});
 D.line.forEach(function(p){b.extend(new m.LatLng(p[0],p[1]));});
-if(D.stops.length>1||D.line.length>1)map.setBounds(b,${PAD},${PAD},${PAD},${PAD});
+if(D.stops.length>1||D.line.length>1)map.setBounds(b,${PAD_TOP},${PAD},${PAD_BOTTOM},${PAD});
 post('ready');}catch(e){post('fail');}}
 </script>
 <script src="${src}" onload="if(window.kakao&&kakao.maps){kakao.maps.load(draw);}else{post('fail');}" onerror="post('fail')"></script>
