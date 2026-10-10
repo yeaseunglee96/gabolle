@@ -30,10 +30,6 @@ public class PlaceSuggestionExceptionHandler {
 		return fail(HttpStatus.BAD_REQUEST, "PLACE_SUGGESTION_INVALID", e.getMessage(), e.fields());
 	}
 
-	@ExceptionHandler(PlaceSuggestionService.PhotoRequiredException.class)
-	public ResponseEntity<ApiResponse<Void>> photoRequired(RuntimeException e) {
-		return fail(HttpStatus.BAD_REQUEST, "PLACE_SUGGESTION_PHOTO_REQUIRED", e.getMessage(), List.of("photoUrl"));
-	}
 
 	@ExceptionHandler({ HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class,
 			MissingServletRequestParameterException.class })
