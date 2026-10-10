@@ -1,5 +1,5 @@
 import { txf } from '@/i18n/format';
-import { apiRequest } from '@/api/client';
+import { API_BASE_URL, apiRequest } from '@/api/client';
 import type { LocalNames } from '@/discovery/localNames';
 import type { LocalAddresses } from '@/discovery/localAddress';
 
@@ -65,9 +65,17 @@ export type PlacePhoto = { url: string; source?: string | null; license?: PhotoL
  *    주소가 빈 사진은 뺀다 — 넘겨 보다 빈 장이 나온다.
  */
 export function placePhotos(place: Pick<Place, 'photoUrl' | 'photoSource' | 'photoLicense' | 'photos'>): PlacePhoto[] {
-  const list = (place.photos ?? []).filter((photo) => !!photo?.url);
+  const list = (place.photos ?? []).filter((photo) => !!photo?.url).map((photo) => ({ ...photo, url: absolutePhotoUrl(photo.url) }));
   if (list.length > 0) return list;
-  return place.photoUrl ? [{ url: place.photoUrl, source: place.photoSource ?? null, license: place.photoLicense ?? null }] : [];
+  return place.photoUrl ? [{ url: absolutePhotoUrl(place.photoUrl), source: place.photoSource ?? null, license: place.photoLicense ?? null }] : [];
+}
+
+/**
+ * 우리 서버에 올라간 사진(「/api/v1/uploads/images/…」)은 주소가 상대 경로다 — 현지인이 제안하며 올린 사진이 승인되면
+ * 장소 사진이 된다(S15P21E201-2031). 앱은 서버 주소를 붙여야 연다. 바깥 주소는 그대로 둔다.
+ */
+export function absolutePhotoUrl(url: string): string {
+  return url.startsWith('/') && !url.startsWith('//') ? `${API_BASE_URL}${url}` : url;
 }
 
 // 「KOGL Type 1」은 줄바꿈 안 되는 공백으로 붙인다 — 카드 띠가 두 줄로 꺾일 때 번호 「1」만 둘째 줄에 떨어졌다.
