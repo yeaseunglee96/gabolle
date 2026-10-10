@@ -175,6 +175,8 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
       hint: tx('순서·고정·제외·다시 계산', 'Order, pin, remove, recalculate'),
       onPress: () => router.push(`/trips/${course.itineraryId}/itinerary?classic=1`),
     }] : []),
+    // 루트로 올리기 — 이 코스를 피드 루트로(S15P21E201-2027). 숙소는 서버가 빼고 올린다.
+    ...(course?.itineraryId ? [{ key: 'route-post', label: tx('루트로 올리기', 'Post as a route'), hint: tx('이 코스를 피드에 올려요', 'Share this course on the feed'), onPress: () => router.push(`/route-post/new?itineraryId=${encodeURIComponent(course.itineraryId!)}` as never) }] : []),
   ];
   return (
     <View style={styles.shell}>

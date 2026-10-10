@@ -48,6 +48,7 @@ import { useStoryVideo } from '@/social/useStoryVideo';
 import { txf } from '@/i18n/format';
 import { localizeMessage } from '@/i18n/messages';
 import { regionText } from '@/social/districtNames';
+import { RouteFeedSection } from '@/routepost/RouteFeedSection';
 
 /**
  * 추억 지도는 핀만 — 기록 사이에 선을 긋지 않는다(사용자 요청 2026-09-24, S15P21E201-1576).
@@ -67,7 +68,8 @@ const BODY_MAX = 500;
 /** 사진 장수에 따라 칸을 다르게 쓴다 — 한 장은 넓게, 여러 장은 정사각으로 나눈다. */
 // — 사진을 가로로 줄 세우던 것을 장수·방향에 따른 배치로 바꾼다.
 // 배치 규칙은 @/social/photoGrid 한 곳에 있고, 작성 미리보기·글 상세도 같은 것을 쓴다.
-type FeedTab = 'HOT' | 'FOR_YOU' | 'MINE';
+// 'ROUTES' — 루트 포스트(여행 경로 자체를 올린 글, S15P21E201-2027). 기록과 카드 모양·정렬이 달라 탭을 따로 둔다.
+type FeedTab = 'HOT' | 'FOR_YOU' | 'MINE' | 'ROUTES';
 
 function StoryImages({ images, compact }: { images: StoryDto['images']; compact: boolean }) {
   const { tx } = useI18n();
@@ -627,7 +629,7 @@ export default function Feed() {
     // 「내 기록」은 서버 피드가 아니라 내 프로필의 기록 목록이다 — 피드 API 에 MINE 갈래가 없다.
     queryFn: () => (scope === 'MINE' ? loadUserStories(user?.userId ?? '', accessToken) : loadFeed({ scope, sort, accessToken })),
     // 손님의 「내 피드」는 부를 것이 없다 — 로그인 안내만 그린다.
-    enabled: !(scope === 'MINE' && !user),
+    enabled: !(scope === 'MINE' && !user) && tab !== 'ROUTES',
   });
   // 탭에 30초 이상(staleTime) 자리를 비웠다 돌아오면 다시 불러온다 — 남이 올린 새 글이
   // 탭을 나갔다 들어오는 것만으로는 영영 안 보이던 것을 고친다(S15P21E201-1509). isStale
@@ -780,6 +782,7 @@ export default function Feed() {
         {tabButton('FOR_YOU', tx('맞춤 추천', 'For you'))}
         {/* 「내 피드」는 시안 4 의 02c — 마이페이지 기록 탭과 같은 목록이지만, 피드에서 「내 것도 여기 있다」를 확인하는 자리(S15P21E201-1431). */}
         {tabButton('MINE', tx('내 피드', 'My feed'))}
+        {tabButton('ROUTES', tx('루트', 'Routes'))}
       </View>
       {/* 폰의 글쓰기 진입은 아래 떠 있는 단추(FAB)로 옮겼다 (시안 5번).
           여기 남겨 두면 같은 행동이 한 화면에 두 자리에 있게 된다. composeEntryFor 의
@@ -816,7 +819,10 @@ export default function Feed() {
       </View>
     </View>
   ) : null;
-  const feedColumn = <View style={styles.feedColumn}>
+  const feedColumn = tab === 'ROUTES' ? <View style={styles.feedColumn}>
+    {header}
+    <RouteFeedSection compact={compact} />
+  </View> : <View style={styles.feedColumn}>
     {header}
     {subRow}
     {fellBackToPopular ? (
