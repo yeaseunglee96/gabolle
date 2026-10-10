@@ -157,14 +157,14 @@ export default function RoutePostScreen() {
       {desktop ? (
         <View style={styles.wideGrid}>
           <View style={styles.wideLeft}>
-            <View style={styles.mapCard}><RouteThumb path={post.path} stops={post.stops} height={420} width={560} /></View>
+            <View style={styles.mapCard}><RouteThumb path={post.path} stops={post.stops} height={420} eager /></View>
           </View>
           <View style={styles.wideRight}>{head}{actions}{stops}</View>
         </View>
       ) : (
         <View style={styles.column}>
           {head}
-          <View style={styles.mapCard}><RouteThumb path={post.path} stops={post.stops} height={220} /></View>
+          <View style={styles.mapCard}><RouteThumb path={post.path} stops={post.stops} height={220} eager /></View>
           {actions}
           {stops}
         </View>
