@@ -1,14 +1,17 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useAuth } from '@/auth/AuthProvider';
+import type { AccountLanguage } from '@/auth/authApi';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { LANGUAGE_OPTIONS, type LanguageCode } from '@/i18n/languages';
 
-// 이후에도 이 화면만 한국어·영어 둘뿐이었다 — 사용자 리포트.
-function toAccountLanguage(code: LanguageCode): 'KO' | 'EN' {
-  return code === 'ko' ? 'KO' : 'EN';
+// 고른 언어를 계정에 그대로 저장한다(S15P21E201-2015). 서버 LanguageNormalizer 가 받는 값이다 —
+// 예전엔 한국어가 아니면 전부 EN 으로 보내서 베트남어 사용자의 알림·AI 답·메뉴 설명이 영어로 왔다.
+const ACCOUNT_LANGUAGE: Record<LanguageCode, AccountLanguage> = { ko: 'KO', en: 'EN', ja: 'JA', 'zh-Hans': 'ZH-HANS', 'zh-Hant': 'ZH-HANT', vi: 'VI' };
+function toAccountLanguage(code: LanguageCode): AccountLanguage {
+  return ACCOUNT_LANGUAGE[code] ?? 'EN';
 }
 
 /** 앱 언어는 비회원도 바꿀 수 있다. 회원은 계정 저장이 성공한 뒤 적용한다. */

@@ -11,6 +11,8 @@ async function behaviorPersonalizationConsent() {
 }
 
 export type SignupLanguage = 'KO' | 'EN';
+/** 계정에 저장되는 언어 — 서버 LanguageNormalizer 가 내는 값 (S15P21E201-2015). */
+export type AccountLanguage = SignupLanguage | 'JA' | 'ZH-HANS' | 'ZH-HANT' | 'VI';
 
 export type SignupInput = {
   email: string;
@@ -180,7 +182,7 @@ const REMOVE_PHOTO = '';
 
 export type UpdateMeInput = {
   displayName?: string;
-  language?: SignupLanguage;
+  language?: AccountLanguage;
   /** null 이면 뗀다. 키를 안 보내면 그대로 둔다. */
   avatarUrl?: string | null;
   /** null 이면 뗀다. 키를 안 보내면 그대로 둔다. */

@@ -34,9 +34,22 @@ it('keeps the current language and explains a failed profile save', async () => 
   await view.findByRole('alert');
   expect(view.getByText('앱 언어')).toBeTruthy();
 });
-// — 이 화면이 한국어·영어 둘뿐이라는 사용자 리포트. 이제 다섯 다 고를 수
-// 있고, 계정 칸(KO/EN 둘뿐)에는 한국어가 아니면 전부 EN으로 근사해 보낸다.
-it('offers all five UI languages and approximates non-Korean picks as EN for the account', async () => {
+// 계정 칸에 고른 언어를 그대로 저장한다(S15P21E201-2015). 예전에는 한국어가 아니면 전부 EN 으로
+// 근사해 보내서, 베트남어를 고른 사람의 알림·AI 답·메뉴 설명이 영어로 왔다. 서버
+// LanguageNormalizer 는 VI·JA·ZH-HANS·ZH-HANT 를 이미 받는다.
+it.each([
+  ['Tiếng Việt', 'VI'],
+  ['日本語', 'JA'],
+  ['简体中文', 'ZH-HANS'],
+  ['繁體中文', 'ZH-HANT'],
+])('saves %s to the account as %s', async (label, expected) => {
+  mockUser = { userId: 'test' };
+  mockUpdateProfile.mockResolvedValue(undefined);
+  const view = await mount();
+  fireEvent.press(view.getByLabelText(label));
+  await waitFor(() => expect(mockUpdateProfile).toHaveBeenCalledWith({ language: expected }));
+});
+it('offers all UI languages and drops the old "menus are in English" note', async () => {
   mockUser = { userId: 'test' };
   mockUpdateProfile.mockResolvedValue(undefined);
   const view = await mount();
@@ -44,7 +57,7 @@ it('offers all five UI languages and approximates non-Korean picks as EN for the
   expect(view.getByLabelText('简体中文')).toBeTruthy();
   expect(view.getByLabelText('繁體中文')).toBeTruthy();
   fireEvent.press(view.getByLabelText('日本語'));
-  await waitFor(() => expect(mockUpdateProfile).toHaveBeenCalledWith({ language: 'EN' }));
+  await waitFor(() => expect(mockUpdateProfile).toHaveBeenCalled());
   // 「메뉴는 아직 영어로 나와요」 안내는 2026-09-21 에 걷어냈다 — 다섯 언어가 다 번역돼 사실이 아니게 됐다.
   //    일본어를 고른 뒤 그 안내가 어느 언어로도 남아 있지 않아야 한다.
   await waitFor(() => expect(view.queryByText(/メニューはまだ英語|Menus are in English|메뉴는 아직 영어/)).toBeNull());
