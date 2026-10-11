@@ -50,12 +50,13 @@ export function RoutePostCard({ post, rank, compact = false, onOpen }: { post: R
           {shown.map((name, index) => `${index + 1} ${name}`).join('  →  ')}{more > 0 ? txd(tx, '  외 %d곳', '  +%d more', more) : ''}
         </Text>
         <View style={styles.footer}>
-          <View style={styles.author}>
+          {/* 🔴 아래 줄은 한 줄이다(S15P21E201-2027) — 좁은 카드에서 두 줄로 꺾였다. 이름이 줄어들고(말줄임) 숫자 칸은 안 줄어든다. */}
+          <View style={styles.author} testID="route-post-author">
             <AuthorAvatar name={post.author.displayName} uri={post.author.avatarUrl ?? undefined} style={styles.avatar} />
-            <Text variant="caption" color={color.text.body} numberOfLines={1} style={styles.authorName}>{post.author.displayName}</Text>
+            <Text variant="caption" color={color.text.body} numberOfLines={1} ellipsizeMode="tail" style={styles.authorName}>{post.author.displayName}</Text>
           </View>
-          <Text variant="caption" color={color.text.muted}>
-            {`♥ ${post.likeCount}   ★ ${post.saveCount}   ${txd(tx, '따라 간 사람 %d', '%d followed', post.copyCount)}`}
+          <Text variant="caption" color={color.text.muted} numberOfLines={1} style={styles.counters} testID="route-post-counters">
+            {`♥ ${post.likeCount}  ★ ${post.saveCount}  ${txd(tx, '따라 감 %d', 'Followed %d', post.copyCount)}`}
           </Text>
         </View>
       </View>
@@ -71,7 +72,8 @@ const styles = StyleSheet.create({
   rank: { position: 'absolute', right: spacing[3], top: spacing[3], width: 28, height: 28, borderRadius: 14, backgroundColor: color.action.primary, alignItems: 'center', justifyContent: 'center' },
   body: { padding: spacing[4], gap: spacing[2] },
   footer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[2], marginTop: spacing[1] },
-  author: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], flexShrink: 1 },
+  author: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], flex: 1, minWidth: 0 },
+  counters: { flexShrink: 0 },
   authorName: { flexShrink: 1 },
   avatar: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
 });
