@@ -92,6 +92,9 @@ public class SecurityConfig {
 				// 공유 조회는 43글자 난수 토큰을 아는 사람이 로그인 없이 연다. 발급(POST)·복제는
 				// 여전히 인증이 필요하다.
 				.requestMatchers(HttpMethod.GET, "/api/v1/shares/*").permitAll()
+				// 앱 버전 안내(S15P21E201-2048). 앱이 켜질 때 로그인 전에 부른다 — 최소 지원 버전 미만이면
+				// 로그인 화면도 막아야 하기 때문이다. 스토어에 이미 공개된 버전·주소만 답하고 쓰기가 없다.
+				.requestMatchers(HttpMethod.GET, "/api/v1/app/version").permitAll()
 				// 운영자 전용 경로. S15P21E201-1548 — 이제 메서드 보안도 켜져 있어 컨트롤러의
 				// @PreAuthorize 가 이중으로 막지만, 이 경로 매처는 대체가 아니라 그대로 둔다 —
 				// 운영자 API 를 새로 만드는 사람이 애너테이션을 잊어도 이 줄이 여전히 막는다.
