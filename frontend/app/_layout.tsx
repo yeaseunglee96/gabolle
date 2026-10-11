@@ -21,6 +21,7 @@ import { BuildInfoBadge } from '@/components/BuildInfoBadge';
 import { OnboardingPreferencesProvider, useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { PlanProvider } from '@/plan/PlanProvider';
 import { PolicyUpdateNotice } from '@/legal/PolicyUpdateNotice';
+import { AppUpdateGate } from '@/features/appUpdate/AppUpdateGate';
 import { TopNav } from '@/nav/TopNav';
 import { queryClient } from '@/api/queryClient';
 import { attachNotificationNavigation, installNotificationHandler } from '@/notifications/pushToken';
@@ -109,6 +110,8 @@ export default function RootLayout() {
                 />
                 {/* 처리방침이 바뀌면 한 번 알린다 — 로그인한 사람에게만, 서버가 지금 판을 알려 줄 때만(S15P21E201-1694). */}
                 <PolicyUpdateNotice />
+                {/* 새 버전 안내·새로워진 점 — 앱만, 로그인과 무관하게(S15P21E201-2048). */}
+                <AppUpdateGate />
               </View>
             </PlanProvider>
           </AuthProvider>
