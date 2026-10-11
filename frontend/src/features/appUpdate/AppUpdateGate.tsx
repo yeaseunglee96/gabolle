@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
   },
   list: { gap: spacing[2], marginVertical: spacing[1] },
   row: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[2] },
-  dot: { width: 6, height: 6, borderRadius: 3, marginTop: 9, backgroundColor: color.action.primary },
+  dot: { width: 6, height: 6, borderRadius: 3, marginTop: 9, backgroundColor: color.text.heading },
   rowText: { flex: 1 },
   actions: { flexDirection: 'row', gap: spacing[2], marginTop: spacing[2] },
   action: { flex: 1 },

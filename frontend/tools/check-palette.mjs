@@ -196,6 +196,8 @@ function buttonTags(text) {
  * 배타적인가(다른 `state` 값, 이른 `return`, `accessToken` 유무)를 본다.
  */
 const ALLOWED_MULTI_FILL = {
+  'src/features/appUpdate/AppUpdateGate.tsx':
+    '막는 화면(force)은 일찍 return 하고, 「새 버전이 나왔어요」 시트는 「새로워진 점」이 닫힌 뒤에만 보인다(visible 조건). 세 갈래가 한 번에 하나만 그려진다(S15P21E201-2048).',
   'app/(tabs)/trips.tsx':
     '비회원 안내와 「여행이 하나도 없음」은 accessToken 유무로 갈려 같이 안 뜬다. 늘 떠 있는 「새 여행」은 outline 으로 내렸다 — 그건 둘 중 어느 쪽과도 같이 뜬다.',
   'app/place/[id].tsx':
