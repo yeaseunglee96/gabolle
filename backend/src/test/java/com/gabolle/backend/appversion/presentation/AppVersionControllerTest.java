@@ -60,6 +60,13 @@ class AppVersionControllerTest {
 	}
 
 	@Test
+	@DisplayName("🔴 platform 이 빠져도 400 — 스프링 오류 디스패치로 넘기면 로그인 전 앱이 401 을 받는다")
+	void missingPlatformIs400() throws Exception {
+		this.mockMvc.perform(get("/api/v1/app/version"))
+				.andExpect(status().isBadRequest());
+	}
+
+	@Test
 	@DisplayName("행이 없으면 404 — 앱은 실패를 「안내 안 함」으로 다룬다")
 	void missingRowIs404() throws Exception {
 		this.rows.remove("android");

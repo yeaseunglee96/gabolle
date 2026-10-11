@@ -34,8 +34,10 @@ public class AppVersionController {
 	}
 
 	@GetMapping("/version")
-	public ResponseEntity<ApiResponse<AppRelease>> version(@RequestParam("platform") String platform) {
-		String normalized = platform.trim().toLowerCase(Locale.ROOT);
+	public ResponseEntity<ApiResponse<AppRelease>> version(@RequestParam(value = "platform", required = false) String platform) {
+		// 빠진 값도 여기서 400 으로 답한다. 스프링에 맡기면 /error 로 다시 디스패치되고, 그 경로는 로그인이
+		// 필요해 로그인 전 앱이 400 대신 401 을 받는다(RouteAuthorizationFunctionalTest 가 잡았다).
+		String normalized = platform == null ? "" : platform.trim().toLowerCase(Locale.ROOT);
 		if (!PLATFORMS.contains(normalized)) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 		}
