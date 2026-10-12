@@ -764,6 +764,10 @@ class RouteAuthorizationRegistryTest {
 				"요청자 자신의 제안만 낸다(경로에 남의 번호를 받는 자리가 없다). PlaceSuggestionIntegrationTest");
 		put(m, "GET /api/v1/places/{}/local-pick", Policy.OTHER_USER_OK,
 				"승인된 장소를 추천한 사람의 표시 이름·이유를 보여 주는 것이 기능이다. 대기·거절 제안은 안 나온다. PlaceSuggestionIntegrationTest");
+		put(m, "GET /api/v1/admin/metrics", Policy.ADMIN_ONLY,
+				"운영 지표(MAU·DAU·재방문). /api/v1/admin/** → hasRole(ADMIN) 과 @PreAuthorize. MetricsIntegrationTest");
+		put(m, "GET /api/v1/admin/metrics/daily.csv", Policy.ADMIN_ONLY,
+				"운영 지표 하루 한 줄 CSV. 같은 경로 규칙이 막는다. MetricsIntegrationTest");
 		put(m, "GET /api/v1/admin/place-suggestions", Policy.ADMIN_ONLY,
 				"제안 검토 목록. /api/v1/admin/** → hasRole(ADMIN) 과 @PreAuthorize. PlaceSuggestionIntegrationTest");
 		put(m, "POST /api/v1/admin/place-suggestions/{}/approve", Policy.ADMIN_ONLY,
