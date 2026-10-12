@@ -271,7 +271,7 @@ export function RouteMap({
 }
 
 /** WebView 가 자기 출처로 말할 주소 — S15P21E201-1176. */
-const RAW_MAP_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'https://j15e201.p.ssafy.io';
+const RAW_MAP_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'https://api.gabolle.kr';
 const MAP_BASE_URL = RAW_MAP_BASE_URL.endsWith('/') ? RAW_MAP_BASE_URL.slice(0, -1) : RAW_MAP_BASE_URL;
 
 const styles = StyleSheet.create({

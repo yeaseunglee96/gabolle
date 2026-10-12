@@ -55,8 +55,8 @@ pipeline {
         // 콜백 주소는 백엔드의 GABOLLE_OAUTH_ALLOWED_REDIRECT_URIS 및 provider 콘솔
         // 등록값과 문자열이 완전히 같아야 한다 (DEC-AUTH-006). 셋 중 하나만 달라도
         // challenge 발급이 400 으로 거부된다.
-        EXPO_PUBLIC_API_BASE_URL = 'https://j15e201.p.ssafy.io'
-        EXPO_PUBLIC_OAUTH_CALLBACK_BASE_URL = 'https://j15e201.p.ssafy.io'
+        EXPO_PUBLIC_API_BASE_URL = 'https://api.gabolle.kr'
+        EXPO_PUBLIC_OAUTH_CALLBACK_BASE_URL = 'https://gabolle.kr'
     }
 
     stages {

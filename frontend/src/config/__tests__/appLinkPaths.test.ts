@@ -5,6 +5,6 @@ const appJson = require('../../../app.json');
 describe('안드로이드 앱 링크 경로', () => {
   const data: { host: string; pathPrefix: string }[] = appJson.expo.android.intentFilters[0].data;
   it.each(['/oauth', '/s/', '/invite/', '/story-invite/'])('%s 를 앱이 받는다', (p) => {
-    expect(data.some((d) => d.host === 'j15e201.p.ssafy.io' && d.pathPrefix === p)).toBe(true);
+    expect(data.some((d) => d.host === 'gabolle.kr' && d.pathPrefix === p)).toBe(true);
   });
 });
