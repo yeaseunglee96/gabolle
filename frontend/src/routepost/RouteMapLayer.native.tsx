@@ -6,7 +6,7 @@ import { StyleSheet, View } from 'react-native';
 import { buildMiniRouteMapHtml, type MiniRouteData } from './miniRouteMap';
 
 // 카카오 콘솔에 등록된 도메인 — baseUrl 이 없으면 지도가 조용히 안 뜬다(RouteMap.native.tsx 와 같은 값).
-const RAW_BASE = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'https://j15e201.p.ssafy.io';
+const RAW_BASE = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'https://api.gabolle.kr';
 const BASE_URL = RAW_BASE.endsWith('/') ? RAW_BASE.slice(0, -1) : RAW_BASE;
 
 export function RouteMapLayer({ data, appKey, onReady, onFail }: { data: MiniRouteData; appKey: string; onReady: () => void; onFail: () => void }) {

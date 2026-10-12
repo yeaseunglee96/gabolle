@@ -9,7 +9,7 @@ import { useI18n } from '@/i18n';
 import { buildLocationPickHtml } from './locationPickHtml';
 import { CenterPin, type LocationPickMapProps } from './LocationPickParts';
 
-const RAW_BASE = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'https://j15e201.p.ssafy.io';
+const RAW_BASE = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'https://api.gabolle.kr';
 const BASE_URL = RAW_BASE.endsWith('/') ? RAW_BASE.slice(0, -1) : RAW_BASE;
 
 export function LocationPickMap({ initial, moveTo, onCenter, height = 280 }: LocationPickMapProps) {

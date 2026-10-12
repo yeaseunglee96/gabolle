@@ -5,7 +5,7 @@ import * as WebBrowser from 'expo-web-browser';
 import type { MapStop } from './types';
 
 // 3D 화면이 실제로 올라가 있는 자리. 앱·웹과 같은 호스트라 웹에서는 같은 출처다.
-export const CITY3D_BASE_URL = 'https://j15e201.p.ssafy.io/city3d/';
+export const CITY3D_BASE_URL = 'https://gabolle.kr/city3d/';
 
 /** 3D 화면이 이 좌표들을 보게 하는 주소를 만든다. */
 export function city3dUrlForStops(stops: MapStop[]): string {
