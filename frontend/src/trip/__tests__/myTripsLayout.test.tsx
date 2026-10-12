@@ -32,8 +32,10 @@ jest.mock('@/components/TabBar', () => ({ ...jest.requireActual('@/components/Ta
 
 import Trips from '../../../app/(tabs)/trips';
 
+// 🔴 날짜를 박지 않는다 — 2026-10-10~11 로 박혀 있어 10/12 부터 지난 여행으로 빠져 시험이 깨졌다(S15P21E201-2049).
+const dayFromToday = (days: number) => { const d = new Date(); d.setDate(d.getDate() + days); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 const trip = (tripId: string, coverImageUrl: string | null, title: string | null): TripSummaryDto => ({
-  tripId, title, startDate: '2026-10-10', endDate: '2026-10-11', dayCount: 2, partySize: 2, status: 'READY', role: 'OWNER',
+  tripId, title, startDate: dayFromToday(7), endDate: dayFromToday(8), dayCount: 2, partySize: 2, status: 'READY', role: 'OWNER',
   createdAt: '2026-09-20T00:00:00Z', updatedAt: '2026-09-20T00:00:00Z', coverImageUrl, firstStopNameKo: null, firstStopNameEn: null,
 });
 const TRIPS = [trip('t1', 'https://example.test/haeundae.png', '부산 가족여행'), trip('t2', null, '광안리 야경 투어'), trip('t3', null, null)];
