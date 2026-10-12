@@ -60,14 +60,14 @@ public class AuthProperties {
 	 * 재설정 메일의 링크가 착지하는 곳. 여기에 {@code "?token=" + 원문토큰} 이 붙으므로 프런트의
 	 * 실제 화면 경로와 같아야 한다.
 	 */
-	private String passwordResetBaseUrl = "https://j15e201.p.ssafy.io/auth/password/reset";
+	private String passwordResetBaseUrl = "https://gabolle.kr/auth/password/reset";
 	/**
 	 * 애플이 {@code response_mode=form_post} 로 보낸 결과를 넘겨 줄 화면 주소.
 	 *
 	 * <p>요청에서 받은 값을 쓰지 않고 설정에 박힌 이 값만 쓴다. 애플의 POST 는 누구나 흉내낼 수
 	 * 있는 폼 전송이라, 거기 실린 주소로 되돌려 보내면 이 서버가 open redirect 도구가 된다.
 	 */
-	private String appleFormPostRedirectUrl = "https://j15e201.p.ssafy.io/oauth/apple/callback";
+	private String appleFormPostRedirectUrl = "https://gabolle.kr/oauth/apple/callback";
 
 	private List<String> oauthAllowedRedirectUris = new ArrayList<>();
 	private List<String> corsAllowedOrigins = new ArrayList<>();

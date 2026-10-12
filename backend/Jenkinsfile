@@ -502,7 +502,7 @@ pipeline {
                             -e GABOLLE_S3_BUCKET=gabolle-photos \
                             -e GABOLLE_S3_ACCESS_KEY="$GABOLLE_S3_ACCESS_KEY" \
                             -e GABOLLE_S3_SECRET_KEY="$GABOLLE_S3_SECRET_KEY" \
-                            -e GABOLLE_S3_PUBLIC_BASE_URL=https://j15e201.p.ssafy.io/photos \
+                            -e GABOLLE_S3_PUBLIC_BASE_URL=https://api.gabolle.kr/photos \
                             -e GABOLLE_DB_URL="$GABOLLE_DB_URL" \
                             -e GABOLLE_DB_USERNAME="$GABOLLE_DB_USERNAME" \
                             -e GABOLLE_DB_PASSWORD="$GABOLLE_DB_PASSWORD" \
@@ -707,7 +707,7 @@ pipeline {
                                     -e GABOLLE_S3_BUCKET=gabolle-photos \
                                     -e GABOLLE_S3_ACCESS_KEY="$GABOLLE_S3_ACCESS_KEY" \
                                     -e GABOLLE_S3_SECRET_KEY="$GABOLLE_S3_SECRET_KEY" \
-                                    -e GABOLLE_S3_PUBLIC_BASE_URL=https://j15e201.p.ssafy.io/photos \
+                                    -e GABOLLE_S3_PUBLIC_BASE_URL=https://api.gabolle.kr/photos \
                                     -e GABOLLE_DB_URL="$GABOLLE_DB_URL" \
                                     -e GABOLLE_DB_USERNAME="$GABOLLE_DB_USERNAME" \
                                     -e GABOLLE_DB_PASSWORD="$GABOLLE_DB_PASSWORD" \
