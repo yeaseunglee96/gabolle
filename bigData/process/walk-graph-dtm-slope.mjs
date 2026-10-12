@@ -120,6 +120,51 @@ export function applyDtmSlope(g, elevAt, baselineM = BASELINE_M) {
   return stats
 }
 
+/** 짧은 길 채우기 기준 — 이 길이 미만인 모름(-1) 길만 채운다. 30m 이상 모름은 다리·터널이라 그대로 둔다(walk-graph.json rules.slope). */
+export const SHORT_MAX_M = 30
+/** 이 길이 미만이면 DTM 잡음(±0.5m 쯤)이 경사를 부풀린다 — 끝점 높이 대신 이웃 길 값을 쓴다. */
+export const TINY_M = 10
+/** 높이 차가 이보다 작으면 평지(0)로 본다. */
+export const FLAT_DH_M = 0.5
+
+/**
+ * 30m 미만이라 모름(-1)으로 남은 길을 채운다 — S15P21E201-2039 후속.
+ *   높이 차 < 0.5m → 0 · 길이 < 10m → 끝점을 나눠 쓰는 이웃 길(계단·모름 제외) 경사의 중앙값, 없으면 그대로
+ *   그 밖 → |끝점 높이 차| ÷ 길이. 이웃 값은 채우기 전 값을 쓴다(길 순서에 결과가 안 바뀌게).
+ * 계단 · 30m 이상 모름 · 끝점 고도 없는 길은 손대지 않는다.
+ */
+export function fillShortWays(g, elevAt) {
+  const stats = { shortUnknown: 0, filled: 0, flat: 0, fromNeighbors: 0, noNeighbor: 0, missingElevation: 0 }
+  const byNode = new Map()
+  for (const w of g.ways) {
+    if (w.stairs || w.slope < 0) continue
+    for (const n of [w.nodes[0], w.nodes.at(-1)]) (byNode.get(n) ?? byNode.set(n, []).get(n)).push(w.slope)
+  }
+  const next = []
+  for (const w of g.ways) {
+    if (w.stairs || w.slope >= 0) continue
+    const geom = geometryOf(g, w)
+    let length = 0
+    for (let i = 1; i < geom.length; i++) length += dist(geom[i - 1], geom[i])
+    if (length >= SHORT_MAX_M || length <= 0) continue
+    stats.shortUnknown++
+    const a = elevAt(geom[0].lat, geom[0].lon), b = elevAt(geom.at(-1).lat, geom.at(-1).lon)
+    if (a == null || b == null || !Number.isFinite(a) || !Number.isFinite(b)) { stats.missingElevation++; continue }
+    const dh = Math.abs(b - a)
+    let v
+    if (dh < FLAT_DH_M) { v = 0; stats.flat++ }
+    else if (length < TINY_M) {
+      const near = [...(byNode.get(w.nodes[0]) ?? []), ...(byNode.get(w.nodes.at(-1)) ?? [])].sort((x, y) => x - y)
+      if (!near.length) { stats.noNeighbor++; continue }
+      v = near[Math.floor(near.length / 2)]; stats.fromNeighbors++
+    } else v = Math.min(32767, Math.round((dh / length) * 1000))
+    next.push([w, v])
+  }
+  for (const [w, v] of next) w.slope = v
+  stats.filled = next.length
+  return stats
+}
+
 const sha16 = (buf) => createHash('sha256').update(buf).digest('hex').slice(0, 16)
 function arg(name, fallback) {
   const i = process.argv.indexOf(name)
@@ -139,7 +184,7 @@ async function main() {
   if (tilesOut) {
     const need = new Set()
     for (const way of g.ways) {
-      if (!isTarget(way)) continue
+      if (way.stairs) continue
       for (const p of resample(geometryOf(g, way)).pts) {
         const X = gx(p.lon), Y = gy(p.lat)
         for (const dx of [-1, 1]) for (const dy of [-1, 1]) need.add(`${Math.floor((X + dx) / TILE)}_${Math.floor((Y + dy) / TILE)}`)
@@ -154,7 +199,9 @@ async function main() {
   if (!demDir || !existsSync(join(demDir, String(ZOOM)))) { console.error(`DTM 타일 폴더가 없다: ${demDir}`); process.exit(2) }
   const baselineM = Number(arg('--baseline', BASELINE_M))
   const outPath = resolve(arg('--out', graphPath))
-  const stats = applyDtmSlope(g, createReader(resolve(demDir)), baselineM)
+  const reader = createReader(resolve(demDir))
+  const stats = applyDtmSlope(g, reader, baselineM)
+  stats.shortWays = fillShortWays(g, reader)
   const out = gzipDeterministic(buildGraphV2(g))
   writeFileSync(outPath, out)
   const summary = {
@@ -166,7 +213,8 @@ async function main() {
     rules: {
       elevation: '국토지리정보원 1:5,000 수치지형도 Ver2.0(2025) 등고선·표고점·해안선 → 5m DTM(process/ngii-dtm.py) → terrarium z15',
       slope: `10m 표본 · 기준선 ${baselineM}m · 절댓값 p50 · ‰`,
-      untouched: '계단 · 모름(-1) · 고도 못 뽑은 길(원래 값)',
+      shortWays: `30m 미만 모름(-1) → 높이 차 < ${FLAT_DH_M}m 평지 · ${TINY_M}m 미만은 이웃 길 중앙값 · 그 밖 |끝점 높이 차|÷길이`,
+      untouched: '계단 · 30m 이상 모름(-1, 다리·터널) · 고도 못 뽑은 길(원래 값)',
       supersedes: 'flatFloor (SRTM 오차용 임시 대책 — 이 값이 덮어쓴다)',
     },
   }
