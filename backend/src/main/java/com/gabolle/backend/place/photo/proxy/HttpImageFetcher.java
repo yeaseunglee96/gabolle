@@ -55,7 +55,7 @@ public class HttpImageFetcher implements ImageFetcher {
 	public Response get(URI uri) {
 		HttpRequest request = HttpRequest.newBuilder(uri)
 				.timeout(this.properties.getRequestTimeout())
-				.header("User-Agent", "GabolleImageProxy/1.0 (+https://j15e201.p.ssafy.io)")
+				.header("User-Agent", "GabolleImageProxy/1.0 (+https://gabolle.kr)")
 				.header("Accept", "image/*")
 				.GET()
 				.build();
