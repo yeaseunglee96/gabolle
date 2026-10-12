@@ -69,6 +69,7 @@ import { TripNameSheet } from '@/trip/TripNameSheet';
 import { TripBudgetCard } from './TripBudgetCard';
 import type { TripPageSource } from './tripPageData';
 import { formatManwon, freeTimeMinutes } from './tripPageModel';
+import { CourseFeedbackCard } from '@/features/coursefeedback/CourseFeedbackCard';
 import { useTripPage } from './useTripPage';
 import { useTripProgress } from './useTripProgress';
 import { remainingMeters, stepAway, stepDwell, usableFix, type Away, type Dwell } from './autoArrival';
@@ -655,6 +656,10 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
           />
 
           {loaded ? <RiskStrip atRisk={atRisk} known={pace !== null} estimated={paceEstimated} nameOf={nameOf} tx={tx} /> : null}
+          {/* 추천 코스 평가 — 확정한 추천 코스에 한 번, 끝난 여행이면 「다녀온 코스」로 묻는다(S15P21E201-2020). */}
+          {confirmed && !selfPlanned && course?.itineraryId && loaded ? (
+            <CourseFeedbackCard itineraryId={course.itineraryId} courseLabel={courseLetter(courseIndex)} past={(loaded.days[loaded.days.length - 1]?.date ?? '9999') < localDateKey(new Date())} accessToken={accessToken} tx={tx} />
+          ) : null}
 
           {!loaded ? (
             itinerary?.message

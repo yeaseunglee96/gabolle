@@ -46,6 +46,7 @@ import { TripNameSheet } from '@/trip/TripNameSheet';
 import { TripBudgetCard } from './TripBudgetCard';
 import type { TripPageSource } from './tripPageData';
 import { formatDuration, formatManwon, freeTimeMinutes, stayMinutes } from './tripPageModel';
+import { CourseFeedbackCard } from '@/features/coursefeedback/CourseFeedbackCard';
 import { useTripPage } from './useTripPage';
 import { DayReturnRow } from './DayReturnRow';
 import { DayStartRow } from './DayStartRow';
@@ -296,6 +297,10 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
                   ? <View style={styles.rowCenter}><Text variant="caption" weight="bold">{tx('오늘은 늦어서 내일부터 짰어요.', 'It was too late for today, so your trip starts tomorrow.')}</Text><Pressable accessibilityRole="button" onPress={() => setDayIndex(dayIndex + 1)}><Text variant="caption" weight="bold" color={color.action.primary}>{tx('내일 일정 보기 ›', "See tomorrow's plan ›")}</Text></Pressable></View>
                   : <Text variant="caption" color={color.text.muted}>{tx('이 날에는 아직 장소가 없어요.', 'No places for this day yet.')}</Text>) : null}
               </View>
+              {/* 추천 코스 평가 — 확정한 추천 코스에 한 번, 끝난 여행이면 「다녀온 코스」로 묻는다(S15P21E201-2020). */}
+              {confirmed && !selfPlanned && course?.itineraryId && loaded ? (
+                <CourseFeedbackCard itineraryId={course.itineraryId} courseLabel={courseLetter(courseIndex)} past={(loaded.days[loaded.days.length - 1]?.date ?? '9999') < localDateKey(new Date())} accessToken={accessToken} tx={tx} />
+              ) : null}
               {/* 고른 카드로 들어오는 구간의 길 — 카드 전체가 버튼이라 그 안에 버튼을 또 둘 수 없어 카드 줄 아래에 둔다(S15P21E201-1831). */}
               {/* 폰과 같은 이동 칸(UI 캔버스 ㉓-2b, S15P21E201-1887) — 테두리 있는 누르는 칸 + 짙은 「길 안내 ›」. */}
               {selectedLeg ? (

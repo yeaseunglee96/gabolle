@@ -3594,6 +3594,27 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '고맙습니다. 확인한 뒤 처리할게요. 답장 이메일을 적었거나 로그인했다면 처리 결과를 알려 드려요.': { ja: 'ありがとうございます。確認して対応します。返信用メールを入力したかログインしている場合は、結果をお知らせします。', zhHans: '谢谢！我们确认后会处理。如果您填写了邮箱或已登录，我们会告知处理结果。', zhHant: '謝謝！我們確認後會處理。如果您填寫了電子郵件或已登入，我們會告知處理結果。', vi: 'Cảm ơn bạn! Chúng tôi sẽ xem và xử lý. Nếu bạn để lại email hoặc đã đăng nhập, chúng tôi sẽ báo kết quả.' },
   '마이페이지로': { ja: 'マイページへ', zhHans: '返回我的页面', zhHant: '返回我的頁面', vi: 'Về Trang của tôi' },
   '문의·의견 처리: 「의견 보내기」로 보낸 내용과 사진, 답장 받을 이메일(선택), 앱 버전·기기 종류·언어·화면 이름을 문의에 답하고 오류를 고치는 데 사용합니다.': { ja: 'お問い合わせ・ご意見の対応：「ご意見を送る」で送られた内容と写真、返信用メール（任意）、アプリのバージョン・端末の種類・言語・画面名は、お問い合わせへの回答と不具合の修正に使います。', zhHans: '咨询·意见处理：通过「发送意见」提交的内容与照片、接收回复的邮箱（选填）、应用版本·设备类型·语言·页面名称，用于答复咨询和修复问题。', zhHant: '詢問·意見處理：透過「傳送意見」提交的內容與照片、接收回覆的電子郵件（選填）、App 版本·裝置類型·語言·畫面名稱，用於答覆詢問和修正問題。', vi: 'Xử lý yêu cầu và góp ý: nội dung, ảnh, email nhận phản hồi (không bắt buộc), phiên bản ứng dụng, loại thiết bị, ngôn ngữ và tên màn hình gửi qua "Gửi góp ý" được dùng để trả lời bạn và sửa lỗi.' },
+  // ── 코스별 품질 피드백 (S15P21E201-2020) ──
+  '이동이 너무 길어요': { ja: '移動が長すぎます', zhHans: '路程太长', zhHant: '路程太長', vi: 'Di chuyển quá xa' },
+  '취향과 달라요': { ja: '好みと違います', zhHans: '不合我的口味', zhHant: '不合我的口味', vi: 'Không hợp sở thích' },
+  '시간이 빠듯해요': { ja: '時間がきついです', zhHans: '时间太紧', zhHant: '時間太緊', vi: 'Thời gian quá gấp' },
+  '장소가 문을 닫았어요': { ja: 'お店が閉まっていました', zhHans: '地点已关门', zhHant: '地點已關門', vi: 'Địa điểm đã đóng cửa' },
+  '영업시간이 안 맞아요': { ja: '営業時間が合いません', zhHans: '营业时间不合适', zhHant: '營業時間不合適', vi: 'Giờ mở cửa không phù hợp' },
+  '좋은 장소가 많아요': { ja: 'いい場所が多いです', zhHans: '好地方很多', zhHant: '好地方很多', vi: 'Nhiều địa điểm hay' },
+  '동선이 좋아요': { ja: '動線がいいです', zhHans: '路线很顺', zhHant: '路線很順', vi: 'Lộ trình hợp lý' },
+  '여유가 알맞아요': { ja: 'ゆとりがちょうどいいです', zhHans: '节奏刚好', zhHant: '節奏剛好', vi: 'Nhịp độ vừa phải' },
+  '다녀온 코스는 어땠어요?': { ja: '行ってきたコースはいかがでしたか？', zhHans: '去过的路线怎么样？', zhHant: '去過的路線怎麼樣？', vi: 'Lộ trình bạn đã đi thế nào?' },
+  '이 코스 어때요?': { ja: 'このコースはいかがですか？', zhHans: '这条路线怎么样？', zhHant: '這條路線怎麼樣？', vi: 'Lộ trình này thế nào?' },
+  '👍 좋아요라고 남겼어요': { ja: '👍「いいね」と評価しました', zhHans: '👍 你评价了「喜欢」', zhHant: '👍 你評價了「喜歡」', vi: '👍 Bạn đã đánh giá «Thích»' },
+  '👎 아쉬워요라고 남겼어요': { ja: '👎「いまいち」と評価しました', zhHans: '👎 你评价了「不太满意」', zhHant: '👎 你評價了「不太滿意」', vi: '👎 Bạn đã đánh giá «Chưa ổn»' },
+  '남겨 주시면 다음 추천이 더 좋아져요.': { ja: '評価していただくと、次のおすすめがもっと良くなります。', zhHans: '您的评价会让下次推荐更好。', zhHant: '您的評價會讓下次推薦更好。', vi: 'Đánh giá của bạn giúp gợi ý lần sau tốt hơn.' },
+  '👍 좋아요': { ja: '👍 いいね', zhHans: '👍 喜欢', zhHant: '👍 喜歡', vi: '👍 Thích' },
+  '👎 아쉬워요': { ja: '👎 いまいち', zhHans: '👎 不太满意', zhHant: '👎 不太滿意', vi: '👎 Chưa ổn' },
+  '저장하지 못했어요. 잠시 뒤 다시 시도해 주세요.': { ja: '保存できませんでした。しばらくしてからもう一度お試しください。', zhHans: '保存失败。请稍后再试。', zhHant: '儲存失敗。請稍後再試。', vi: 'Không lưu được. Vui lòng thử lại sau.' },
+  '코스 평가': { ja: 'コース評価', zhHans: '路线评价', zhHant: '路線評價', vi: 'Đánh giá lộ trình' },
+  '이유를 골라 주세요 (선택)': { ja: '理由を選んでください（任意）', zhHans: '请选择原因（可选）', zhHant: '請選擇原因（可選）', vi: 'Chọn lý do (không bắt buộc)' },
+  '한마디 (선택)': { ja: 'ひとこと（任意）', zhHans: '留言（可选）', zhHant: '留言（可選）', vi: 'Ghi chú (không bắt buộc)' },
+  '한마디 남기기 (선택)': { ja: 'ひとこと残す（任意）', zhHans: '留下一句话（可选）', zhHant: '留下一句話（可選）', vi: 'Để lại ghi chú (không bắt buộc)' },
 };
 
 export function getTranslation(ko: string, field: 'ja' | 'zhHans' | 'zhHant' | 'vi'): string | null {
