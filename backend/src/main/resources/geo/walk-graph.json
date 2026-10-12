@@ -142,19 +142,29 @@
   },
   "output": {
    "path": "walk-graph.bin.gz",
-   "bytes": 4993509,
-   "sha256_16": "ba5a7271fc7d7ef1"
+   "bytes": 5001432,
+   "sha256_16": "a33251f199375b5f"
   },
   "counts": {
    "targets": 41541,
    "changed": 29000,
-   "missingElevation": 11935
+   "missingElevation": 11935,
+   "shortWays": {
+    "shortUnknown": 12698,
+    "filled": 9011,
+    "flat": 5604,
+    "fromNeighbors": 163,
+    "noNeighbor": 343,
+    "missingElevation": 3344
+   }
   },
   "rules": {
    "elevation": "국토지리정보원 1:5,000 수치지형도 Ver2.0(2025) 등고선·표고점·해안선 → 5m DTM(process/ngii-dtm.py) → terrarium z15",
    "slope": "10m 표본 · 기준선 50m · 절댓값 p50 · ‰",
-   "untouched": "계단 · 모름(-1) · 고도 못 뽑은 길(원래 값)",
-   "supersedes": "flatFloor (SRTM 오차용 임시 대책 — 이 값이 덮어쓴다)"
-  }
+   "untouched": "계단 · 30m 이상 모름(-1, 다리·터널) · 고도 못 뽑은 길(원래 값)",
+   "supersedes": "flatFloor (SRTM 오차용 임시 대책 — 이 값이 덮어쓴다)",
+   "shortWays": "30m 미만 모름(-1) → 높이 차 < 0.5m 평지 · 10m 미만은 이웃 길 중앙값 · 그 밖 |끝점 높이 차|÷길이"
+  },
+  "shortWaysAddedAt": "2026-10-12 (S15P21E201-2039 후속 — 같은 단계를 다시 돌려 아는 길 경사 변화 0, 짧은 모름 길만 채움)"
  }
 }
