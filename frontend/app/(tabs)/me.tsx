@@ -224,6 +224,7 @@ export default function Me() {
       */}
       <InfoRow label={tx('알림', 'Notifications')} value="›" onPress={() => openPanel('notifications')} />
       <InfoRow label={tx('차단된 계정', 'Blocked accounts')} value="›" onPress={() => openPanel('blocked')} disabled={!user} />
+      <InfoRow label={tx('의견 보내기', 'Send feedback')} description={tx('버그·건의를 알려 주세요', 'Report a bug or share an idea')} value="›" onPress={() => router.push('/feedback')} />
       <InfoRow label={tx('도움말·문의', 'Help & support')} description={tx('앱 소개, 자주 묻는 질문, 문제 해결', 'App tour, FAQs, and troubleshooting')} value="›" onPress={() => openPanel('help')} />
       <InfoRow label={tx('약관·고지', 'Terms & notices')} value="›" onPress={() => openPanel('terms')} />
     </View>
