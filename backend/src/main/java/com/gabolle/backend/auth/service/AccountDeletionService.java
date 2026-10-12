@@ -562,6 +562,12 @@ public class AccountDeletionService {
 		// app_user 에 ON DELETE CASCADE 로 묶여 있지만 계정 행을 익명화만 하므로 그 CASCADE 가
 		// 돌지 않아 여기서 직접 지운다.
 		execute("DELETE FROM PaceFactorJpaEntity p WHERE p.userId = :userId", "userId", userId);
+
+		// 코스 평가(S15P21E201-2020) — 한마디(자유 글)가 들어 있어 남기지 않는다. ON DELETE CASCADE 는 계정 행을
+		// 익명화만 하므로 안 돈다. 엔티티가 없어 네이티브다.
+		this.entityManager.createNativeQuery("DELETE FROM course_feedback WHERE user_id = :userId")
+			.setParameter("userId", userId)
+			.executeUpdate();
 	}
 
 	/**
