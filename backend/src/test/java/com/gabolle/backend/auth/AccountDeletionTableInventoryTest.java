@@ -55,6 +55,9 @@ class AccountDeletionTableInventoryTest extends AuthPostgresIntegrationTest {
 			// story_video 를 먼저 지우지 않으면 외래키 위반으로 탈퇴 전체가 실패한다.
 			"uploaded_video",
 			"user_block", "user_consent", "user_follow", "user_pace_factor",
+			// 활동일(S15P21E201-2010) — (회원 번호, 날짜) 뿐이다. 탈퇴는 계정 행을 익명화만 하므로 남는다 — 지난달 MAU 가
+			// 탈퇴 때문에 줄어들면 안 된다. 남는 행은 익명이 된 계정을 가리켜 사람을 알아볼 수 없다.
+			"user_activity_day",
 			// (사람, 장소) 의 취향 반영 상태. 탈퇴 때 AccountDeletionService 가 직접 지운다 —
 			// CASCADE 는 안 돈다(계정 행을 익명화만 하므로). 안 지우면 탈퇴한 사람의 행동
 			// 이력이 그대로 남는다 (S15P21E201-1500).
