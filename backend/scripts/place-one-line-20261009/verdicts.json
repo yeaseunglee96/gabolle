@@ -1,0 +1,11212 @@
+{
+"87b15da7-0d54-30d0-99bb-e9e68e818c34": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "fix",
+"why": "한우 수육을 boiled pork(돼지고기)로 오역함",
+"text": "Cold noodle restaurant serving 100% pure buckwheat Pyongyang naengmyeon and hanwoo boiled beef"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"434a90ee-c94f-4f0e-a709-007913306001": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"af36c598-3ab9-3e86-84b0-6a569502077a": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"87eaa8e4-d91c-3e65-917a-d5002c39a83c": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"4ecf2b26-0166-38c2-a11b-116550f38531": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"76a407bd-724c-3b8e-b4a6-07b4c3a001d5": {
+"ko": {
+"v": "fix",
+"why": "명사형 구 종결 규칙 준수",
+"text": "옛날식 간짜장과 탕수육을 내는 70년 전통 화상 중국집"
+},
+"en": {
+"v": "fix",
+"why": "ko 수정 반영",
+"text": "Chinese restaurant with 70 years of history serving classic ganjjajang and sweet and sour pork"
+},
+"ja": {
+"v": "fix",
+"why": "간짜장을 甘じゃじゃ麺(단 자장면)으로 오역함",
+"text": "昔ながらのガンチャジャンと酢豚を提供する70年の伝統を持つ華僑中華料理店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "간짜장을 甜面酱炸酱面으로 오역함",
+"text": "供应传统干炸酱面和糖醋肉的70年传统华人中餐厅"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "간짜장을 甜面酱炸酱面으로 오역함",
+"text": "供應傳統乾炸醬麵和糖醋肉的70年傳統華人中餐廳"
+},
+"vi": {
+"v": "fix",
+"why": "ko 수정 반영",
+"text": "Nhà hàng Trung Hoa truyền thống 70 năm phục vụ ganjjajang xưa và thịt chua ngọt"
+}
+},
+"5c047f18-e030-3703-b584-9c6c98209657": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"5bc92078-deff-3291-bb2f-f273f3bbb2c1": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"43e6ce27-9838-3208-b957-b6d329b5a769": {
+"ko": {
+"v": "fix",
+"why": "곰장어 구이 전문점인데 횟집으로 표기됨",
+"text": "연탄 초벌로 잡내를 잡은 신선한 곰장어 전문점"
+},
+"en": {
+"v": "fix",
+"why": "연탄을 charcoal(참숯)로 오역하고 횟집(raw fish)으로 번역함",
+"text": "Restaurant specializing in fresh hagfish pre-grilled over briquettes"
+},
+"ja": {
+"v": "fix",
+"why": "연탄을 炭火(숯불)로 오역하고 刺身店(횟집)으로 번역함",
+"text": "練炭で下焼きし臭みを取った新鮮なヌタウナギ専門店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "연탄을 炭火(숯불)로 오역하고 生鱼片店(횟집)으로 번역함",
+"text": "通过煤球初烤去腥的新鲜盲鳗专门店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "연탄을 炭火(숯불)로 오역하고 生魚片店(횟집)으로 번역함",
+"text": "透過煤球初烤去腥的新鮮盲鰻專門店"
+},
+"vi": {
+"v": "fix",
+"why": "연탄 오역 및 sashimi 전문점으로 잘못 표기됨",
+"text": "Quán chuyên hagfish tươi được nướng sơ qua than tổ ong để khử mùi"
+}
+},
+"934ef5bc-2092-329a-9f66-55780daac243": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"421be5ee-f854-30cf-974c-24685a4d9dc9": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"3bea8d8c-a362-3f99-9b57-b2d5ff9f9129": {
+"ko": {
+"v": "fix",
+"why": "곰장어 구이 전문점을 횟집으로 표기함",
+"text": "연탄불 초벌구이 산곰장어를 파는 심야 영업 식당"
+},
+"en": {
+"v": "fix",
+"why": "곰장어 구이 전문점을 생선회(raw fish) 식당으로 오역함",
+"text": "Charcoal pre-grilled fresh hagfish restaurant open late"
+},
+"ja": {
+"v": "fix",
+"why": "곰장어 구이 전문점을 刺身店으로 오역함",
+"text": "炭火で下焼きした活ヌタウナギを提供する深夜営業の店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "곰장어 구이 전문점을 生鱼片店으로 오역함",
+"text": "提供炭火初烤鲜活盲鳗的深夜营业餐厅"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "곰장어 구이 전문점을 生魚片店으로 오역함",
+"text": "提供炭火初烤鮮活盲鰻的深夜營業餐廳"
+},
+"vi": {
+"v": "fix",
+"why": "곰장어 구이 전문점을 sashimi 식당으로 오역함",
+"text": "Nhà hàng lươn biển nướng sơ than mở cửa đến khuya"
+}
+},
+"30406178-93be-3278-af06-ce09c08d4d11": {
+"ko": {
+"v": "fix",
+"why": "구워 먹는 곰장어 식당을 횟집으로 표기함",
+"text": "이연복 셰프가 극찬한 신선한 곰장어구이 전문점"
+},
+"en": {
+"v": "fix",
+"why": "곰장어 구이 전문점을 sashimi로 오역함",
+"text": "Fresh grilled hagfish restaurant praised by Chef Lee Yeon-bok"
+},
+"ja": {
+"v": "fix",
+"why": "곰장어 구이 전문점을 刺身店으로 오역함",
+"text": "イ・ヨンボクシェフが絶賛した新鮮なヌタウナギ焼き専門店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "곰장어 구이 전문점을 刺身店으로 오역함",
+"text": "李延福主厨赞誉的新鲜烤盲鳗专门店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "곰장어 구이 전문점을 刺身店으로 오역함",
+"text": "李延福主廚讚譽的新鮮烤盲鰻專門店"
+},
+"vi": {
+"v": "fix",
+"why": "곰장어 구이 전문점을 sashimi 식당으로 오역함",
+"text": "Quán lươn biển nướng tươi ngon được đầu bếp Lee Yeon-bok khen ngợi"
+}
+},
+"969d4574-ba9a-3a35-a112-b515ad0a27a5": {
+"ko": {
+"v": "fix",
+"why": "마제소바 전문점인데 불필요하게 일식 회/초밥으로 표기함",
+"text": "도쿄식 마제소바 전문 혼밥하기 좋은 일식당"
+},
+"en": {
+"v": "fix",
+"why": "마제소바 전문점을 sushi bar로 오역함",
+"text": "Tokyo-style mazesoba specialty restaurant convenient for solo dining"
+},
+"ja": {
+"v": "fix",
+"why": "마제소바 전문점을 寿司店으로 오역함",
+"text": "東京風まぜそば専門の一人ご飯に便利な和食店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "마제소바 전문점을 寿司店으로 오역함",
+"text": "东京风味拌面专门且适合一人用餐的日料店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "마제소바 전문점을 壽司店으로 오역함",
+"text": "東京風味拌麵專門且適合一人用餐的日料店"
+},
+"vi": {
+"v": "fix",
+"why": "마제소바 전문점을 sushi 식당으로 오역함",
+"text": "Quán ăn Nhật chuyên mì mazesoba kiểu Tokyo tiện lợi cho một người"
+}
+},
+"b912fceb-43f5-36de-a3ae-252dd7cab9ac": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"5831dfaa-68f2-30d4-8143-2c79285a3556": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"c13c24e9-eeb3-37c7-aa5a-b459a6aa42c7": {
+"ko": {
+"v": "fix",
+"why": "철판요리 전문점을 회/초밥으로 표기함",
+"text": "화려한 불쇼와 다양한 메뉴의 테판야키 전문점"
+},
+"en": {
+"v": "fix",
+"why": "철판요리 전문점을 sashimi로 오역함",
+"text": "Teppanyaki restaurant featuring fire shows and various dishes"
+},
+"ja": {
+"v": "fix",
+"why": "철판요리 전문점을 寿司店으로 오역함",
+"text": "火のショーと多彩なメニューが楽しめる鉄板焼き専門店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "철판요리 전문점을 生鱼片店으로 오역함",
+"text": "配有火焰秀与丰富菜品的铁板烧专门店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "철판요리 전문점을 生魚片店으로 오역함",
+"text": "配有火焰秀與豐富菜品的鐵板燒專門店"
+},
+"vi": {
+"v": "fix",
+"why": "철판요리 전문점을 sashimi로 오역함",
+"text": "Quán teppanyaki với biểu diễn lửa và nhiều món ăn đa dạng"
+}
+},
+"fb73798c-7474-39cf-9b41-24f71a88c925": {
+"ko": {
+"v": "fix",
+"why": "파스타와 덮밥을 파는 퓨전 일식당을 회/초밥으로 표기함",
+"text": "명란크림파스타와 쇼가야키동이 있는 퓨전 일식당"
+},
+"en": {
+"v": "fix",
+"why": "퓨전 일식당을 sashimi로 오역함",
+"text": "Japanese fusion restaurant serving mentaiko cream pasta and shogayakidon"
+},
+"ja": {
+"v": "fix",
+"why": "퓨전 일식당을 寿司店으로 오역함",
+"text": "明太クリームパスタと生姜焼き丼がある創作和食店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "퓨전 일식당을 生鱼片店으로 오역함",
+"text": "供应明太子奶油意面与生姜烧肉盖饭的融合日料店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "퓨전 일식당을 生魚片店으로 오역함",
+"text": "供應明太子奶油義大利麵與生薑燒肉蓋飯的融合日料店"
+},
+"vi": {
+"v": "fix",
+"why": "퓨전 일식당을 sashimi로 오역함",
+"text": "Quán ăn fusion Nhật phục vụ mì Ý kem trứng cá và cơm heo xào gừng"
+}
+},
+"4f8588ff-4690-3550-94e4-b69b1755efd8": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"92f931b1-d55f-3f1b-a262-7328975c3242": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"98ec8613-ff57-3129-9179-181414bce556": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"2db7235d-28ed-30a8-99f9-886fef2efdd1": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"9e5b60f5-c496-3206-a0d4-008ebf36d1c4": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"0adddc25-4811-3063-9d8f-a58180f595d2": {
+"ko": {
+"v": "fix",
+"why": "공공업종 분류(회/초밥)와 달리 돈까스와 카레 전문점임",
+"text": "제주 흑돼지 돈까스와 수제 카레 전문점"
+},
+"en": {
+"v": "fix",
+"why": "공공업종 오분류(회/초밥) 수정",
+"text": "Restaurant serving Jeju black pork tonkatsu and handmade curry"
+},
+"ja": {
+"v": "fix",
+"why": "공공업종 오분류(회/초밥) 수정",
+"text": "済州黒豚のとんかつと手作りカレーの専門店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "공공업종 오분류(회/초밥) 수정",
+"text": "济州黑猪炸猪排和手工咖喱专门店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "공공업종 오분류(회/초밥) 수정",
+"text": "濟州黑豬炸豬排和手工咖哩專門店"
+},
+"vi": {
+"v": "fix",
+"why": "공공업종 오분류(회/초밥) 수정",
+"text": "Quán chuyên tonkatsu heo đen Jeju và cà ri tự làm"
+}
+},
+"c59b13e1-6ee0-30f1-8c1e-79153fb0298a": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"86ffc729-5b68-33bc-b134-1bfbadf0bfc1": {
+"ko": {
+"v": "fix",
+"why": "공공업종 분류(회/초밥)와 달리 규카츠와 연어덮밥 전문 일식당임",
+"text": "규카츠와 연어덮밥 세트가 있는 일식당"
+},
+"en": {
+"v": "fix",
+"why": "공공업종 오분류(회/초밥) 수정",
+"text": "Japanese restaurant offering gyukatsu and salmon rice bowl sets"
+},
+"ja": {
+"v": "fix",
+"why": "공공업종 오분류(회/초밥) 수정",
+"text": "牛カツとサーモン丼セットが楽しめる日本料理店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "공공업종 오분류(회/초밥) 수정",
+"text": "提供炸牛排和三文鱼盖饭套餐的日式餐厅"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "공공업종 오분류(회/초밥) 수정",
+"text": "提供炸牛排和三文魚蓋飯套餐的日式餐廳"
+},
+"vi": {
+"v": "fix",
+"why": "공공업종 오분류(회/초밥) 수정",
+"text": "Nhà hàng Nhật Bản phục vụ set gyukatsu và cơm cá hồi"
+}
+},
+"8888c5fe-a898-33cd-83ac-8c61fba654dc": {
+"ko": {
+"v": "fix",
+"why": "공공업종 분류(회/초밥)와 달리 라멘 전문점임",
+"text": "토리파이탄과 아부라소바 전문 라멘집"
+},
+"en": {
+"v": "fix",
+"why": "공공업종 오분류(회/초밥) 수정",
+"text": "Ramen shop specializing in tori paitan and abura soba"
+},
+"ja": {
+"v": "fix",
+"why": "공공업종 오분류(회/초밥) 수정",
+"text": "鶏白湯と油そば専門のラーメン店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "공공업종 오분류(회/초밥) 수정",
+"text": "专营鸡白汤和油拌面的拉面店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "공공업종 오분류(회/초밥) 수정",
+"text": "專營雞白湯和油拌麵的拉麵店"
+},
+"vi": {
+"v": "fix",
+"why": "공공업종 오분류(회/초밥) 수정",
+"text": "Quán ramen chuyên tori paitan và abura soba"
+}
+},
+"621b7acd-e5e1-3343-941a-bb0699465a54": {
+"ko": {
+"v": "fix",
+"why": "장소 이름 중복 제거",
+"text": "16.3km 숲길과 해안 걷기 길"
+},
+"en": {
+"v": "fix",
+"why": "ko 수정 반영(이름 반복 제거)",
+"text": "16.3km forest and coastal walking path"
+},
+"ja": {
+"v": "fix",
+"why": "ko 수정 반영(이름 반복 제거)",
+"text": "16.3kmの森林と海岸の散歩道"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko 수정 반영(이름 반복 제거)",
+"text": "16.3公里的森林与海岸步道"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko 수정 반영(이름 반복 제거)",
+"text": "16.3公里的森林與海岸步道"
+},
+"vi": {
+"v": "fix",
+"why": "ko 수정 반영(이름 반복 제거)",
+"text": "Đường đi bộ ven biển và đường rừng dài 16.3km"
+}
+},
+"06d328c8-4889-3831-992e-55a9adca5c4f": {
+"ko": {
+"v": "fix",
+"why": "장소 이름 중복 제거",
+"text": "달빛을 받으며 바다를 보며 걷는 숲속 산책로"
+},
+"en": {
+"v": "fix",
+"why": "ko 수정 반영(이름 반복 제거)",
+"text": "Forest walking trail by the sea under the moonlight"
+},
+"ja": {
+"v": "fix",
+"why": "ko 수정 반영(이름 반복 제거)",
+"text": "月明かりを浴びて海を眺めながら歩く森の散歩道"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko 수정 반영(이름 반복 제거)",
+"text": "沐浴月光眺望大海漫步的森林散步道"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko 수정 반영(이름 반복 제거)",
+"text": "沐浴月光眺望大海漫步的森林散步道"
+},
+"vi": {
+"v": "fix",
+"why": "ko 수정 반영(이름 반복 제거)",
+"text": "Lối đi bộ trong rừng dưới ánh trăng ngắm biển"
+}
+},
+"01ee525b-ebf2-3c8a-82dc-df1916da0f65": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"1b97fa58-922c-3fbb-a536-100ee7e99720": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"c93ba4f8-f71f-3b48-83b2-1b8a9f6e2a31": {
+"ko": {
+"v": "fix",
+"why": "'맛집' 평가적 수식어 제외",
+"text": "천연 발효종 바게트를 선보이는 해운대구 빵집"
+},
+"en": {
+"v": "fix",
+"why": "ko 수정 반영",
+"text": "Bakery in Haeundae serving natural fermentation baguettes"
+},
+"ja": {
+"v": "fix",
+"why": "ko 수정 반영",
+"text": "天然発酵バゲットを提供するヘウンデ区のパン屋"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko 수정 반영",
+"text": "海云台区提供天然发酵法棍的面包店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko 수정 반영",
+"text": "海雲臺區提供天然發酵法棍的麵包店"
+},
+"vi": {
+"v": "fix",
+"why": "ko 수정 반영",
+"text": "Tiệm bánh tại Haeundae phục vụ bánh mì baguette lên men tự nhiên"
+}
+},
+"7916c6f0-b7f5-3518-ab52-5f04f29d405b": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"74fc7efe-fe48-33a3-b328-463b46b2c8bd": {
+"ko": {
+"v": "fix",
+"why": "공공 분류 '경양식' 대신 실제 매장 특성인 라운지 바로 수정",
+"text": "해운대 오션뷰와 주류 및 캘리포니아롤이 있는 라운지 바"
+},
+"en": {
+"v": "fix",
+"why": "ko 수정 반영",
+"text": "Lounge bar in Haeundae with ocean views, drinks, and California rolls"
+},
+"ja": {
+"v": "fix",
+"why": "ko 수정 반영",
+"text": "ヘウンデの海を望む景色とお酒、カリフォルニアロールを楽しめるラウンジバー"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko 수정 반영",
+"text": "拥有海云台海景、酒类与加州卷的酒廊酒吧"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko 수정 반영",
+"text": "擁有海雲臺海景、酒類與加州卷的酒廊酒吧"
+},
+"vi": {
+"v": "fix",
+"why": "ko 수정 반영",
+"text": "Quán lounge bar tại Haeundae có view biển, đồ uống và California roll"
+}
+},
+"5227e404-074e-3b95-bcec-3e8a7cebc796": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"7055360f-1d5d-3e1d-9fda-3bc0b5390fea": {
+"ko": {
+"v": "fix",
+"why": "우동·교자 전문 식당이나 잘못된 업종 분류(회/초밥) 사용",
+"text": "넓적우동과 교자를 선보이는 해운대구 일식당"
+},
+"en": {
+"v": "fix",
+"why": "ko 수정 반영 및 초밥/회 오역 수정",
+"text": "Japanese restaurant in Haeundae serving wide udon and gyoza"
+},
+"ja": {
+"v": "fix",
+"why": "ko 수정 반영 및 초밥 오역 수정",
+"text": "ヘウンデ区の幅広いうどんと餃子を提供する和食店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko 수정 반영 및 刺身 오역 수정",
+"text": "海云台区提供宽乌冬面和饺子的日式餐厅"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko 수정 반영 및 刺身 오역 수정",
+"text": "海雲臺區提供寬烏冬麵和餃子的日式餐廳"
+},
+"vi": {
+"v": "fix",
+"why": "ko 수정 반영 및 sashimi 오역 수정",
+"text": "Nhà hàng Nhật Bản tại Haeundae phục vụ mì udon dẹt và gyoza"
+}
+},
+"3fb59304-87e5-3667-8781-a296122ff698": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"776bd2eb-d0a8-395a-816f-0c81ecee8058": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"5289c6d1-e93e-342e-82da-7d82a8e2af1e": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"ce4b5ef5-b222-3a91-ad6a-ced2cf96f5ae": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"988bc945-fa88-3a5c-962d-730e6f5646e8": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"c0719b43-629f-3021-b192-ce6cc7cae34b": {
+"ko": {
+"v": "fix",
+"why": "공공 업종 분류는 경양식이지만 꽃게 파스타와 엔초비 파스타를 선보이는 이탈리안 요리 전문점임",
+"text": "제철 꽃게 파스타와 엔초비 파스타를 선보이는 이탈리안 식당"
+},
+"en": {
+"v": "fix",
+"why": "ko 수정 반영(경양식 대신 이탈리안 식당)",
+"text": "Italian restaurant serving seasonal crab and anchovy pasta"
+},
+"ja": {
+"v": "fix",
+"why": "ko 수정 반영(경양식 대신 이탈리안 식당)",
+"text": "旬のカニパスタとアンチョビパスタのイタリア料理店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko 수정 반영(경양식 대신 이탈리안 식당)",
+"text": "供应时令蟹肉意面和凤尾鱼意面的意式餐厅"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko 수정 반영(경양식 대신 이탈리안 식당)",
+"text": "供應時令蟹肉義麵和鳳尾魚義麵的義式餐廳"
+},
+"vi": {
+"v": "fix",
+"why": "ko 수정 반영(경양식 대신 이탈리안 식당)",
+"text": "Nhà hàng Ý phục vụ mì cua theo mùa và mì cá cơm"
+}
+},
+"2ff00dcb-0e92-3428-b407-33f3d4829edf": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"20b3803b-ab2d-31b7-a4ce-7dd9f691fb06": {
+"ko": {
+"v": "fix",
+"why": "푸딩 케이크와 커피 메뉴를 판매하는 주택 개조 카페이나 공공분류 경양식 표기로 인해 경양식 카페로 오기재됨",
+"text": "야외 테이블과 푸딩 케이크가 있는 디저트 카페"
+},
+"en": {
+"v": "fix",
+"why": "ko 수정 반영(경양식 카페 대신 디저트 카페)",
+"text": "Dessert cafe with outdoor tables serving pudding cake"
+},
+"ja": {
+"v": "fix",
+"why": "ko 수정 반영(경양식 카페 대신 디저트 카페)",
+"text": "屋外席とプリンケーキのあるデザートカフェ"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko 수정 반영(경양식 카페 대신 디저트 카페)",
+"text": "设有户外座位并供应布丁蛋糕的甜点咖啡厅"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko 수정 반영(경양식 카페 대신 디저트 카페)",
+"text": "設有戶外座位並供應布丁蛋糕的甜點咖啡廳"
+},
+"vi": {
+"v": "fix",
+"why": "ko 수정 반영(경양식 카페 대신 디저트 카페)",
+"text": "Quán cà phê tráng miệng có bàn ngoài trời phục vụ bánh pudding"
+}
+},
+"5f18ef0a-26a0-3653-aafd-acd34faa75b5": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"17498549-757e-3b15-a565-18a169133f4a": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "fix",
+"why": "생갈매기살 오역(マグメギサル)",
+"text": "蒸し卵・キムチ・もやし焼きと生カルメギサルの豚肉焼肉店"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "fix",
+"why": "갈매기살을 삼겹살(ba chỉ)로 오역",
+"text": "Quán nướng thịt heo với trứng hấp, kimchi, giá đỗ nướng và cơ hoành heo tươi"
+}
+},
+"29a9a218-a14b-3396-ba99-033a3a15ff82": {
+"ko": {
+"v": "fix",
+"why": "화덕 피자와 비스큐 파스타를 선보이는 이탈리안 식당을 경양식집으로 표현",
+"text": "화덕 나폴리식 피자와 비스큐 링귀니 파스타를 내는 이탈리안 식당"
+},
+"en": {
+"v": "fix",
+"why": "ko 수정 반영(경양식집 대신 이탈리안 식당)",
+"text": "Italian restaurant with wood-fired Neapolitan pizza and bisque linguine pasta"
+},
+"ja": {
+"v": "fix",
+"why": "ko 수정 반영(경양식집 대신 이탈리안 식당)",
+"text": "薪窯ナポリピザとビスクリングイネパスタのイタリア料理店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko 수정 반영(경양식집 대신 이탈리안 식당)",
+"text": "供应那不勒斯烤炉披萨和浓汤扁面条的意式餐厅"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko 수정 반영(경양식집 대신 이탈리안 식당)",
+"text": "供應拿坡里烤爐披薩和濃湯扁麵條的義式餐廳"
+},
+"vi": {
+"v": "fix",
+"why": "ko 수정 반영(경양식집 대신 이탈리안 식당)",
+"text": "Nhà hàng Ý với pizza Napoli lò nướng và mì linguine sốt bisque"
+}
+},
+"3f1f7f18-048f-34ff-85ca-e7b21f77833f": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"1a7cb7a9-ea63-37d4-a016-a69fe9350d85": {
+"ko": {
+"v": "fix",
+"why": "뼈해장국과 감자탕 전문 식당으로 메뉴 특징을 살린 설명 필요",
+"text": "24시간 뼈해장국과 감자탕을 즐길 수 있는 식당"
+},
+"en": {
+"v": "fix",
+"why": "ko 수정 반영",
+"text": "24-hour restaurant serving pork backbone soup and gamjatang"
+},
+"ja": {
+"v": "fix",
+"why": "ko 수정 반영",
+"text": "24時間ピョヘジャングクとカムジャタンが楽しめる食堂"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko 수정 반영",
+"text": "24小时供应排骨醒酒汤和土豆汤的餐厅"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko 수정 반영",
+"text": "24小時供應排骨醒酒湯和馬鈴薯湯的餐廳"
+},
+"vi": {
+"v": "fix",
+"why": "ko 수정 반영",
+"text": "Nhà hàng mở 24 giờ phục vụ canh giải rượu xương heo và gamjatang"
+}
+},
+"c82f1ba7-01c1-399b-b64c-41fb4b2d6562": {
+"ko": {
+"v": "fix",
+"why": "메뉴가 밀면과 비빔면뿐인 밀면 전문점이나 공공분류 백반집으로 표기됨",
+"text": "양파 육수와 쫄깃한 면발을 내는 밀면 전문 노포"
+},
+"en": {
+"v": "fix",
+"why": "ko 수정 반영(백반집 대신 밀면 노포)",
+"text": "Long-established milmyeon specialty restaurant with onion broth and chewy noodles"
+},
+"ja": {
+"v": "fix",
+"why": "ko 수정 반영(백반집 대신 밀면 노포)",
+"text": "玉ねぎスープともちもち麺のミルミョン専門老舗店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko 수정 반영(백반집 대신 밀면 노포)",
+"text": "专营洋葱汤和劲道面条的小麦面老字号店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko 수정 반영(백반집 대신 밀면 노포)",
+"text": "專營洋蔥湯和勁道麵條的小麥麵老字號店"
+},
+"vi": {
+"v": "fix",
+"why": "ko 수정 반영(백반집 대신 밀면 노포)",
+"text": "Quán lâu đời chuyên milmyeon với nước dùng hành tây và sợi mì dai"
+}
+},
+"ad2a3526-2e46-3eca-8923-8e4f880b2bd9": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"817670a9-1c15-3ce2-bad6-1c1eef7b8d72": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "fix",
+"why": "ko 줄의 언양불고기가 누락됨",
+"text": "Charcoal-grilled Eonyang bulgogi restaurant"
+},
+"ja": {
+"v": "fix",
+"why": "ko 줄의 언양불고기가 누락됨",
+"text": "炭火直火焼き彦陽プルコギ専門店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko 줄의 언양불고기가 누락됨",
+"text": "炭火直烤彦阳烤牛肉专门店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko 줄의 언양불고기가 누락됨",
+"text": "炭火直烤彥陽烤牛肉專門店"
+},
+"vi": {
+"v": "fix",
+"why": "ko 줄의 언양불고기가 누락됨",
+"text": "Nhà hàng bulgogi Eonyang nướng than hoa"
+}
+},
+"b2ccacbf-1ddf-3bd5-9843-d65d7c5067f3": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"6c627f10-dc30-39a0-81e5-65181a82b4de": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "번체 표기 오류(冷面→冷麵)",
+"text": "可同時享用冷麵和王排骨湯的海雲台冷麵店"
+},
+"vi": {
+"v": "ok"
+}
+},
+"1bfaa0bb-a37e-3ccf-9300-56516da391d0": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"fc30c3aa-068a-31a0-b3be-d834afd4ff35": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "fix",
+"why": "한우 및 곰탕 표현 누락",
+"text": "Gomtang restaurant made with Korean beef brisket and bones"
+},
+"ja": {
+"v": "fix",
+"why": "양지머리를 사태(すね肉)로 오역",
+"text": "韓牛のブリスケと牛骨で煮込んだコムタン専門店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "양지머리를 사태(牛腱)로 오역",
+"text": "用韩牛牛胸肉和牛骨熬制的牛骨汤专门店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "양지머리를 사태(牛腱)로 오역",
+"text": "用韓牛牛胸肉和牛骨熬製的牛骨湯專門店"
+},
+"vi": {
+"v": "fix",
+"why": "양지머리를 사태(thịt bắp)로 오역",
+"text": "Quán gomtang nấu từ thịt nạm và xương bò Hanwoo"
+}
+},
+"35e74eb0-24cf-3cc2-952f-f7c008b2bca0": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"8743b685-bf05-3abd-bc51-e8a46549987f": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"6cf80b4d-6d50-3c66-9c64-81be8517ce05": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"7e0d3a85-5452-3943-91f7-eb6bfe2448c8": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"148d72d0-4748-43b0-a650-000126080001": {
+"ko": {
+"v": "fix",
+"why": "장소 이름 반복",
+"text": "부드러운 모래와 완만한 경사의 가족 휴양 해변"
+},
+"en": {
+"v": "fix",
+"why": "ko 수정에 맞춤",
+"text": "Family-friendly beach with soft sand and gentle slope"
+},
+"ja": {
+"v": "fix",
+"why": "ko 수정에 맞춤",
+"text": "柔らかな砂と遠浅の海が広がる家族向け海水浴場"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko 수정에 맞춤",
+"text": "沙质细腻坡度平缓的家庭休闲海滩"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko 수정에 맞춤",
+"text": "沙質細膩坡度平緩的家庭休閒海灘"
+},
+"vi": {
+"v": "fix",
+"why": "ko 수정에 맞춤",
+"text": "Bãi biển nghỉ dưỡng cho gia đình với cát mịn và bờ thoai thoải"
+}
+},
+"b897f72b-65a2-5bf9-b139-d6d067143cea": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"0e8eaa3b-f50f-351c-b777-e5f92296cd07": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"8a1545ec-15d0-30ea-9cec-f7cd4a2d7edb": {
+"ko": {
+"v": "fix",
+"why": "장소 이름 반복",
+"text": "어촌 풍경과 해산물 음식점이 있는 작은 포구"
+},
+"en": {
+"v": "fix",
+"why": "ko 수정에 맞춤",
+"text": "Small fishing port with coastal scenery and seafood restaurants"
+},
+"ja": {
+"v": "fix",
+"why": "ko 수정에 맞춤",
+"text": "漁村風景と海産物料理店が並ぶ小さな港"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko 수정에 맞춤",
+"text": "拥有渔村风光与海鲜餐厅的小港口"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko 수정에 맞춤",
+"text": "擁有漁村風光與海鮮餐廳的小港口"
+},
+"vi": {
+"v": "fix",
+"why": "ko 수정에 맞춤",
+"text": "Cảng cá nhỏ với phong cảnh làng chài và nhà hàng hải sản"
+}
+},
+"79aab100-5c5e-33ea-a4a6-c1b1dd6948b1": {
+"ko": {
+"v": "fix",
+"why": "한우 구이 전문점인데 공공업종 분류 표기로 인해 '돼지고기 구이집'이라고 오기",
+"text": "1++ 암소 한우 숯불구이와 프라이빗 룸 고깃집"
+},
+"en": {
+"v": "fix",
+"why": "pork 오역 수정",
+"text": "Korean beef charcoal grill restaurant with private dining rooms"
+},
+"ja": {
+"v": "fix",
+"why": "돼지고기 오역 수정",
+"text": "1++韓牛炭火焼きと個室完備の焼肉店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "돼지고기 오역 수정",
+"text": "提供1++韩牛炭火烤肉与包间的烤肉店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "돼지고기 오역 수정",
+"text": "提供1++韓牛炭火烤肉與包廂的烤肉店"
+},
+"vi": {
+"v": "fix",
+"why": "thịt heo 오역 수정",
+"text": "Quán nướng thịt bò Hàn cao cấp có phòng riêng"
+}
+},
+"496e54d2-cda9-3821-bf49-575f7dcc20f8": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"da021554-a4d2-3677-9fa2-b2f5be3627a7": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"bee474dd-4ad9-3db9-8e7d-11b52a09c824": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"e9575198-8d98-396e-8a3d-f67e2cdd524b": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"91428992-d494-3831-a393-72099e4b0cbe": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"58966d35-0dfb-355c-abf4-ae951fa6436f": {
+"ko": {
+"v": "fix",
+"why": "공공 업종 분류는 횟집이나 실제 방문 이유는 화덕 생선구이와 솥밥 전문 식당",
+"text": "500도 화덕 생선구이와 정갈한 솥밥 음식점"
+},
+"en": {
+"v": "fix",
+"why": "ko 수정 반영 (횟집 대신 일반 식당/생선구이 솥밥집)",
+"text": "Restaurant serving fish grilled in a 500°C oven and pot rice"
+},
+"ja": {
+"v": "fix",
+"why": "ko 수정 반영",
+"text": "500度の窯焼き魚と整った釜飯の店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko 수정 반영",
+"text": "提供500度烤鱼和整洁锅饭的餐厅"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko 수정 반영",
+"text": "提供500度烤魚和整潔鍋飯的餐廳"
+},
+"vi": {
+"v": "fix",
+"why": "ko 수정 반영",
+"text": "Nhà hàng nướng cá lò 500 độ và cơm niêu gọn gàng"
+}
+},
+"d684f849-a4d3-3177-af14-41f66375e063": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"ee856119-a373-3c98-b94e-a1776797faff": {
+"ko": {
+"v": "fix",
+"why": "공공 업종 분류는 횟집이나 실제는 곰장어 구이 전문점",
+"text": "즉석 산곰장어 양념·소금구이 해운대 음식점"
+},
+"en": {
+"v": "fix",
+"why": "ko 수정 반영",
+"text": "Haeundae restaurant serving fresh grilled hagfish with sauce or salt"
+},
+"ja": {
+"v": "fix",
+"why": "ko 수정 반영",
+"text": "新鮮なヌタウナギのタレ・塩焼きを楽しめる海雲台の店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko 수정 반영",
+"text": "海云台餐厅，享用现烤调味或盐烤盲鳗"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko 수정 반영",
+"text": "海雲台餐廳，享用現烤調味或鹽烤盲鰻"
+},
+"vi": {
+"v": "fix",
+"why": "ko 수정 반영",
+"text": "Nhà hàng Haeundae phục vụ cá mút đá nướng sốt hoặc muối"
+}
+},
+"dcee974c-cde9-3f42-a547-63542187d474": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"03581d54-7e9d-4e22-ae0f-000995455003": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"2556222c-69c8-3850-a148-75c3ae986e3d": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"fe0a63e9-ceaf-354e-838f-35d5ebb1e894": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"9c694813-98ec-327d-a715-0dd05c133319": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"f447459c-f5fd-31c5-ab12-c0a6ee037a5d": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"9604585b-9a90-3eba-bece-a4fc946203c3": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"a788ea49-bb63-3626-ab5e-5e86be860ef5": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"5edfca15-a7c1-3616-8682-7b94cdb023c2": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"966296a0-8e92-3f45-aa48-c414e296fa3c": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"0a1b6309-1089-3658-9234-c0e0a10e53e4": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"7b1828f6-c314-36be-abf4-40cf8a35ef0c": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"0b36d3fe-dd9e-3020-864e-94b4be7e4b26": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"76363fd8-a555-456e-896a-008202423001": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"e59daed3-4f61-3372-b0cc-71ed9f6f693d": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"f092687c-b613-4fcd-9310-b9ec7e2dc55b": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"6a6c94c8-b0eb-3020-b45b-d1fe8a1ee389": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"51dfc20a-c16c-3c4d-af50-fb05a1b0ab34": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"d131273a-024e-3b19-ba83-954470494484": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"cc5e4847-8418-3e62-8784-d45d7ac2dcb3": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "fix",
+"why": "족발집인데 hagfish(먹장어, 곰장어)로 오역됨",
+"text": "Long-established jokbal restaurant in Haeundae with 30-40 years history"
+},
+"ja": {
+"v": "fix",
+"why": "족발집인데 ヌタウナギ(먹장어)로 오역됨",
+"text": "30〜40年続く海雲台の老舗チョッパル専門店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "족발집인데盲鳗(먹장어)로 오역됨",
+"text": "拥有30~40年历史的海云台老字号猪蹄专门店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "족발집인데盲鰻(먹장어)로 오역됨",
+"text": "擁有30~40年歷史的海雲台老字號豬蹄專門店"
+},
+"vi": {
+"v": "fix",
+"why": "족발집인데 hagfish(먹장어)로 오역됨",
+"text": "Quán chân giò lâu đời 30-40 năm tại Haeundae"
+}
+},
+"5b467382-7ee9-3027-a662-dab6347a6761": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"30ddca32-7b9a-33a7-a1c1-970652ddadcc": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"922107a6-693a-379d-b9a2-250d1145264f": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"c1903731-1a87-3623-a4c5-46fa8a73419f": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"f8a96732-0fb0-34d2-8c4c-34aed4d2ca55": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"2087a490-c59e-3236-a753-75a742520344": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"4668daf4-a901-3a22-9010-a2bb1c78dce2": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"daa5496d-67a6-351e-9b52-44796be1ab2b": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"c26bcf39-70e8-339a-b92b-666e906d6ec4": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"570925f9-533c-37e2-8ba0-3f1b89a44b11": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"e4173acd-05ff-3a60-8ee2-0087c189aedb": {
+"ko": {
+"v": "fix",
+"why": "대구뽈찜은 찜(steamed/stewed) 요리이나, '찜'을 'stew'로 번역한 것은 부정확함. facts에 따르면 '찜'이 맞으므로, 모든 언어에서 '찜'을 반영해야 함. 또한 '국탕 찌개 전문점'은 너무 포괄적이므로, facts에 따라 '대구탕과 대구뽈찜 전문점'으로 명확히 해야 함.",
+"text": "대구탕과 대구뽈찜 전문점"
+},
+"en": {
+"v": "fix",
+"why": "ko fix에 맞춰 'cod soup and cod cheek jjim specialty restaurant'로 수정",
+"text": "Cod soup and cod cheek jjim specialty restaurant"
+},
+"ja": {
+"v": "fix",
+"why": "ko fix에 맞춰 'タラ鍋とタラほほ蒸し専門店'로 수정",
+"text": "タラ鍋とタラほほ蒸し専門店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko fix에 맞춰 '鳕鱼汤和鳕鱼脸蒸菜专门店'로 수정",
+"text": "鳕鱼汤和鳕鱼脸蒸菜专门店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko fix에 맞춰 '鱈魚湯和鱈魚臉蒸菜專門店'로 수정",
+"text": "鱈魚湯和鱈魚臉蒸菜專門店"
+},
+"vi": {
+"v": "fix",
+"why": "ko fix에 맞춰 'Quán chuyên canh cá tuyết và cá tuyết hấp'로 수정",
+"text": "Quán chuyên canh cá tuyết và cá tuyết hấp"
+}
+},
+"192b7969-6e47-35ca-829e-0e6e81133b4e": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"118b1d70-faa1-3309-b3d0-210e7c9df5cd": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"6431d5ab-b74e-3332-9d2a-1ec7587bae2f": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"66b11b33-ef05-34ab-a6c1-070c99812387": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"61a0b120-3ecc-36ae-91a4-5151188e45ca": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"92687fa5-f20f-3c5b-9b29-5297e0878b19": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"25d0fbbf-d654-3fc9-98c0-877c86c6a7b8": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"d31a2fe7-5bbe-3434-a62b-fd8dffb1a2c6": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"c9ee723a-2972-3936-9644-43f338f992fa": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"1c2ab2d3-11a3-37be-a209-fc8688f5512b": {
+"ko": {
+"v": "fix",
+"why": "뽈락은 pollack(명태)가 아니라 greenling(쥐노래미)임. 'pollack'은 오역.",
+"text": "자연산 뽈락 세꼬시와 특제 된장양념 일식 회집"
+},
+"en": {
+"v": "fix",
+"why": "pollack은 오역, greenling 또는 rockfish로 수정 필요. 나머지는 ok.",
+"text": "Japanese sashimi restaurant with wild greenling sekko and special soybean paste sauce"
+},
+"ja": {
+"v": "fix",
+"why": "ポラックは誤訳、アイナメ（クジメ）やグリーンリング等が正しい。",
+"text": "天然アイナメセッコシと特製味噌だれの和食刺身店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "鲈鱼(Sea bass)은 오역, 应为青鳕鱼或绿鳕鱼。",
+"text": "天然青鳕鱼生鱼片和特制味噌酱的日式刺身店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "鱸魚(Sea bass)為誤譯，應為青鱈魚或綠鱈魚。",
+"text": "天然青鱈魚生魚片和特製味噌醬的日式刺身店"
+},
+"vi": {
+"v": "fix",
+"why": "pollack은 오역, cá pollack이 아니라 cá greenling(쥐노래미)임.",
+"text": "Quán sashimi Nhật với cá greenling tự nhiên và sốt tương đậu đặc biệt"
+}
+},
+"4fe8a5fa-8359-3870-9aab-799205f4827d": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"c9eea6b6-454b-34da-a722-e87f6f807d8a": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"4b2939d4-c4b1-3d17-bc4a-3e9a7224df34": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"9f556b04-0c25-379a-8434-c03e8ffd36a5": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"14bbc044-be2a-3051-bda4-bfbaf20fb1f9": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"b3ccdc4b-96e0-3b45-8ca4-97de1a65fe02": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"4c0cbe18-8386-3b11-959d-2697fa3c1127": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"94ad6fdf-8cb3-3ca3-a2cb-48ac90a3a48e": {
+"ko": {
+"v": "fix",
+"why": "오션뷰(전망) 언급은 facts에 있지만, 맛 평가(우수한 맛)는 facts에만 근거해 쓸 수 없음. '정통'은 사실상 메뉴 설명에 해당하므로 유지. '오션뷰'는 장소의 특징이므로 유지.",
+"text": "광안대교 오션뷰 멕시코 타코와 퀘사디아 전문점"
+},
+"en": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "Mexican taco and quesadilla specialty restaurant with ocean view of Gwangan Bridge"
+},
+"ja": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "広安大橋のオーシャンビューでメキシコタコスとケサディーヤ専門店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "广安大桥海景墨西哥玉米饼和芝士烤饼专门店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "廣安大橋海景墨西哥玉米餅和芝士烤餅專門店"
+},
+"vi": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "Quán tacos và quesadilla Mexico với view cầu Gwangan"
+}
+},
+"9bd3d8ad-c486-38e0-8957-f25571559db8": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"6e9b6f92-df7a-305e-88d0-dce42137f1aa": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"5320a5f3-5a90-3498-b88c-69f27b61e8f5": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"5b4209b9-6dee-3538-830c-67f4dbafcebc": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"b8eb6ec1-f859-3fd1-9d52-53c50c0ac5ff": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"439ee1ec-b63d-3b06-9d71-c1deef52606a": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"c6c8dcf7-bf57-3084-bf90-336a82d776bf": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"901fed76-6b1d-4edf-ae0c-000126674005": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"427e5b52-6655-321d-8021-827fe4db1d35": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"0ad38272-7a35-3498-991b-5b80563c8f4f": {
+"ko": {
+"v": "fix",
+"why": "사찰이 아닌 갤러리로 보이나, facts에 정보가 없어 구체화 불가. 업종/방문 이유 등 추가 정보 없음. '문화·역사·사찰'은 너무 포괄적이므로 '문화 공간'으로 수정.",
+"text": "해운대구의 문화 공간"
+},
+"en": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Cultural space in Haeundae-gu"
+},
+"ja": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "海雲台区の文化空間"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "海云台区的文化空间"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "海雲台區的文化空間"
+},
+"vi": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Không gian văn hóa ở Haeundae-gu"
+}
+},
+"41237a15-34dc-386e-9b11-46e933faa41e": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"8959ece2-2a09-36e3-a6e7-a332af4e0e10": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"6b02ecab-3f9b-3cf9-931f-e08ba8bf8db4": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"c0057d14-2afa-322f-8f41-abd3ae1152cd": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"8cbfe0e8-118c-3e70-9504-366a786f1d16": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"037eb5f4-cf18-3400-8e16-76d698c630e3": {
+"ko": {
+"v": "fix",
+"why": "초밥집이 아니라 철판구이 코스가 주력임. 초밥 언급은 facts에 없음.",
+"text": "오션뷰와 불쇼 철판 코스 일식 레스토랑"
+},
+"en": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Japanese teppanyaki restaurant with ocean view and fire show"
+},
+"ja": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "オーシャンビューと炎の鉄板コースの和食レストラン"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "海景与铁板烧火焰秀日式餐厅"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "海景與鐵板燒火焰秀日式餐廳"
+},
+"vi": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Nhà hàng Nhật teppanyaki có view biển và biểu diễn lửa"
+}
+},
+"6b74d1de-f50f-3bf1-a4d6-6b796917c8a1": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"da645d16-0405-3950-97d8-a2cbb8ac8e73": {
+"ko": {
+"v": "fix",
+"why": "물회·모듬회·활어회 언급은 facts에 없음. 브런치, 피자, 파스타, 베이커리류가 주력임.",
+"text": "브런치와 베이커리류 제공하는 해운대 레스토랑"
+},
+"en": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Haeundae restaurant offering brunch and bakery items"
+},
+"ja": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "ブランチとベーカリーを提供する海雲台のレストラン"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "提供早午餐和烘焙食品的海云台餐厅"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "提供早午餐和烘焙食品的海雲台餐廳"
+},
+"vi": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Nhà hàng Haeundae phục vụ brunch và bánh mì"
+}
+},
+"fa8eb679-88cd-3b98-9432-c475bee89410": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"972d8231-9f6e-4ec2-a8ce-003027738005": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"26d6b260-be3b-3354-a153-c816165e3fa4": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"b943d255-8242-3cfd-8aa8-d050eb52b34e": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"46ad2031-8dc9-3447-9f2f-299eb7ad8c27": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"7cad62bf-4932-34af-a9f6-19a655c84899": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"c66dbdeb-af92-3630-b7f2-62f98885b698": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"dc393915-430b-366f-8ecc-fa83a9193953": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"7294fa5c-c4ba-3d11-a2e6-2a4a0875a4a4": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"0c9b4356-fbfd-3c65-a02e-8d085942b83e": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"ba162937-2fb3-31a8-b014-0d217950a08a": {
+"ko": {
+"v": "fix",
+"why": "백반/한정식 업종이므로 백반집이 아니라 한정식집이어야 함",
+"text": "한정식 모범음식점인 해운대구 한정식집"
+},
+"en": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Haeundae model restaurant serving hanjeongsik set meals"
+},
+"ja": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "海雲台の韓定食模範飲食店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "海云台韩定食模范餐厅"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "海雲台韓定食模範餐廳"
+},
+"vi": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Quán hanjeongsik đạt chuẩn tại Haeundae"
+}
+},
+"6fe9770e-aa78-3977-9bf3-4a4e462fd9ea": {
+"ko": {
+"v": "fix",
+"why": "해물찜 전문점이므로 구이집이 아니라 찜집이어야 함",
+"text": "광안리 인근 해물찜 전문 해산물 찜집"
+},
+"en": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Seafood restaurant specializing in braised seafood near Gwangalli"
+},
+"ja": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "広安里近くの海鮮蒸し専門店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "广安里附近海鲜炖菜专门店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "廣安里附近海鮮燉菜專門店"
+},
+"vi": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Quán chuyên hải sản hầm gần Gwangalli"
+}
+},
+"8fd1b9e1-b424-3366-8bdd-526b6a460e68": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"d1d051bf-d230-3511-8da5-2b3e3c06e9eb": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"acbf1d65-e345-357d-92b2-b8ce49d08924": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"6b522cdc-7ea7-3d23-a818-d98c37f58b57": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"25f0faee-04ad-37d8-8071-a017901a3355": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"c2ed4c1b-39de-3beb-bcac-3de1156d31b9": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"9ffecd65-70bd-38f9-ae7e-93a7d6f2c260": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"56c49d77-f658-35b4-928e-f0ebd1f5194e": {
+"ko": {
+"v": "fix",
+"why": "튀김이 오징어 남은 부위임을 명확히 해야 함",
+"text": "활오징어회와 오징어튀김 제공 일식 회/초밥"
+},
+"en": {
+"v": "fix",
+"why": "튀김이 오징어임을 명확히 해야 함",
+"text": "Japanese sashimi and sushi with fresh squid sashimi and fried squid"
+},
+"ja": {
+"v": "fix",
+"why": "튀김이 오징어임을 명확히 해야 함",
+"text": "新鮮なイカ刺身とイカの揚げ物を提供する和食店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "튀김이 오징어임을 명확히 해야 함",
+"text": "提供新鲜鱿鱼生鱼片及鱿鱼炸物的日式生鱼片店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "튀김이鱿鱼임을 명확히 해야 함",
+"text": "提供新鮮魷魚生魚片及魷魚炸物的日式生魚片店"
+},
+"vi": {
+"v": "fix",
+"why": "튀김이 오징어임을 명확히 해야 함",
+"text": "Nhà hàng sashimi và sushi Nhật với sashimi mực tươi và mực chiên"
+}
+},
+"bc331703-8752-3286-a613-02735000a5bf": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"16298cb8-860a-3764-8199-92a20de72120": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"32398a59-476e-3323-8301-4318277150c7": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"1e7d839e-51ce-36c7-b723-60b2ad161255": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"424b8337-9955-3842-8aa5-d13808edbd92": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"e8cfa15e-7cd0-3689-9623-c72cd489754b": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"21b68826-0791-335e-8a00-efc61a00d6c9": {
+"ko": {
+"v": "fix",
+"why": "오션뷰, 인기 등은 facts에 없으므로 제외해야 함",
+"text": "스테이크 크림파스타 라자냐 제공 경양식"
+},
+"en": {
+"v": "fix",
+"why": "오션뷰, 인기 등은 facts에 없으므로 제외해야 함",
+"text": "Western-style restaurant serving steak cream pasta and lasagna"
+},
+"ja": {
+"v": "fix",
+"why": "오션뷰, 인기 등은 facts에 없으므로 제외해야 함",
+"text": "ステーキクリームパスタとラザニアを提供する洋食店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "오션뷰, 인기 등은 facts에 없으므로 제외해야 함",
+"text": "提供牛排奶油意面和千层面的西餐厅"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "오션뷰, 인기 등은 facts에 없으므로 제외해야 함",
+"text": "提供牛排奶油義大利麵和千層麵的西餐廳"
+},
+"vi": {
+"v": "fix",
+"why": "오션뷰, 인기 등은 facts에 없으므로 제외해야 함",
+"text": "Nhà hàng phong cách Tây phục vụ steak kem mì và lasagna"
+}
+},
+"e5a47caf-4129-30f5-9be3-de5d98535bf8": {
+"ko": {
+"v": "fix",
+"why": "초밥(스시) 제공 여부가 facts에 없음. 돈카츠와 상로스카츠만 명확히 언급됨.",
+"text": "프리미엄 돈카츠와 상로스카츠 전문점"
+},
+"en": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Premium tonkatsu and special loin cutlet specialty restaurant"
+},
+"ja": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "プレミアムとんかつと上ロースカツ専門店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "高级炸猪排和上等里脊炸猪排专门店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "高級炸豬排與上等里肌炸豬排專門店"
+},
+"vi": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Nhà hàng chuyên tonkatsu cao cấp và thăn lợn đặc biệt"
+}
+},
+"4a670c9c-1b9f-3bbd-bfc3-4b3e385b9832": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"f0e53ed4-ea7a-37ff-bc8a-b8a4e2612a82": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"9936d4aa-8f51-34b7-9fa9-1d93bb37bd84": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"027a8687-75f1-3a90-81fb-264635ba890d": {
+"ko": {
+"v": "fix",
+"why": "경양식은 서양식 식사이지만, facts에는 칵테일 바임이 명확. 칵테일과 위스키 바임을 강조해야 함.",
+"text": "맞춤형 칵테일과 위스키 바"
+},
+"en": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Custom cocktail and whiskey bar"
+},
+"ja": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "カスタムカクテルとウイスキーバー"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "定制鸡尾酒和威士忌酒吧"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "定製雞尾酒和威士忌酒吧"
+},
+"vi": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Quán bar cocktail tùy chỉnh và whiskey"
+}
+},
+"c1aa427b-fdb9-3e92-a10a-f428171b59f5": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"fe8f096a-ca9b-3a0f-ae00-6d7f456831f8": {
+"ko": {
+"v": "fix",
+"why": "크로이즌은 크루아상(croissant)이 아니라 옥수수빵임. facts에 명확히 언급.",
+"text": "50년 전통 옛날 맛 옥수수빵집"
+},
+"en": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Bakery with 50 years tradition and nostalgic corn bread"
+},
+"ja": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "50年の伝統と懐かしいコーンパンのパン屋"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "拥有50年传统怀旧玉米面包店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "擁有50年傳統懷舊玉米麵包店"
+},
+"vi": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Tiệm bánh truyền thống 50 năm với bánh mì bắp hoài cổ"
+}
+},
+"2d36f869-bc1f-3556-a294-434e41dbf7ab": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"e8d2895c-0058-3fda-8dd8-9e6a4baab1ac": {
+"ko": {
+"v": "fix",
+"why": "브런치, 휴양지 분위기는 facts에 없음. 소금버터식빵만 명확.",
+"text": "두툼한 소금버터식빵 베이커리 카페"
+},
+"en": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Bakery cafe with thick salted butter bread"
+},
+"ja": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "厚切り塩バター食パンのベーカリーカフェ"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "厚切盐黄油面包烘焙咖啡馆"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "厚切鹽奶油吐司烘焙咖啡館"
+},
+"vi": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Quán cà phê bánh mì bơ muối dày"
+}
+},
+"fe87046b-a880-385c-a5d0-93c92ea56a7b": {
+"ko": {
+"v": "fix",
+"why": "미쉐린 1스타, 팜투테이블, 지속 가능성은 맞으나 '경양식'은 서양식 식사 의미로, facts에는 레스토랑임이 명확. '경양식' 대신 '레스토랑'만 사용.",
+"text": "미쉐린 1스타 지속 가능한 팜투테이블 레스토랑"
+},
+"en": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Michelin 1-star sustainable farm-to-table restaurant"
+},
+"ja": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "ミシュラン1つ星持続可能なファームトゥテーブルレストラン"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "米其林一星可持续农场到餐桌餐厅"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "米其林一星可持續農場到餐桌餐廳"
+},
+"vi": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Nhà hàng farm-to-table bền vững đạt sao Michelin 1 sao"
+}
+},
+"e10ad507-6f4f-355a-86b7-61dfa53fb9d3": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"b8e2fd49-c962-37b1-b499-b2bd7c66f36f": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"512ac6fd-9051-3ced-8391-5c85aee00e11": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"78e732bc-c197-310a-9dcc-43c998c43e97": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"b82021a8-a038-3f06-812c-cc02740003f4": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"bd8bf152-ffce-314b-af54-ab2e34783eaa": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"0ad58e59-7614-366a-9887-7eede177c194": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"f123db0c-a0e7-3bf5-914c-ffcabebb4ae6": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"bc53ef10-23c6-3b42-92c9-9b798c24ba47": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"3e588854-791e-3734-affb-901d8443759f": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"5d8e83c7-32af-34cf-8ff6-ffd421bdac04": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"9f7b43f1-3ff3-3244-8b88-0c64f1820e93": {
+"ko": {
+"v": "fix",
+"why": "야경 명소라는 평가는 facts에 없으므로 제외해야 함",
+"text": "해운대구의 신도시 마린시티"
+},
+"en": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Marine City new town in Haeundae-gu"
+},
+"ja": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "釜山海雲台区の新都市マリンシティ"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "釜山海云台区新城海洋城"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "釜山海雲臺區新城海洋城"
+},
+"vi": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Khu đô thị mới Marine City tại Haeundae-gu"
+}
+},
+"bd02c74c-76f3-39a8-b593-cadb59d531ca": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"f9347dcd-ff3a-3532-87c9-8781bae05217": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"31b03399-bb7c-33f9-b216-f139ddbe77b2": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"493d51ec-12dd-3414-b6d7-7824c04a1b56": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"d29cc8f3-fc7a-3863-9107-0b0fe6b4a0b8": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"a467d311-1e83-3417-a771-c53b60196f57": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"6b9b7c6e-3c2a-3f73-bdd8-e70196270c66": {
+"ko": {
+"v": "fix",
+"why": "숨은, 아는 사람들 중심 등은 평가·추측이므로 제외",
+"text": "참치회 코스 모임 장소인 일식 회 초밥집"
+},
+"en": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Japanese sashimi sushi place for tuna course gatherings"
+},
+"ja": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "マグロコースの集まり場所の和風刺身寿司店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "作为金枪鱼套餐聚会场所的日式生鱼片寿司店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "作為鮪魚套餐聚會場所的日式生魚片壽司店"
+},
+"vi": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Quán sashimi sushi Nhật Bản cho các buổi tụ họp món cá ngừ"
+}
+},
+"9ef2eb76-6a3b-35e6-a275-c54cf700025b": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"d9bad34a-6002-311d-9c3a-e1fb2263d4dd": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"ff2bf9c7-2076-374c-8e0f-8d918f0d4b5d": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"33994ebe-c860-3171-b8d4-d7fbe5e5ac2d": {
+"ko": {
+"v": "fix",
+"why": "피카소화랑은 화랑(갤러리)인데 사찰로 잘못 표기됨. facts에 문화·역사·사찰로 분류되어 있으나, 이름과 업종상 화랑임이 명확하므로 '문화 예술 전시 공간'으로 수정.",
+"text": "해운대구의 문화 예술 전시 공간"
+},
+"en": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "Cultural and art exhibition space in Haeundae-gu"
+},
+"ja": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "海雲台区の文化芸術展示空間"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "海云台区文化艺术展览空间"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "海雲台區文化藝術展覽空間"
+},
+"vi": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "Không gian triển lãm văn hóa nghệ thuật ở Haeundae-gu"
+}
+},
+"25a47675-fdba-3dda-8623-0f8554dc1a90": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"b41fac91-59c1-3d43-8ccf-4744c4fdb9c6": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"e87f9f71-7a65-3e52-b0da-fcacc909bbbb": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"e17ad2e6-f954-35af-ab1e-b99eae1e9df0": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"b0874c0d-9f9f-3242-84fd-f0e6ccc9cbf3": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"a6781afa-6038-35d6-99dd-ad024b517a7b": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"b0a1b550-4bb8-3ae0-89fb-cb5eaae287d4": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"1fb8e393-f17b-331f-943f-bc779942e720": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"8a768adf-b6aa-38be-8453-742f8a4cacb8": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"22e83394-989f-3c7d-85aa-0b9a73a6186b": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"96edfe57-d62b-3979-97eb-62541b663e49": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"d90df4b4-728e-3989-ad6c-55ecb5d2b825": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"3a5cefc1-8599-32e0-aa50-e0e75cb95dd3": {
+"ko": {
+"v": "fix",
+"why": "facts에 오션뷰, 광안대교 전망이 명확히 있으므로, '조망 가능한'은 ok. 하지만 '대중적'은 평가적 표현이므로 제외해야 함.",
+"text": "광안대교 전망 가능한 양식 경양식당"
+},
+"en": {
+"v": "fix",
+"why": "ko fix에 맞춰 'casual' 등 평가적 표현을 빼고, 'with views of Gwangan Bridge'만 남김",
+"text": "Western-style restaurant with views of Gwangan Bridge"
+},
+"ja": {
+"v": "fix",
+"why": "ko fix에 맞춰 '大衆' 등 평가적 표현을 빼고, '広安大橋を望む洋食レストラン' 유지",
+"text": "広安大橋を望む洋食レストラン"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko fix에 맞춰 '大众' 등 평가적 표현을 빼고, '可眺望广安大桥的西餐厅'로 수정",
+"text": "可眺望广安大桥的西餐厅"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko fix에 맞춰 '大眾' 등 평가적 표현을 빼고, '可眺望廣安大橋的西餐廳'로 수정",
+"text": "可眺望廣安大橋的西餐廳"
+},
+"vi": {
+"v": "fix",
+"why": "ko fix에 맞춰 'bình dân' 등 평가적 표현을 빼고, 'Nhà hàng kiểu Tây nhìn ra cầu Gwangan'로 수정",
+"text": "Nhà hàng kiểu Tây nhìn ra cầu Gwangan"
+}
+},
+"b2dd2b37-46ed-37e7-a175-f19040036ffe": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"ff5ee1b4-6c7b-3d69-a0c1-a82bd347564d": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"772f8d0f-3abc-348a-bb88-1865a80da25b": {
+"ko": {
+"v": "fix",
+"why": "상호명에 '꼼장어'가 있으나, facts에 백반/한정식만 명시되어 있음. 꼼장어 언급이 없으므로 백반/한정식으로만 표기해야 함.",
+"text": "해운대구의 백반 한정식 음식점"
+},
+"en": {
+"v": "fix",
+"why": "ko fix에 맞춰 동일하게 수정",
+"text": "Baekban and Korean set meal restaurant in Haeundae-gu"
+},
+"ja": {
+"v": "fix",
+"why": "ko fix에 맞춰 동일하게 수정",
+"text": "ヘウンデ区の韓定食料理店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko fix에 맞춰 동일하게 수정",
+"text": "海云台区的韩定食餐厅"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko fix에 맞춰 동일하게 수정",
+"text": "海雲台區的韓定食餐廳"
+},
+"vi": {
+"v": "fix",
+"why": "ko fix에 맞춰 동일하게 수정",
+"text": "Nhà hàng baekban và set meal Hàn Quốc ở Haeundae-gu"
+}
+},
+"075beb94-115c-3fe3-a856-c5a8737f9f08": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"39ecd2e3-5a16-3d29-90d2-64e490bda06f": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"80fd235c-1f6c-31cd-ae84-729fc3ca4433": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"611cec08-abe6-3439-8a1b-235288cbc4cf": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"6919dae4-4086-3ed7-8fd8-20e7ebffbec2": {
+"ko": {
+"v": "drop",
+"why": "미술관이지만 사진미술관임을 명시하지 않고, 문화·역사 미술관이라는 설명은 facts에 없음"
+},
+"en": {
+"v": "drop",
+"why": "Same as ko"
+},
+"ja": {
+"v": "drop",
+"why": "Same as ko"
+},
+"zh-Hans": {
+"v": "drop",
+"why": "Same as ko"
+},
+"zh-Hant": {
+"v": "drop",
+"why": "Same as ko"
+},
+"vi": {
+"v": "drop",
+"why": "Same as ko"
+}
+},
+"ff45eebe-808f-3cb3-be69-1810d8c399aa": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"4b08cc56-f5b6-3acd-a36e-f16e67182986": {
+"ko": {
+"v": "fix",
+"why": "업종은 베트남식이지만 실제로는 인도·레바논 할랄 요리 전문점임을 facts에서 명확히 밝힘",
+"text": "인도 레바논 할랄 요리 전문 해운대 구남로 음식점"
+},
+"en": {
+"v": "fix",
+"why": "Match fixed ko",
+"text": "Indian and Lebanese halal cuisine restaurant on Gunam-ro, Haeundae"
+},
+"ja": {
+"v": "fix",
+"why": "Match fixed ko",
+"text": "インド・レバノンハラール料理専門の海雲台グナムロ飲食店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "Match fixed ko",
+"text": "海云台旧南路印度黎巴嫩清真料理专门餐厅"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "Match fixed ko",
+"text": "海雲台舊南路印度黎巴嫩清真料理專門餐廳"
+},
+"vi": {
+"v": "fix",
+"why": "Match fixed ko",
+"text": "Nhà hàng chuyên ẩm thực halal Ấn Độ và Lebanon trên đường Gunam-ro, Haeundae"
+}
+},
+"2a80b278-4fa7-3725-9584-c63edb457a68": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"4342e177-a601-375d-826b-f97371b3d75d": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"ba543de8-a55a-3f77-840b-4890f9f4ad30": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"cef45455-4561-3dd4-8a37-b1159bd17591": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"ac3820db-b5c0-3e51-9f7e-5b116ae6e27e": {
+"ko": {
+"v": "drop",
+"why": "갤러리토라는 미술관(갤러리)인데, 문화·역사·사찰로 분류되어 있음. facts에 실제 장소 유형(미술관)에 대한 정보가 없어 바로잡을 수 없음."
+},
+"en": {
+"v": "drop",
+"why": "Same as ko."
+},
+"ja": {
+"v": "drop",
+"why": "Same as ko."
+},
+"zh-Hans": {
+"v": "drop",
+"why": "Same as ko."
+},
+"zh-Hant": {
+"v": "drop",
+"why": "Same as ko."
+},
+"vi": {
+"v": "drop",
+"why": "Same as ko."
+}
+},
+"7f836fca-3b79-3173-bc1f-10ee64a1a022": {
+"ko": {
+"v": "fix",
+"why": "백반·한정식집이 아니라 브런치·디저트가 주력임. 업종 분류와 실제 방문 이유가 다르므로, 브런치·디저트 카페로 고쳐야 함.",
+"text": "유럽풍 정원과 브런치·디저트 카페"
+},
+"en": {
+"v": "fix",
+"why": "Same as ko.",
+"text": "European garden and brunch dessert cafe"
+},
+"ja": {
+"v": "fix",
+"why": "Same as ko.",
+"text": "ヨーロッパ風庭園とブランチ・デザートカフェ"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "Same as ko.",
+"text": "欧式花园与早午餐甜品咖啡馆"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "Same as ko.",
+"text": "歐式花園與早午餐甜品咖啡館"
+},
+"vi": {
+"v": "fix",
+"why": "Same as ko.",
+"text": "Quán cafe brunch và tráng miệng vườn châu Âu"
+}
+},
+"452363fe-b900-349b-83e2-c0d6b140dec9": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"ce5bacc8-c2b7-3682-ac44-7af7bc094fc9": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"f31771eb-0c76-3182-b764-55c16bbd5f8b": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"e01dbf80-3175-32ee-8a65-381b1f07c66b": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"4974eede-4dbe-30e9-9a64-113e1e35175b": {
+"ko": {
+"v": "fix",
+"why": "오션뷰(바다 전망)만 언급되어 있는데, 실제 방문 이유는 전망임. 경양식임을 명확히 해야 하므로 '오션뷰 경양식'으로 간결하게 수정.",
+"text": "오션뷰 경양식"
+},
+"en": {
+"v": "fix",
+"why": "Same as ko.",
+"text": "Ocean view western restaurant"
+},
+"ja": {
+"v": "fix",
+"why": "Same as ko.",
+"text": "オーシャンビュー洋食店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "Same as ko.",
+"text": "海景西餐厅"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "Same as ko.",
+"text": "海景西餐廳"
+},
+"vi": {
+"v": "fix",
+"why": "Same as ko.",
+"text": "Nhà hàng kiểu Tây view biển"
+}
+},
+"bf3bc21b-ff8d-3d9a-8d93-9081df4d4f50": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"a662efd2-aa57-33b0-ad26-320aabe27896": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"e49bab70-ca1f-3c66-9d3c-09a25e1800b9": {
+"ko": {
+"v": "fix",
+"why": "깔끔한 분위기는 facts에 있지만, 한 줄 소개는 장소 유형(일식 회·초밥)과 오마카세를 명확히 해야 함. '오마카세 일식 회·초밥'으로 간결하게 수정.",
+"text": "오마카세 일식 회·초밥"
+},
+"en": {
+"v": "fix",
+"why": "Same as ko.",
+"text": "Omakase Japanese raw fish and sushi"
+},
+"ja": {
+"v": "fix",
+"why": "Same as ko.",
+"text": "オマカセ和食・寿司店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "Same as ko.",
+"text": "日式生鱼片寿司店（Omakase）"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "Same as ko.",
+"text": "日式生魚片壽司店（Omakase）"
+},
+"vi": {
+"v": "fix",
+"why": "Same as ko.",
+"text": "Nhà hàng Nhật Bản omakase sushi sashimi"
+}
+},
+"69889a4b-6bf3-3d08-9e58-e9b07e8ca857": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"c5da327e-8216-3d45-934d-02bfaa52bf88": {
+"ko": {
+"v": "fix",
+"why": "오션뷰 다이닝은 facts에 있지만, '경양식'은 실제로 프렌치 기반 창의적 컨템퍼러리 코스 요리임. '경양식' 대신 '프렌치 기반 코스 요리'로 수정.",
+"text": "미쉐린 1스타 셰프 프렌치 기반 코스 요리와 오션뷰 다이닝"
+},
+"en": {
+"v": "fix",
+"why": "ko 수정에 맞춰 'French-based course cuisine'로 수정",
+"text": "Michelin 1-star chef French-based course cuisine with ocean view dining"
+},
+"ja": {
+"v": "fix",
+"why": "ko 수정에 맞춰 'フレンチベースのコース料理'로 수정",
+"text": "ミシュラン1つ星シェフのフレンチベースコース料理とオーシャンビューダイニング"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko 수정에 맞춰 '法式创意套餐'로 수정",
+"text": "米其林一星主厨法式创意套餐与海景餐厅"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko 수정에 맞춰 '法式創意套餐'로 수정",
+"text": "米其林一星主廚法式創意套餐與海景餐廳"
+},
+"vi": {
+"v": "fix",
+"why": "ko 수정에 맞춰 'ẩm thực theo set kiểu Pháp'로 수정",
+"text": "Ẩm thực theo set kiểu Pháp của đầu bếp sao Michelin 1 sao với tầm nhìn biển"
+}
+},
+"75cb82e7-3f4a-3972-8acf-b19de5ce66f1": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"aa747fa3-b8b3-3c0a-83af-ad7c9a192639": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"c25b6ef2-a19a-3f9e-9124-06562d6f7564": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"6f235fbd-d528-36b9-a79a-54224a85b71f": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"0a684506-94ca-3f9d-a44d-ef44d0436750": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"5c8e374d-272e-3b9b-b183-656982370aea": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"755d0f09-6bc8-4bdc-b24f-c3807856ad39": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"93909d18-9da6-3ea8-9ad7-3b8c34975a47": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"3aae3842-e092-3218-9977-28e25eaad8fb": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"561b7736-61fd-3249-a06b-9011907fa66c": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"f28dd2bd-43f4-3c16-ad1d-95402982e3ae": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"b9addc28-1cf7-3c60-b386-2e12af20984f": {
+"ko": {
+"v": "fix",
+"why": "소막창이 소의 작은창자임을 명확히 해야 하며, 곱창전골도 소의 곱창임을 명확히 해야 함. '숙성 소막창과 곱창전골'은 자연스럽고 정확함.",
+"text": "숙성 소막창과 곱창전골 전문점"
+},
+"en": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Restaurant specializing in aged beef small intestines and gopchang hot pot"
+},
+"ja": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "熟成牛小腸とホルモン鍋専門店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "熟成牛小肠与牛肠锅专门店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "熟成牛小腸與牛腸鍋專門店"
+},
+"vi": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Quán chuyên lòng non bò ủ chín và lẩu lòng bò"
+}
+},
+"a8587fe3-09ac-39ee-a46b-769cf699092a": {
+"ko": {
+"v": "fix",
+"why": "가성비 평가는 facts에 있으나, 40자 이내 명사형 구로 단순화 필요. '가성비 좋은 스시 오마카세 전문점'으로 간결화.",
+"text": "가성비 좋은 스시 오마카세 전문점"
+},
+"en": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Affordable sushi omakase specialty restaurant"
+},
+"ja": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "コスパの良い寿司おまかせ専門店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "性价比高的寿司套餐专门店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "性價比高的壽司套餐專門店"
+},
+"vi": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Quán sushi omakase giá hợp lý chuyên nghiệp"
+}
+},
+"37bb5919-16d1-3120-92a3-b027af65dbd1": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"360cde5a-544a-3c72-888d-8d3b435f979b": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"2c2c4c08-df3c-34ef-a45d-428dcdc7e9a0": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"12e28954-c549-3e5d-928f-bc9650a0d20a": {
+"ko": {
+"v": "fix",
+"why": "40자 이내 명사형 구로 단순화 필요. '미포항 앞 오션뷰 테라스 모둠회 코스 횟집'으로 간결화.",
+"text": "미포항 앞 오션뷰 테라스 모둠회 코스 횟집"
+},
+"en": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Ocean view terrace assorted sashimi course restaurant near Mipo Port"
+},
+"ja": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "ミポ港前のオーシャンビューテラス刺身コース店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "美浦港前海景露台拼盘生鱼片套餐店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "美浦港前海景露台拼盤生魚片套餐店"
+},
+"vi": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Nhà hàng sashimi set view biển tại cảng Mipo"
+}
+},
+"0c2f9131-ba46-3e28-8e25-0a4d4bfeb844": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"31e24551-841c-3536-ba6a-34b3324ebbf6": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"1c3c0f71-b8db-3099-b30e-b5dd0ae084ba": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"086e03af-f04e-3db1-b52b-4bcfd1905069": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"67bef0e2-7384-3257-941a-e567ac57d903": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"4bfc648b-9133-3f08-b75c-5fbeabe412dd": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"aa922927-9290-3d15-90cb-a3787e8d376e": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"79bcb102-03b7-3565-88c7-2a45e8dd1c2d": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"0b363ca5-6c3f-3f17-9cb6-1745a09c3f61": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"dce4a2f1-44e5-4e6f-ac28-003426656005": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"6eeac6b7-d2f9-3a01-b296-97e1b58dff2e": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"0ffeda79-9999-35d7-8679-e3a5e8c4dbbc": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"2f8b7453-7360-3a92-844e-d51f1f99f580": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"beaf114c-f371-31d3-8ec9-96a8e410adbc": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"a627856d-9b34-3bfe-8fa4-b93b939600f9": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"892fc628-8f60-3fc5-b19f-a5c78fe03d2e": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"09752c1d-0f9e-324a-816b-af232ce6fd05": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"a7d4ef0f-7bc0-32cd-930e-30a95acbd1f6": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"b2fd26ed-22c8-3fb8-b0fc-c3519b3c21e2": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"39ede025-c4f4-3a4d-b255-c131f516f17e": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"7f987971-9cf0-36e7-8969-55946cc40b36": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"48e610e3-b8ef-323c-8b6a-6d13c11bdbbd": {
+"ko": {
+"v": "fix",
+"why": "Busan X the SKY는 전망대이므로 문화·역사·사찰이 아님. facts에 장소 유형 정보가 없으므로 바로잡을 수 없음.",
+"text": ""
+},
+"en": {
+"v": "drop",
+"why": "ko가 drop/fix이므로 맞춰서 drop",
+"text": ""
+},
+"ja": {
+"v": "drop",
+"why": "ko가 drop/fix이므로 맞춰서 drop",
+"text": ""
+},
+"zh-Hans": {
+"v": "drop",
+"why": "ko가 drop/fix이므로 맞춰서 drop",
+"text": ""
+},
+"zh-Hant": {
+"v": "drop",
+"why": "ko가 drop/fix이므로 맞춰서 drop",
+"text": ""
+},
+"vi": {
+"v": "drop",
+"why": "ko가 drop/fix이므로 맞춰서 drop",
+"text": ""
+}
+},
+"c0ee732c-77b5-38e4-b0c8-c69eabb50efa": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"9ff5fa74-a47b-3ad9-b149-d21f19ab46ce": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"ff5001d1-8938-34b9-a6a4-e3058ab31c87": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"dc33b1c6-7766-3b0b-9498-27ba698119f0": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"df8f4e4f-587f-346f-b9d9-b0ad91644e04": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"6a864ca6-51aa-3755-b8cd-eb83e8e65440": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"01707a94-8e3e-3f50-b1c3-f438cdf0f483": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"693997eb-2072-323e-a53f-2eab8466dde0": {
+"ko": {
+"v": "fix",
+"why": "한우 언양불고기(소고기)인데 업종이 돼지고기 구이/찜으로 되어 있으나, 방문 이유와 메뉴 설명에 따라 소고기 불고기임이 명확함. 한 줄 소개에 '직화 한우 언양불고기'가 들어가 있으므로 ok. 다만, 외국어 번역에서 'Korean beef'가 명확히 들어가야 함.",
+"text": "직화 한우 언양불고기와 묵은지 김치찌개 전문점"
+},
+"en": {
+"v": "fix",
+"why": "Korean beef 명확히 표기 필요",
+"text": "Charcoal-grilled Korean beef bulgogi and aged kimchi stew restaurant"
+},
+"vi": {
+"v": "fix",
+"why": "bo nướng than là charcoal-grilled, beef 명확히 표기 필요",
+"text": "Nhà hàng bulgogi bò nướng than và canh kimchi chua lâu năm"
+}
+},
+"1b97bbfa-4951-3f64-aed2-07537b099935": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"974943ba-2223-35b2-8a66-662a1ce4c86a": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"c7c36d6f-34a0-3167-941e-02bfdd9041ae": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"4551f0e0-f458-3f99-a5d9-a4ac40868584": {
+"ko": {
+"v": "fix",
+"why": "맛집, 명소, 유명세 등 평가·역사·분위기 표현이 facts에 없음. 메뉴와 음료만 남겨야 함.",
+"text": "모짜렐라 치즈 토스트와 다양한 음료 전문점"
+},
+"en": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "Mozzarella cheese toast and various beverages specialty shop"
+},
+"ja": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "モッツァレラチーズトーストと多彩な飲み物専門店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "莫扎里拉芝士吐司和多样饮品专门店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "莫札瑞拉起司吐司與多樣飲品專門店"
+},
+"vi": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "Quán chuyên bánh mì phô mai mozzarella và đồ uống đa dạng"
+}
+},
+"783730af-12ba-34d0-a9e1-e7e610edf87c": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"6b459650-a13a-3796-ad93-ff083e9182f3": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"466bbd0d-abd2-36fc-8b14-202dc51a3058": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"277b438c-3207-3ca2-aa77-ff6b54ab44ae": {
+"ko": {
+"v": "fix",
+"why": "돼지고기구이 업종이나 한우(소고기)만 언급, 돼지고기구이집 아님. 한우 숯불구이와 고급 서비스만 남겨야 함.",
+"text": "최상급 1++ 한우 숯불구이와 고급 접대 서비스"
+},
+"en": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "Premium 1++ Korean beef charcoal grill and high-end service"
+},
+"ja": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "最高級1++韓牛炭火焼と高級接待サービス"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "顶级1++韩牛炭火烤肉与高端接待服务"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "頂級1++韓牛炭火烤肉與高端接待服務"
+},
+"vi": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "Thịt bò Hàn 1++ nướng than cao cấp và dịch vụ sang trọng"
+}
+},
+"f0237f57-5b41-398b-ad09-3b62cabd1096": {
+"ko": {
+"v": "fix",
+"why": "오션뷰(전망), 프리미엄(평가) 등은 facts에 있지만, '카페'와 '베이커리'만 남겨야 함. '전망'은 방문 이유에 있으므로 유지 가능.",
+"text": "해운대 미포 오션뷰 베이커리 카페"
+},
+"en": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "Bakery cafe with ocean view at Haeundae Mipo"
+},
+"ja": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "海雲台ミポのオーシャンビューのベーカリーカフェ"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "海云台美浦海景面包店咖啡厅"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "海雲臺美浦海景麵包店咖啡廳"
+},
+"vi": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "Quán cà phê bánh mì với view biển Haeundae Mipo"
+}
+},
+"6f340c58-76bf-3857-beeb-3a92cdf198fc": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"bb9b38ca-7486-3acb-86da-621238736410": {
+"ko": {
+"v": "fix",
+"why": "돼지고기구이 업종이나 한우(소고기)만 언급, 돼지고기구이집 아님. 한우 참숯구이와 오션뷰만 남겨야 함.",
+"text": "최고급 1++ 한우 참숯구이와 오션뷰"
+},
+"en": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "Premium 1++ Korean beef charcoal grill with ocean view"
+},
+"ja": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "最高級1++韓牛炭火焼とオーシャンビュー"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "顶级1++韩牛炭火烤肉与海景"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "頂級1++韓牛炭火烤肉與海景"
+},
+"vi": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "Thịt bò Hàn 1++ nướng than cao cấp với view biển"
+}
+},
+"42aa77da-32e5-3eb1-80ff-aca8a5a2cbb2": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"b3741114-fbc8-3b19-a7d9-32380bad2201": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"5ed3c1c0-3f4b-3241-a2f1-70c7122c2a02": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"65863ed2-70a3-3718-9141-2fb8b322775e": {
+"ko": {
+"v": "fix",
+"why": "갤러리는 사찰이 아니므로 잘못된 분류. facts에 장소명과 구만 있으므로 '해운대구의 갤러리'로 수정.",
+"text": "해운대구의 갤러리"
+},
+"en": {
+"v": "fix",
+"why": "Same as ko",
+"text": "Gallery in Haeundae-gu"
+},
+"ja": {
+"v": "fix",
+"why": "Same as ko",
+"text": "海雲台区のギャラリー"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "Same as ko",
+"text": "海云台区的画廊"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "Same as ko",
+"text": "海雲台區的畫廊"
+},
+"vi": {
+"v": "fix",
+"why": "Same as ko",
+"text": "Phòng trưng bày ở quận Haeundae"
+}
+},
+"2c56463e-6ffc-3b8d-bc15-ec52f88a7483": {
+"ko": {
+"v": "fix",
+"why": "업종과 방문 이유 모두 한우(소고기)만을 사용한다고 명시. '돼지고기 구이/찜' 업종 분류는 공공 분류 오류로 보임. '한우 고깃집'으로 수정.",
+"text": "30년 전통 언양 불고기 전문 한우 고깃집"
+},
+"en": {
+"v": "fix",
+"why": "Same as ko",
+"text": "30-year-old traditional Korean beef Eonyang bulgogi restaurant"
+},
+"ja": {
+"v": "fix",
+"why": "Same as ko",
+"text": "30年の伝統を持つ韓牛専門の言陽プルコギ店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "Same as ko",
+"text": "30年传统的韩牛言阳烤肉专门店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "Same as ko",
+"text": "30年傳統的韓牛言陽烤肉專門店"
+},
+"vi": {
+"v": "fix",
+"why": "Same as ko",
+"text": "Quán thịt bò Hàn Quốc truyền thống 30 năm chuyên món bulgogi Eonyang"
+}
+},
+"f291e2de-1585-3312-be4a-8dbee97960f2": {
+"ko": {
+"v": "fix",
+"why": "가격·가성비·맛·퀄리티 등 평가가 포함되어 있어 facts만으로는 쓸 수 없음. facts에는 일식 회/초밥집임만 명확. '해운대구의 일식 회 초밥집'으로 수정.",
+"text": "해운대구의 일식 회 초밥집"
+},
+"en": {
+"v": "fix",
+"why": "Same as ko",
+"text": "Japanese sashimi and sushi restaurant in Haeundae-gu"
+},
+"ja": {
+"v": "fix",
+"why": "Same as ko",
+"text": "海雲台区の和食刺身・寿司店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "Same as ko",
+"text": "海云台区的日式生鱼片寿司店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "Same as ko",
+"text": "海雲台區的日式生魚片壽司店"
+},
+"vi": {
+"v": "fix",
+"why": "Same as ko",
+"text": "Nhà hàng sashimi và sushi Nhật Bản ở Haeundae-gu"
+}
+},
+"d606b0f6-3d57-329e-bcb6-8f41a1d8f29a": {
+"ko": {
+"v": "fix",
+"why": "세련된 다찌석 등 분위기·서비스 평가가 포함되어 있음. facts에는 일식 회/초밥집임만 명확. '해운대구의 일식 회 초밥집'으로 수정.",
+"text": "해운대구의 일식 회 초밥집"
+},
+"en": {
+"v": "fix",
+"why": "Same as ko",
+"text": "Japanese sashimi and sushi restaurant in Haeundae-gu"
+},
+"ja": {
+"v": "fix",
+"why": "Same as ko",
+"text": "海雲台区の和食刺身・寿司店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "Same as ko",
+"text": "海云台区的日式生鱼片寿司店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "Same as ko",
+"text": "海雲台區的日式生魚片壽司店"
+},
+"vi": {
+"v": "fix",
+"why": "Same as ko",
+"text": "Nhà hàng sashimi và sushi Nhật Bản ở Haeundae-gu"
+}
+},
+"94c5114e-5463-364f-8b17-567006607d65": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"5dbe668a-5e81-3100-b377-a0ce64e1b003": {
+"ko": {
+"v": "fix",
+"why": "업종 분류는 백반/한정식이나, 음식 종류와 이름 모두 돼지국밥임. '중구의 돼지국밥집'으로 수정.",
+"text": "중구의 돼지국밥집"
+},
+"en": {
+"v": "fix",
+"why": "Same as ko",
+"text": "Pork soup restaurant in Jung-gu"
+},
+"ja": {
+"v": "fix",
+"why": "Same as ko",
+"text": "中区の豚肉スープ店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "Same as ko",
+"text": "中区的猪肉汤专门店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "Same as ko",
+"text": "中區的豬肉湯專門店"
+},
+"vi": {
+"v": "fix",
+"why": "Same as ko",
+"text": "Quán súp thịt heo ở Jung-gu"
+}
+},
+"a5a8c4b9-24e8-3b2b-aa26-7942bb1fc6ff": {
+"ko": {
+"v": "fix",
+"why": "일식 회/초밥집이지만 라멘이 주요 방문 이유임. '독창적 라멘과 일식 회 초밥집'으로 간결하게 수정.",
+"text": "독창적 라멘과 일식 회 초밥집"
+},
+"en": {
+"v": "fix",
+"why": "Same as ko",
+"text": "Innovative ramen and Japanese sashimi and sushi restaurant"
+},
+"ja": {
+"v": "fix",
+"why": "Same as ko",
+"text": "独創的なラーメンと和食刺身・寿司店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "Same as ko",
+"text": "独创拉面与日式生鱼片寿司店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "Same as ko",
+"text": "獨創拉麵與日式生魚片壽司店"
+},
+"vi": {
+"v": "fix",
+"why": "Same as ko",
+"text": "Nhà hàng ramen sáng tạo và sashimi sushi Nhật Bản"
+}
+},
+"c4f329f5-37b8-343b-a709-47d56dae92e4": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"3489e131-249d-31db-90c5-6c9426e00de5": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"48b0715c-89f2-3ec6-a991-67506e6cafad": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"93e59928-b346-3af0-af77-abd57897fd1c": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"751db127-c4ec-33a7-895e-7f284af77450": {
+"ko": {
+"v": "fix",
+"why": "사실상 박물관인데 사찰로 오기됨. facts에 박물관 외 정보 없음.",
+"text": "해운대구의 조각보 박물관"
+},
+"en": {
+"v": "fix",
+"why": "박물관임을 반영",
+"text": "Jogakbo museum in Haeundae-gu"
+},
+"ja": {
+"v": "fix",
+"why": "박물관임을 반영",
+"text": "ヘウンデ区のチョガッポ博物館"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "박물관임을 반영",
+"text": "海云台区的拼布博物馆"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "박물관임을 반영",
+"text": "海雲臺區的拼布博物館"
+},
+"vi": {
+"v": "fix",
+"why": "박물관임을 반영",
+"text": "Bảo tàng Jogakbo ở quận Haeundae"
+}
+},
+"42f4c1fc-984d-31c4-92c1-d9eddb2766f4": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"05476d72-04b4-3e4e-a4ab-0d52cad01940": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"2ade2503-ed5a-321d-832f-ff86b7ec200e": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"8914bebc-db4e-3668-a580-3655f6a35047": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"e0876ad1-d6be-3821-bcfb-9f9a5fcb368c": {
+"ko": {
+"v": "fix",
+"why": "암소갈비는 소고기이므로 돼지고기 구이/찜은 업종 분류 오류. facts에 메뉴 정보 없음.",
+"text": "해운대구의 소고기 구이 음식점"
+},
+"en": {
+"v": "fix",
+"why": "소고기 구이로 수정",
+"text": "Beef grilled restaurant in Haeundae-gu"
+},
+"ja": {
+"v": "fix",
+"why": "소고기 구이로 수정",
+"text": "ヘウンデ区の牛肉焼き料理店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "소고기 구이로 수정",
+"text": "海云台区的牛肉烤肉餐厅"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "소고기 구이로 수정",
+"text": "海雲臺區的牛肉烤肉餐廳"
+},
+"vi": {
+"v": "fix",
+"why": "소고기 구이로 수정",
+"text": "Nhà hàng thịt bò nướng tại Haeundae"
+}
+},
+"ffe35843-4779-3c38-b24e-249c34edfb6f": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"bab8660e-4674-30c2-bede-584568464a00": {
+"ko": {
+"v": "fix",
+"why": "돼지고기 구이집이 아니라 산곰장어와 조개구이 세트가 특징임. 돼지고기 언급은 facts에 없음.",
+"text": "산곰장어 조개구이 세트 전문점"
+},
+"en": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Specialty set menu with hagfish and grilled clams"
+},
+"ja": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "ヌタウナギと貝焼きセット専門店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "盲鳗和烤贝组合专门店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "盲鰻和烤貝組合專門店"
+},
+"vi": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Quán chuyên set cá mút đá và nghêu nướng"
+}
+},
+"c5118ae7-2805-3d12-bf85-1b849e56befc": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"8e6138dc-10a8-37f0-af40-132493bb32c3": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"4571a21b-e835-33f6-a895-d286af0b0040": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"9f822b4f-3561-327f-b7b9-0e0137ad8a26": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"cd3b7e57-7d2d-383a-beb4-b66839fe6fbb": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"a22cdf32-2571-3888-a252-3296667fa0cc": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"56b7889b-9c19-30b3-ae2b-1259cc05ae38": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"2f34b4dc-27f8-3392-a793-9b1c98f831ca": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"48a6324f-79d7-34fe-866f-4d2a877892af": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"e1cc3c57-370b-3d44-8cd8-8e29fa25be00": {
+"ko": {
+"v": "fix",
+"why": "경양식은 일본식 서양요리로, 스페인 가정식과는 다름. facts에 따르면 스페인 셰프가 선보이는 정통 스페인 홈메이드 가정식이므로, '정통 스페인 가정식'으로 수정 필요.",
+"text": "정통 스페인 가정식 전문점"
+},
+"en": {
+"v": "fix",
+"why": "ko fix에 맞춰 동일 의미로 수정",
+"text": "Authentic Spanish home-style cuisine"
+},
+"ja": {
+"v": "fix",
+"why": "ko fix에 맞춰 동일 의미로 수정",
+"text": "本格スペイン家庭料理専門店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko fix에 맞춰 동일 의미로 수정",
+"text": "正宗西班牙家常菜专门店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko fix에 맞춰 동일 의미로 수정",
+"text": "正宗西班牙家常菜專門店"
+},
+"vi": {
+"v": "fix",
+"why": "ko fix에 맞춰 동일 의미로 수정",
+"text": "Quán chuyên món ăn gia đình Tây Ban Nha chính thống"
+}
+},
+"0bb663c6-d708-38bd-8b28-d9794a39d900": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"455618b5-d8ee-35a1-8a4b-4522e2249d1e": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"4fb0dee1-9946-3716-b666-d5ae2ff4d78c": {
+"ko": {
+"v": "fix",
+"why": "facts에는 '수제 칵테일을 즐길 수 있는 심야 데이트 장소'만 있고, 경양식(서양식 식사) 언급 없음. '심야 칵테일 바'로 수정 필요.",
+"text": "수제 칵테일 즐기는 심야 바"
+},
+"en": {
+"v": "fix",
+"why": "ko fix에 맞춰 동일 의미로 수정",
+"text": "Late-night bar with craft cocktails"
+},
+"ja": {
+"v": "fix",
+"why": "ko fix에 맞춰 동일 의미로 수정",
+"text": "クラフトカクテルが楽しめる深夜のバー"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko fix에 맞춰 동일 의미로 수정",
+"text": "享用手工鸡尾酒的深夜酒吧"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko fix에 맞춰 동일 의미로 수정",
+"text": "享用手工雞尾酒的深夜酒吧"
+},
+"vi": {
+"v": "fix",
+"why": "ko fix에 맞춰 동일 의미로 수정",
+"text": "Quán bar đêm với cocktail thủ công"
+}
+},
+"3bbf5db6-2697-35c3-a097-5504dca4cd63": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"07e89982-cc50-3ffe-8453-ebe135706f48": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"cee8aab5-9fe9-34f8-97c5-ab8b5b0c919d": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"ff552ffb-0a3f-37bf-8cce-c217d9f1af91": {
+"ko": {
+"v": "fix",
+"why": "facts에는 일식 회(초밥) 언급 없고, 라멘과 교자 등 라멘 전문점임. '후쿠오카식 진한 돈코츠 라멘 전문점'으로 수정 필요.",
+"text": "후쿠오카식 진한 돈코츠 라멘 전문점"
+},
+"en": {
+"v": "fix",
+"why": "ko fix에 맞춰 동일 의미로 수정",
+"text": "Fukuoka-style rich tonkotsu ramen specialty restaurant"
+},
+"ja": {
+"v": "fix",
+"why": "ko fix에 맞춰 동일 의미로 수정",
+"text": "福岡風濃厚とんこつラーメン専門店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko fix에 맞춰 동일 의미로 수정",
+"text": "福冈风浓厚猪骨拉面专门店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko fix에 맞춰 동일 의미로 수정",
+"text": "福岡風濃厚豬骨拉麵專門店"
+},
+"vi": {
+"v": "fix",
+"why": "ko fix에 맞춰 동일 의미로 수정",
+"text": "Quán chuyên mì ramen tonkotsu đậm đà kiểu Fukuoka"
+}
+},
+"d8a99e80-a275-346f-9f5e-811d4ff3360d": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"35e24fbd-128a-3045-8fbc-c6c7caf1f8e2": {
+"ko": {
+"v": "fix",
+"why": "경양식은 서양식이지만, 방문 이유에 '영국 감성'이 명확히 있으므로 '영국 감성'을 강조해야 함. '경양식'은 업종이지만, 실제로는 수제 번과 롤 도넛을 내는 영국 감성의 디저트 중심임.",
+"text": "수제 번과 롤 도넛 내는 영국 감성 디저트 카페"
+},
+"en": {
+"v": "fix",
+"why": "ko에 맞춰 영국 감성 디저트 카페로 수정",
+"text": "British-style dessert cafe with handmade buns and roll donuts"
+},
+"ja": {
+"v": "fix",
+"why": "ko에 맞춰 영국感デザートカフェに修正",
+"text": "手作りバンズとロールドーナツの英国風デザートカフェ"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko에 맞춰英式甜品咖啡馆",
+"text": "提供手工面包和卷甜甜圈的英式甜品咖啡馆"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko에 맞춰英式甜品咖啡館",
+"text": "提供手工麵包和卷甜甜圈的英式甜品咖啡館"
+},
+"vi": {
+"v": "fix",
+"why": "ko에 맞춰 quán cà phê tráng miệng phong cách Anh",
+"text": "Quán cà phê tráng miệng kiểu Anh với bánh mì và bánh rán cuộn thủ công"
+}
+},
+"8eae02b9-6c76-3edc-a314-d740f29c59bd": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"d394be7b-d107-365b-a80f-05fab6847f57": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"eb045c11-22dc-3928-b05c-05decec962d0": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"1dd35c01-0651-370b-850b-67232cd0d9de": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"322a2abf-cd55-388a-afb9-feab5c5d25a3": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"27d284f3-a303-3e91-9f82-36eebcb62753": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"aee37949-1a37-362a-ad4a-ccdd1245e08e": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"0557ff4e-3c9c-3e11-943d-8076a5b4b2e8": {
+"ko": {
+"v": "fix",
+"why": "업종은 피자이나, 방문 이유와 메뉴에 피자 언급이 없고 커피와 디저트(치즈 케이크)가 중심임. 따라서 카페로 고쳐야 함.",
+"text": "핸드드립 커피와 치즈 케이크 내는 디저트 카페"
+},
+"en": {
+"v": "fix",
+"why": "ko에 맞춰 dessert cafe로 수정",
+"text": "Dessert cafe with hand drip coffee and cheese cake"
+},
+"ja": {
+"v": "fix",
+"why": "ko에 맞춰デザートカフェに修正",
+"text": "ハンドドリップコーヒーとチーズケーキのデザートカフェ"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko에 맞춰甜品咖啡馆",
+"text": "提供手冲咖啡和芝士蛋糕的甜品咖啡馆"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko에 맞춰甜品咖啡館",
+"text": "提供手沖咖啡和芝士蛋糕的甜品咖啡館"
+},
+"vi": {
+"v": "fix",
+"why": "ko에 맞춰 quán cà phê tráng miệng",
+"text": "Quán cà phê tráng miệng với cà phê pha tay và bánh phô mai"
+}
+},
+"53493eeb-ca7b-30a3-b9f8-d1c675a6095f": {
+"ko": {
+"v": "drop",
+"why": "facts에 '사찰' 관련 정보가 없음. '마린갤러리'는 이름상 갤러리로 보이며, facts에 문화·역사 관련 정보도 없음.",
+"text": ""
+},
+"en": {
+"v": "drop",
+"why": "ko가 drop이므로 같이 drop.",
+"text": ""
+},
+"ja": {
+"v": "drop",
+"why": "ko가 drop이므로 같이 drop.",
+"text": ""
+},
+"zh-Hans": {
+"v": "drop",
+"why": "ko가 drop이므로 같이 drop.",
+"text": ""
+},
+"zh-Hant": {
+"v": "drop",
+"why": "ko가 drop이므로 같이 drop.",
+"text": ""
+},
+"vi": {
+"v": "drop",
+"why": "ko가 drop이므로 같이 drop.",
+"text": ""
+}
+},
+"d8cd12bf-95f9-31ff-8aa2-69c6ae0c9157": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"623cb758-2191-3eda-89d5-45188df72afe": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"937b5e90-d11d-3af0-81cb-294e7b7e6aba": {
+"ko": {
+"v": "fix",
+"why": "경양식(서양식) 업종이지만, 실제로는 우즈베키스탄·중앙아시아 전통 요리(샤슬릭, 양갈비찜 등)를 제공하는 곳임. '경양식' 대신 '우즈베키스탄 전통 요리'로 수정 필요.",
+"text": "우즈베키스탄 전통 요리 전문 음식점"
+},
+"en": {
+"v": "fix",
+"why": "ko에 맞춰 수정.",
+"text": "Uzbek traditional cuisine restaurant"
+},
+"ja": {
+"v": "fix",
+"why": "ko에 맞춰 수정.",
+"text": "ウズベキスタン伝統料理専門店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko에 맞춰 수정.",
+"text": "乌兹别克传统料理餐厅"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko에 맞춰 수정.",
+"text": "烏茲別克傳統料理餐廳"
+},
+"vi": {
+"v": "fix",
+"why": "ko에 맞춰 수정.",
+"text": "Nhà hàng ẩm thực truyền thống Uzbekistan"
+}
+},
+"75ac67e4-7933-3afb-84d9-1573bcad5971": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"b1726040-8fc8-3ed4-86a6-6d75b0bc430b": {
+"ko": {
+"v": "fix",
+"why": "장소 이름이 '전망대'이고 분류가 '자연·산책'임에도 불구하고, '경양식' 즉 음식점으로 잘못 표기됨. facts에 따르면 음식점이 아님. '수영구의 전망대'로 수정.",
+"text": "수영구의 전망대"
+},
+"en": {
+"v": "fix",
+"why": "ko에 맞춰 수정.",
+"text": "Observatory in Suyeong-gu"
+},
+"ja": {
+"v": "fix",
+"why": "ko에 맞춰 수정.",
+"text": "水営区の展望台"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko에 맞춰 수정.",
+"text": "水营区的展望台"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko에 맞춰 수정.",
+"text": "水營區的展望台"
+},
+"vi": {
+"v": "fix",
+"why": "ko에 맞춰 수정.",
+"text": "Đài quan sát ở quận Suyeong"
+}
+},
+"f85d12a3-6788-3750-894a-c267bbe2dc8e": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"82f4a8e2-f087-3c2e-b077-92aac12f3a64": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"037221a4-2bc1-32d4-94da-6e096586aad1": {
+"ko": {
+"v": "fix",
+"why": "업종은 일식 회/초밥이지만, 방문 이유에 따르면 YBD 프리미엄 돼지고기 저온 조리가 주요 특징임. 회/초밥과 돼지고기 저온 조리의 조합이 어색하므로, 'YBD 프리미엄 돼지고기 저온 조리 전문점'으로 수정.",
+"text": "YBD 프리미엄 돼지고기 저온 조리 전문점"
+},
+"en": {
+"v": "fix",
+"why": "ko에 맞춰 수정.",
+"text": "Low-temperature cooked YBD premium pork specialty restaurant"
+},
+"ja": {
+"v": "fix",
+"why": "ko에 맞춰 수정.",
+"text": "YBDプレミアム豚肉の低温調理専門店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko에 맞춰 수정.",
+"text": "YBD高级猪肉低温烹饪专门店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko에 맞춰 수정.",
+"text": "YBD高級豬肉低溫烹飪專門店"
+},
+"vi": {
+"v": "fix",
+"why": "ko에 맞춰 수정.",
+"text": "Nhà hàng chuyên thịt heo YBD cao cấp nấu nhiệt độ thấp"
+}
+},
+"fba3c1f2-529f-3e49-a318-b8c3d0cca585": {
+"ko": {
+"v": "fix",
+"why": "업종은 일식 회/초밥이지만, 방문 이유에 따르면 정통 일본식 돈카츠 제공이 주요 특징임. 회/초밥 언급은 불필요. '정통 일본식 돈카츠 전문점'으로 수정.",
+"text": "정통 일본식 돈카츠 전문점"
+},
+"en": {
+"v": "fix",
+"why": "ko에 맞춰 수정.",
+"text": "Authentic Japanese tonkatsu specialty restaurant"
+},
+"ja": {
+"v": "fix",
+"why": "ko에 맞춰 수정.",
+"text": "本格的な日本式とんかつ専門店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko에 맞춰 수정.",
+"text": "正宗日式炸猪排专门店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko에 맞춰 수정.",
+"text": "正宗日式炸豬排專門店"
+},
+"vi": {
+"v": "fix",
+"why": "ko에 맞춰 수정.",
+"text": "Nhà hàng chuyên tonkatsu Nhật Bản truyền thống"
+}
+},
+"b2bc27a9-6cc3-3564-bd8a-5f886f263e66": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"22e02a29-0895-3ce2-af51-fb34e3cfed03": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"c9379ea9-e560-3d7d-84eb-a0420998e1f1": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"4f56ceca-af0b-3f46-bca2-0b9548618df1": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"ec3e6b63-8a46-3806-b3f1-bdf16de30650": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"e010425f-1728-3b3d-965d-f31207f2624d": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"ef9750e1-9e62-3962-a066-65636b4d7bb1": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"0ece308f-3f2b-3422-81f8-5024602f871d": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"c808bd0e-a787-356c-804f-d835d67f5554": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"fe5b7b0a-353a-3683-8362-8268db49f1fe": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"2551be64-22c2-3f3b-a157-6b8d0fc68538": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"26f61f25-714c-392b-80eb-5386992e4bc7": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"045aaf85-117e-3964-82b1-4d9dc3d1794b": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"d45c4f5e-a4e7-3fcf-9848-8ec9e50a48f7": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"e2f285a6-47d2-48b8-a78b-000132493003": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "fix",
+"why": "ko는 활어직판장(직접 구매하고 맛볼 수 있는 곳)인데, en/vi는 특정 메뉴(sashimi, spicy fish stew)를 강조해 사실과 다름",
+"text": "Live seafood market where you can buy and taste fresh seafood"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "fix",
+"why": "ko는 활어직판장(직접 구매하고 맛볼 수 있는 곳)인데, en/vi는 특정 메뉴(sashimi, canh cá cay)를 강조해 사실과 다름",
+"text": "Chợ hải sản tươi sống nơi có thể mua và thưởng thức hải sản tươi"
+}
+},
+"81aad9cf-d69b-3695-b619-5fd27328c54b": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"10f61307-dad8-34d7-814a-247611211533": {
+"ko": {
+"v": "fix",
+"why": "ko에 '조망'은 사실이지만, '도심형 보양 온천 워터파크'만으로도 충분하며 40자 이내 명사형 구로 정리 필요",
+"text": "도심형 보양 온천 워터파크"
+},
+"en": {
+"v": "fix",
+"why": "ko에 맞춰 조정",
+"text": "Urban wellness spa and waterpark"
+},
+"ja": {
+"v": "fix",
+"why": "ko에 맞춰 조정",
+"text": "都市型保養温泉とウォーターパーク"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko에 맞춰 조정",
+"text": "都市型养生温泉水上乐园"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko에 맞춰 조정",
+"text": "都市型養生溫泉水上樂園"
+},
+"vi": {
+"v": "fix",
+"why": "ko에 맞춰 조정",
+"text": "Suối nước nóng và công viên nước đô thị"
+}
+},
+"8eaa7a48-e89d-3cde-9daa-7b677e231a6c": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"e02448e4-edff-3c34-94e6-27112958b455": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"f0b46999-8f6b-306c-883c-9d90ad8906b3": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"a6065a59-46c6-3df4-a374-83e5d28d7253": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"d8de8b7b-1a8c-3170-ad6a-1a5620f61c31": {
+"ko": {
+"v": "fix",
+"why": "사누키 우동과 해산물 일식 회/초밥이 모두 사실에 근거하나, '정통'은 평가적 표현이므로 제외해야 함",
+"text": "사누키 우동과 해산물 일식 회/초밥"
+},
+"en": {
+"v": "fix",
+"why": "ko의 수정에 맞춰 'Authentic'을 빼고 동일 의미로 수정",
+"text": "Sanuki udon and seafood Japanese sushi"
+},
+"ja": {
+"v": "fix",
+"why": "ko의 수정에 맞춰 '本格'을 빼고 동일 의미로 수정",
+"text": "讃岐うどんと海鮮の和食寿司"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko의 수정에 맞춰 '正宗'을 빼고 동일 의미로 수정",
+"text": "讃岐乌冬面与海鲜日式寿司"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko의 수정에 맞춰 '正宗'을 빼고 동일 의미로 수정",
+"text": "讃岐烏冬麵與海鮮日式壽司"
+},
+"vi": {
+"v": "fix",
+"why": "ko의 수정에 맞춰 'chính thống'을 빼고 동일 의미로 수정",
+"text": "Udon Sanuki và sushi hải sản Nhật Bản"
+}
+},
+"bb051d07-6eb9-356e-99ab-9fc6177f9480": {
+"ko": {
+"v": "drop",
+"why": "솔거갤러리는 갤러리(미술관)이나, '문화·역사·사찰'로 뭉뚱그려 표현해 실제 장소 유형과 맞지 않음. facts에 더 구체적 정보 없음."
+},
+"en": {
+"v": "drop",
+"why": "ko가 drop이므로 동일하게 drop"
+},
+"ja": {
+"v": "drop",
+"why": "ko가 drop이므로 동일하게 drop"
+},
+"zh-Hans": {
+"v": "drop",
+"why": "ko가 drop이므로 동일하게 drop"
+},
+"zh-Hant": {
+"v": "drop",
+"why": "ko가 drop이므로 동일하게 drop"
+},
+"vi": {
+"v": "drop",
+"why": "ko가 drop이므로 동일하게 drop"
+}
+},
+"959ac4bf-8140-33cf-9d4c-d8a2d2f2f38c": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"9c933ff7-a05c-3c4a-b50a-2ab7836d5839": {
+"ko": {
+"v": "fix",
+"why": "'신선한 생고기 안주'는 사실에 맞으나, '돼지고기 구이/찜 전문점'은 업종에만 근거해 표현해야 하므로, '생고기 안주'는 빼고 업종만 남김",
+"text": "돼지고기 구이/찜 전문점"
+},
+"en": {
+"v": "fix",
+"why": "ko의 수정에 맞춰 동일 의미로 수정",
+"text": "Pork grilled and steamed meat specialty restaurant"
+},
+"ja": {
+"v": "fix",
+"why": "ko의 수정에 맞춰 동일 의미로 수정",
+"text": "豚肉の焼き・蒸し料理専門店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko의 수정에 맞춰 동일 의미로 수정",
+"text": "猪肉烤蒸肉专门店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko의 수정에 맞춰 동일 의미로 수정",
+"text": "豬肉烤蒸肉專門店"
+},
+"vi": {
+"v": "fix",
+"why": "ko의 수정에 맞춰 동일 의미로 수정",
+"text": "Nhà hàng chuyên món thịt heo nướng và hấp"
+}
+},
+"aabf6efa-a33d-4fcc-80fc-f36742c6b2aa": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"ad029234-f17a-398a-bb77-1bcbc41b3d36": {
+"ko": {
+"v": "drop",
+"why": "해운대갤러리는 갤러리(미술관)이나, '문화·역사·사찰'로 뭉뚱그려 표현해 실제 장소 유형과 맞지 않음. facts에 더 구체적 정보 없음."
+},
+"en": {
+"v": "drop",
+"why": "ko가 drop이므로 동일하게 drop"
+},
+"ja": {
+"v": "drop",
+"why": "ko가 drop이므로 동일하게 drop"
+},
+"zh-Hans": {
+"v": "drop",
+"why": "ko가 drop이므로 동일하게 drop"
+},
+"zh-Hant": {
+"v": "drop",
+"why": "ko가 drop이므로 동일하게 drop"
+},
+"vi": {
+"v": "drop",
+"why": "ko가 drop이므로 동일하게 drop"
+}
+},
+"07c2eff3-ec2c-3649-8659-26f702477ea8": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"b85853cb-8bba-3d94-b2d9-05b57ff2affa": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"49e3d72c-9b8a-3495-80d0-0642a5ed3706": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"e4886d10-3c5d-3f21-abf8-1e35187c1a4a": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"490832d6-cd9e-3eff-bc1a-2de26ee4ab09": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"ad54e672-80d5-3e8b-9b41-7fa229423e22": {
+"ko": {
+"v": "fix",
+"why": "오션뷰는 사실이나, 전망에 대한 평가(뛰어난)는 facts에 없으므로 제외해야 함",
+"text": "광안리 오션뷰와 자연산 활어회 코스 요리 제공 횟집"
+},
+"en": {
+"v": "fix",
+"why": "ko fix에 맞춰 ocean view만 언급, 'excellent' 등 평가는 제외",
+"text": "Raw fish restaurant offering ocean view and natural sashimi course in Gwangalli"
+},
+"ja": {
+"v": "fix",
+"why": "ko fix에 맞춰 평가어 삭제",
+"text": "広安里のオーシャンビューと天然活魚のコース料理を提供する刺身店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko fix에 맞춰 평가어 삭제",
+"text": "提供广安里海景和天然活鱼刺身套餐的海鲜店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko fix에 맞춰 평가어 삭제",
+"text": "提供廣安里海景和天然活魚刺身套餐的海鮮店"
+},
+"vi": {
+"v": "fix",
+"why": "ko fix에 맞춰 평가어 삭제",
+"text": "Quán sashimi với view biển Gwangalli và thực đơn sashimi tự nhiên"
+}
+},
+"092576a8-755d-3b23-ae4f-d6d4433f0dba": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"7a78804e-f064-3990-a374-dc3cdb53d297": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"3a75d9d0-63e2-3fea-823e-df273a4d7552": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"a9966a57-5d38-39cc-b47c-3e5a101d2ddd": {
+"ko": {
+"v": "fix",
+"why": "'경양식'은 서양식이 아니라 우즈베키스탄 음식점임. facts에 따라 '우즈베키스탄 음식 전문점'으로 수정",
+"text": "우즈베키스탄 양고기 케밥과 보르쉬 전문점"
+},
+"en": {
+"v": "fix",
+"why": "ko fix에 맞춰 Western-style restaurant이 아니라 Uzbek restaurant로 수정",
+"text": "Uzbek restaurant specializing in lamb kebab and borscht"
+},
+"ja": {
+"v": "fix",
+"why": "ko fix에 맞춰洋食店→ウズベキスタン料理店",
+"text": "ウズベキスタンのラムケバブとボルシチ専門店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko fix에 맞춰西餐厅→乌兹别克餐厅",
+"text": "乌兹别克餐厅，主打羊肉串和罗宋汤"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko fix에 맞춰西餐廳→烏茲別克餐廳",
+"text": "烏茲別克餐廳，主打羊肉串和羅宋湯"
+},
+"vi": {
+"v": "fix",
+"why": "ko fix에 맞춰 phong cách phương Tây 삭제, quán Uzbekistan",
+"text": "Nhà hàng Uzbekistan chuyên kebab cừu và borscht"
+}
+},
+"6cd3a803-b204-344d-8828-48bcd20a8328": {
+"ko": {
+"v": "fix",
+"why": "횟집이지만 주력 메뉴가 모듬생선구이와 갈치조림임. '생선구이와 갈치조림 전문 노포'로 수정",
+"text": "생선구이와 갈치조림 전문 노포"
+},
+"en": {
+"v": "fix",
+"why": "ko fix에 맞춰 raw fish restaurant 삭제, grilled fish and braised cutlassfish old restaurant",
+"text": "Old restaurant specializing in grilled fish and braised cutlassfish"
+},
+"ja": {
+"v": "fix",
+"why": "ko fix에 맞춰刺身店 삭제、焼き魚とタチウオ煮付け専門の老舗",
+"text": "焼き魚とタチウオ煮付け専門の老舗"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko fix에 맞춰生鱼片店 삭제，主打烤鱼和带鱼炖菜的老店",
+"text": "主打烤鱼和带鱼炖菜的老店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko fix에 맞춰生魚片店 삭제，主打烤魚和帶魚燉菜的老店",
+"text": "主打烤魚和帶魚燉菜的老店"
+},
+"vi": {
+"v": "fix",
+"why": "ko fix에 맞춰 nhà hàng sashimi 삭제, quán lâu năm chuyên cá nướng và cá đao kho",
+"text": "Quán lâu năm chuyên cá nướng và cá đao kho"
+}
+},
+"9aad39d1-cb33-384d-9070-bbc73f59792b": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"288a581f-cf9c-3997-8029-5cb8561a5989": {
+"ko": {
+"v": "fix",
+"why": "경양식집이 아니라 한우 오마카세 및 스테이크 전문점임. '한우 오마카세와 스테이크 전문점'으로 수정",
+"text": "한우 오마카세와 스테이크 전문점"
+},
+"en": {
+"v": "fix",
+"why": "ko fix에 맞춰 Western-style restaurant 삭제, Korean beef omakase and steak restaurant",
+"text": "Korean beef omakase and steak restaurant"
+},
+"ja": {
+"v": "fix",
+"why": "ko fix에 맞춰洋食店 삭제、韓牛オマカセとステーキ専門店",
+"text": "韓牛オマカセとステーキ専門店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko fix에 맞춰西餐厅 삭제，韩牛寿司和牛排专门店",
+"text": "韩牛寿司和牛排专门店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko fix에 맞춰西餐廳 삭제，韓牛壽司和牛排專門店",
+"text": "韓牛壽司和牛排專門店"
+},
+"vi": {
+"v": "fix",
+"why": "ko fix에 맞춰 nhà hàng phong cách Tây 삭제, nhà hàng chuyên omakase và bít tết bò Hàn",
+"text": "Nhà hàng chuyên omakase và bít tết bò Hàn"
+}
+},
+"8641b340-5e4d-318a-9b22-b15dda6335f7": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"6a14307a-a27d-343d-b88d-b74fe149d375": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"f2eaaa50-3c4e-324d-96e4-af538c71fece": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"23b07091-1024-3e2b-b388-02c0f37c6187": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"a4ae1547-b01d-3385-b90e-75cab688d2e0": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"cd46ee84-a2df-305f-a33b-13e15c671c40": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"b1b6eb0b-3236-3ec9-92b8-634f4dbab1b0": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"651978bc-2566-3497-84d5-61325526eded": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"09a3fdcd-a8cc-328b-a2b1-931180a791ca": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"641cd350-5e39-3af6-88a7-c4e21019b914": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"e92e1312-a1d3-3b59-a0cd-409d1b9a0959": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"e60d3cdf-baab-38bf-b5a5-0800a1c099cd": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"e4950e1b-4650-3798-a812-d5db0d2c9fad": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"5f2fbb63-e913-3adf-80b8-0e5332b4406e": {
+"ko": {
+"v": "fix",
+"why": "돈카츠 전문점임에도 '일식 회/초밥' 업종이지만, facts에 돈카츠 전문점임이 명확히 나와 있으므로 바로잡음",
+"text": "20년 전통 바삭하고 부드러운 일식 돈카츠 전문점"
+},
+"en": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Japanese pork cutlet specialty restaurant with 20 years of tradition"
+},
+"ja": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "20年の伝統を持つサクサクで柔らかい和風とんかつ専門店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "拥有20年传统的酥脆嫩滑日式炸猪排专门店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "擁有20年傳統的酥脆嫩滑日式炸豬排專門店"
+},
+"vi": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Quán cốt lết heo kiểu Nhật truyền thống 20 năm giòn và mềm"
+}
+},
+"5c4e2adb-8374-3912-9fc6-cead90e83717": {
+"ko": {
+"v": "fix",
+"why": "횟집이지만 생선구이 정식 제공이 주요 방문 이유로, '횟집' 대신 '생선구이 정식집'으로 바로잡음",
+"text": "이른 아침 생선구이 정식 제공하는 식당"
+},
+"en": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Restaurant serving early morning grilled fish set"
+},
+"ja": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "早朝に焼き魚定食を提供する食堂"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "提供清晨烤鱼套餐的餐厅"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "提供清晨烤魚套餐的餐廳"
+},
+"vi": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Nhà hàng phục vụ set cá nướng sáng sớm"
+}
+},
+"17d8585a-4fbf-3762-bb3d-487bf5828dd3": {
+"ko": {
+"v": "drop",
+"why": "facts에 사찰임을 뒷받침할 정보가 부족하고, 문화·역사·사찰이라는 분류만으로는 구체적 설명이 불가"
+},
+"en": {
+"v": "drop",
+"why": "ko가 drop이므로 같이 drop"
+},
+"ja": {
+"v": "drop",
+"why": "ko가 drop이므로 같이 drop"
+},
+"zh-Hans": {
+"v": "drop",
+"why": "ko가 drop이므로 같이 drop"
+},
+"zh-Hant": {
+"v": "drop",
+"why": "ko가 drop이므로 같이 drop"
+},
+"vi": {
+"v": "drop",
+"why": "ko가 drop이므로 같이 drop"
+}
+},
+"f1d96a9b-61c5-3d4d-9085-23651789ddf8": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"582f4934-f07b-48a0-87bd-1ebadf61986d": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"8e84fe50-3e72-33eb-bf93-9af5d3830549": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"d0961b6e-48e4-33a9-9adb-a1ac6f86eb94": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"86b63ea0-31e9-32a3-aac6-07006bfd23b8": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"df3281ee-8fe4-3868-b2e0-a7f2566a7136": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"8220ef38-ea6f-36a0-82d8-d387b9c907c7": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"6dd98ab1-e0c6-3aa5-baf5-d78565a3bea2": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"2147ab3b-2f78-3cf4-b97f-f75dec54c362": {
+"ko": {
+"v": "drop",
+"why": "facts에 사찰임을 뒷받침하는 정보가 없음"
+},
+"en": {
+"v": "drop",
+"why": "ko가 drop이므로 동일"
+},
+"ja": {
+"v": "drop",
+"why": "ko가 drop이므로 동일"
+},
+"zh-Hans": {
+"v": "drop",
+"why": "ko가 drop이므로 동일"
+},
+"zh-Hant": {
+"v": "drop",
+"why": "ko가 drop이므로 동일"
+},
+"vi": {
+"v": "drop",
+"why": "ko가 drop이므로 동일"
+}
+},
+"b5bb2620-3e4d-3b68-b61b-53f58b64f1cc": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"b61ed11d-f2e5-34fc-80fe-51d5b8c4e80d": {
+"ko": {
+"v": "fix",
+"why": "담백한 맛은 facts에 없는 평가이므로 제외해야 함",
+"text": "돼지고기 수육과 국수 전문 음식점"
+},
+"en": {
+"v": "fix",
+"why": "ko의 fix에 맞춰 동일하게 수정",
+"text": "Restaurant specializing in pork boiled meat and noodles"
+},
+"ja": {
+"v": "fix",
+"why": "ko의 fix에 맞춰 동일하게 수정",
+"text": "豚肉の茹で肉と麺の専門店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko의 fix에 맞춰 동일하게 수정",
+"text": "猪肉水煮肉和面条专门店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko의 fix에 맞춰 동일하게 수정",
+"text": "豬肉水煮肉和麵條專門店"
+},
+"vi": {
+"v": "fix",
+"why": "ko의 fix에 맞춰 동일하게 수정",
+"text": "Quán chuyên thịt heo luộc và mì"
+}
+},
+"1c9421d7-eca9-360b-90f7-da645c1f78b4": {
+"ko": {
+"v": "drop",
+"why": "facts에 사찰임을 뒷받침하는 정보가 없음"
+},
+"en": {
+"v": "drop",
+"why": "ko가 drop이므로 동일"
+},
+"ja": {
+"v": "drop",
+"why": "ko가 drop이므로 동일"
+},
+"zh-Hans": {
+"v": "drop",
+"why": "ko가 drop이므로 동일"
+},
+"zh-Hant": {
+"v": "drop",
+"why": "ko가 drop이므로 동일"
+},
+"vi": {
+"v": "drop",
+"why": "ko가 drop이므로 동일"
+}
+},
+"c1349d0d-a7f7-34b5-992f-1fe4635dc1e1": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"0f616a69-8f4d-3b76-af16-e3323e98c8fa": {
+"ko": {
+"v": "fix",
+"why": "facts에 사찰이 아닌 전시공간임이 명확하므로 잘못된 분류",
+"text": "동구의 근대 역사 전시 공간"
+},
+"en": {
+"v": "fix",
+"why": "ko의 fix에 맞춰 동일하게 수정",
+"text": "Modern history exhibition space in Dong-gu"
+},
+"ja": {
+"v": "fix",
+"why": "ko의 fix에 맞춰 동일하게 수정",
+"text": "東区の近代歴史展示スペース"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko의 fix에 맞춰 동일하게 수정",
+"text": "东区的近代历史展览空间"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko의 fix에 맞춰 동일하게 수정",
+"text": "東區的近代歷史展覽空間"
+},
+"vi": {
+"v": "fix",
+"why": "ko의 fix에 맞춰 동일하게 수정",
+"text": "Không gian triển lãm lịch sử hiện đại tại Dong-gu"
+}
+},
+"83ba5be6-6228-3081-8286-6bf607d619b4": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"fed81623-5af8-3485-93a6-873e00235454": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"bbdcec1d-3276-329c-b872-a84322558707": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"223ba2a8-240b-3a01-9019-c8c37b9f5df4": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"d7773c71-1f99-377c-8602-778a002d9622": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"d406654a-47cd-3c20-9afb-6cb5e73ba9fa": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"a50fc152-b7cb-304b-ba2a-33940fce8a19": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"6efeefa8-a47e-3368-8316-4e01e9fadeb7": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"cb6db057-6fdf-3635-8257-afce3aa86c79": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"8975fede-1cba-3f17-bd65-55d2f373c9a5": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"484c5152-0987-32c8-971f-22957e082275": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"4a969890-ac8a-3b98-a573-68f516487f62": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"57bfae67-ab1b-305a-8dbb-8d41401d37b1": {
+"ko": {
+"v": "fix",
+"why": "메뉴에 일식 면 요리가 없고, 에스프레소 등 커피류와 브라우니만 있음. 카페임을 강조해야 함.",
+"text": "에스프레소와 브라우니 해운대구 카페"
+},
+"en": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "Haeundae cafe with espresso and brownies"
+},
+"ja": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "ヘウンデ区のエスプレッソとブラウニーのカフェ"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "海云台区供应浓缩咖啡和布朗尼的咖啡馆"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "海雲臺區供應濃縮咖啡和布朗尼的咖啡館"
+},
+"vi": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "Quán cà phê Haeundae với espresso và brownie"
+}
+},
+"d0897f20-8f5b-32f3-b2fe-2cff47c0add9": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"ab8b5ae4-0707-3313-8985-bac4c3df6a9b": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"fd50206a-fd60-339c-8841-92087edd948b": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"44328fbb-f4a6-3c50-b3b2-a215b467826d": {
+"ko": {
+"v": "fix",
+"why": "가성비, 뛰어난 등 평가가 들어가 있음. 사실만 남기고 수정.",
+"text": "신선한 한우 선지국밥 해운대구 국밥집"
+},
+"en": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "Haeundae restaurant with fresh beef blood soup"
+},
+"ja": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "海雲台区の新鮮な牛肉センジクッパの店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "海云台区新鲜牛肉血肠汤餐馆"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "海雲台區新鮮牛肉血腸湯餐館"
+},
+"vi": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "Nhà hàng Haeundae với súp huyết bò tươi"
+}
+},
+"1cc4e345-cb55-3ec5-af0b-851a4a6800c8": {
+"ko": {
+"v": "drop",
+"why": "facts에 문화·역사·사찰이라는 분류 외에 실제 장소 성격에 대한 정보가 없음."
+},
+"en": {
+"v": "drop",
+"why": "ko에 맞춰 drop"
+},
+"ja": {
+"v": "drop",
+"why": "ko에 맞춰 drop"
+},
+"zh-Hans": {
+"v": "drop",
+"why": "ko에 맞춰 drop"
+},
+"zh-Hant": {
+"v": "drop",
+"why": "ko에 맞춰 drop"
+},
+"vi": {
+"v": "drop",
+"why": "ko에 맞춰 drop"
+}
+},
+"733b9caa-e500-3ef1-bf34-ccb6ba80e501": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"1219712f-4a9a-3a88-98c6-7430917bd120": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"ac5dd031-4195-34d6-8341-c1a1dbc071d9": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"3bb1672e-72cb-32ae-ac71-c6011443979b": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"a1352ea9-4d92-390b-959f-a9fa4ca71042": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"dd14ab8c-53f7-3d71-9b5f-1d70a34c14c6": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"49c6529b-9f08-3d8c-8d98-6f38978ab65d": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"854d97e5-7fc4-3652-a7d9-3e4238ba6ddf": {
+"ko": {
+"v": "fix",
+"why": "경양식집은 서양식 레스토랑을 의미하나, facts에는 모둠회, 시래기 매운탕 등 한식 횟집임이 명확히 드러남",
+"text": "해운대구의 모둠회 한식 횟집"
+},
+"en": {
+"v": "fix",
+"why": "Western-style restaurant is incorrect; facts show it is a Korean raw fish restaurant",
+"text": "Korean raw fish restaurant in Haeundae-gu"
+},
+"ja": {
+"v": "fix",
+"why": "洋食店は誤り。事実情報から韓国式刺身店であることが明確",
+"text": "ヘウンデ区の韓国式刺身店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "西餐厅不符，事实为韩式生鱼片餐厅",
+"text": "海云台区的韩式生鱼片餐厅"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "西餐廳不符，事實為韓式生魚片餐廳",
+"text": "海雲台區的韓式生魚片餐廳"
+},
+"vi": {
+"v": "fix",
+"why": "Nhà hàng phong cách phương Tây không đúng, thực tế là nhà hàng cá sống kiểu Hàn",
+"text": "Nhà hàng cá sống kiểu Hàn ở quận Haeundae"
+}
+},
+"e7e9f74f-ddd6-31cc-8077-7c10c1fccf08": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"211b0194-0cb0-3c0d-8743-56ad79b3e5a8": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"c334c6dd-63b8-3c93-b2f1-f18e6c880f0e": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"61153f89-0082-376a-b90d-8a38c38853d5": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"f8764450-ec34-344d-8e0a-9e15e15d7052": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"3b278be1-1042-3260-a732-484a1ce2a7c8": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"d31f5ca3-6478-3414-bb77-3ea5ea8d5c1b": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"b0a38f26-4dbd-3cad-92bd-d8c81f73f50b": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"d2f8570b-6081-386c-89f9-ef00dc7436bc": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"4f72147b-8179-3e60-a2f1-ec3bc9075f5c": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"cdb92f5c-be35-39dd-a567-8015b99c8a0a": {
+"ko": {
+"v": "fix",
+"why": "전시관인데 사찰로 표기되어 있음. facts에 전시관 외 정보 없음.",
+"text": "해운대구의 전시관"
+},
+"en": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Exhibition hall in Haeundae-gu"
+},
+"ja": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "海雲台区の展示館"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "海云台区的展览馆"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "海雲台區的展覽館"
+},
+"vi": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정",
+"text": "Phòng triển lãm tại Haeundae-gu"
+}
+},
+"485b1197-fc16-3bdb-b891-0bbd4e6ce2d6": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"dc4f8eaf-0f0a-33cc-b132-e21a8554d32c": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"883b0220-25fe-3e34-97d4-0722c32e7521": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"69faa342-6060-3364-847b-7c64f498ee77": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"7cca0389-b4a3-31b0-827e-d04630c0e60e": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"bc494b8a-a244-3198-97c9-697b6c0d56fd": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"71a7ece4-a39a-32f5-ab75-691fb0dcc308": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"229aa7a3-8c65-372d-bbf3-426bb325e04d": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"0035e709-dcd0-3840-9e0a-57ec7c66fdd3": {
+"ko": {
+"v": "drop",
+"why": "장소가 갤러리인데 문화·역사·사찰로만 표기되어 실제 장소 유형과 맞지 않음",
+"text": ""
+},
+"en": {
+"v": "drop",
+"why": "Same as ko",
+"text": ""
+},
+"ja": {
+"v": "drop",
+"why": "Same as ko",
+"text": ""
+},
+"zh-Hans": {
+"v": "drop",
+"why": "Same as ko",
+"text": ""
+},
+"zh-Hant": {
+"v": "drop",
+"why": "Same as ko",
+"text": ""
+},
+"vi": {
+"v": "drop",
+"why": "Same as ko",
+"text": ""
+}
+},
+"62f6cb4d-faac-3ff4-b542-0ec991fcd4b7": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"27d7b109-8ffc-3c0b-a4ed-0c46a2976319": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"cbb3651d-c826-3406-a253-4ef7d41115a2": {
+"ko": {
+"v": "fix",
+"why": "facts에 따르면 돈카츠(돈까스)와 흑돈 메뉴를 제공하지만, 일식 회 전문점이라는 내용은 없음. 업종도 일식 회/초밥이지만, 실제 방문 이유는 돈카츠와 흑돈임.",
+"text": "저온 숙성 흑돈 돈카츠와 일본식 다찌"
+},
+"en": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정 필요",
+"text": "Low-temperature aged black pork cutlet and Japanese-style counter"
+},
+"ja": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정 필요",
+"text": "低温熟成黒豚トンカツと和風カウンター"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정 필요",
+"text": "低温熟成黑猪排和日式吧台"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정 필요",
+"text": "低溫熟成黑豬排和日式吧台"
+},
+"vi": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정 필요",
+"text": "Thịt heo đen chiên xù ủ lạnh và quầy kiểu Nhật"
+}
+},
+"6c987e42-dd78-3e2d-960c-f15044d8701f": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"bbd1051f-5b0e-49de-ae51-000126121005": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"6d1a5030-680d-32a1-926f-750e61830b03": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"3507f389-e828-3559-b6ee-706543a3dc4a": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"35f1d957-7ddd-364c-912d-9a4b10d1098e": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"4177b535-7390-3062-946c-116be92c0e9a": {
+"ko": {
+"v": "fix",
+"why": "facts에 따르면 한우 생고기(소고기) 불고기 전문점임. 돼지고기 불고기라는 내용은 없음.",
+"text": "언양식 한우 숯불 불고기 전문점"
+},
+"en": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정 필요",
+"text": "Eonyang-style Hanwoo charcoal grilled bulgogi restaurant"
+},
+"ja": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정 필요",
+"text": "言陽式韓牛炭火焼きプルコギ専門店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정 필요",
+"text": "言阳式韩牛炭火烤肉店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정 필요",
+"text": "言陽式韓牛炭火烤肉店"
+},
+"vi": {
+"v": "fix",
+"why": "ko fix에 맞춰 수정 필요",
+"text": "Quán thịt bò Hanwoo nướng than kiểu Eonyang"
+}
+},
+"b7fc4c5b-490a-3eb9-a4c1-9b9ff9926a07": {
+"ko": {
+"v": "drop",
+"why": "facts에 따르면 복국(복어국) 전문점임을 알 수 없음. 업종이 백반/한정식으로만 되어 있고, 복국에 대한 언급이 없음."
+},
+"en": {
+"v": "drop",
+"why": "ko drop에 맞춰 삭제"
+},
+"ja": {
+"v": "drop",
+"why": "ko drop에 맞춰 삭제"
+},
+"zh-Hans": {
+"v": "drop",
+"why": "ko drop에 맞춰 삭제"
+},
+"zh-Hant": {
+"v": "drop",
+"why": "ko drop에 맞춰 삭제"
+},
+"vi": {
+"v": "drop",
+"why": "ko drop에 맞춰 삭제"
+}
+},
+"a2a566dc-3cf2-34ad-a0cc-5c959eed52ae": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"83187e6e-1d7f-3a36-ac7d-4e25c914e96e": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"7f206b68-8e61-37f3-950b-aa592c685270": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"e31ab550-6cc8-3345-b761-863c2b2335a8": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"52493d48-6d9d-31ca-85e4-7b07e96d0e74": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"1386f36c-04fd-38f2-b2f6-0ebf26c6ad5f": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"e21a6368-85ff-331a-a3c5-e991df58c87f": {
+"ko": {
+"v": "fix",
+"why": "오션뷰는 사실이나, '광안대교 오션뷰'는 광안대교가 정면으로 보인다는 점이 facts에 있으므로 더 구체적으로 표현 가능. '경양식'은 업종에 맞음. '특색 토핑 피자'는 facts에 부합.",
+"text": "광안대교 전망 특색 토핑 피자 경양식"
+},
+"en": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "Western-style restaurant with Gwangandaegyo view and unique topping pizza"
+},
+"ja": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "広安大橋展望と特徴的なトッピングピザ洋食店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "广安大桥景观与特色披萨西餐厅"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "廣安大橋景觀與特色披薩西餐廳"
+},
+"vi": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "Nhà hàng kiểu Tây với view cầu Gwangandaegyo và pizza topping đặc sắc"
+}
+},
+"21ea42d5-112f-39b3-852d-f3dc34dfec8b": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"36a5765f-0209-328d-8662-32774e05d85e": {
+"ko": {
+"v": "fix",
+"why": "30년 경력, 나고야식 히츠마부시 전문점은 맞으나, 업종이 '일식 회/초밥'으로 히츠마부시(장어덮밥)와 직접적 관련이 없음. facts에 따르면 히츠마부시가 주력임을 강조해야 하며, '일식 회/초밥집'은 부적절. '히츠마부시 전문점'으로 수정.",
+"text": "30년 경력 나고야식 히츠마부시 전문점"
+},
+"en": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "Nagoya-style hitsumabushi specialty restaurant with 30 years of experience"
+},
+"ja": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "30年の名古屋式ひつまぶし専門店"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "30年经验名古屋风味烤鳗鱼饭专门店"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "30年經驗名古屋風味烤鰻魚飯專門店"
+},
+"vi": {
+"v": "fix",
+"why": "ko에 맞춰 수정",
+"text": "Nhà hàng chuyên hitsumabushi kiểu Nagoya 30 năm kinh nghiệm"
+}
+},
+"50140e1b-f178-384d-a58e-d84a2e56783a": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"9d09edaa-a5ee-362c-9df3-2322ebe0be41": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"c901aa96-a88c-3a06-a7b6-4631bb4b25a6": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"69849388-8853-3b90-aec6-a67e3218aff3": {
+"ko": {
+"v": "fix",
+"why": "소금붕어빵과 해염커피 등 특색 있는 메뉴가 facts에 있으나, '아늑한 분위기'는 분위기 평가로 facts에 없음. '커피'는 해염커피로 구체화 필요.",
+"text": "소금붕어빵 해염커피 등 디저트 베이커리 카페"
+},
+"en": {
+"v": "fix",
+"why": "ko의 수정에 맞춰 'cozy' 등 분위기 표현 제거, 'salted fish-shaped bread'와 'Hae-yeom coffee' 등 구체적 메뉴 언급 필요.",
+"text": "Bakery cafe with salted fish-shaped bread and Hae-yeom coffee"
+},
+"ja": {
+"v": "fix",
+"why": "ko의 수정에 맞춰 '居心地の良い' 등 분위기 표현 제거, '塩味たい焼き'와 'ヘヨムコーヒー' 등 구체적 메뉴 언급 필요.",
+"text": "塩味たい焼きとヘヨムコーヒーなどのベーカリーカフェ"
+},
+"zh-Hans": {
+"v": "fix",
+"why": "ko의 수정에 맞춰 '舒适氛围' 등 분위기 표현 제거, '盐味鲷鱼烧'와 '海盐咖啡' 등 구체적 메뉴 언급 필요.",
+"text": "盐味鲷鱼烧海盐咖啡等甜品面包店咖啡馆"
+},
+"zh-Hant": {
+"v": "fix",
+"why": "ko의 수정에 맞춰 '舒適氛圍' 등 분위기 표현 제거, '鹽味鯛魚燒'와 '海鹽咖啡' 등 구체적 메뉴 언급 필요.",
+"text": "鹽味鯛魚燒海鹽咖啡等甜品麵包店咖啡館"
+},
+"vi": {
+"v": "fix",
+"why": "ko의 수정에 맞춰 'ấm cúng' 등 분위기 표현 제거, 'bánh cá mặn'과 'cà phê Hae-yeom' 등 구체적 메뉴 언급 필요.",
+"text": "Tiệm bánh cà phê với bánh cá mặn và cà phê Hae-yeom"
+}
+},
+"9881e2dd-1aa7-3669-af99-393ee13e0047": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"80de3a0c-0859-38c6-878c-1e086eb0d2f3": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"a7dbde16-8419-3a9f-81ab-587be531f3d6": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+},
+"d330bc4c-3a6c-3d05-8e66-13ba3707b1d0": {
+"ko": {
+"v": "ok"
+},
+"en": {
+"v": "ok"
+},
+"ja": {
+"v": "ok"
+},
+"zh-Hans": {
+"v": "ok"
+},
+"zh-Hant": {
+"v": "ok"
+},
+"vi": {
+"v": "ok"
+}
+}
+}
