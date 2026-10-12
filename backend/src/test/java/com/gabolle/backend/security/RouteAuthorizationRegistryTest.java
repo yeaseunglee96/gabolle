@@ -816,6 +816,14 @@ class RouteAuthorizationRegistryTest {
 				"S15P21E201-2048 — 앱이 켜질 때 로그인 전에 부른다(최소 지원 버전 미만이면 로그인 화면도 못 쓰게 막아야 하므로). 누구에게나 같은 공개 정보(스토어에 이미 보이는 버전·주소)만 답하고 쓰기가 없다. AppVersionControllerTest");
 		put(m, "POST /api/v1/feedback", Policy.PRE_AUTH,
 				"S15P21E201-2049 — 의견 보내기. 로그인 없이도 받는다(로그인했으면 인증 주체로만 계정을 묶는다 — 본문에 남의 번호를 받는 자리가 없다). 계정·기기·IP 별 하루 5건, 사진은 로그인한 본인이 올린 것만. FeedbackIntegrationTest");
+		put(m, "GET /api/v1/itineraries/{}/course-feedback", Policy.OWNED,
+				"S15P21E201-2020 — 내 코스 평가. 여행 회원이 아니면 404. CourseFeedbackIntegrationTest.strangerIsRejected");
+		put(m, "PUT /api/v1/itineraries/{}/course-feedback", Policy.OWNED,
+				"코스 평가 남기기·고치기. 여행 회원만, 인증 주체로만 계정을 묶는다. CourseFeedbackIntegrationTest.strangerIsRejected");
+		put(m, "DELETE /api/v1/itineraries/{}/course-feedback", Policy.OWNED,
+				"내 코스 평가 지우기 — 회원이 아니면 404. CourseFeedbackIntegrationTest.strangerIsRejected");
+		put(m, "GET /api/v1/admin/course-feedback/summary", Policy.ADMIN_ONLY,
+				"코스 만족도 집계. /api/v1/admin/** → hasRole(ADMIN) 과 @PreAuthorize. CourseFeedbackIntegrationTest.adminSummary");
 		put(m, "GET /api/v1/admin/feedback", Policy.ADMIN_ONLY,
 				"의견 목록. /api/v1/admin/** → hasRole(ADMIN) 과 @PreAuthorize. FeedbackIntegrationTest");
 		put(m, "PATCH /api/v1/admin/feedback/{}", Policy.ADMIN_ONLY,
