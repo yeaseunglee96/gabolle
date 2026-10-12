@@ -30,6 +30,8 @@ class AccountDeletionTableInventoryTest extends AuthPostgresIntegrationTest {
 	/** DB 에서 그대로 읽은 것. 주장이 아니다 — 위 머리말 참고. */
 	private static final List<String> TABLES_POINTING_AT_APP_USER = List.of(
 			"auth_identity", "auth_session", "collection",
+			// 코스 평가(S15P21E201-2020). 탈퇴 때 AccountDeletionService 가 직접 지운다 — 한마디(자유 글)가 들어 있다.
+			"course_feedback",
 			// 음식 그림 만든 횟수. dish_image·dish_description 은 사람을 안 가리켜 여기 없다.
 			"dish_image_usage",
 			"feed_build",
