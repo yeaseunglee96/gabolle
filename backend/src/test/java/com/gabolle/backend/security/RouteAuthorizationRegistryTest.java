@@ -110,7 +110,7 @@ class RouteAuthorizationRegistryTest {
 
 		// 개수를 박아 두면 하나 열 때마다 이 줄을 고치게 되고, 그 변경이 diff 에 남아 리뷰에서
 		// 보인다. 인증 없이 열린 경로가 조용히 늘어나는 것이 이 시스템에서 가장 비싼 실수다.
-		assertThat(open).hasSize(22);
+		assertThat(open).hasSize(23);
 
 		// 표를 아는 사람이 실제로 열린 것과 대조할 수 있게 목록도 고정한다
 		assertThat(routesWith(Policy.PUBLIC_TOKEN)).containsExactlyInAnyOrder(
@@ -814,6 +814,12 @@ class RouteAuthorizationRegistryTest {
 				"S15P21E201-1832 — 카드·상세 화면이 <img> 로 부르고 그 요청에는 Authorization 이 안 붙는다. 키가 UUID 라 추측 불가하고, Google 장소 번호가 저장된 공개 장소에만 302 를 준다(그 밖은 Google 을 안 부르고 404). PlacePhotoControllerTest");
 		put(m, "GET /api/v1/app/version", Policy.PRE_AUTH,
 				"S15P21E201-2048 — 앱이 켜질 때 로그인 전에 부른다(최소 지원 버전 미만이면 로그인 화면도 못 쓰게 막아야 하므로). 누구에게나 같은 공개 정보(스토어에 이미 보이는 버전·주소)만 답하고 쓰기가 없다. AppVersionControllerTest");
+		put(m, "POST /api/v1/feedback", Policy.PRE_AUTH,
+				"S15P21E201-2049 — 의견 보내기. 로그인 없이도 받는다(로그인했으면 인증 주체로만 계정을 묶는다 — 본문에 남의 번호를 받는 자리가 없다). 계정·기기·IP 별 하루 5건, 사진은 로그인한 본인이 올린 것만. FeedbackIntegrationTest");
+		put(m, "GET /api/v1/admin/feedback", Policy.ADMIN_ONLY,
+				"의견 목록. /api/v1/admin/** → hasRole(ADMIN) 과 @PreAuthorize. FeedbackIntegrationTest");
+		put(m, "PATCH /api/v1/admin/feedback/{}", Policy.ADMIN_ONLY,
+				"의견 상태·답변. 같은 경로 규칙이 막는다. FeedbackIntegrationTest");
 		put(m, "GET /api/v1/images/proxy", Policy.PUBLIC_TOKEN,
 				"S15P21E201-1954 — 화면이 <img> 로 불러 Authorization 이 안 붙는다. 표는 없지만 허락 호스트(www.visitbusan.net)·https·내부망 차단·사진 매직 넘버·10MB 상한을 모두 통과한 공공 사진만 내보낸다. ImageUrlGuardTest·ImageProxyServiceTest");
 		put(m, "GET /api/v1/places/{}/taxi-card", Policy.AUTHENTICATED_ONLY,

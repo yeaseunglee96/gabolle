@@ -95,6 +95,9 @@ public class SecurityConfig {
 				// 앱 버전 안내(S15P21E201-2048). 앱이 켜질 때 로그인 전에 부른다 — 최소 지원 버전 미만이면
 				// 로그인 화면도 막아야 하기 때문이다. 스토어에 이미 공개된 버전·주소만 답하고 쓰기가 없다.
 				.requestMatchers(HttpMethod.GET, "/api/v1/app/version").permitAll()
+				// 의견 보내기(S15P21E201-2049). 로그인 없이도 버그를 알릴 수 있어야 한다 — 로그인이 고장 난 사람이
+				// 가장 알리고 싶어 한다. 토큰이 있으면 필터가 그대로 신원을 심어 계정이 묶이고, 하루 상한은 서비스가 센다.
+				.requestMatchers(HttpMethod.POST, "/api/v1/feedback").permitAll()
 				// 운영자 전용 경로. S15P21E201-1548 — 이제 메서드 보안도 켜져 있어 컨트롤러의
 				// @PreAuthorize 가 이중으로 막지만, 이 경로 매처는 대체가 아니라 그대로 둔다 —
 				// 운영자 API 를 새로 만드는 사람이 애너테이션을 잊어도 이 줄이 여전히 막는다.
