@@ -1,5 +1,6 @@
 import { apiRequest, ApiClientError } from '@/api/client';
 import { loadBehaviorConsent } from '@/personalization/behaviorConsent';
+import { sendWithLanguageFallback, type SignupLanguage } from '@/auth/signupLanguage';
 
 // 가입 요청에 실을 행동 개인화 동의. 값을 코드에 박지 않고 사용자가 정한 것을 읽는다.
 async function behaviorPersonalizationConsent() {
@@ -10,9 +11,13 @@ async function behaviorPersonalizationConsent() {
   };
 }
 
-export type SignupLanguage = 'KO' | 'EN';
-/** 계정에 저장되는 언어 — 서버 LanguageNormalizer 가 내는 값 (S15P21E201-2015). */
-export type AccountLanguage = SignupLanguage | 'JA' | 'ZH-HANS' | 'ZH-HANT' | 'VI';
+// 가입 요청이 받는 언어 여섯 — 정의와 앱 언어와의 대응은 signupLanguage.ts 에 있다(S15P21E201-2053).
+export type { SignupLanguage };
+/**
+ * 계정에 저장되는 언어 — 서버 LanguageNormalizer 가 내는 값 (S15P21E201-2015).
+ * 가입 요청의 표기(SignupLanguage)와 중국어만 구분자가 다르다 — 밑줄(ZH_HANS)이 아니라 하이픈(ZH-HANS)이다.
+ */
+export type AccountLanguage = 'KO' | 'EN' | 'JA' | 'ZH-HANS' | 'ZH-HANT' | 'VI';
 
 export type SignupInput = {
   email: string;
@@ -51,7 +56,8 @@ export type OAuthSignupRequiredResult = {
   status: 'SIGNUP_REQUIRED';
   signupTicket: string;
   ticketExpiresAt: string;
-  prefill: { email: string | null; displayName: string; language: SignupLanguage; emailProvided: boolean };
+  // language 는 소셜 업체가 준 언어를 서버가 맞춘 «계정 표기»(ZH-HANS 등)다 — 가입 요청의 표기(ZH_HANS)가 아니다.
+  prefill: { email: string | null; displayName: string; language: AccountLanguage; emailProvided: boolean };
 };
 export type OAuthLinkRequiredResult = {
   status: 'LINK_REQUIRED';
@@ -63,11 +69,12 @@ export type OAuthCompleteResult = OAuthLoginResult | OAuthSignupRequiredResult |
 
 export async function signup(input: SignupInput) {
   const { behaviorPersonalizationEnabled, extraConsents } = await behaviorPersonalizationConsent();
-  return apiRequest<Registration>('/api/v1/auth/signup', { method: 'POST', body: {
+  // 서버가 아직 새 언어를 모르면(앱이 먼저 나갔을 때) 영어로 한 번 다시 보낸다 — signupLanguage.ts 의 sendWithLanguageFallback.
+  return sendWithLanguageFallback(input.language, (language) => apiRequest<Registration>('/api/v1/auth/signup', { method: 'POST', body: {
     email: input.email.trim(),
     password: input.password,
     displayName: input.displayName.trim(),
-    language: input.language,
+    language,
     ageGateAccepted: input.ageGateAccepted,
     consents: {
       TERMS_OF_SERVICE: input.termsAccepted,
@@ -75,7 +82,7 @@ export async function signup(input: SignupInput) {
       ...extraConsents,
     },
     behaviorPersonalizationEnabled,
-  } });
+  } }));
 }
 
 export function resendEmailVerification(email: string) {
@@ -120,17 +127,18 @@ export async function completeOAuthSignup(input: {
   deviceId?: string; termsAccepted: boolean; privacyAccepted: boolean;
 }) {
   const { behaviorPersonalizationEnabled, extraConsents } = await behaviorPersonalizationConsent();
-  return apiRequest<OAuthLoginResult>('/api/v1/auth/oauth/signup', {
+  // 서버가 아직 새 언어를 모르면 영어로 한 번 다시 보낸다. 검증 오류는 서버가 티켓을 쓰기 전에 나므로 같은 티켓으로 다시 보내도 된다.
+  return sendWithLanguageFallback(input.language, (language) => apiRequest<OAuthLoginResult>('/api/v1/auth/oauth/signup', {
     method: 'POST', skipUnauthorizedHandling: true, body: {
       signupTicket: input.signupTicket,
       displayName: input.displayName,
-      language: input.language,
+      language,
       ageGateAccepted: input.ageGateAccepted,
       deviceId: input.deviceId,
       consents: { TERMS_OF_SERVICE: input.termsAccepted, PRIVACY_POLICY: input.privacyAccepted, ...extraConsents },
       behaviorPersonalizationEnabled,
     },
-  });
+  }));
 }
 
 export function completeOAuthLink(input: { linkTicket: string; password: string; deviceId?: string }) {
