@@ -29,7 +29,8 @@ public record PlaceFacetResponse(List<FacetItem> facets, OffsetDateTime generate
 
 	/**
 	 * @param labelKo 화면에 보여줄 한국어 이름. {@code INTEREST_TAG} 갈래만 채워진다
-	 *     ({@link com.gabolle.backend.place.domain.InterestTagCode#labelKo()}) — 다른 표식 종류는
+	 *     ({@link com.gabolle.backend.place.domain.InterestTagCode#labelKo()} 와, 자료가 있을 때만 나타나는
+	 *     {@link com.gabolle.backend.place.domain.ExtraInterestTagCode#labelKo()}) — 다른 표식 종류는
 	 *     화면 쪽 이름표가 따로 있어 여기서 지어내지 않는다. {@code null} 이면 이 갈래에 이름이 없다는
 	 *     뜻이지 값이 비었다는 뜻이 아니다.
 	 */

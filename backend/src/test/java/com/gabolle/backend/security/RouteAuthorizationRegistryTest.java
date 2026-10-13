@@ -799,6 +799,10 @@ class RouteAuthorizationRegistryTest {
 				"장소는 공용 기준 데이터라 사용자별로 답이 다르지 않다. PlaceSearchIntegrationTest");
 		put(m, "GET /api/v1/places/facets", Policy.AUTHENTICATED_ONLY,
 				"갈래별 건수. 공용 기준 데이터다. PlaceFacetInterestTagIntegrationTest");
+		put(m, "GET /api/v1/places/restaurants/areas", Policy.AUTHENTICATED_ONLY,
+				"S15P21E201-2051 — 「맛집」 갈래의 구·동 목록과 맛집 수. 공공기관이 인증한 식당을 센 공용 기준 데이터라 요청자별로 답이 갈리지 않는다 — facets 와 같은 정책이다. CertifiedRestaurantApiIntegrationTest");
+		put(m, "GET /api/v1/places/restaurants", Policy.AUTHENTICATED_ONLY,
+				"S15P21E201-2051 — 구·동으로 거른 인증 맛집 목록. 요청자와 무관한 공용 기준 데이터다 — 사용자 값은 받는 자리가 없다(구·동·limit 뿐). CertifiedRestaurantApiIntegrationTest");
 		put(m, "GET /api/v1/places/categories", Policy.AUTHENTICATED_ONLY,
 				"적재된 place.category 값과 건수. 요청자와 무관한 공용 기준 데이터라 facets 와 같은 정책이다. PlaceCategoryServiceTest");
 		put(m, "GET /api/v1/places/condition-coverage", Policy.AUTHENTICATED_ONLY,
