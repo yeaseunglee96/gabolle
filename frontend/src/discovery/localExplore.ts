@@ -14,6 +14,8 @@ export type FacetKeyEntry = { featureKey: string; placeCount: number; labelKo: s
 const ENGLISH_FACET_LABELS: Record<string, string> = {
   FESTIVAL: 'Festivals', NIGHT_MARKET: 'Night markets', TRADITIONAL_MARKET: 'Traditional markets',
   ACTIVITY: 'Activities', WALK: 'Walks', NATURE: 'Nature', NIGHT_VIEW: 'Night views', SOUVENIR_SHOP: 'Souvenir shops',
+  // 공공기관이 인증한 식당(S15P21E201-2051). 일본어·중국어는 한국어 이름 「맛집」을 번역표에서 찾는다.
+  LOCAL_RESTAURANT: 'Restaurants',
 };
 /**
  * 갈래 이름 — 서버는 한국어·영어 이름만 준다.
