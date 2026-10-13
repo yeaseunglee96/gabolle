@@ -1,5 +1,6 @@
 package com.gabolle.backend.auth.api;
 
+import com.gabolle.backend.auth.service.LanguageNormalizer;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -19,7 +20,8 @@ public record LocalSignupRequest(
 		@NotBlank @Email @Size(max = 254) String email,
 		@NotBlank @Size(min = 8, max = 100) String password,
 		@NotBlank @Size(max = 50) String displayName,
-		@NotBlank @Pattern(regexp = "KO|EN") String language,
+		// 여섯 언어 — 목록은 LanguageNormalizer 한 곳에 있다(OAuthSignupRequest 와 같은 줄을 쓴다).
+		@NotBlank @Pattern(regexp = LanguageNormalizer.SIGNUP_LANGUAGE_REGEX) String language,
 		/**
 		 * {@code @AssertTrue} 는 {@code null} 을 통과시키므로 {@code @NotNull} 이 함께 있어야 한다 —
 		 * 하나만 두면 나이 확인 없이 가입이 된다.

@@ -32,6 +32,9 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -198,6 +201,37 @@ class LocalAuthServiceTest {
 				"Route!2026", "여행자", "KO", true, "device-1", requiredConsents(), false));
 
 		assertThat(result.email()).isEqualTo("traveler@example.com");
+	}
+
+	/**
+	 * 가입 화면에서 고른 언어(S15P21E201-2053)가 저장되는 값을 재는 검사. 요청이 받는 여섯 코드가 저장 직전에
+	 * {@code LanguageNormalizer} 를 거쳐 제 언어로 남는지 본다 — 거치지 않으면 {@code ZH_HANS} 가 그대로 들어가거나,
+	 * 못 알아본 값이 한국어로 떨어진다.
+	 */
+	@ParameterizedTest(name = "{0} 로 가입하면 {1} 로 저장된다")
+	@CsvSource({
+			"KO,      KO",
+			"EN,      EN",
+			"JA,      JA",
+			"VI,      VI",
+			"ZH_HANS, ZH-HANS",
+			"ZH_HANT, ZH-HANT",
+			"ZH-HANS, ZH-HANS",
+			"ZH-HANT, ZH-HANT",
+	})
+	void 가입할_때_고른_언어는_정규화해_저장한다(String requested, String stored) {
+		when(credentialRepository.findByEmail("traveler@example.com")).thenReturn(Optional.empty());
+		when(userRepository.save(any(AppUser.class))).thenAnswer(invocation -> invocation.getArgument(0));
+		when(passwordEncoder.encode("Route!2026")).thenReturn("bcrypt-hash");
+		when(credentialRepository.save(any(LocalCredential.class))).thenAnswer(invocation -> invocation.getArgument(0));
+		when(oneTimeTokenRepository.save(any(AuthOneTimeToken.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+		service.register(new AuthCommands.Register("traveler@example.com", "Route!2026", "여행자", requested, true,
+				"device-1", requiredConsents(), false));
+
+		ArgumentCaptor<AppUser> saved = ArgumentCaptor.forClass(AppUser.class);
+		verify(userRepository).save(saved.capture());
+		assertThat(saved.getValue().getLanguage()).isEqualTo(stored);
 	}
 
 	@Test
