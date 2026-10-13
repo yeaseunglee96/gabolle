@@ -607,6 +607,127 @@ DELETE FROM place         WHERE source_type = 'TOURAPI'  AND dataset_version = '
 🔴 그 사이 다른 적재(영업시간·사진 등)가 이 장소들에 값을 붙였으면 `fk_place_feature_place`(장소가 지워지면 안 되는 표식이
 남아 있다는 외래키)에 막힌다. 그때는 `place_id IN (SELECT place_id FROM place WHERE dataset_version = …)` 로 표식을 먼저 지운다.
 
+## 11. 공공 인증 식당 — 로컬 탐색 「맛집」 갈래 (S15P21E201-2051, 2026-10-13 추가)
+
+앱 「로컬 탐색」에 「맛집」 갈래를 더하는 자료다. 맛집은 **공공기관이 인증한 식당만**이다 — 부산시 맛집정보 · 구군 모범음식점 ·
+택슐랭(택시기사가 추천한 식당). 사용자는 구 → 동 두 단계로 고른 뒤 그 동의 맛집 목록을 본다. 적재기는
+`CertifiedRestaurantLoaderRunner`(`CertifiedRestaurantLoader` + `CertifiedRestaurantReader`)이고, 이미 있는 장소에는 **표식만 달고**
+없는 장소는 **새로 만든다.**
+
+🔴 **배포(마이그레이션)가 먼저, 적재가 나중이다.** `V20261013200000__certified_restaurant_features.sql` 이
+`ck_place_feature_type`(**`feature_type` 칸에 들어갈 수 있는 값의 허용 목록 — DB 가 목록 밖 값을 거절한다**)에 새 종류 둘
+(`ADMIN_AREA_TAG`·`CERTIFICATION_TAG`)을 더한다. 이 마이그레이션이 운영에 안 들어간 채 돌리면 첫 장소 덩어리에서 행이 거절되어
+**한 곳도 안 들어간다.** 배포가 끝난 뒤(`back/dev` 배포 잡이 초록) 돌린다.
+
+### 11-1. 입력 파일과 한 줄 모양
+
+파일은 git 에 없다 — 만든 사람 PC 의 `gabolle-archive/certified-restaurants-20261013.ndjson`(**한 줄에 JSON 하나인 글 파일**, 666줄)이다.
+
+```json
+{"sourceId":"BF70","name":"만드리곤드레밥","lat":35.177387,"lng":128.95245,"address":"강서구 공항앞길 85번길 13","tel":"051-941-3669","gu":"강서구","dong":"대저2동","sources":["부산시 맛집정보"],"menu":"돌솥곤드레정식, 단호박오리훈제","existingPlaceId":null,"photoUrl":"https://www.visitbusan.net/uploadImgs/files/cntnts/20191209162810545_ttiel","photoSource":"출처 : 부산광역시 부산맛집정보"}
+```
+
+- `gu`·`dong` 은 좌표를 VWorld(국토교통부 지도 서비스)로 **역지오코딩**(좌표로 행정 주소를 알아내는 것)해서 얻은 법정동이다. 주소 글의 동이 아니다
+- `sources` 는 `부산시 맛집정보` · `모범음식점` · `택슐랭` 중 하나 이상. 모르는 이름이 오면 멈춘다
+- `existingPlaceId` 가 있으면 우리 DB 에 이미 있는 장소다 — **장소는 새로 안 만들고 표식만 단다.** 없으면 새로 만든다
+- `photoUrl`·`photoSource` 는 짝이다. 출처 없는 사진은 거절하고, 출처 문구는 그대로 `place.photo_source` 에 간다
+- `tel`·`menu` 는 읽기만 하고 DB 에 안 넣는다(`place` 에 전화번호 칸이 없고, 메뉴는 가격이 글에 섞여 있다)
+- 🔴 **모르는 칸·틀린 모양이 하나라도 있으면 줄 번호와 함께 멈추고 한 행도 안 넣는다.** 단 아래 셋은 멈추지 않고 로그에 한 줄씩 남기고 건너뛴다
+
+| 건너뛰는 줄 | 이유 | 파일에서 |
+|---|---|---|
+| `gu` 가 `?` | 좌표를 역지오코딩하지 못한 줄이라 구를 모른다(「보느파티쓰 리」 — 경도 칸에 위도가 한 번 더 적혀 있다). 좌표 검사보다 **먼저** 건너뛴다 | 1줄 |
+| 같은 `sourceId` 가 여러 줄 | 번호 하나에 장소 하나다. 그런데 이 파일은 같은 번호가 **서로 다른 좌표·구·동**으로 겹쳤다(같은 이름의 다른 지점으로 짝지어진 것). 그리고 **먼저 나온 줄이 일곱 번호 모두 틀렸다.** 그래서 첫 줄이 아니라 **주소 글과 가장 잘 맞는 줄**을 남긴다(주소의 구와 같음 +4 · 주소에 동 이름이 있음 +1 · 번호 끝 `@위도` 와 같음 +1, 같으면 먼저 나온 줄) | 7개 번호, 8줄이 남는 줄 |
+| 주소의 구와 좌표로 얻은 구가 다름 | 주소가 「연제구 …」인데 좌표의 구가 금정구다(큐제) · 주소가 「남구 …」인데 해운대구다(초원복국). 같은 이름의 **다른 지점**에 좌표가 붙은 것이라, 그대로 넣으면 핀이 엉뚱한 곳에 찍히고 `existingPlaceId` 는 **다른 지점의 장소**를 가리킨다. 주소 **첫머리**에 구가 적혀 있을 때만 판단한다 | 2줄 |
+
+주소에 구가 없는 줄(「기장읍 …」「조방로 16번길 …」 같은 것, 이 파일에서 40줄)은 **대조할 수 없어서 그대로 믿는다.** 수집 쪽에 확인을 부탁할 수 있다.
+
+### 11-2. 무엇을 넣나
+
+| 대상 | 내용 |
+|---|---|
+| 새 `place` | `category='FOOD'`, `source_type='BUSAN_CERTIFIED_FOOD'`, `source_id=sourceId`, `dataset_version=<수집분>`, 공공 사진이 있으면 `photo_url`·`photo_source`(`http://tong.visitkorea.or.kr` 은 `https` 로 바꾼다). 장소 id 는 `UUID.nameUUIDFromBytes("gabolle:place:BUSAN_CERTIFIED_FOOD:" + sourceId)` 라 두 번 돌려도 같다 |
+| `CATEGORY_TAG` = `FOOD` | **새 장소에만.** 추정(`ESTIMATED`) |
+| `INTEREST_TAG` = `LOCAL_RESTAURANT` | 맛집 갈래 표식. 확인됨(`VERIFIED`). 탐색 갈래 서랍이라 `/api/v1/places/facets` 가 건수를 센다 |
+| `ADMIN_AREA_TAG` = `구/동` | 어느 구·동인가. 열쇠가 `해운대구/우동` 꼴이고 값은 `{"gu":…,"dong":…}`. 추정. **한 장소에 하나** — 이미 있으면 다른 줄이 다른 곳을 말해도 먼저 것을 두고 로그에 센다 |
+| `CERTIFICATION_TAG` = `BUSAN_FOOD_INFO` · `MODEL_RESTAURANT` · `TAXI_DRIVER_PICK` | 인증한 목록마다 한 줄. 값은 `{"source":"모범음식점"}`. 확인됨 |
+
+구·동을 값(JSON) 안이 아니라 **열쇠**에 넣은 것은, 목록을 구·동으로 거르려면 DB 가 비교해야 하는데 이 저장소의 조회는 JPQL(JPA 의 객체 질의어)이고
+JPQL 은 JSONB 안을 못 보기 때문이다.
+
+새로 만들기 전에 `SamePlaceGuard`(3절 ①과 같은 **같은 곳 검사** — 이름이 같고 150m 안이면 같은 곳)를 거친다.
+- **같은 곳이 이미 있고 추천에 쓰는 장소면** 새로 만들지 않고 그 장소에 표식을 단다(수집 쪽 짝짓기가 놓친 것을 주워 담는다)
+- **체인 가게 30~150m · 해변·산책로·공원 150m~1km** 같은 이름은 넣지도 달지도 않고 사람 확인 목록으로 남긴다(`same-place-review-BUSAN_CERTIFIED_FOOD-<수집분>.csv`, 입력 파일 옆)
+- `existingPlaceId` 의 장소가 **합쳐진 줄**이면 남은 줄에 단다. 이 DB 에 없거나 추천에서 빠진 곳(숨김·사용자가 고른 곳)이면 안 달고 로그에 센다
+
+### 11-3. 돌리기
+
+서버는 `ubuntu@3.34.84.167`(`api.gabolle.kr`)이다 — 1절의 옛 주소(`j15e201.p.ssafy.io`)가 아니다. 도커 컨테이너 이름(`backend`)과 망(`local-route-personalization_data_net`)은 그대로다.
+
+```bash
+PEM=<각자 받은 .pem>
+HOST=ubuntu@3.34.84.167
+
+# 1) 입력 파일을 올린다 (내 PC → 서버)
+ssh -i $PEM $HOST 'mkdir -p /home/ubuntu/load'
+scp -i $PEM /c/Users/SSAFY/Desktop/gabolle-archive/certified-restaurants-20261013.ndjson $HOST:/home/ubuntu/load/
+
+# 2) 서버에 들어가 2절대로 DB 접속값을 빌린다 (끝나면 /tmp/load.env 를 지운다 — 5절)
+ssh -i $PEM $HOST
+docker inspect backend --format '{{range .Config.Env}}{{println .}}{{end}}'   | grep -E '^(GABOLLE_DB_|SPRING_PROFILES_ACTIVE)' > /tmp/load.env
+wc -l /tmp/load.env    # 네 줄이면 정상
+
+# 3) 3절의 run 함수를 정의한 뒤 (IMG 는 지금 도는 백엔드와 같은 이미지로 잡는다), 돌린다
+IMG=$(docker inspect backend --format '{{.Config.Image}}')
+NET=local-route-personalization_data_net
+#   run() { … }   ← 3절 그대로
+RUN=run
+$RUN --gabolle.place.loader.certified-restaurants=/load/certified-restaurants-20261013.ndjson      --gabolle.place.loader.dataset-version=certified-restaurants-20261013
+```
+
+마침 줄: `인증 식당 적재를 마쳤다 — 읽은 줄 N · 넣을 곳 M · 안 넣고 건너뜀 K(구·동 모름 a · 주소의 구와 안 맞음 b) · 같은 번호의 남는 줄 D · 새 장소 …곳(사진 …) · 있던 장소에 표식 …줄 · … · 구·동별 {…}`.
+앞에 안 넣은 줄이 **한 줄씩** 찍힌다(`안 넣고 건너뜀(UNKNOWN_AREA) — …`, `같은 번호의 남는 줄이라 안 넣음 — …`).
+
+**2026-10-13 파일**(이 날짜의 파일 한 개 기준이다 — 파일이 바뀌면 숫자도 바뀐다)을 처음 돌리면 읽은 줄 666 · 넣을 곳 655 · 건너뜀 3(구·동 모름 1 · 주소의 구와 안 맞음 2) ·
+남는 줄 8 이어야 하고, 그중 `existingPlaceId` 가 있는 213곳은 표식만, 나머지 442곳이 새 장소 후보(공공 사진 235곳)다. 같은 곳 검사가 걸러 낸 만큼
+새 장소는 442곳보다 줄고 「같은 곳이라 표식만」 줄이 그만큼 는다.
+**두 번째 실행은 새 장소 0곳 · 새 표식 0** 이어야 한다 — 아니면 멈추고 본다.
+
+> `existingPlaceId 의 장소가 이 DB 에 없어` 경고가 크면, 운영이 아닌 DB 의 장소 번호로 만든 파일이다. 멈추고 수집 쪽에 알린다.
+
+### 11-4. 확인
+
+```sql
+-- 표식 종류별 개수 (수집분 하나)
+SELECT feature_type, evidence_status, count(*)
+  FROM place_feature
+ WHERE source_type = 'BUSAN_CERTIFIED_FOOD' AND source_version = 'certified-restaurants-20261013'
+ GROUP BY 1, 2 ORDER BY 1, 2;
+
+-- 맛집 갈래 장소 수 = 구별 합 (장소 하나에 구·동은 하나)
+SELECT split_part(feature_key, '/', 1) AS gu, count(DISTINCT place_id)
+  FROM place_feature WHERE feature_type = 'ADMIN_AREA_TAG' GROUP BY 1 ORDER BY 2 DESC;
+
+-- 새로 만든 장소
+SELECT category, count(*) AS places, count(photo_url) AS photos
+  FROM place WHERE source_type = 'BUSAN_CERTIFIED_FOOD' AND dataset_version = 'certified-restaurants-20261013' GROUP BY 1;
+```
+
+API 로도 본다 — 로그인한 토큰(손님 토큰도 된다)으로 `GET /api/v1/places/facets` 의 `INTEREST_TAG` 항목 `keys` 끝에 `LOCAL_RESTAURANT`(`맛집`)이 건수와 함께 나오는지,
+`GET /api/v1/places/restaurants/areas` 가 구 → 동 목록을, `GET /api/v1/places/restaurants?gu=해운대구&dong=우동` 이 그 동의 맛집을 주는지 본다.
+
+### 11-5. 되돌리기
+
+표식과 장소 모두 `source_type` 과 수집분이 찍혀 있다. **표식을 먼저** 지운다(`fk_place_feature_place`).
+
+```sql
+DELETE FROM place_feature WHERE source_type = 'BUSAN_CERTIFIED_FOOD' AND source_version = 'certified-restaurants-20261013';
+DELETE FROM place         WHERE source_type = 'BUSAN_CERTIFIED_FOOD' AND dataset_version = 'certified-restaurants-20261013';
+```
+
+첫 줄은 **이미 있던 장소에 단 표식도 같이** 지운다(그 표식도 같은 `source_type` 이다) — 이미 있던 장소 자체는 안 건드린다. 새 장소에 그 뒤 다른 적재(영업시간·사진 등)가 표식을 붙였으면
+둘째 줄이 외래키에 막힌다. 그때는 `place_id IN (SELECT place_id FROM place WHERE source_type = 'BUSAN_CERTIFIED_FOOD' AND dataset_version = …)` 로 그 표식을 먼저 지운다.
+
 ## 되돌리기
 
 전부 출처와 수집분이 찍힌다.

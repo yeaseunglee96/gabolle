@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.gabolle.backend.common.api.ApiResponse;
 import com.gabolle.backend.place.domain.AccommodationCategories;
+import com.gabolle.backend.place.service.CertifiedRestaurantQueryService;
 import com.gabolle.backend.place.service.PlaceCategoryService;
 import com.gabolle.backend.place.service.PlaceFacetService;
 import com.gabolle.backend.place.service.PlaceRequestException;
@@ -39,11 +40,15 @@ public class PlaceQueryController {
 
 	private final PlaceCategoryService placeCategoryService;
 
+	private final CertifiedRestaurantQueryService certifiedRestaurantQueryService;
+
 	public PlaceQueryController(PlaceSearchService placeSearchService, PlaceFacetService placeFacetService,
-			PlaceCategoryService placeCategoryService) {
+			PlaceCategoryService placeCategoryService,
+			CertifiedRestaurantQueryService certifiedRestaurantQueryService) {
 		this.placeSearchService = placeSearchService;
 		this.placeFacetService = placeFacetService;
 		this.placeCategoryService = placeCategoryService;
+		this.certifiedRestaurantQueryService = certifiedRestaurantQueryService;
 	}
 
 	/**
@@ -105,6 +110,31 @@ public class PlaceQueryController {
 	public ApiResponse<PlaceFacetResponse> facets(
 			@RequestHeader(value = "X-Request-Id", required = false) String requestId) {
 		return ApiResponse.success(this.placeFacetService.facets(), resolveRequestId(requestId));
+	}
+
+	/**
+	 * 「맛집」 갈래의 구 → 동 목록과 곳마다의 맛집 수(S15P21E201-2051). 공공기관이 인증한 식당만 센다. 맛집 자료를 아직 안
+	 * 넣었으면 빈 목록이다.
+	 */
+	@GetMapping("/restaurants/areas")
+	public ApiResponse<RestaurantAreaResponse> restaurantAreas(
+			@RequestHeader(value = "X-Request-Id", required = false) String requestId) {
+		return ApiResponse.success(this.certifiedRestaurantQueryService.areas(), resolveRequestId(requestId));
+	}
+
+	/**
+	 * 구·동으로 거른 맛집 목록(S15P21E201-2051). {@code gu} 는 필수이고 {@code dong} 을 빼면 구 전체다. 인증한 목록이 많은 집이
+	 * 먼저, 같으면 이름 순이다. 각 줄은 {@code /places?facetType=…} 목록과 같은 칸에 {@code gu}·{@code dong}·{@code certifiedSources}
+	 * 를 더한 모양이다.
+	 */
+	@GetMapping("/restaurants")
+	public ApiResponse<RestaurantPageResponse> restaurants(
+			@RequestParam(required = false) String gu,
+			@RequestParam(required = false) String dong,
+			@RequestParam(required = false) Integer limit,
+			@RequestHeader(value = "X-Request-Id", required = false) String requestId) {
+		return ApiResponse.success(this.certifiedRestaurantQueryService.restaurants(gu, dong, limit),
+				resolveRequestId(requestId));
 	}
 
 	private String resolveRequestId(String requestId) {
