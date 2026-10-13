@@ -56,8 +56,10 @@ const PER_FACET = 6;
 /**
  * 묶음에 섞지 않는 갈래. 축제는 장소 검색이 날짜를 몰라 이미 끝난 축제가 섞인다(홈 축제 줄이
  * 날짜 조회로 바꾼 이유와 같다 — S15P21E201-1594). 축제는 자기 칸·자기 줄에서 본다.
+ * 맛집(LOCAL_RESTAURANT)도 자기 칸에서 구 → 동으로 고른다(S15P21E201-2051) — 섞으면 「로컬 장소」가 식당 666곳에 묻히고,
+ * 근처 조회는 맛집 낱말을 몰라 거절한다.
  */
-const EXCLUDED_FROM_MIX = new Set(['FESTIVAL']);
+const EXCLUDED_FROM_MIX = new Set(['FESTIVAL', 'LOCAL_RESTAURANT']);
 const mixable = <T extends { featureKey: string }>(facets: T[]): T[] => facets.filter((f) => !EXCLUDED_FROM_MIX.has(f.featureKey) && f.featureKey !== LOCAL_PLACES_KEY);
 const TOTAL = 24;
 

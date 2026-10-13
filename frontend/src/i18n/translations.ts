@@ -3615,6 +3615,19 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '이유를 골라 주세요 (선택)': { ja: '理由を選んでください（任意）', zhHans: '请选择原因（可选）', zhHant: '請選擇原因（可選）', vi: 'Chọn lý do (không bắt buộc)' },
   '한마디 (선택)': { ja: 'ひとこと（任意）', zhHans: '留言（可选）', zhHant: '留言（可選）', vi: 'Ghi chú (không bắt buộc)' },
   '한마디 남기기 (선택)': { ja: 'ひとこと残す（任意）', zhHans: '留下一句话（可选）', zhHant: '留下一句話（可選）', vi: 'Để lại ghi chú (không bắt buộc)' },
+  // ── 로컬 탐색 「맛집」 갈래 — 공공기관이 인증한 식당만, 구 → 동으로 고른다 (S15P21E201-2051) ──
+  '공공기관이 인증한 식당만 보여 드려요. 구와 동을 차례로 골라 보세요.': { ja: '公的機関が認証した飲食店だけを表示します。区と洞を順に選んでください。', zhHans: '仅显示由公共机构认证的餐厅。请依次选择区和洞。', zhHant: '僅顯示由公共機構認證的餐廳。請依序選擇區和洞。', vi: 'Chỉ hiển thị các nhà hàng được cơ quan công quyền chứng nhận. Hãy chọn quận rồi đến phường.' },
+  '구 고르기': { ja: '区を選ぶ', zhHans: '选择区', zhHant: '選擇區', vi: 'Chọn quận' },
+  '동 고르기': { ja: '洞を選ぶ', zhHans: '选择洞', zhHant: '選擇洞', vi: 'Chọn phường' },
+  '먼저 구를 골라 주세요.': { ja: 'まず区を選んでください。', zhHans: '请先选择区。', zhHant: '請先選擇區。', vi: 'Hãy chọn quận trước.' },
+  '동을 골라 주세요. 「전체」를 누르면 이 구의 맛집이 모두 나와요.': { ja: '洞を選んでください。「すべて」を押すと、この区のグルメ店がすべて表示されます。', zhHans: '请选择洞。点击“全部”可查看该区的所有餐厅。', zhHant: '請選擇洞。點選「全部」可查看該區的所有餐廳。', vi: 'Hãy chọn phường. Nhấn “Tất cả” để xem mọi quán trong quận này.' },
+  '구·동을 불러오고 있어요': { ja: '区・洞を読み込んでいます', zhHans: '正在加载区和洞', zhHant: '正在載入區和洞', vi: 'Đang tải danh sách quận và phường' },
+  '구·동 목록을 불러오지 못했어요.': { ja: '区・洞の一覧を読み込めませんでした。', zhHans: '无法加载区和洞列表。', zhHant: '無法載入區和洞列表。', vi: 'Không tải được danh sách quận và phường.' },
+  '맛집을 불러오고 있어요': { ja: 'グルメ店を読み込んでいます', zhHans: '正在加载餐厅', zhHant: '正在載入餐廳', vi: 'Đang tải danh sách quán' },
+  '맛집을 불러오지 못했어요.': { ja: 'グルメ店を読み込めませんでした。', zhHans: '无法加载餐厅。', zhHant: '無法載入餐廳。', vi: 'Không tải được danh sách quán.' },
+  '이곳에는 인증 맛집이 없어요.': { ja: 'ここには認証済みのグルメ店がありません。', zhHans: '这里没有认证餐厅。', zhHant: '這裡沒有認證餐廳。', vi: 'Ở đây chưa có quán nào được chứng nhận.' },
+  '부산시 맛집': { ja: '釜山市グルメ', zhHans: '釜山市美食', zhHant: '釜山市美食', vi: 'Quán ngon Busan' },
+  '택슐랭': { ja: 'タクシュラン', zhHans: '出租车米其林', zhHant: '計程車米其林', vi: 'Taxi-lin' },
 };
 
 export function getTranslation(ko: string, field: 'ja' | 'zhHans' | 'zhHant' | 'vi'): string | null {
