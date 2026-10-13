@@ -10,8 +10,10 @@ import { enterApp } from '@/auth/enterApp';
 
 import { ApiClientError } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
-import { completeOAuthSignup, type OAuthLinkRequiredResult, type OAuthProvider, type SignupLanguage } from '@/auth/authApi';
+import { completeOAuthSignup, type OAuthLinkRequiredResult, type OAuthProvider } from '@/auth/authApi';
 import { consumePendingReturnTo, isSafeReturnPath } from '@/auth/pendingReturnTo';
+import { SignupLanguagePicker } from '@/auth/SignupLanguagePicker';
+import { toSignupLanguage } from '@/auth/signupLanguage';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
@@ -33,14 +35,18 @@ export default function OAuthSignup() {
   const router = useRouter();
   const { tx } = useI18n();
   const { acceptTokens } = useAuth();
-  const { setLanguage: setOnboardingLanguage } = useOnboardingPreferences();
+  const { language: onboardingLanguage, setLanguage: setOnboardingLanguage } = useOnboardingPreferences();
+  // 소셜 업체가 준 언어(prefill.language)는 여기서 읽지 않는다 — 아래 language 참고.
   const params = useLocalSearchParams<{
-    provider?: OAuthProvider; signupTicket?: string; email?: string; displayName?: string; language?: string; emailProvided?: string; returnTo?: string;
+    provider?: OAuthProvider; signupTicket?: string; email?: string; displayName?: string; emailProvided?: string; returnTo?: string;
   }>();
   const [displayName, setDisplayName] = useState(params.displayName ?? '');
   // 포커스 = 붉은 2px 선 — 웹의 검은 기본 외곽선을 끈 대신이다(회원가입 시안과 같게, S15P21E201-1518).
   const [nameFocused, setNameFocused] = useState(false);
-  const [language, setLanguage] = useState<SignupLanguage>(params.language === 'EN' ? 'EN' : 'KO');
+  // 🔴 계정 언어는 «화면 언어» 에서 바로 뽑는다 — 따로 상태를 두지 않는다(S15P21E201-2053). 처음 값은 첫 화면에서 고른 언어다.
+  //    전에는 소셜 업체의 언어 설정(영어면 EN, 그 밖엔 KO)을 처음 값으로 썼다. 그러면 한국어 화면을 보는 사람이 영어 계정으로
+  //    가입될 수 있었고, 일본어·중국어·베트남어는 아예 고를 수 없었다. 칩을 누르면 화면 언어가 바뀌고 그 값이 곧 계정 언어다.
+  const language = toSignupLanguage(onboardingLanguage);
   const [ageAccepted, setAgeAccepted] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
@@ -117,13 +123,7 @@ export default function OAuthSignup() {
 
         <View style={styles.field}>
           <Text variant="caption" weight="bold">{tx('언어', 'Language')}</Text>
-          <View accessibilityRole="radiogroup" style={styles.languageRow}>
-            {(['KO', 'EN'] as const).map((value) => (
-              <Pressable key={value} accessibilityRole="radio" accessibilityState={{ selected: language === value }} onPress={() => { setLanguage(value); setOnboardingLanguage(value === 'KO' ? 'ko' : 'en'); }} style={[styles.language, language === value && styles.languageSelected]}>
-                <Text variant="body" weight="bold" color={language === value ? color.text.onAction : color.text.heading}>{value === 'KO' ? '한국어' : 'English'}</Text>
-              </Pressable>
-            ))}
-          </View>
+          <SignupLanguagePicker value={onboardingLanguage} onSelect={setOnboardingLanguage} />
         </View>
 
         <View style={styles.agreements}>
@@ -133,7 +133,7 @@ export default function OAuthSignup() {
         </View>
 
         {error && <Card><Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{localizeMessage(tx, error)}</Text></Card>}
-        <Button label={submitting ? tx('가입 중…', 'Signing up…') : tx('가입 완료', 'Finish signing up')} disabled={!canSubmit} onPress={() => void submit()} />
+        <Button testID="oauth-signup-submit" label={submitting ? tx('가입 중…', 'Signing up…') : tx('가입 완료', 'Finish signing up')} disabled={!canSubmit} onPress={() => void submit()} />
       </View>
     </Screen>
   );
@@ -159,9 +159,6 @@ const styles = StyleSheet.create({
   // 🔴 웹의 검은 포커스 외곽선을 끈다 — 대신 inputFocused 의 붉은 선이 포커스를 보여 준다.
   input: { minHeight: 52, borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card, color: color.text.heading, fontSize: 15, paddingHorizontal: spacing[4], ...webInputNoOutline },
   inputFocused: { borderColor: color.action.outline, borderWidth: 2 },
-  languageRow: { flexDirection: 'row', gap: spacing[2] },
-  language: { flex: 1, alignItems: 'center', padding: spacing[3], borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card },
-  languageSelected: { backgroundColor: color.action.secondary, borderColor: color.action.secondary },
   agreements: { gap: spacing[3], padding: spacing[4], borderRadius: radius.md, backgroundColor: color.surface.card },
   checkRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
   checkLabel: { flex: 1 },

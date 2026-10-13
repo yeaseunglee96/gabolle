@@ -4,8 +4,10 @@ import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
 import Animated, { FadeInRight, FadeOutLeft, ReduceMotion } from 'react-native-reanimated';
 
 import { ApiClientError } from '@/api/client';
-import { resendEmailVerification, signup, type Registration, type SignupLanguage } from '@/auth/authApi';
+import { resendEmailVerification, signup, type Registration } from '@/auth/authApi';
 import { useAuth } from '@/auth/AuthProvider';
+import { SignupLanguagePicker } from '@/auth/SignupLanguagePicker';
+import { toSignupLanguage } from '@/auth/signupLanguage';
 import { enterApp } from '@/auth/enterApp';
 import { isSafeReturnPath, savePendingReturnTo, signedInDestination } from '@/auth/pendingReturnTo';
 import { Button } from '@/components/Button';
@@ -46,7 +48,10 @@ export default function SignUp() {
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [displayName, setDisplayName] = useState('');
-  const [language, setLanguage] = useState<SignupLanguage>(onboardingLanguage === 'ko' ? 'KO' : 'EN');
+  // 🔴 계정 언어는 «화면 언어» 에서 바로 뽑는다 — 따로 상태를 두지 않는다(S15P21E201-2053). 칩을 누르면 화면 언어가 바뀌고
+  //    그 값이 곧 계정 언어다. 따로 두면 첫 화면에서 고른 언어가 저장소에서 늦게 읽혀 올 때(웹에서 /sign-up 을 바로 열었을 때)
+  //    화면은 일본어인데 계정은 한국어로 가입되는 어긋남이 생긴다.
+  const language = toSignupLanguage(onboardingLanguage);
   const [ageAccepted, setAgeAccepted] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
@@ -240,7 +245,7 @@ export default function SignUp() {
         </Field>
 
         <Field label={tx('언어', 'Language')}>
-          <View accessibilityRole="radiogroup" style={styles.languageRow}>{(['KO', 'EN'] as const).map((value) => <Pressable accessibilityRole="radio" accessibilityState={{ selected: language === value }} key={value} onPress={() => { setLanguage(value); setOnboardingLanguage(value === 'KO' ? 'ko' : 'en'); }} style={[styles.language, language === value && styles.languageSelected]}><Text variant="body" weight="bold" color={language === value ? color.text.onAction : color.text.heading}>{value === 'KO' ? '한국어' : 'English'}</Text></Pressable>)}</View>
+          <SignupLanguagePicker value={onboardingLanguage} onSelect={setOnboardingLanguage} />
         </Field>
         </>}
 
@@ -329,9 +334,6 @@ const styles = StyleSheet.create({
   guest: { marginTop: spacing[3] },
   inlineRow: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing[2] },
   ruleRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[3] },
-  languageRow: { flexDirection: 'row', gap: spacing[2] },
-  language: { flex: 1, alignItems: 'center', padding: spacing[3], borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card },
-  languageSelected: { backgroundColor: color.action.secondary, borderColor: color.action.secondary },
   agreements: { gap: spacing[3], padding: spacing[4], borderRadius: radius.md, backgroundColor: color.surface.card },
   checkRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
   checkLabel: { flex: 1 },
