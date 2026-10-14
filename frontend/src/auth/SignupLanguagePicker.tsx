@@ -10,7 +10,7 @@
 //    (S15P21E201-1983). 순서는 첫 화면의 언어 시트(WelcomeLanguageSheet)와 같다 — 목록은 LANGUAGE_OPTIONS 한 곳이다.
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { Text } from '@/components/Text';
+import { ChipLabel } from '@/components/ChipLabel';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { LANGUAGE_OPTIONS, type LanguageCode } from '@/i18n/languages';
@@ -37,8 +37,8 @@ export function SignupLanguagePicker({ value, onSelect }: {
             onPress={() => onSelect(option.code)}
             style={[styles.chip, selected && styles.chipSelected]}
           >
-            {/* 한 줄 · 넘치면 글자를 줄인다 — 「繁體中文」 끝 글자가 잘린 적이 있다(S15P21E201-1988). */}
-            <Text variant="body" weight="bold" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8} color={selected ? color.text.onAction : color.text.heading}>{option.endonym}</Text>
+            {/* 칩 폭 전체로 편 글자(ChipLabel) — 「繁體中文」 끝 글자가 잘린 적이 있다(S15P21E201-1988 · S15P21E201-2054). 이유는 ChipLabel.tsx 머리말에. */}
+            <ChipLabel variant="body" color={selected ? color.text.onAction : color.text.heading}>{option.endonym}</ChipLabel>
           </Pressable>
         );
       })}

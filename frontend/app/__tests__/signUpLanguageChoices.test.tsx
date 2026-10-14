@@ -183,6 +183,21 @@ describe('이메일 가입 화면', () => {
       expect(style.minHeight).toBeGreaterThanOrEqual(44);
     }
   });
+
+  it('🔴 칩 안의 이름은 칩 폭 전체로 편 글자다 — 「繁體中文」 끝 글자가 잘리지 않게 여유를 둔다 (S15P21E201-2054)', async () => {
+    const view = await mountSignUp();
+
+    for (const endonym of ENDONYMS) {
+      const label = view.getByText(endonym);
+      const style = StyleSheet.flatten(label.props.style);
+      expect(style.alignSelf).toBe('stretch');
+      expect(style.textAlign).toBe('center');
+      // 가짜 굵게가 붙는 문턱(600) 아래, 한 줄 자르기·글자 줄이기는 없다
+      expect(Number(style.fontWeight)).toBeLessThan(600);
+      expect(label.props.numberOfLines).toBeUndefined();
+      expect(label.props.adjustsFontSizeToFit).toBeUndefined();
+    }
+  });
 });
 
 describe('소셜 가입 마무리 화면', () => {
