@@ -27,6 +27,7 @@ import { txf } from '@/i18n/format';
 import { otherNameFor } from '@/discovery/localNames';
 import { addressForLanguage, koreanAddressLine } from '@/discovery/localAddress';
 import { GuideCallout } from '@/onboarding/GuideCallout';
+import { NearbyParkingLine } from '@/place/NearbyParkingLine';
 import { PlaceDetailExtras } from '@/place/PlaceDetailExtras';
 import { PlaceRoutesSection } from '@/routepost/PlaceRoutesSection';
 import { takeScreenGuide } from '@/onboarding/firstRun';
@@ -308,6 +309,8 @@ export default function Place() {
         ) : null}
         {/* 대표 메뉴·외국어 메뉴판·편의시설·입장료·가까운 명소·좋은 때·걷기 난이도(S15P21E201-1888). 값이 없으면 아무것도 안 그린다. */}
         {resolved.apiPlace ? <PlaceDetailExtras category={resolved.apiPlace.category} features={resolved.apiPlace.features} /> : null}
+        {/* 근처 주차장 한 줄 — 가장 싼 곳의 1시간 요금·거리, 누르면 근처 편의시설 화면(S15P21E201-2052). 근처에 없거나 못 불러오면 아무것도 안 그린다. */}
+        {resolved.apiPlace ? <NearbyParkingLine lat={resolved.apiPlace.lat} lng={resolved.apiPlace.lng} placeName={resolved.title} accessToken={accessToken} /> : null}
         {/* 관광공사 「무슬림 친화 식당」 목록 — 서버가 2026-09-30 부터 싣는다(S15P21E201-1873). 🔴 「할랄 인증」이라고 하지 않는다:
             목록은 인증·자가 인증·포크프리 등을 한데 모았고 등급은 안 실려 온다. 출처와 기준일을 밝힌다(S15P21E201-1878). */}
         {resolved.apiPlace && isMuslimFriendlyListed(resolved.apiPlace) ? (

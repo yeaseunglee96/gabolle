@@ -113,6 +113,12 @@ export type NearbyOptions = {
   accessible?: boolean;
   /** 화장실만 — 기저귀 교환대가 있는 곳만 */
   diaper?: boolean;
+  /**
+   * 사람이 아니라 «장소»의 자리를 기준으로 찾을 때 — 좌표를 줄이지 않고 그대로 보낸다(S15P21E201-2052, 장소 상세의 «근처 주차장»).
+   * 약 100m 로 줄이는 것은 «내 위치»를 가리려는 약속인데, 장소의 자리는 누구나 보는 값이다. 게다가 줄이면 «그 장소에서 몇 m»가
+   * 최대 80m 남짓 틀어진다.
+   */
+  exact?: boolean;
   signal?: AbortSignal;
 };
 
@@ -144,6 +150,7 @@ export function formatWon(won: number): string {
  * 가까운 시설을 서버에 묻는다. 못 받으면 던진다 — 화면이 «불러오지 못했어요 · 다시 시도»를 그린다.
  *
  * 🔴 좌표는 약 100m 단위로 줄여서 보낸다 — 위치 동의가 «내 주변 찾기는 약 100m 단위로»라고 약속한다(둘러보기·버스와 같다).
+ *    단 `options.exact` 일 때(장소의 자리를 기준으로 찾을 때)는 그대로 보낸다 — 소수 다섯째 자리(약 1m)까지만.
  */
 export async function getNearbyFacilities(
   kind: FacilityKind,
@@ -151,10 +158,11 @@ export async function getNearbyFacilities(
   accessToken: string | null,
   options: NearbyOptions = {},
 ): Promise<NearbyFacilities> {
+  const point = (value: number) => (options.exact ? Math.round(value * 100000) / 100000 : coarseCoordinate(value));
   const query = new URLSearchParams({
     kind,
-    lat: String(coarseCoordinate(at.latitude)),
-    lng: String(coarseCoordinate(at.longitude)),
+    lat: String(point(at.latitude)),
+    lng: String(point(at.longitude)),
     radiusM: String(options.radiusM ?? DEFAULT_RADIUS_M),
     limit: String(options.limit ?? DEFAULT_LIMIT),
   });
@@ -209,6 +217,38 @@ export function feeSummaryOf(detail: Pick<ParkingDetail, 'free' | 'estimatedWon'
     return { kind: 'partial', baseMinutes: fee.baseMinutes, baseWon: fee.baseWon };
   }
   return { kind: 'unknown' };
+}
+
+// ── 장소 상세의 «근처 주차장» 한 줄 ─────────────────────────────────────────
+
+/** 한 줄은 «1시간 기준»이다 — 몇 시간 머물지는 이 화면이 모른다. 누르면 열리는 화면도 1시간으로 열린다(같은 숫자를 보게). */
+export const PARKING_LINE_STAY_MINUTES = 60;
+
+export type ParkingLine =
+  | { kind: 'fee'; won: number; distanceM: number }
+  | { kind: 'free'; distanceM: number }
+  /** 근처에 주차장은 있는데 요금을 아는 곳이 하나도 없다 */
+  | { kind: 'unknown'; count: number; nearestM: number };
+
+/**
+ * 근처 주차장 목록(1시간 기준)을 한 줄로 줄인다 — «요금을 아는 곳 중 가장 싼 곳»과 그 거리. 같은 값이면 가까운 곳.
+ * 요금을 아는 곳이 없으면 «몇 곳 · 가장 가까운 곳». 하나도 없으면 null — 부르는 쪽이 줄을 통째로 숨긴다.
+ *
+ * 🔴 요금을 모르는 곳(`estimatedWon: null`)은 «가장 싼 곳»이 될 수 없다. null 을 0원으로 읽으면 요금도 모르는 주차장이 무료로 보인다.
+ *    서버가 이미 싼 순으로 주지만(요금 모름은 맨 뒤) 이 함수는 그 순서에 기대지 않고 직접 고른다.
+ */
+export function parkingLineOf(data: Pick<NearbyFacilities, 'items' | 'total'>): ParkingLine | null {
+  const lots = data.items.filter((item): item is Extract<FacilityItem, { kind: 'PARKING' }> => item.kind === 'PARKING');
+  if (lots.length === 0) return null;
+  let best: { won: number; distanceM: number } | null = null;
+  for (const lot of lots) {
+    const fee = feeSummaryOf(lot.detail);
+    const won = fee.kind === 'free' ? 0 : fee.kind === 'estimate' ? fee.won : null;
+    if (won === null) continue;
+    if (best === null || won < best.won || (won === best.won && lot.distanceM < best.distanceM)) best = { won, distanceM: lot.distanceM };
+  }
+  if (best) return best.won === 0 ? { kind: 'free', distanceM: best.distanceM } : { kind: 'fee', won: best.won, distanceM: best.distanceM };
+  return { kind: 'unknown', count: Math.max(data.total, lots.length), nearestM: Math.min(...lots.map((lot) => lot.distanceM)) };
 }
 
 // ── 물품보관함 요금 글 ─────────────────────────────────────────────────────

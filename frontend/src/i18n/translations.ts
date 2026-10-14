@@ -3691,6 +3691,13 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '설치된 칸 수예요. 비어 있는지는 현장에서 확인해 주세요.': { ja: '設置されているロッカーの数です。空きは現地でご確認ください。', zhHans: '这是已安装的储物柜数量，是否有空位请在现场确认。', zhHant: '這是已設置的置物櫃數量，是否有空位請在現場確認。', vi: 'Đây là số tủ đã lắp đặt, không phải số tủ còn trống. Vui lòng kiểm tra tại chỗ.' },
   // 근처 편의시설 — 화장실 개방시간이 «하루 몇 시간»만 적힌 경우 (S15P21E201-2052)
   '하루 %s시간 개방': { ja: '1日%s時間利用可', zhHans: '每天开放 %s 小时', zhHant: '每天開放 %s 小時', vi: 'Mở cửa %s giờ mỗi ngày' },
+  // ── 근처 주차장 한 줄 · 장소 기준으로 열기 (S15P21E201-2052 후속) ──
+  '근처 주차장': { ja: '近くの駐車場', zhHans: '附近停车场', zhHant: '附近停車場', vi: 'Bãi đỗ xe gần đây' },
+  '1시간 %s원 · %s': { ja: '1時間 %sウォン · %s', zhHans: '1 小时 %s 韩⁠元 · %s', zhHant: '1 小時 %s 韓⁠元 · %s', vi: '1 giờ %s won · %s' },
+  '무료 · %s': { ja: '無料 · %s', zhHans: '免费 · %s', zhHant: '免費 · %s', vi: 'Miễn phí · %s' },
+  '%s곳 · 가장 가까운 곳 %s': { ja: '%s件 · 最寄りは%s', zhHans: '%s 处 · 最近距离 %s', zhHant: '%s 處 · 最近距離 %s', vi: '%s bãi · gần nhất %s' },
+  '「%s」 근처에서 찾았어요. 거리도 그 장소에서 잰 거예요.': { ja: '「%s」の近くで探しました。距離もその場所から測っています。', zhHans: '已在「%s」附近搜索，距离也是从该地点量起。', zhHant: '已在「%s」附近搜尋，距離也是從該地點量起。', vi: 'Đã tìm quanh “%s”. Khoảng cách cũng tính từ địa điểm đó.' },
+  '고른 장소 근처에서 찾았어요. 거리도 그 장소에서 잰 거예요.': { ja: '選んだ場所の近くで探しました。距離もその場所から測っています。', zhHans: '已在所选地点附近搜索，距离也是从该地点量起。', zhHant: '已在所選地點附近搜尋，距離也是從該地點量起。', vi: 'Đã tìm quanh địa điểm bạn chọn. Khoảng cách cũng tính từ địa điểm đó.' },
 };
 
 export function getTranslation(ko: string, field: 'ja' | 'zhHans' | 'zhHant' | 'vi'): string | null {

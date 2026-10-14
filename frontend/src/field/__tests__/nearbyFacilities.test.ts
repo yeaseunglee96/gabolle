@@ -9,9 +9,12 @@ import {
   formatWon,
   getNearbyFacilities,
   openStatusOf,
+  PARKING_LINE_STAY_MINUTES,
+  parkingLineOf,
   parseLockerFee,
   SEOMYEON,
   walkMinutesFor,
+  type FacilityItem,
 } from '../nearbyFacilities';
 
 jest.mock('@/api/client', () => ({ apiRequest: jest.fn() }));
@@ -64,6 +67,63 @@ describe('주차장 예상요금을 그릴 네 가지로', () => {
   it('🔴 요금표도 예상요금도 없으면 모른다 — 0원이 아니다', () => {
     expect(feeSummaryOf({ free: false, estimatedWon: null, fee: null })).toEqual({ kind: 'unknown' });
     expect(feeSummaryOf({ free: false, estimatedWon: null, fee: { ...full, baseWon: null } })).toEqual({ kind: 'unknown' });
+  });
+});
+
+describe('장소 상세의 «근처 주차장» 한 줄 — 요금을 아는 곳 중 가장 싼 곳', () => {
+  const lot = (id: string, distanceM: number, estimatedWon: number | null, extra: { free?: boolean; fee?: unknown } = {}): FacilityItem => ({
+    id, name: id, address: null, lat: 35.1, lng: 129.1, distanceM, kind: 'PARKING',
+    detail: {
+      operator: null, free: extra.free ?? false, spaces: null,
+      fee: (extra.fee as never) ?? null, estimatedWon, note: null, openNow: null, todayHours: null, closesAt: null, allDay: false,
+    },
+  });
+  const wrap = (items: FacilityItem[], total = items.length) => ({ items, total });
+
+  it('1시간 기준으로 묻는다 — 줄과 누르면 열리는 화면이 같은 숫자를 보게', () => {
+    expect(PARKING_LINE_STAY_MINUTES).toBe(60);
+  });
+
+  it('요금을 아는 곳 중 가장 싼 곳의 요금과 거리', () => {
+    expect(parkingLineOf(wrap([lot('비싼', 50, 3000), lot('싼', 450, 1200), lot('중간', 200, 2000)]))).toEqual({ kind: 'fee', won: 1200, distanceM: 450 });
+  });
+
+  it('🔴 요금을 모르는 곳은 가까워도 «가장 싼 곳»이 아니다 — null 을 0원으로 읽지 않는다', () => {
+    expect(parkingLineOf(wrap([lot('모름', 10, null), lot('아는', 600, 2500)]))).toEqual({ kind: 'fee', won: 2500, distanceM: 600 });
+  });
+
+  it('값이 같으면 가까운 곳', () => {
+    expect(parkingLineOf(wrap([lot('멀다', 500, 1000), lot('가깝다', 90, 1000)]))).toEqual({ kind: 'fee', won: 1000, distanceM: 90 });
+  });
+
+  it('무료가 있으면 무료 — free 표시든 예상요금 0 이든', () => {
+    expect(parkingLineOf(wrap([lot('유료', 50, 1000), lot('무료', 300, 0, { free: true })]))).toEqual({ kind: 'free', distanceM: 300 });
+    expect(parkingLineOf(wrap([lot('무료시간', 120, 0)]))).toEqual({ kind: 'free', distanceM: 120 });
+  });
+
+  it('서버가 순서를 바꿔 보내도 같은 답이다 — 첫 칸에 기대지 않는다', () => {
+    const items = [lot('a', 100, null), lot('b', 800, 4000), lot('c', 300, 900), lot('d', 60, 900)];
+    expect(parkingLineOf(wrap(items))).toEqual({ kind: 'fee', won: 900, distanceM: 60 });
+    expect(parkingLineOf(wrap([...items].reverse()))).toEqual({ kind: 'fee', won: 900, distanceM: 60 });
+  });
+
+  it('🔴 요금을 아는 곳이 하나도 없으면 «몇 곳 · 가장 가까운 곳» — 기본요금만 아는 곳도 아는 곳이 아니다', () => {
+    const partial = lot('일부', 300, null, { fee: { baseMinutes: 30, baseWon: 300, addMinutes: null, addWon: null, dayMaxWon: null, freeMinutes: null } });
+    expect(parkingLineOf(wrap([partial, lot('모름', 150, null)]))).toEqual({ kind: 'unknown', count: 2, nearestM: 150 });
+  });
+
+  it('곳 수는 반경 안의 총 개수(total)다 — 보여 준 개수보다 많을 수 있다', () => {
+    expect(parkingLineOf(wrap([lot('모름', 150, null)], 34))).toEqual({ kind: 'unknown', count: 34, nearestM: 150 });
+  });
+
+  it('🔴 하나도 없으면 null — 줄을 통째로 숨긴다', () => {
+    expect(parkingLineOf(wrap([]))).toBeNull();
+  });
+
+  it('주차장이 아닌 것이 섞여 와도 세지 않는다', () => {
+    const toilet = { id: 't', name: 't', address: null, lat: 1, lng: 1, distanceM: 5, kind: 'TOILET', detail: {} } as unknown as FacilityItem;
+    expect(parkingLineOf(wrap([toilet]))).toBeNull();
+    expect(parkingLineOf(wrap([toilet, lot('싼', 80, 700)]))).toEqual({ kind: 'fee', won: 700, distanceM: 80 });
   });
 });
 
@@ -138,6 +198,27 @@ describe('서버 호출', () => {
     expect(query.get('stayMinutes')).toBe('120');
     expect(query.has('accessible')).toBe(false);
     expect(options.accessToken).toBe('token');
+  });
+
+  it('🔴 exact — 장소의 자리는 줄이지 않고 보낸다(소수 다섯째 자리까지). 줄이면 «그 장소에서 몇 m»가 틀어진다', async () => {
+    apiMock.mockResolvedValue(response);
+
+    await getNearbyFacilities('PARKING', { latitude: 35.158287, longitude: 129.059561 }, 'token', { exact: true, stayMinutes: 60 });
+
+    const query = new URLSearchParams(String(apiMock.mock.calls[0][0]).split('?')[1]);
+    expect(query.get('lat')).toBe('35.15829');
+    expect(query.get('lng')).toBe('129.05956');
+    expect(query.get('stayMinutes')).toBe('60');
+  });
+
+  it('exact 가 아니면(내 위치) 그대로 100m 단위다', async () => {
+    apiMock.mockResolvedValue(response);
+
+    await getNearbyFacilities('PARKING', { latitude: 35.158287, longitude: 129.059561 }, 'token', { exact: false });
+
+    const query = new URLSearchParams(String(apiMock.mock.calls[0][0]).split('?')[1]);
+    expect(query.get('lat')).toBe('35.158');
+    expect(query.get('lng')).toBe('129.06');
   });
 
   it('체류 시간은 주차장에만, 필터는 화장실에만 붙는다', async () => {
