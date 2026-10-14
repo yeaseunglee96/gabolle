@@ -29,6 +29,9 @@ const SUGGESTIONS = [
 //    「내 여행 보기」「로컬 탐색」은 하단 탭에 이미 있어 여기서는 중복이고, 머리말 「여행 중 급할 때」와도
 //    안 맞는다. 급할 때 실제로 여는 넷 — 메뉴판 번역·통역·환율·주변 버스 — 을 그림과 함께 2×2 로 두고,
 //    날씨·준비물까지 다 있는 허브(/field/translate)는 아래 한 줄로 잇는다.
+// 🔴 S15P21E201-2052 — 「근처 편의시설」(주차장·약국·화장실·짐보관)은 격자의 다섯째 칸이 아니라 «격자 바로 아래 한 줄 카드»다.
+//    다섯째 칸으로 넣으면 2열에서 한 칸이 또 비어 위 균형이 다시 깨진다(1396). 긴급 도움 카드와 같은 가로 한 줄이라
+//    격자는 2×2 그대로 두고, 허브로 가는 «현장 도구 전부 보기» 링크 위에 놓는다.
 const dialectIcon = require('../assets/mascot/dongbaek-open.png');
 type QuickTool = { key: string; labelKo: string; labelEn: string; hintKo: string; hintEn: string; href: '/field/exchange-rate' | '/field/transit' | '/field/dialect' | '/help'; icon: ImageSourcePropType | string | 'bus' };
 const QUICK_TOOLS: QuickTool[] = [
@@ -127,6 +130,12 @@ export default function Chat() {
       <View style={styles.toolIconBox}>{toolIcon(tool.icon)}</View>
       {/* 두 줄까지 — 일본어 「釜山なまり ひとこと」「ヘルプ・お問い合わせ」가 한 줄이면 「…」로 잘렸다(5개 언어 점검 2026-09-29). */}<View style={styles.toolBody}><Text variant="body" weight="bold" numberOfLines={2}>{tx(tool.labelKo, tool.labelEn)}</Text><Text variant="caption" color={color.text.body} numberOfLines={2}>{tx(tool.hintKo, tool.hintEn)}</Text></View>
     </Pressable>)}</View>
+    {/* 근처 편의시설 — 격자 바로 아래 한 줄 카드(위 주석 2052). AI 를 거치지 않고 화면으로 간다. */}
+    <Pressable testID="chat-nearby-facilities" accessibilityRole="link" accessibilityLabel={tx('근처 편의시설, 주차장 · 약국 · 화장실 · 짐보관', 'Nearby facilities, parking · pharmacies · restrooms · lockers')} onPress={() => router.push('/field/nearby')} style={({ pressed }) => [styles.nearby, pressed && styles.quickToolPressed]}>
+      <View style={styles.toolIconBox}><Text variant="title">📍</Text></View>
+      <View style={styles.toolBody}><Text variant="body" weight="bold" numberOfLines={2}>{tx('근처 편의시설', 'Nearby facilities')}</Text><Text variant="caption" color={color.text.body} numberOfLines={2}>{tx('주차장 · 약국 · 화장실 · 짐보관', 'Parking · pharmacies · restrooms · lockers')}</Text></View>
+      <Text variant="title" color={color.text.muted}>›</Text>
+    </Pressable>
     <Pressable accessibilityRole="link" accessibilityLabel={tx('현장 도구 전부 보기', 'See all on-the-go tools')} onPress={() => router.push('/field/translate')} style={({ pressed }) => [styles.toolMore, pressed && styles.quickToolPressed]}><Text variant="caption" weight="bold" color={desktop ? color.text.onAction : color.action.secondary}>{tx('현장 도구 전부 보기 ›', 'See all on-the-go tools ›')}</Text></Pressable>
   </View>;
 
@@ -141,6 +150,10 @@ export default function Chat() {
       <View style={styles.compactIcon}>{toolIcon(tool.icon)}</View>
       <Text variant="caption" weight="bold" numberOfLines={1}>{tx(tool.labelKo, tool.labelEn)}</Text>
     </Pressable>)}
+    <Pressable testID="chat-nearby-facilities-compact" accessibilityRole="link" accessibilityLabel={tx('근처 편의시설', 'Nearby facilities')} onPress={() => router.push('/field/nearby')} style={({ pressed }) => [styles.compactTool, pressed && styles.quickToolPressed]}>
+      <Text variant="caption">📍</Text>
+      <Text variant="caption" weight="bold" numberOfLines={1}>{tx('근처 편의시설', 'Nearby facilities')}</Text>
+    </Pressable>
     <Pressable accessibilityRole="link" onPress={() => router.push('/field/translate')} style={({ pressed }) => [styles.compactTool, pressed && styles.quickToolPressed]}>
       <Text variant="caption" weight="bold" color={color.action.secondary}>{tx('현장 도구 전부 ›', 'All tools ›')}</Text>
     </Pressable>
@@ -197,6 +210,8 @@ const styles = StyleSheet.create({
   messages: { flex: 1 }, messageContent: { gap: spacing[3], paddingVertical: spacing[3] }, messageContentDesktop: { paddingHorizontal: spacing[2] }, bubble: { maxWidth: '88%', padding: spacing[3], borderRadius: radius.lg, gap: spacing[3] }, bubbleDesktop: { maxWidth: '72%' }, userBubble: { alignSelf: 'flex-end', backgroundColor: color.brand.navy, borderBottomRightRadius: radius.sm }, assistantBubble: { alignSelf: 'flex-start', backgroundColor: color.surface.blush, borderBottomLeftRadius: radius.sm }, actionCard: { gap: spacing[2], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card },
   suggestionSection: { gap: spacing[2], marginTop: spacing[4] }, suggestions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] }, suggestion: { minHeight: 48, maxWidth: '100%', justifyContent: 'center', paddingHorizontal: spacing[4], borderWidth: 1, borderColor: color.action.secondary, borderRadius: radius.full, backgroundColor: color.surface.card },
   emergency: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], minHeight: 64, padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
+  // 근처 편의시설 카드 — 긴급 도움 카드와 같은 가로 한 줄(격자 균형은 위 주석 2052).
+  nearby: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], minHeight: 64, padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
   emergencyBadge: { width: 44, height: 40, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center', backgroundColor: color.state.dangerBg },
   toolSection: { marginTop: spacing[4], gap: spacing[3], padding: spacing[3], borderRadius: radius.lg, backgroundColor: color.surface.blush }, toolSectionDesktop: { marginTop: spacing[3], padding: 0, backgroundColor: 'transparent' }, sectionHeading: { gap: spacing[1] }, quickTools: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] }, quickToolsDesktop: { flexDirection: 'column', flexWrap: 'nowrap' }, quickTool: { width: '48%', flexGrow: 1, minHeight: 72, gap: spacing[2], padding: spacing[3], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.md, backgroundColor: color.surface.card }, quickToolDesktop: { width: '100%', flexDirection: 'row', alignItems: 'center', gap: spacing[3], minHeight: 64 }, quickToolPressed: { opacity: 0.76, backgroundColor: color.state.warningBg }, toolIconBox: { width: 40, height: 40, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.blush }, toolIconImage: { width: 22, height: 22 }, toolBody: { flex: 1, gap: 2, minWidth: 0 }, toolMore: { minHeight: 40, justifyContent: 'center', alignSelf: 'flex-start', paddingHorizontal: spacing[1] },
   composer: { flexDirection: 'row', alignItems: 'center', minHeight: 52, gap: spacing[2], paddingHorizontal: spacing[3], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.full, backgroundColor: color.surface.card }, searchMark: { fontSize: 16 }, input: { flex: 1, minWidth: 0, minHeight: 44, paddingVertical: spacing[2], color: color.text.heading, fontSize: 16 }, clear: { minWidth: 28, minHeight: 44, alignItems: 'center', justifyContent: 'center' }, send: { width: 40, height: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.action.primary }, sendDisabled: { opacity: 0.4 }, disclaimer: { textAlign: 'center' },
