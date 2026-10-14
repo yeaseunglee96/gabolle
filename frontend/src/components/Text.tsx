@@ -77,9 +77,14 @@ const WORD_JOINER = String.fromCharCode(0x2060); // 보이지 않는 글자라 �
  *  (뒤돌아보기(lookbehind) 없이 쓴다 — 헤르메스(안드로이드 JS 엔진) 판에 따라 없을 수 있다.) */
 const HANGUL_THEN_HANGUL = /([가-힣ㄱ-ㆎ])(?=[가-힣ㄱ-ㆎ])/g;
 
-/** 한글 낱말 안의 음절을 낱말 이음표로 붙인다. 문자열이 아닌 자식(다른 Text 등)은 그대로 둔다. */
+/** 선택 표시 「✓」 바로 뒤의 일반 공백. */
+const CHECK_THEN_SPACE = /✓ /g;
+
+/** 한글 낱말 안의 음절을 낱말 이음표로 붙인다. 문자열이 아닌 자식(다른 Text 등)은 그대로 둔다.
+ *  🔴 「✓ 」의 공백은 줄바꿈 없는 공백(U+00A0)으로 바꾼다(S15P21E201-2057). 일반 공백이면 「✓ 日本語」가 공백에서 꺾여
+ *     둘째 줄이 칩 밖으로 밀리고, 갤럭시 S22 의 선택 칩에 「✓」만 남았다. 표시는 언제나 뒤 글자와 한 덩어리다. */
 export function joinHangulSyllables(text: string): string {
-  return text.replace(HANGUL_THEN_HANGUL, `$1${WORD_JOINER}`);
+  return text.replace(CHECK_THEN_SPACE, '✓ ').replace(HANGUL_THEN_HANGUL, `$1${WORD_JOINER}`);
 }
 
 /** 가나·한자(CJK 통합 한자·호환 한자)·전각 문장부호. 한글은 뺀다 — 한글은 Pretendard 에 있다. */

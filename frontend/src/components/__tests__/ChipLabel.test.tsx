@@ -67,7 +67,8 @@ describe('ChipLabel — 안드로이드', () => {
 
   it('「✓ 日本語」처럼 고른 칩의 글자는 한 문자열로 그려진다 — 1966 의 약속이 이 부품에서도 산다', () => {
     const view = render(<ChipLabel>{`✓ ${'日本語'}`}</ChipLabel>);
-    expect(view.UNSAFE_getByType(RNText).props.children).toBe('✓ 日本語');
+    // ✓ 뒤는 줄바꿈 없는 공백으로 바뀐다 — 공백에서 꺾여 「✓」만 남던 것(S15P21E201-2057).
+    expect(view.UNSAFE_getByType(RNText).props.children).toBe('✓ 日本語');
   });
 
   it('안드로이드에서도 굵기는 500 이고 줄 수·글자 크기 속성은 없다', () => {
