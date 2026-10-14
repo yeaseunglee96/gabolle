@@ -728,6 +728,140 @@ DELETE FROM place         WHERE source_type = 'BUSAN_CERTIFIED_FOOD' AND dataset
 첫 줄은 **이미 있던 장소에 단 표식도 같이** 지운다(그 표식도 같은 `source_type` 이다) — 이미 있던 장소 자체는 안 건드린다. 새 장소에 그 뒤 다른 적재(영업시간·사진 등)가 표식을 붙였으면
 둘째 줄이 외래키에 막힌다. 그때는 `place_id IN (SELECT place_id FROM place WHERE source_type = 'BUSAN_CERTIFIED_FOOD' AND dataset_version = …)` 로 그 표식을 먼저 지운다.
 
+## 12. 근처 편의시설 — 주차장 · 약국 · 공중화장실 · 지하철 물품보관함 (S15P21E201-2052, 2026-10-14 추가)
+
+앱 「AI 챗봇 → 근처 편의시설」(`app/field/nearby.tsx`)이 보여 주는 자료다. 여행자가 내 위치(또는 고른 목적지) 근처의 ① 주차장(싼 순) ② 약국(지금 연 곳 ·
+일요일/공휴일 · 심야) ③ 공중화장실(장애인용 · 기저귀 교환대) ④ 지하철 물품보관함을 찾는다. 자료는 **장소(`place`) 표에 섞지 않고 새 표 `facility`** 에
+넣는다 — 장소 표는 추천·탐색·일정이 읽는 후보 목록이라 화장실이 거기 들어가면 「오늘의 추천 코스」에 끼어든다. 적재기는
+`FacilityLoaderRunner`(`FacilityLoader` + `FacilityReader`)이고, 조회 끝점은 `GET /api/v1/facilities/nearby` 다.
+
+🔴 **배포(마이그레이션)가 먼저, 적재가 나중이다.** `V20261014120000__facility.sql` 이 `facility` 표를 만든다. 이 마이그레이션이 운영에 안 들어간 채 돌리면
+`relation "facility" does not exist` 로 첫 덩어리에서 멈춘다(그래도 한 행도 안 들어간다). 배포가 끝난 뒤(`back/dev` 배포 잡이 초록) 돌린다.
+
+### 12-1. 입력 파일과 한 줄 모양
+
+파일은 git 에 없다 — 수집한 사람 PC 의 `gabolle-archive/facilities-20261014/` 에 있는 NDJSON(**한 줄에 JSON 하나인 글 파일**) 넷이다. **이 폴더의 다른 파일은 쓰지 않는다**
+(`parking_fee_busan.ndjson` · `metro_facility.json` 같은 것은 수집 쪽 참고 원자료다).
+
+| 파일 | 줄 | 한 줄이 말하는 것 |
+|---|---|---|
+| `parking.ndjson` | 667 | 주차장 — 공영/민영, 구획 수, 요금표, 요일별 시간. `feeKnown`(요금을 아는가)과 지하철 환승주차장(`METRO-…`) 메모가 있다 |
+| `pharmacy.ndjson` | 1,714 | 약국 — 전화, 찾아가는 길, 요일별 시간(공휴일 칸 포함) |
+| `toilet.ndjson` | 2,507 | 공중화장실 — 종류, 개방시간 글, 장애인용, 기저귀 교환대 |
+| `locker.ndjson` | 71 | 지하철 물품보관함 — 역, 호선, 크기별 칸 수, 요금 글 |
+
+```json
+{"sourceId":"10000-11191-00003-00-1","name":"신평패션칼라 공영주차장","address":"부산광역시 사하구 신평동  664","lat":35.0925135,"lng":128.9568185,"operator":"PUBLIC","free":false,"feeKnown":true,"spaces":94,"fee":{"baseMinutes":30,"baseWon":300,"addMinutes":10,"addWon":0,"dayMaxWon":2400,"freeMinutes":0},"hours":{"Monday":{"open":"08:00","close":"20:00"},"Sunday":{"open":"00:00","close":"00:00"},"Holiday":{"open":"00:00","close":"00:00"}}}
+```
+
+- 🔴 **모르는 칸·틀린 모양이 하나라도 있으면 줄 번호와 함께 멈추고 한 행도 안 넣는다**(파일 넷을 **전부 먼저 검사**한 뒤에야 넣기 시작한다). 같은 `sourceId` 가 종류 안에서 두 번 나와도, 좌표가 부산 밖이어도 멈춘다
+- 🔴 **이상한 값은 멈추지 않고 비운다 — 모른다는 것을 0 이나 빈 글자로 지어내지 않는다.** 아래가 실제 파일에서 본 것이다. 앱은 비운 칸(`null`)을 「요금 정보 없음」 「운영시간 모름」으로 그린다
+
+| 이상한 값 | 처리 | 이 파일에서 |
+|---|---|---|
+| 주차장 기본요금이 정수 최댓값(2147483647)이거나 4만 원(월정기권이 섞인 값) — `feeKnown=true` 인데도 | 요금표 **통째로 null**. 입력의 `feeKnown` 표시를 믿지 않고 값도 본다 | 70곳(60 + 10) |
+| `feeKnown=false` | 요금표 null (유료 → 예상요금 「요금 정보 없음」, 순서는 요금 아는 곳 뒤) | 220곳 |
+| 추가요금이 0원인데 기본요금은 있음(같은 요금표를 쓰는 다른 주차장은 추가요금이 있고, 「하루 최대 2,400원」이 있다는 것 자체가 추가요금이 0 이 아니라는 뜻이다) | **추가요금 칸만 null** — 기본 시간(30분) 안의 요금은 알고, 넘는 체류의 예상요금은 모른다 | 109곳 |
+| 요일 시간이 `00:00~00:00` (하루 종일인지 운영 안 하는지 모른다) · 시작·끝이 null · 약국의 끝이 시작보다 빠름(`19:00~14:30`) · 1분짜리(`00:00~00:01`) | 그날만 **「모르는 날」(null)**. 하루도 못 읽으면 `hours` 통째로 null — 「닫았다」라고 하지 않는다 | 요일 칸 1,077 + 192 + 2 |
+| 화장실 주소가 「부산광역시 연제구」뿐 — 좌표가 구 중심점 한 점이다(학교 25곳이 한 점을 나눠 가졌다) | **넣지 않고** 로그에 한 줄씩 남긴다 | 25곳 |
+| 물품보관함 좌표 — 「역 좌표」라고 했지만 역 자료와 대 보니 **64곳 가운데 46곳이 300m 넘게 어긋났다**(다대포해수욕장 6.0km · 장산 5.5km). 서로 다른 역이 같은 좌표를 나눠 쓰기도 한다 | **저장소의 부산교통공사 역 자료**(`transit/busan-subway-network.json`)의 좌표로 바꾼다. 역을 못 찾으면 넣지 않는다 | 71곳 모두 바꿈(300m 넘게 52곳, 가장 멀리 6,038m) |
+| 지하철 환승주차장(`METRO-<역 번호>-<n>`)의 좌표 — 일부가 같은 문제다(모라역 3.7km · 남천역 2.1km 어긋남) | 번호의 가운데 숫자가 가리키는 역의 좌표로 바꾼다(이름의 역이 같을 때만) | 14곳 모두(300m 넘게 6곳) |
+| 주소 자리에 「2번 출구」 같은 **위치 설명**이 온 환승주차장(`note` 가 같은 말로 시작) | `address` 를 null 로 두고 설명은 `note` 에 남긴다 | 14곳 |
+| 약국 메모의 `&#xD;` · `&lt;` 같은 글자 코드와 줄바꿈 · 「.」뿐인 메모 | 풀어서 한 줄로 · 메모 null | — |
+| 화장실 개방시간 앞의 분류말 「정시」(「정시 09:00~18:00」) · 「정시 정시」 | 분류말은 뗀다 · 분류말뿐이면 null. 「상시」「24시간」「00:00~24:00」은 `alwaysOpen=true` | 「정시 정시」 24곳 |
+| 기저귀 교환대 없음인데 위치가 적힌 화장실 | 위치 null | 1곳 |
+
+### 12-2. 무엇을 넣나
+
+표 `facility` 한 줄 = 시설 한 곳이다. 공통 칸(`kind` · `source_id` · `name` · `address` · `lat` · `lng` · `dataset_version` · `collected_at`)과 종류별 칸 `detail`(JSONB —
+안쪽 값으로 검색할 수 있는 JSON 타입)이다. `(kind, source_id)` 가 유일하고, 행 번호는 그 쌍에서 언제나 같게 만든다.
+
+| `kind` | `detail` 의 칸 |
+|---|---|
+| `PARKING` | `operator`(PUBLIC/PRIVATE) · `free` · `spaces` · `fee`{baseMinutes, baseWon, addMinutes, addWon, dayMaxWon, freeMinutes} 또는 null · `hours`{Monday…Sunday, Holiday} 또는 null · `note` |
+| `PHARMACY` | `tel` · `directions` · `note` · `hours`(약국은 쉬는 날의 칸을 안 적는다 — **칸이 없으면 쉰다**, 값이 null 이면 모른다) |
+| `TOILET` | `type`(OPEN/PUBLIC/SIMPLE/MOBILE) · `openHours` · `alwaysOpen` · `accessible` · `diaper` · `diaperPlace`(WOMEN/MEN/BOTH) · `emergencyBell` · `cctv` · `tel` |
+| `LOCKER` | `station` · `stationEn` · `line` · `location` · `small`/`medium`/`large`/`xlarge`(크기별 칸 수) · `feeText` · `operator` |
+
+시각의 끝이 `24:00` 이상이면 다음 날이다(`22:00~25:00` = 밤 10시부터 다음 날 새벽 1시) — 약국 자료의 방식 그대로이고, 주차장의 `10:00~02:00` 도 같은 모양(`26:00`)으로 바꿔 넣는다.
+
+🔴 **공휴일 달력이 이 프로젝트에 없다.** 「오늘이 공휴일인가」를 모르므로 지금은 **요일 칸으로만** 「지금 여는가」를 판정한다(`FacilityNearbyService.isPublicHoliday` 한 곳). 평일에 낀 공휴일에는
+평일 시간으로 「영업 중」이 나올 수 있다. 약국 화면이 「운영시간은 약국이 신고한 정보예요. 방문 전 전화로 확인해 주세요」를 늘 함께 적는 이유다. `Holiday` 칸은 이미 저장돼 있어 달력이 생기면 그 한 곳만 고친다.
+
+### 12-3. 돌리기
+
+서버는 `ubuntu@3.34.84.167`(`api.gabolle.kr`), 이미지는 `local-route-backend:candidate`, 망은 `local-route-personalization_data_net` 이다(11절과 같다).
+
+```bash
+PEM=<각자 받은 .pem>
+HOST=ubuntu@3.34.84.167
+
+# 1) 입력 파일 넷을 올린다 (내 PC → 서버). 다른 적재 파일과 이름이 겹치지 않게 폴더를 따로 쓴다
+ssh -i $PEM $HOST 'mkdir -p /home/ubuntu/load/facilities-20261014'
+scp -i $PEM /c/Users/SSAFY/Desktop/gabolle-archive/facilities-20261014/{parking,pharmacy,toilet,locker}.ndjson $HOST:/home/ubuntu/load/facilities-20261014/
+
+# 2) 서버에 들어가 2절대로 DB 접속값을 빌린다 (끝나면 /tmp/load.env 를 지운다 — 5절)
+ssh -i $PEM $HOST
+docker inspect backend --format '{{range .Config.Env}}{{println .}}{{end}}'   | grep -E '^(GABOLLE_DB_|SPRING_PROFILES_ACTIVE)' > /tmp/load.env
+wc -l /tmp/load.env    # 네 줄이면 정상
+
+# 3) 3절의 run 함수를 정의한 뒤 돌린다. 이 이미지가 12절의 마이그레이션·적재기를 담은 배포본이어야 한다
+IMG=local-route-backend:candidate
+NET=local-route-personalization_data_net
+#   run() { … }   ← 3절 그대로 (/home/ubuntu/load 를 /load 로 마운트한다)
+RUN=run
+$RUN --gabolle.facility.loader.parking=/load/facilities-20261014/parking.ndjson \
+     --gabolle.facility.loader.pharmacy=/load/facilities-20261014/pharmacy.ndjson \
+     --gabolle.facility.loader.toilet=/load/facilities-20261014/toilet.ndjson \
+     --gabolle.facility.loader.locker=/load/facilities-20261014/locker.ndjson \
+     --gabolle.facility.loader.dataset-version=facilities-20261014
+```
+
+파일 넷을 다 주는 것이 표준이다. **하나만 줘도 돈다** — 약국처럼 자주 바뀌는 자료만 새 수집분으로 다시 넣을 때 쓴다(주지 않은 종류는 손대지 않는다). `dataset-version` 은 늘 필수다 — 빼면 컨테이너가 죽는다.
+
+마침 줄: `근처 편의시설 적재를 마쳤다 — 수집분 facilities-20261014 · 주차장 667곳(새 행 … · 바뀌어 고친 행 … · 그대로 …) · 약국 1714곳(…) · 화장실 2482곳(…) · 물품보관함 71곳(…) · …ms`.
+종류마다 앞에 `… 읽음`(읽은 줄 · 넣을 곳 · 건너뜀 · 비운 값 개수)과 `… 넣음`(새 행 · 파일에 없는 기존 행) 줄이 찍히고, 안 넣은 줄은 **한 줄씩** 찍힌다(`안 넣고 건너뜀(화장실·COARSE_ADDRESS) — …`).
+
+**2026-10-14 파일**(이 날짜의 파일 기준이다 — 파일이 바뀌면 숫자도 바뀐다)을 처음 돌리면 **새 행 667 + 1,714 + 2,482 + 71 = 4,934** 이고, 화장실에서 25줄이 건너뛰어져야 한다.
+**두 번째 실행은 새 행 0 · 바뀌어 고친 행 0 · 그대로 4,934, 「파일에 없는 기존 행 0개」** 여야 한다 — 값이 하나도 안 바뀌면 DB 에 갱신이 한 줄도 안 나간다(수집 시각도 그대로). 아니면 멈추고 본다.
+
+> 새 수집분에서 **사라진 행은 지우지 않고** 그대로 둔다 — 원천이 잠깐 빠뜨린 것을 지우면 앱의 「근처 약국」이 줄어든다. 얼마나 남는지는 `파일에 없는 기존 행 N개(지우지 않고 그대로 둠)` 로 로그에 센다.
+> 정말 폐업한 곳을 치우려면 이 개수를 보고 사람이 정한다(12-5).
+
+### 12-4. 확인
+
+```sql
+-- 종류별 행 수. 기대: LOCKER 71 · PARKING 667 · PHARMACY 1714 · TOILET 2482
+SELECT kind, count(*) AS rows, min(dataset_version) AS dataset FROM facility GROUP BY kind ORDER BY kind;
+
+-- 주차장 요금 상태. 기대: 무료 42 · 요금표 있음 335 · 요금 모름 290 (모르는 곳이 0원이 되어 있으면 틀린 것이다)
+SELECT count(*) FILTER (WHERE detail ->> 'free' = 'true')                                                 AS free,
+       count(*) FILTER (WHERE detail ->> 'free' = 'false' AND jsonb_typeof(detail -> 'fee') = 'object')   AS known,
+       count(*) FILTER (WHERE detail ->> 'free' = 'false' AND jsonb_typeof(detail -> 'fee') = 'null')     AS unknown
+  FROM facility WHERE kind = 'PARKING';
+
+-- 물품보관함이 역 좌표인가 — 다대포해수욕장역은 위도 35.04 대여야 한다 (파일 값 35.10 이면 바로잡기가 안 돈 것)
+SELECT name, lat, lng FROM facility WHERE kind = 'LOCKER' AND source_id = 'BTC-1-다대포해수욕장-1';
+```
+
+API 로도 본다 — 로그인한 토큰(손님 토큰도 된다)으로:
+
+- `GET /api/v1/facilities/nearby?kind=PARKING&lat=35.1580&lng=129.0600&radiusM=1000&stayMinutes=120` — 서면 근처 주차장이 **예상요금이 싼 순**으로 나오고, 요금을 모르는 곳(`estimatedWon: null`)이 맨 뒤여야 한다
+- `kind=PHARMACY` — 지금 연 곳(`openNow: true`)이 먼저. `hoursAreReported` 는 늘 `true`
+- `kind=TOILET&accessible=true&diaper=true` — 장애인용이면서 기저귀 교환대가 있는 곳만
+- `kind=LOCKER&lat=35.0980&lng=129.0349` — 남포·자갈치역 보관함이 가까운 순으로
+
+### 12-5. 되돌리기
+
+모든 행에 수집분이 찍혀 있다.
+
+```sql
+DELETE FROM facility WHERE dataset_version = 'facilities-20261014';
+```
+
+다른 표를 가리키는 곳이 없어 외래키에 막히지 않는다. 같은 파일을 다시 돌려 행이 새 수집분 이름으로 갱신됐다면 그 이름으로 지운다. 한 종류만 지우려면 `AND kind = 'PHARMACY'` 를 붙인다.
+폐업한 곳만 치우고 싶으면 **새 수집분을 돌린 뒤** `DELETE FROM facility WHERE kind = 'PHARMACY' AND dataset_version <> '<새 수집분>'` (새 파일에 없어서 옛 이름으로 남은 행) — 먼저 `SELECT` 로 개수와 이름을 눈으로 본다.
+
 ## 되돌리기
 
 전부 출처와 수집분이 찍힌다.
