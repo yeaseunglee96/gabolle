@@ -12,6 +12,13 @@
 //   3. 부산 밖이거나 모양을 못 읽으면 영문 주소 → 한국어 주소.
 //
 // 한국어 원문은 따로 보여 줄 수 있게 koreanAddressLine 으로 둔다 — 기사에게 보여 주고 지도에 붙여 넣는 것은 한국어다.
+//
+// 🔴 영어·베트남어 화면의 한글 도로명·동 이름은 로마자로 바꾼다 — S15P21E201-2056.
+//    위 2번은 영어 화면에서 「한글 도로명을 그대로」 뒀다(S15P21E201-1877 — 도로명판에 한글이 있다). 그런데 영문 주소가
+//    없는 장소가 「신창로4가 area, Jung-gu, Busan」처럼 한 줄에 한국어와 영어가 섞여 나왔다(갤럭시 S22 실기기, 2026-10-14).
+//    도로명판 글자가 필요한 사람에게는 한글 원문이 곁줄(koreanAddressLine)로 계속 나가므로, 이 줄은 로마자로 적는다.
+//    일본어·중국어 화면은 전과 같다(위 2번) — 거기는 가나·한자로 옮길 공식 표기가 없어 한글을 그대로 둔다.
+import { romanizeKorean } from '@/discovery/romanize';
 import type { LanguageCode } from '@/i18n/languages';
 
 /** 키는 앱의 언어 코드. localNames 와 같다. 없는 언어는 빠져 온다. */
@@ -73,6 +80,71 @@ function areaWord(rest: string, language: 'en' | 'ja' | 'zh-Hans' | 'zh-Hant'): 
   return rest.replace(/\s*(일원|일대)$/, AREA_WORD[language]);
 }
 
+// ── 한글 도로명·동 이름 → 로마자 (영어·베트남어 화면) — S15P21E201-2056 ─────────────────────────────────────
+//
+// 도로명 주소의 영문 표기 관례를 따른다. 이름과 끝말(로·길·동…)은 하이픈으로 잇고, 번지·구역 번호는 띄어 쓴다.
+//
+//   신창로4가       → Sinchang-ro 4-ga           해운대해변로   → Haeundaehaebyeon-ro
+//   해양로301번길   → Haeyang-ro 301beon-gil     우동 1394      → U-dong 1394
+//   중앙대로 26번길 → Jungang-daero 26beon-gil   기장읍 용궁길  → Gijang-eup Yonggung-gil
+//
+// 글자 하나하나는 기존 romanizeKorean(한글을 소리 나는 대로 로마자로 적는 함수)이 옮긴다. 이것은 공식 표기가 아니라
+// 「읽는 법」이다(romanize.ts 의 약속과 같다) — 소리가 이어질 때 바뀌는 발음(달맞이 → 달마지)까지는 따르지 않는다.
+
+/** 이름 뒤에 붙는 끝말. 「대로」가 「로」보다 앞이어야 「중앙대로」가 「Jungangdae-ro」가 되지 않는다. */
+const NAME_SUFFIXES = ['대로', '로', '길', '가', '동', '읍', '면', '리'] as const;
+
+/** 「해운대로」는 «해운 + 대로»가 아니라 «해운대 + 로»다(Haeundae-ro). 이름이 「대」로 끝나는 길을 여기 적는다. */
+const DAE_PLACE_NAMES = ['해운대'] as const;
+
+/**
+ * 한글 덩어리 하나(띄어쓰기·숫자·기호가 없는 연속된 한글)를 옮긴다.
+ * @param glued 바로 앞이 숫자나 영문자라 앞말에 붙는 자리 — 「4가」의 「가」, 「301번길」의 「번길」. 대문자로 시작하지 않는다.
+ */
+function romanizeHangulRun(run: string, glued: boolean): string {
+  const lowerIfGlued = (word: string) => (glued ? word.toLowerCase() : word);
+  let suffix: string | undefined = NAME_SUFFIXES.find((candidate) => run.endsWith(candidate));
+  if (suffix === '대로' && DAE_PLACE_NAMES.some((name) => run.endsWith(`${name}로`))) suffix = '로';
+  if (suffix) {
+    const stem = run.slice(0, -suffix.length);
+    const tail = (romanizeKorean(suffix) ?? '').toLowerCase();
+    if (stem) return `${lowerIfGlued(romanizeKorean(stem) ?? stem)}-${tail}`;
+    // 이름 없이 끝말뿐인데 숫자·영문자 뒤다 — 「신창로4가」의 「가」, 「마린시티1로」의 「로」, 「B동」의 「동」
+    if (glued) return `-${tail}`;
+  }
+  return lowerIfGlued(romanizeKorean(run) ?? run);
+}
+
+/** 띄어쓰기로 나눈 주소 한 덩어리. 숫자(번지 29-46 · 「4가」의 4)는 그대로 두고 그 사이의 한글만 옮긴다. */
+function romanizeAddressToken(token: string): string {
+  let out = '';
+  let afterRoman = false; // 바로 앞 조각이 우리가 로마자로 옮긴 한글로 끝났나
+  token.split(/(\d+(?:-\d+)*)/).forEach((piece, index) => {
+    if (!piece) return;
+    if (index % 2 === 1) {
+      // 숫자 조각 — 로마자 이름 뒤면 한 칸 띄운다(「Haeyang-ro 301」). 처음이거나 괄호 뒤면 붙인다.
+      out += afterRoman ? ` ${piece}` : piece;
+      afterRoman = false;
+      return;
+    }
+    let hadHangul = false;
+    out += piece.replace(/[가-힣]+/g, (run, offset: number) => {
+      hadHangul = true;
+      const before = offset === 0 ? out.slice(-1) : piece[offset - 1];
+      return romanizeHangulRun(run, /[0-9A-Za-z]/.test(before));
+    });
+    afterRoman = hadHangul && /[A-Za-z]$/.test(out);
+  });
+  return out;
+}
+
+/** 시·구 뒤의 나머지 주소(「신창로4가 일원」·「해운대해변로 264」·「우동 1394」)를 로마자로. 「일원·일대」는 「area」. */
+function romanizeAddressPart(rest: string): string {
+  const area = /\s*(일원|일대)$/.test(rest);
+  const roman = rest.replace(/\s*(일원|일대)$/, '').split(' ').map(romanizeAddressToken).join(' ').trim();
+  return `${roman}${area ? AREA_WORD.en : ''}`.trim();
+}
+
 const HANGUL = /[가-힣ㄱ-ㆎ]/;
 
 export type AddressSource = { address?: string | null; addressEn?: string | null; localAddresses?: LocalAddresses | null };
@@ -90,13 +162,16 @@ export function addressForLanguage(place: AddressSource, language: LanguageCode)
   // 베트남어(vi)는 관광공사 번역 주소가 없다 — 영어 주소로 보여 준다(S15P21E201-2003).
   if (language === 'en' || language === 'vi') {
     if (addressEn) return addressEn;
-    // 🔴 베트남어 화면에는 한글 조각을 섞지 않는다 — 「신창로4가 area, Jung-gu, Busan」이 나왔다(10/10 점검, S15P21E201-2043).
-    //    도로명을 로마자로 모르면 빼고 구·시만 적는다. 한국어 원문은 koreanAddressLine 이 곁에 적는다.
-    //    영어 화면은 전처럼 한글 도로명을 둔다(S15P21E201-1877 — 부산 도로명판의 글자).
+    // 🔴 영어·베트남어 화면에는 한글 조각을 섞지 않는다 — 「신창로4가 area, Jung-gu, Busan」이 나왔다
+    //    (베트남어 10/10 점검 S15P21E201-2043, 영어 10/14 갤럭시 S22 S15P21E201-2056).
+    //    도로명·동 이름은 로마자로 적는다(「Sinchang-ro 4-ga area, Jung-gu, Busan」). 한국어 원문은 koreanAddressLine 이 곁에 적는다.
+    //    전에는 영어 화면이 한글 도로명을 뒀고(S15P21E201-1877) 베트남어 화면은 도로명을 뺐다(S15P21E201-2043) —
+    //    로마자로 옮길 방법이 없어서였다. 이제 둘 다 같은 줄이다.
     const dropHangul = language === 'vi';
     if (!split) return dropHangul && HANGUL.test(address) ? '' : address;
     const gu = BUSAN_GU[split.gu];
-    const rest = areaWord(split.rest, 'en');
+    const rest = romanizeAddressPart(split.rest);
+    // 로마자로 못 옮긴 한글(낱자 따위)이 남으면 베트남어 화면에서는 그 조각을 뺀다 — 2043 의 약속.
     return [dropHangul && HANGUL.test(rest) ? '' : rest, gu.en, CITY.en].filter(Boolean).join(', ');
   }
   if (!split) return addressEn ?? address;
