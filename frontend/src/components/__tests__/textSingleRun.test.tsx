@@ -14,7 +14,12 @@ describe('Text — 안드로이드 글자 조각', () => {
 
   it('🔴 글자 조각들은 한 문자열로 합친다 — 「✓ 日本語」의 일본어가 따로 떨어지지 않게', () => {
     const view = render(<Text weight="bold">{'✓ '}{'日本語'}</Text>);
-    expect(view.UNSAFE_getByType(RNText).props.children).toBe('✓ 日本語');
+    expect(view.UNSAFE_getByType(RNText).props.children).toBe('✓ 日本語');
+  });
+
+  it('🔴 「✓」 뒤 공백은 줄바꿈 없는 공백이다 — 공백에서 꺾여 「✓」만 남지 않게 (S15P21E201-2057)', () => {
+    const view = render(<Text>{'✓ 日本語'}</Text>);
+    expect(view.UNSAFE_getByType(RNText).props.children).toBe('✓ 日本語');
   });
 
   it('빈 조각(조건이 거짓)은 빼고 합친다', () => {

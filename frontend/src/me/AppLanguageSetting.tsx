@@ -39,8 +39,10 @@ export function AppLanguageSetting() {
     <View style={styles.options} accessibilityRole="radiogroup" accessibilityLabel={tx('앱 언어', 'App language')}>
       {LANGUAGE_OPTIONS.map((option) => <Pressable key={option.code} accessibilityRole="radio" accessibilityLabel={option.endonym} accessibilityState={{ selected: language === option.code, disabled: saving }} disabled={saving} onPress={() => void change(option.code)} style={[styles.option, language === option.code && styles.selected, saving && styles.disabled]}>
         {/* 🔴 한 문자열 + 칩 폭 전체로 편 글자(ChipLabel) — 「繁體中文」이 「繁體中」으로 끝 글자가 잘렸다(갤럭시 탭 S15P21E201-1988, 갤럭시 S22 S15P21E201-2054).
-            «한 줄 · 넘치면 글자 줄이기»는 걷어냈다 — 잘림을 숨길 뿐 고치지 못했다. 이유와 원인은 ChipLabel.tsx 머리말에 있다. */}
-        <ChipLabel color={language === option.code ? color.text.onAction : color.text.heading}>{`${language === option.code ? '✓ ' : ''}${option.endonym}`}</ChipLabel>
+            «한 줄 · 넘치면 글자 줄이기»는 걷어냈다 — 잘림을 숨길 뿐 고치지 못했다. 이유와 원인은 ChipLabel.tsx 머리말에 있다.
+            🔴 ✓ 뒤는 줄바꿈 없는 공백(U+00A0)이다 — 일반 공백이면 「✓ 日本語」가 공백에서 꺾여 둘째 줄이 칩 밖으로 밀리고,
+               갤럭시 S22 에서 선택 칩에 「✓」만 남았다(S15P21E201-2057). */}
+        <ChipLabel color={language === option.code ? color.text.onAction : color.text.heading}>{`${language === option.code ? '✓ ' : ''}${option.endonym}`}</ChipLabel>
       </Pressable>)}
     </View>
     {saving && <Text accessibilityLiveRegion="polite">{tx('언어를 저장하고 있어요.', 'Saving language…')}</Text>}
