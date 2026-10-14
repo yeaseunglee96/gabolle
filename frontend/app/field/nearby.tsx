@@ -8,7 +8,10 @@
 //    위치를 못 쓴 채 찾았다는 사실을 화면이 밝힌다 — 거리 숫자가 왜 이런지 설명이 안 되면 안 된다.
 // 🔴 서면에서 찾은 곳으로 «길 안내»를 열지 않는다. 내 위치가 아닌 출발지에서 찾은 길은 틀린다(DestinationPicker 와 같은 이유).
 //    그때는 지도 앱으로 그 자리만 연다.
-import { useCallback, useEffect, useMemo, useState } from 'react';
+// 🔴 «장소 기준»으로도 열린다 — 장소 상세의 「근처 주차장」 줄이 `?lat=&lng=&name=&kind=PARKING&stay=1` 로 연다(S15P21E201-2052).
+//    이때는 내 위치를 읽지도 묻지도 않는다(그 장소 근처가 궁금한 것이지 내 근처가 아니다). 화면이 «「이름」 근처에서 찾았다 · 거리도 그
+//    장소에서 잰 것»이라고 밝히고, «내 위치로 찾기»를 눌러야 비로소 위치를 묻는다. 길 안내도 안 연다 — 출발지가 내가 아니라 그 장소다.
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Linking, Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Location from 'expo-location';
@@ -46,15 +49,45 @@ import { listAvailableMapApps } from '@/utils/externalMaps';
 /** 이만큼 가까우면 걸어서 가는 길로 연다(nearby-help 와 같다). */
 const WALK_ROUTE_M = 1200;
 
-type LocationState = 'detecting' | 'granted' | 'denied';
+/** idle — 아직 위치를 읽으려 하지 않았다(장소 기준으로 열렸을 때). */
+type LocationState = 'idle' | 'detecting' | 'granted' | 'denied';
 type Load = { status: 'loading' } | { status: 'error' } | { status: 'ready'; data: NearbyFacilities };
+/** 장소 상세에서 «이 장소 근처»로 열렸을 때의 기준점. */
+type Anchor = LatLng & { name: string | null };
 
 const TAB_EMOJI: Record<FacilityKind, string> = { PARKING: '🅿️', PHARMACY: '💊', TOILET: '🚻', LOCKER: '🧳' };
 
+function firstParam(value: string | string[] | undefined): string | undefined {
+  return Array.isArray(value) ? value[0] : value;
+}
+
 /** `?kind=pharmacy` 로 특정 탭에서 열 수 있게 — 대소문자를 가리지 않는다. 모르는 값은 첫 탭. */
 function kindFromParam(value: string | string[] | undefined): FacilityKind | null {
-  const raw = (Array.isArray(value) ? value[0] : value)?.toUpperCase();
+  const raw = firstParam(value)?.toUpperCase();
   return FACILITY_KINDS.find((kind) => kind === raw) ?? null;
+}
+
+/**
+ * `?lat=&lng=&name=` — 둘 다 올바른 좌표일 때만 «장소 기준»이다. 하나라도 비었거나 숫자가 아니거나 지구 밖이면 없는 것으로 친다(내 위치 길).
+ * 🔴 빈 문자열은 `Number('') === 0` 이라 따로 거른다 — 안 거르면 «적도·본초자오선»에서 찾는다.
+ */
+function anchorFromParams(latValue: string | string[] | undefined, lngValue: string | string[] | undefined, nameValue: string | string[] | undefined): Anchor | null {
+  const rawLat = firstParam(latValue)?.trim();
+  const rawLng = firstParam(lngValue)?.trim();
+  if (!rawLat || !rawLng) return null;
+  const latitude = Number(rawLat);
+  const longitude = Number(rawLng);
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
+  if (Math.abs(latitude) > 90 || Math.abs(longitude) > 180 || (latitude === 0 && longitude === 0)) return null;
+  // 이름은 화면에 그대로 찍히니 길이를 막는다 — 주소창으로 들어온 값일 수 있다.
+  const name = firstParam(nameValue)?.trim().slice(0, 60);
+  return { latitude, longitude, name: name ? name : null };
+}
+
+/** `?stay=1` — 머무는 시간 칩의 시작값. 칩에 없는 값은 기본값. */
+function stayFromParam(value: string | string[] | undefined): number | null {
+  const hours = Number(firstParam(value));
+  return STAY_HOURS_CHOICES.includes(hours) ? hours : null;
 }
 
 export default function NearbyFacilitiesScreen() {
@@ -62,14 +95,18 @@ export default function NearbyFacilitiesScreen() {
   const { tx, language } = useI18n();
   const { accessToken, ready } = useAuth();
   const locationGate = useLocationGate(accessToken);
-  const params = useLocalSearchParams<{ kind?: string }>();
+  const params = useLocalSearchParams<{ kind?: string; lat?: string; lng?: string; name?: string; stay?: string }>();
+  const anchor = useMemo(() => anchorFromParams(params.lat, params.lng, params.name), [params.lat, params.lng, params.name]);
+  // 장소 기준으로 열렸나 — «내 위치로 찾기»가 성공하면 꺼진다(그 뒤로는 내 위치 기준). 처음부터 장소 기준이면 내 위치를 읽으려 하지 않는다.
+  const startedAnchored = useRef(anchor !== null);
+  const [anchored, setAnchored] = useState(anchor !== null);
   const [kind, setKind] = useState<FacilityKind>(kindFromParam(params.kind) ?? 'PARKING');
-  const [stayHours, setStayHours] = useState(DEFAULT_STAY_HOURS);
+  const [stayHours, setStayHours] = useState(stayFromParam(params.stay) ?? DEFAULT_STAY_HOURS);
   const [accessibleOnly, setAccessibleOnly] = useState(false);
   const [diaperOnly, setDiaperOnly] = useState(false);
   const [radiusM, setRadiusM] = useState(DEFAULT_RADIUS_M);
   const [coords, setCoords] = useState<LatLng | null>(null);
-  const [locationState, setLocationState] = useState<LocationState>('detecting');
+  const [locationState, setLocationState] = useState<LocationState>(anchor ? 'idle' : 'detecting');
   const [canAskAgain, setCanAskAgain] = useState(true);
   const [load, setLoad] = useState<Load>({ status: 'loading' });
   const [reloadKey, setReloadKey] = useState(0);
@@ -90,35 +127,49 @@ export default function NearbyFacilitiesScreen() {
     }
   }, [accessToken]);
 
-  const ask = useCallback(async () => {
-    if (!(await locationGate.request())) { setLocationState('denied'); return; }
+  /** 내 위치를 얻었으면 true. 거절·실패면 false. */
+  const ask = useCallback(async (): Promise<boolean> => {
+    if (!(await locationGate.request())) { setLocationState('denied'); return false; }
     const current = await Location.getForegroundPermissionsAsync();
     // 다시 물을 수 없으면 설정으로 — 눌러도 아무 일도 안 일어나는 버튼이 제일 나쁘다.
-    if (!current.granted && !current.canAskAgain) { setCanAskAgain(false); void Linking.openSettings(); return; }
+    if (!current.granted && !current.canAskAgain) { setCanAskAgain(false); void Linking.openSettings(); return false; }
     setLocationState('detecting');
     try {
       const permission = await Location.requestForegroundPermissionsAsync();
-      if (!permission.granted) { setCanAskAgain(permission.canAskAgain); setLocationState('denied'); return; }
+      if (!permission.granted) { setCanAskAgain(permission.canAskAgain); setLocationState('denied'); return false; }
       const position = await readCurrentPosition();
       setCoords({ latitude: position.coords.latitude, longitude: position.coords.longitude });
       setLocationState('granted');
       setRadiusM(DEFAULT_RADIUS_M);
+      return true;
     } catch {
       setLocationState('denied');
+      return false;
     }
   }, [locationGate.request]);
 
-  useEffect(() => { if (ready) void restore(); }, [ready, restore]);
+  // 장소 기준에서 «내 위치로 찾기» — 위치를 얻는 데 성공해야 기준을 옮긴다. 거절하면 그 장소 기준 그대로다(서면으로 튀지 않는다).
+  const switchToMyLocation = useCallback(async () => {
+    if (await ask()) setAnchored(false);
+  }, [ask]);
 
-  // 내 위치를 모르면 서면에서 찾는다.
-  const origin: LatLng = useMemo(() => coords ?? SEOMYEON, [coords]);
-  const usingFallback = locationState === 'denied';
+  // 처음부터 장소 기준이면 내 위치를 읽지 않는다 — 그 장소 근처가 궁금한 것이고, 위치 창은 «내 위치로 찾기»를 눌렀을 때만 뜬다.
+  useEffect(() => { if (ready && !startedAnchored.current) void restore(); }, [ready, restore]);
+
+  // 장소 기준이면 그 장소에서, 아니면 내 위치에서 — 내 위치를 모르면 서면에서 찾는다.
+  const origin: LatLng = useMemo(
+    () => (anchored && anchor ? { latitude: anchor.latitude, longitude: anchor.longitude } : coords ?? SEOMYEON),
+    [anchored, anchor, coords],
+  );
+  const usingFallback = !anchored && locationState === 'denied';
+  // 장소 기준일 때는 위치를 읽는 중이어도 기다리지 않는다 — 읽는 것은 «내 위치로 찾기» 뒤의 일이고 지금 보이는 목록과 상관없다.
+  const locating = !anchored && locationState === 'detecting';
 
   // ── 서버 ────────────────────────────────────────────────────────────────
 
   useEffect(() => {
     // 위치를 읽는 동안에는 묻지 않는다 — 서면으로 한 번 찾고 내 위치로 또 찾는 두 번 호출을 피한다.
-    if (!ready || locationState === 'detecting') return;
+    if (!ready || locating) return;
     const controller = new AbortController();
     let alive = true;
     setLoad({ status: 'loading' });
@@ -127,6 +178,8 @@ export default function NearbyFacilitiesScreen() {
       stayMinutes: kind === 'PARKING' ? stayHours * 60 : undefined,
       accessible: kind === 'TOILET' && accessibleOnly,
       diaper: kind === 'TOILET' && diaperOnly,
+      // 장소의 자리는 줄이지 않고 보낸다 — 100m 로 줄이는 것은 «내 위치»를 가리려는 약속이다.
+      exact: anchored,
       signal: controller.signal,
     }).then((data) => {
       if (alive) setLoad({ status: 'ready', data });
@@ -134,7 +187,7 @@ export default function NearbyFacilitiesScreen() {
       if (alive) setLoad({ status: 'error' });
     });
     return () => { alive = false; controller.abort(); };
-  }, [ready, locationState, kind, origin, accessToken, radiusM, stayHours, accessibleOnly, diaperOnly, reloadKey]);
+  }, [ready, locating, anchored, kind, origin, accessToken, radiusM, stayHours, accessibleOnly, diaperOnly, reloadKey]);
 
   const selectKind = (next: FacilityKind) => {
     if (next === kind) return;
@@ -144,8 +197,9 @@ export default function NearbyFacilitiesScreen() {
 
   // ── 가는 법 ─────────────────────────────────────────────────────────────
 
+  // 길 안내는 «내 위치에서 찾은» 결과에만 — 장소 기준(출발지가 그 장소)이나 서면 기준에서 찾은 길은 내 길이 아니다.
   const actionsFor = (item: FacilityItem): FacilityActions => ({
-    onRoute: coords
+    onRoute: coords && !anchored
       ? () => router.push({ pathname: '/route-detail', params: {
         originLat: String(coords.latitude), originLng: String(coords.longitude), originName: tx('내 위치', 'My location'),
         destLat: String(item.lat), destLng: String(item.lng), destName: item.name,
@@ -212,6 +266,16 @@ export default function NearbyFacilitiesScreen() {
         })}
       </View>
 
+      {anchored && anchor ? (
+        <View testID="facility-anchor-notice" style={styles.notice}>
+          <Text variant="caption" weight="bold" color={color.state.info}>
+            {anchor.name
+              ? txf(tx, '「%s」 근처에서 찾았어요. 거리도 그 장소에서 잰 거예요.', 'Searched near “%s”. Distances are measured from that place.', anchor.name)
+              : tx('고른 장소 근처에서 찾았어요. 거리도 그 장소에서 잰 거예요.', 'Searched near the place you chose. Distances are measured from that place.')}
+          </Text>
+          <Button testID="facility-search-my-location" label={tx('내 위치로 찾기', 'Search from my location')} variant="tertiary" compact onPress={() => void switchToMyLocation()} />
+        </View>
+      ) : null}
       {usingFallback ? (
         <View testID="facility-fallback-notice" style={styles.notice}>
           <Text variant="caption" weight="bold" color={color.state.info}>{tx('내 위치를 몰라 부산 중심(서면)에서 찾았어요. 거리도 그 기준이에요.', 'We could not get your location, so we searched from central Busan (Seomyeon). Distances use that point.')}</Text>
