@@ -902,6 +902,12 @@ class RouteAuthorizationRegistryTest {
 						+ "같은 문이라 요구한다(익명 세션도 된다) — 급할 때 막히지 않게 앱은 서버가 안 되면 "
 						+ "앱에 실은 자료로 물러선다(frontend app/nearby-help.tsx).");
 
+		// ── 근처 편의시설 (S15P21E201-2052)
+		put(m, "GET /api/v1/facilities/nearby", Policy.AUTHENTICATED_ONLY,
+				"좌표와 종류로 답이 정해진다 — 주차장·약국·공중화장실·물품보관함은 공공 자료라 주인이 없고 사용자 값을 받는 자리가 없다"
+						+ "(kind·lat·lng·radiusM·limit·stayMinutes·accessible·diaper 뿐). 로그인은 장소 조회와 같은 문이라 요구한다"
+						+ "(익명 세션도 된다). FacilityControllerHttpTest · FacilityNearbyIntegrationTest");
+
 		// ── AI 여행 도우미
 		put(m, "POST /api/v1/assistant/messages", Policy.AUTHENTICATED_ONLY,
 				"자연어 메시지 하나를 AI 업체(Claude)에 대신 물어보는 창구라 우리 자원이 아니라 "
