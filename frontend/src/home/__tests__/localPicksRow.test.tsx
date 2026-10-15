@@ -34,7 +34,7 @@ const row = (picks: HomeLocalPick[] | null) => render(
 beforeEach(() => { mockPush.mockClear(); mockLang = 'ko'; });
 
 describe('홈 로컬 탐색 줄 — 맛집·카페 카드', () => {
-  it('맛집·카페 카드가 갈래 이름표와 서버가 준 장소 이름·주소와 함께 맨 앞에 선다', () => {
+  it('맛집·카페 카드가 갈래 이름표와 서버가 준 장소 이름·주소와 함께 그려진다(순서는 LOCAL_PICK_ORDER 가 정한다)', () => {
     row([RESTAURANT, CAFE, MARKET]);
     expect(screen.getByText('맛집')).toBeTruthy();
     expect(screen.getByText('카페')).toBeTruthy();

@@ -73,8 +73,8 @@ export const LOCAL_PICK_PLACES: Record<Exclude<LocalPickKey, 'FESTIVAL'>, string
   NIGHT_VIEW: 'd7d68934-1a4e-31c5-836a-0f94134e81e4', // 황령산 전망대
 };
 
-/** 줄에 서는 순서. 맛집·카페가 맨 앞이고(S15P21E201-2059) 그 뒤는 예전 여섯 칸의 순서 그대로다. */
-export const LOCAL_PICK_ORDER: readonly LocalPickKey[] = ['LOCAL_RESTAURANT', 'LOCAL_CAFE', 'FESTIVAL', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE', 'NIGHT_VIEW'];
+/** 줄에 서는 순서. 예전 여섯 칸 그대로 앞에 두고 맛집·카페는 맨 뒤다(S15P21E201-2059 — 사용자 지시 2026-10-15, 처음엔 맨 앞이었다). */
+export const LOCAL_PICK_ORDER: readonly LocalPickKey[] = ['FESTIVAL', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE', 'NIGHT_VIEW', 'LOCAL_RESTAURANT', 'LOCAL_CAFE'];
 
 /**
  * 기간을 아는 대표 축제. 축제 데이터(관광공사)에 아직 없는 큰 축제를 여기 적는다 — 기간 안에만 축제 칸에 선다.
