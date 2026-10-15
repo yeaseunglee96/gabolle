@@ -1,5 +1,5 @@
 // S15P21E201-2021 — 홈 정리: 기록 줄은 고른 글이 먼저, 로컬 탐색은 갈래마다 한 칸씩.
-// S15P21E201-2059 — 로컬 탐색 줄 맨 앞에 맛집·카페 두 칸을 더했다(여섯 칸 → 여덟 칸).
+// S15P21E201-2059 — 로컬 탐색 줄에 맛집·카페 두 칸을 더했다(여섯 칸 → 여덟 칸). 2026-10-15 사용자 지시로 맨 앞 → 맨 뒤.
 jest.mock('@/discovery/places', () => ({ getPlace: jest.fn(), getPlacesByFacet: jest.fn() }));
 jest.mock('@/discovery/festivals', () => ({ getFestivals: jest.fn(), festivalDisplayTitle: (f: { title?: string; nameKo: string }) => f.title ?? f.nameKo }));
 import { getPlace } from '@/discovery/places';
@@ -27,8 +27,8 @@ describe('기록 줄 — 고른 글이 먼저', () => {
 });
 
 describe('로컬 탐색 여덟 칸', () => {
-  it('맛집·카페가 맨 앞이고 뒤는 예전 여섯 칸의 순서 그대로이며, 이름표가 여섯 언어 다 있다', () => {
-    expect(LOCAL_PICK_ORDER).toEqual(['LOCAL_RESTAURANT', 'LOCAL_CAFE', 'FESTIVAL', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE', 'NIGHT_VIEW']);
+  it('예전 여섯 칸이 앞이고 맛집·카페가 맨 뒤이며, 이름표가 여섯 언어 다 있다', () => {
+    expect(LOCAL_PICK_ORDER).toEqual(['FESTIVAL', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE', 'NIGHT_VIEW', 'LOCAL_RESTAURANT', 'LOCAL_CAFE']);
     for (const key of LOCAL_PICK_ORDER) for (const lang of LANGUAGE_CODES) expect(pickLabel(key, lang)).toBeTruthy();
   });
 
@@ -76,7 +76,7 @@ describe('로컬 탐색 여덟 칸', () => {
     });
     (getFestivals as jest.Mock).mockResolvedValue([]);
     const picks = await loadLocalPicks(new Date(2026, 9, 9));
-    expect(picks.map((p) => p.key)).toEqual(['LOCAL_RESTAURANT', 'LOCAL_CAFE', 'FESTIVAL', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE']);
+    expect(picks.map((p) => p.key)).toEqual(['FESTIVAL', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE', 'LOCAL_RESTAURANT', 'LOCAL_CAFE']);
     const festival = picks.find((p) => p.key === 'FESTIVAL');
     expect(festival?.place.placeId).toBe('d8836d09-0c5c-4d15-a962-95894af98d2e');
     expect(festival?.title?.ko).toContain('부산국제영화제');
@@ -87,12 +87,12 @@ describe('로컬 탐색 여덟 칸', () => {
     (getPlace as jest.Mock).mockImplementation(async (id: string) => ({ placeId: id, nameKo: `place-${id.slice(0, 4)}`, nameEn: null, address: '부산' }));
     (getFestivals as jest.Mock).mockResolvedValue([]);
     const picks = await loadLocalPicks(new Date(2026, 9, 9));
-    expect(picks.slice(0, 2).map((p) => [p.key, p.place.placeId, p.href])).toEqual([
+    expect(picks.slice(-2).map((p) => [p.key, p.place.placeId, p.href])).toEqual([
       ['LOCAL_RESTAURANT', RESTAURANT_ID, '/explore?facet=LOCAL_RESTAURANT'],
       ['LOCAL_CAFE', CAFE_ID, '/explore?facet=LOCAL_CAFE'],
     ]);
     // 이름·주소는 서버 답을 그대로 쓴다 — 코드에 적어 둔 것은 placeId 뿐이다.
-    expect(picks[0].place.nameKo).toBe(`place-${RESTAURANT_ID.slice(0, 4)}`);
+    expect(picks.find((p) => p.key === 'LOCAL_RESTAURANT')!.place.nameKo).toBe(`place-${RESTAURANT_ID.slice(0, 4)}`);
     const asked = (getPlace as jest.Mock).mock.calls.map(([id]) => id);
     expect(asked).toEqual(expect.arrayContaining([RESTAURANT_ID, CAFE_ID]));
   });
@@ -105,10 +105,10 @@ describe('로컬 탐색 여덟 칸', () => {
     };
 
     (getPlace as jest.Mock).mockImplementation(failing([RESTAURANT_ID]));
-    expect((await loadLocalPicks(new Date(2026, 9, 9))).map((p) => p.key)).toEqual(['LOCAL_CAFE', 'FESTIVAL', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE', 'NIGHT_VIEW']);
+    expect((await loadLocalPicks(new Date(2026, 9, 9))).map((p) => p.key)).toEqual(['FESTIVAL', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE', 'NIGHT_VIEW', 'LOCAL_CAFE']);
 
     (getPlace as jest.Mock).mockImplementation(failing([CAFE_ID]));
-    expect((await loadLocalPicks(new Date(2026, 9, 9))).map((p) => p.key)).toEqual(['LOCAL_RESTAURANT', 'FESTIVAL', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE', 'NIGHT_VIEW']);
+    expect((await loadLocalPicks(new Date(2026, 9, 9))).map((p) => p.key)).toEqual(['FESTIVAL', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE', 'NIGHT_VIEW', 'LOCAL_RESTAURANT']);
 
     (getPlace as jest.Mock).mockImplementation(failing([RESTAURANT_ID, CAFE_ID]));
     expect((await loadLocalPicks(new Date(2026, 9, 9))).map((p) => p.key)).toEqual(['FESTIVAL', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE', 'NIGHT_VIEW']);
