@@ -56,6 +56,12 @@ const SDK_HOST = 'dapi.kakao.com';
 // (어느 주소를 더 부르는지는 유효한 키 없이는 확인할 수 없었다 — 시작 파일이
 // 키 없이는 401 만 준다. 그래서 이름을 넓게 잡아 둔다.)
 const MAP_HOSTS = /kakao\.com|daumcdn\.net/;
+/**
+ * 그릴 것이 있는데 이 시간(ms) 안에 지도가 안 만들어지면 회색 빈칸 대신 실패 안내를 낸다(S15P21E201-1889).
+ * 카카오 SDK 는 시작 파일을 받은 뒤 둘째 파일을 더 받는데, 그 둘째 파일이 막히면 어떤 오류 사건도 없이 load 콜백만 안 불린다.
+ * 느린 망의 첫 접속도 길어질 수 있어 넉넉히 둔다 — 늦게라도 그려지면 안내는 저절로 걷힌다(그리기 끝에서 failure 를 비운다).
+ */
+export const MAP_DRAW_TIMEOUT_MS = 15_000;
 
 // reason 은 여행자가 읽는 말이고, tech 는 고칠 사람이 읽는 한 줄이다. 둘 다 화면에 낸다
 // 고칠 사람이 화면을 볼 때 개발자 도구를 열고 있으리라는 보장이 없다.
@@ -150,6 +156,24 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
   const hostWidth = () => hostRef.current?.clientWidth || 0;
   const [failure, setFailure] = useState<MapFailure | null>(null);
   const appKey = process.env.EXPO_PUBLIC_KAKAO_MAP_JS_KEY;
+  // 지도를 못 그렸을 때 여행자에게 하는 말 둘 — 이유(tech)만 다르다. 문구를 한 곳에 둬서 번역도 한 벌이다.
+  // 지도 설정이 틀렸든 그리다 오류가 났든, 사람에게 할 말은 «지도는 못 그렸지만 목록은 아래에 있다»로 같다.
+  const setupFailure = (tech: string): MapFailure => ({
+    title: tx('지금은 지도를 불러올 수 없어요', 'The map can’t be shown right now'),
+    reason: tx(
+      '지도 설정에 문제가 있어 지도를 그리지 못했어요. 방문 순서와 장소 목록은 아래에서 그대로 볼 수 있어요.',
+      'Something is wrong with the map setup, so we couldn’t draw it. You can still use the visit order and place list below.',
+    ),
+    tech,
+  });
+  const fileFailure = (tech: string): MapFailure => ({
+    title: tx('지도 파일을 못 받았어요', 'Could not fetch the map file'),
+    reason: tx(
+      '카카오 지도 파일을 받지 못했습니다. 네트워크가 막혔거나, 이 도메인이 카카오 개발자 콘솔에 등록되지 않았을 수 있습니다.',
+      'The Kakao map file could not be fetched. The network may be blocked, or this domain may not be registered in the Kakao developer console.',
+    ),
+    tech,
+  });
   // 🔴 고른 곳·누를 때 부를 함수·현재 위치는 «다시 그리기» 조건이 아니다(S15P21E201-1654). 전에는 셋 중 하나만 바뀌어도
   //    마커·선을 전부 새로 그리고 전체 맞추기(setBounds — 순간 이동)를 한 뒤 고른 곳으로 panTo 해서, 고를 때마다
   //    여행 전체의 가운데에서 출발해 날아왔다(사용자 폰 — 「늘 왼쪽에서 날아온다」). 그리는 동안에는 이 값들을 ref 로 읽는다.
@@ -175,17 +199,38 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
     // ① 키가 아예 없다. EXPO_PUBLIC_ 값은 번들을 만드는 순간 문자열로 박히므로
     // 컨테이너를 띄울 때 주는 것은 소용이 없다 — docker build 에 넘겨야 한다.
     if (!appKey) {
-      setFailure({
-        title: tx('지금은 지도를 불러올 수 없어요', 'The map can’t be shown right now'),
-        reason: tx(
-          '지도 설정에 문제가 있어 지도를 그리지 못했어요. 방문 순서와 장소 목록은 아래에서 그대로 볼 수 있어요.',
-          'Something is wrong with the map setup, so we couldn’t draw it. You can still use the visit order and place list below.',
-        ),
-        tech: 'EXPO_PUBLIC_KAKAO_MAP_JS_KEY = (빈 값) · docker build --build-arg 로 넘겨야 한다',
-      });
+      setFailure(setupFailure('EXPO_PUBLIC_KAKAO_MAP_JS_KEY = (빈 값) · docker build --build-arg 로 넘겨야 한다'));
       return;
     }
+    // 🔴 지도에 그릴 것이 하나도 없다 — S15P21E201-1889. 가까운 도움 화면은 목록을 받기 «전에» 빈 목록으로 이 지도를 먼저 올리고,
+    //    탭을 바꿀 때마다 잠깐 빈 목록이 된다. 전에는 그때 stops[0].latitude 를 읽다 던졌다(2026-10-15 운영 실측).
+    //    ① SDK 가 목록보다 먼저 뜨면 그 콜백이 카카오 SDK 안에서 던져, SDK 가 뒤따르는 load 콜백을 «다시는» 안 불렀다 —
+    //       목록이 와도 지도 칸이 영영 회색 빈칸이었다(그 페이지의 다른 지도도 같이 죽는다).
+    //    ② SDK 가 이미 떠 있으면(탭을 바꿀 때) 콜백이 곧바로 불려 effect 안에서 던졌고, 화면 전체가 「화면을 불러오지 못했어요」로 무너졌다.
+    //    그릴 것이 없으면 지도를 만들지 않고 기다린다 — 목록이 채워지면 이 effect 가 다시 돈다.
+    const nothingToDraw = !stops.length && !points.some((layer) => layer.stops.length);
+    // 🔴 SDK 의 load 콜백 안에서는 아무것도 던지지 않는다. 던지면 위 ①처럼 SDK 가 이후 콜백을 안 부른다.
+    //    그리다 난 오류는 여기서 받아 화면에 말하고, SDK 에는 정상으로 돌려준다.
+    const guarded = (body: () => void) => () => {
+      try {
+        body();
+      } catch (error) {
+        setFailure(setupFailure(`지도를 그리다 오류가 났다: ${error instanceof Error ? error.message : String(error)}`));
+      }
+    };
     const draw = () => {
+      if (nothingToDraw) {
+        // 이미 그려 둔 점·선은 걷는다 — 지난 목록의 점이 남아 없는 곳을 가리키면 안 된다. 지도 자체는 두었다가 다음에 다시 쓴다.
+        overlaysRef.current.forEach((overlay) => overlay.setMap(null));
+        overlaysRef.current = [];
+        markersRef.current = new Map();
+        lineRecordsRef.current = [];
+        fitRef.current = null; ensureRef.current = null; focusFnRef.current = null;
+        // 지도 파일의 둘째 부분은 load 를 불러야 받기 시작한다(autoload=false) — 목록을 기다리는 동안 미리 받아 둔다.
+        // 넘기는 것은 빈 콜백이라 던질 것이 없다. 안 하면 목록이 온 «뒤에야» 받기 시작해 지도가 그만큼 늦게 뜬다.
+        window.kakao?.maps?.load(() => {});
+        return;
+      }
       // ③ 스크립트는 받았는데 지도 기능이 안 생겼다. 키가 이 도메인에 등록되지 않았을 때 이렇게 된다.
       if (!window.kakao?.maps) {
         setFailure({
@@ -198,10 +243,12 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
         });
         return;
       }
-      window.kakao.maps.load(() => {
+      window.kakao.maps.load(guarded(() => {
         if (!hostRef.current || !window.kakao) return;
         const maps = window.kakao.maps;
-        const center = new maps.LatLng(stops[0].latitude, stops[0].longitude);
+        const visibleStops = [...stops, ...points.flatMap((layer) => layer.stops)];
+        // 번호 장소가 없고 점 표시만 있는 지도도 있다 — 그때 stops[0] 은 없다. 첫 번째로 보이는 것을 가운데로(앱 지도 kakaoMapHtml.ts 와 같다).
+        const center = new maps.LatLng(visibleStops[0].latitude, visibleStops[0].longitude);
         const firstDraw = !mapRef.current;
         const map = mapRef.current ?? new maps.Map(hostRef.current, { center, level: 8 });
         mapRef.current = map;
@@ -218,7 +265,6 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
         overlaysRef.current.forEach((overlay) => overlay.setMap(null));
         overlaysRef.current = [];
         const bounds = new maps.LatLngBounds();
-        const visibleStops = [...stops, ...points.flatMap((layer) => layer.stops)];
         // 🔴 맞추는 범위는 번호 장소만(S15P21E201-1903, kakaoMapHtml.ts 와 같다) — 먼 출발지까지 넣으면 장소들이 한 점에 뭉쳤다.
         const fitStops = fitTargets(stops, visibleStops);
         fitStops.forEach((stop) => bounds.extend(new maps.LatLng(stop.latitude, stop.longitude)));
@@ -355,9 +401,19 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
         appliedSelectionRef.current = selectedNow;
         setMapReady(true);
         setFailure(null);
-      });
+      }));
     };
-    if (window.kakao?.maps) { draw(); return; }
+    // 🔴 그릴 것이 있는데 지도가 끝내 안 만들어지면 — SDK 가 콜백을 안 부르는 경우(둘째 파일이 막힘 등) — 회색 빈칸만 남는다.
+    //    오류 사건도 없어서 아래 onError·onBlocked 가 못 잡는다. 일정 시간 뒤에도 지도가 없으면 안내를 낸다.
+    //    «지금 그리기를 시도한 뒤에도 지도가 없을 때만» 건다 — SDK 가 이미 떠 있어 곧바로 그려지면 타이머를 만들지 않는다.
+    let watchdog: ReturnType<typeof setTimeout> | undefined;
+    const armWatchdog = () => {
+      if (nothingToDraw || mapRef.current) return;
+      watchdog = setTimeout(() => {
+        if (!mapRef.current) setFailure((prev) => prev ?? fileFailure(`지도가 ${MAP_DRAW_TIMEOUT_MS / 1000}초 안에 만들어지지 않았다 · 지도 파일의 둘째 부분이 막혔을 수 있다`));
+      }, MAP_DRAW_TIMEOUT_MS);
+    };
+    if (window.kakao?.maps) { draw(); armWatchdog(); return () => { if (watchdog) clearTimeout(watchdog); }; }
 
     const onBlocked = (event: SecurityPolicyViolationEvent) => {
       if (!MAP_HOSTS.test(event.blockedURI ?? '')) return;
@@ -378,17 +434,12 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
     if (!existing) { script.id = SDK_ID; script.src = src; document.head.appendChild(script); }
     // 차단 사건과 error 사건은 둘 다 난다. 순서가 규격으로 정해져 있지 않으므로
     // 차단 쪽이 항상 이기게 한다 — 그쪽이 원인을 정확히 말해 주기 때문이다.
-    const onError = () => setFailure((prev) => prev ?? {
-      title: tx('지도 파일을 못 받았어요', 'Could not fetch the map file'),
-      reason: tx(
-        '카카오 지도 파일을 받지 못했습니다. 네트워크가 막혔거나, 이 도메인이 카카오 개발자 콘솔에 등록되지 않았을 수 있습니다.',
-        'The Kakao map file could not be fetched. The network may be blocked, or this domain may not be registered in the Kakao developer console.',
-      ),
-      tech: `요청 실패: ${src.replace(appKey, '(키)')}`,
-    });
+    const onError = () => setFailure((prev) => prev ?? fileFailure(`요청 실패: ${src.replace(appKey, '(키)')}`));
     script.addEventListener('load', draw);
     script.addEventListener('error', onError);
+    armWatchdog();
     return () => {
+      if (watchdog) clearTimeout(watchdog);
       document.removeEventListener('securitypolicyviolation', onBlocked);
       script.removeEventListener('load', draw);
       script.removeEventListener('error', onError);

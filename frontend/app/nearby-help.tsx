@@ -30,6 +30,11 @@ import { useLocationGate } from '@/personalization/useLocationGate';
 
 /** 이 지도는 경로가 아니다 — 번호 점을 선으로 잇지 않는다(transit.tsx 의 NO_ROUTES 와 같은 이유). */
 const NO_ROUTES: MapRouteLayer[] = [];
+/**
+ * 아직 목록을 못 받았을 때의 빈 목록 — 렌더마다 새 `[]` 를 만들면 stops 도 매번 새 배열이 되어 지도 effect 가 렌더마다 다시 돈다.
+ * (지도는 이 빈 목록으로 먼저 올라간다 — 서버 응답을 기다리는 동안 칸을 지키려고. 그때 지도가 던지지 않는 것은 RouteMap 이 지킨다, S15P21E201-1889.)
+ */
+const NO_ITEMS: HelpItem[] = [];
 /** preview=ui 의 기준점 — 광안리해수욕장 앞(UI 캔버스 ㉒-4 와 같은 자리). */
 const PREVIEW_ORIGIN = { latitude: 35.1532, longitude: 129.1186 };
 /** 이만큼 가까우면 걸어서 가는 길로 연다. */
@@ -84,7 +89,8 @@ export default function NearbyHelpScreen() {
   const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [locationState, setLocationState] = useState<LocationState>('detecting');
   const [canAskAgain, setCanAskAgain] = useState(true);
-  const [selectedId, setSelectedId] = useState('');
+  // 사람이 누른 곳. 지금 목록에 없으면(다른 탭으로 바뀌었으면) 첫 곳이 골라진 것으로 본다 — 아래 selectedId.
+  const [pickedId, setPickedId] = useState('');
   const [found, setFound] = useState<Found>(null);
 
   // 이미 허용한 사람만 조용히 읽는다. 처음이거나 거부한 사람에게는 창을 띄우지 않는다 — 묻는 것은 「내 위치 켜기」를 누를 때.
@@ -137,12 +143,16 @@ export default function NearbyHelpScreen() {
     return () => { alive = false; };
   }, [coords, kind, accessToken]);
 
-  const items = found?.items ?? [];
+  const items = found?.items ?? NO_ITEMS;
   const idOf = (index: number) => `${kind}-${index}`;
   const stops: MapStop[] = useMemo(() => items.map((item, index) => ({ id: idOf(index), number: index + 1, name: item.name, latitude: item.latitude, longitude: item.longitude })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [items]);
-  useEffect(() => { setSelectedId(stops[0]?.id ?? ''); }, [stops]);
+  // 🔴 고른 곳은 목록과 «같은 렌더에서» 정한다. 전에는 목록이 온 뒤 effect 로 첫 곳을 골랐는데, 한 렌더 늦은 그 «고른 곳 바뀜»이 지도의
+  //    「고르면 그 장소가 보일 만큼 확대」 규칙을 건드려, 전체를 맞춘 바로 뒤에 1번으로 확대했다 — 경찰처럼 곳들이 멀리 흩어져 있으면
+  //    지도에는 1번 점만 보이고 나머지 넷은 화면 밖이었다(S15P21E201-1889, 운영 캡처 2026-10-15). 같은 렌더면 지도는 «처음부터 첫 곳이 골라진
+  //    채로» 그려서 전체를 맞춘 그대로 둔다.
+  const selectedId = stops.some((stop) => stop.id === pickedId) ? pickedId : (stops[0]?.id ?? '');
 
   const directions = (item: HelpItem) => {
     if (!coords) return;
@@ -174,7 +184,7 @@ export default function NearbyHelpScreen() {
       {HELP_KINDS.map((each) => {
         const selected = each === kind;
         return (
-          <Pressable key={each} testID={`nearby-kind-${each}`} accessibilityRole="tab" accessibilityState={{ selected }} onPress={() => setKind(each)} style={[styles.kind, selected && styles.kindOn]}>
+          <Pressable key={each} testID={`nearby-kind-${each}`} accessibilityRole="tab" accessibilityState={{ selected }} onPress={() => { setKind(each); setPickedId(''); }} style={[styles.kind, selected && styles.kindOn]}>
             <Text variant="util" weight="bold" color={selected ? color.text.onAction : color.text.heading} numberOfLines={1}>{tx(...KIND_LABEL[each])}</Text>
           </Pressable>
         );
@@ -202,7 +212,7 @@ export default function NearbyHelpScreen() {
     ) : (
       <>
         <View style={styles.mapWrap}>
-          <RouteMap stops={stops} routes={NO_ROUTES} selectedId={selectedId} onSelect={setSelectedId} focusSelected currentLocation={coords} height={220} />
+          <RouteMap stops={stops} routes={NO_ROUTES} selectedId={selectedId} onSelect={setPickedId} focusSelected currentLocation={coords} height={220} />
         </View>
         {!found ? (
           <View style={styles.card}><Text variant="body" weight="bold">{tx('가까운 곳을 찾고 있어요…', 'Finding places near you…')}</Text></View>
@@ -211,7 +221,7 @@ export default function NearbyHelpScreen() {
         ) : (
           <View style={styles.list}>
             {items.map((item, index) => (
-              <HelpRow key={idOf(index)} item={item} number={index + 1} selected={selectedId === idOf(index)} onSelect={() => setSelectedId(idOf(index))} onDirections={() => directions(item)} onShowDriver={item.address ? () => showToDriver(item) : null} language={language} tx={tx} />
+              <HelpRow key={idOf(index)} item={item} number={index + 1} selected={selectedId === idOf(index)} onSelect={() => setPickedId(idOf(index))} onDirections={() => directions(item)} onShowDriver={item.address ? () => showToDriver(item) : null} language={language} tx={tx} />
             ))}
           </View>
         )}
@@ -231,6 +241,9 @@ export default function NearbyHelpScreen() {
         ? tx('지도 자료: © OpenStreetMap 기여자 · 거리는 직선이에요 · 문을 열었는지는 가기 전에 전화로 확인하세요', 'Map data: © OpenStreetMap contributors · distances are straight-line · call ahead to check they are open')
         : tx('병원·약국: 건강보험심사평가원(2026년 6월 기준) · 경찰: © OpenStreetMap 기여자 · 거리는 직선이에요 · 공휴일 진료는 가기 전에 전화로 확인하세요', 'Hospitals and pharmacies: HIRA (as of June 2026) · police: © OpenStreetMap contributors · distances are straight-line · call ahead on public holidays')}
     </Text>
+    {/* 🔴 위치 동의 창 — useLocationGate 는 창(sheet)을 «부른 화면이 그리게» 돼 있다. 안 그리면 「내 위치 켜기」가 창을 못 띄운 채
+        답을 영영 기다려, 위치 동의를 한 적 없는 사람은 이 화면을 아무것도 못 한다(S15P21E201-1889 — 이 훅을 쓰는 열한 화면 중 여기만 빠져 있었다). */}
+    {locationGate.sheet}
   </Screen>;
 }
 
