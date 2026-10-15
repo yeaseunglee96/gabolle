@@ -1,8 +1,8 @@
-// 홈에 «골라서» 올리는 것들 — S15P21E201-2021 「홈이 어지럽다」.
+// 홈에 «골라서» 올리는 것들 — S15P21E201-2021 「홈이 어지럽다」. 맛집·카페 칸은 S15P21E201-2059.
 //
 // 사람이 고른 값은 코드 여기저기에 흩지 않고 이 파일 한 곳에만 둔다. 바꿀 때 이 파일만 고치면 된다.
 // · 기록 줄 맨 앞에 고정할 글 — 사람 얼굴이 안 나오고 분위기 있는 사진의 글(2026-10-09 사진을 한 장씩 보고 골랐다)
-// · 로컬 탐색 여섯 칸의 대표 장소 — 갈래마다 하나, 공공 사진이 좋은 곳
+// · 로컬 탐색 여덟 칸의 대표 장소 — 갈래마다 하나(맛집·카페는 지시로 정한 곳, 나머지는 공공 사진이 좋은 곳)
 // 고른 글이 지워지거나 비공개가 되면 그 글만 빠진다(불러오기 실패 = 없는 것). 화면이 깨지지 않는다.
 import type { LanguageCode } from '@/i18n/languages';
 
@@ -30,12 +30,20 @@ export function featuredFirst<T extends { id: string }>(featured: T[], rest: T[]
   return out;
 }
 
-/** 로컬 탐색 여섯 갈래 — 이 순서로 선다. featureKey 는 서버 갈래 코드(로컬 탐색 화면의 ?facet= 값)다. */
-export type LocalPickKey = 'FESTIVAL' | 'TRADITIONAL_MARKET' | 'ACTIVITY' | 'WALK' | 'NATURE' | 'NIGHT_VIEW';
+/**
+ * 로컬 탐색 여덟 갈래 — LOCAL_PICK_ORDER 의 순서로 선다. 열쇠는 서버 갈래 코드(로컬 탐색 화면의 ?facet= 값)다.
+ * LOCAL_RESTAURANT(맛집)·LOCAL_CAFE(카페)는 S15P21E201-2059 에서 더했다.
+ */
+export type LocalPickKey = 'LOCAL_RESTAURANT' | 'LOCAL_CAFE' | 'FESTIVAL' | 'TRADITIONAL_MARKET' | 'ACTIVITY' | 'WALK' | 'NATURE' | 'NIGHT_VIEW';
 
 type Labels = Record<LanguageCode, string>;
 
 export const LOCAL_PICK_LABELS: Record<LocalPickKey, Labels> = {
+  // 맛집·카페 이름표는 로컬 탐색 화면의 갈래 칩과 «같은 말»이다 — 한국어·영어는 그 화면의 localFacetLabel 과, 일본어·중국어는 번역표
+  // (translations.ts)의 「맛집」「카페」와 같다. 베트남어도 번역표의 말을 쓴다(그 화면의 칩은 localFacetLabel 이 번역표를 안 찾아 아직 영어로 나온다).
+  // 시험(homeCuration.test.ts)이 칩과 어긋나면 알린다.
+  LOCAL_RESTAURANT: { ko: '맛집', en: 'Restaurants', ja: 'グルメ', 'zh-Hans': '美食', 'zh-Hant': '美食', vi: 'Quán ngon' },
+  LOCAL_CAFE: { ko: '카페', en: 'Cafes', ja: 'カフェ', 'zh-Hans': '咖啡', 'zh-Hant': '咖啡', vi: 'Cà phê' },
   FESTIVAL: { ko: '축제', en: 'Festival', ja: 'お祭り', 'zh-Hans': '节庆', 'zh-Hant': '節慶', vi: 'Lễ hội' },
   TRADITIONAL_MARKET: { ko: '전통시장', en: 'Market', ja: '伝統市場', 'zh-Hans': '传统市场', 'zh-Hant': '傳統市場', vi: 'Chợ truyền thống' },
   ACTIVITY: { ko: '액티비티', en: 'Activity', ja: 'アクティビティ', 'zh-Hans': '体验活动', 'zh-Hant': '體驗活動', vi: 'Hoạt động' },
@@ -44,8 +52,20 @@ export const LOCAL_PICK_LABELS: Record<LocalPickKey, Labels> = {
   NIGHT_VIEW: { ko: '야경', en: 'Night view', ja: '夜景', 'zh-Hans': '夜景', 'zh-Hant': '夜景', vi: 'Cảnh đêm' },
 };
 
-/** 갈래마다 대표 장소 하나. 사진은 전부 관광공사 공공누리 사진이다(공공 사진 먼저). */
+/**
+ * 갈래마다 대표 장소 하나. 이름·주소·사진은 서버에서 받아 그린다(사진과 출처 띠도 서버가 장소에 붙여 둔 것 그대로) —
+ * 여기에 적는 것은 장소의 placeId 뿐이다. 고를 때는 공공 사진(관광공사 공공누리 · 부산시 맛집정보)이 있는 곳을 먼저 봤다.
+ *
+ * 🔴 대표 장소를 바꾸려면 — 이 표에서 그 갈래 줄의 placeId 한 칸만 바꾼다. placeId 는 장소 상세 화면의 주소(…/place/<placeId>)에
+ *    들어 있는 긴 번호다. 이름표·「더 보기」 길·순서는 그대로 두면 되고, 순서를 바꾸려면 아래 LOCAL_PICK_ORDER 만 고친다.
+ *    그 장소가 지워지거나 못 불러오면 그 카드만 빠지고 나머지 카드는 그대로 선다.
+ *
+ * 맛집·카페(S15P21E201-2059)는 2026-10-15 지시로 정했다 — 맛집은 수변최고돼지국밥, 카페는 모모스커피 «부산본점»(금정구 오시게로 20)이다
+ * (영도점 a6e61415-5b19-3e1a-b069-a7876fbb92c6 이 아니다).
+ */
 export const LOCAL_PICK_PLACES: Record<Exclude<LocalPickKey, 'FESTIVAL'>, string> = {
+  LOCAL_RESTAURANT: 'fe2f8382-a076-3173-8605-777a4c500702', // 수변최고돼지국밥 — 수영구 민락동
+  LOCAL_CAFE: '5416ddfb-0d2b-3eac-aaf6-d965f59add30', // 모모스커피 부산본점 — 금정구 오시게로 20(부곡동)
   TRADITIONAL_MARKET: 'f548797c-361a-3b3a-8210-616be343a29d', // 국제시장
   ACTIVITY: '6e2e7cfd-d5f6-3588-a8f2-7a8fa9733b0c', // 광안리 SUP Zone — 광안대교 아래 패들보드
   WALK: '3667f940-f493-318d-845c-53f701a365df', // 절영해안산책로
@@ -53,7 +73,8 @@ export const LOCAL_PICK_PLACES: Record<Exclude<LocalPickKey, 'FESTIVAL'>, string
   NIGHT_VIEW: 'd7d68934-1a4e-31c5-836a-0f94134e81e4', // 황령산 전망대
 };
 
-export const LOCAL_PICK_ORDER: readonly LocalPickKey[] = ['FESTIVAL', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE', 'NIGHT_VIEW'];
+/** 줄에 서는 순서. 맛집·카페가 맨 앞이고(S15P21E201-2059) 그 뒤는 예전 여섯 칸의 순서 그대로다. */
+export const LOCAL_PICK_ORDER: readonly LocalPickKey[] = ['LOCAL_RESTAURANT', 'LOCAL_CAFE', 'FESTIVAL', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE', 'NIGHT_VIEW'];
 
 /**
  * 기간을 아는 대표 축제. 축제 데이터(관광공사)에 아직 없는 큰 축제를 여기 적는다 — 기간 안에만 축제 칸에 선다.

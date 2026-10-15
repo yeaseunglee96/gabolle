@@ -1,14 +1,22 @@
-// S15P21E201-2021 — 홈 정리: 기록 줄은 고른 글이 먼저, 로컬 탐색은 여섯 갈래에 한 칸씩.
+// S15P21E201-2021 — 홈 정리: 기록 줄은 고른 글이 먼저, 로컬 탐색은 갈래마다 한 칸씩.
+// S15P21E201-2059 — 로컬 탐색 줄 맨 앞에 맛집·카페 두 칸을 더했다(여섯 칸 → 여덟 칸).
 jest.mock('@/discovery/places', () => ({ getPlace: jest.fn(), getPlacesByFacet: jest.fn() }));
 jest.mock('@/discovery/festivals', () => ({ getFestivals: jest.fn(), festivalDisplayTitle: (f: { title?: string; nameKo: string }) => f.title ?? f.nameKo }));
 import { getPlace } from '@/discovery/places';
 import { getFestivals } from '@/discovery/festivals';
-import { currentFeaturedFestival, FEATURED_STORY_IDS, LOCAL_PICK_ORDER, pickFestival, pickLabel } from '@/home/homeCuration';
+import { localFacetLabel } from '@/discovery/localExplore';
+import { currentFeaturedFestival, FEATURED_STORY_IDS, LOCAL_PICK_ORDER, LOCAL_PICK_PLACES, pickFestival, pickLabel, type LocalPickKey } from '@/home/homeCuration';
 import { loadLocalPicks, pickHeroStories } from '@/home/useHomeData';
 import { LANGUAGE_CODES } from '@/i18n/languages';
+import { pickLanguage } from '@/i18n/pick';
+import { getTranslation } from '@/i18n/translations';
 import type { StoryDto } from '@/social/stories';
 
 const story = (id: string, image = true) => ({ id, images: image ? [{ url: 'x', position: 0 }] : [] }) as unknown as StoryDto;
+
+// 맛집·카페 칸에 고정한 장소 — 바꾸라는 지시가 없으면 바뀌지 않아야 하는 값이라 시험에도 적어 둔다.
+const RESTAURANT_ID = 'fe2f8382-a076-3173-8605-777a4c500702'; // 수변최고돼지국밥(수영구 민락동)
+const CAFE_ID = '5416ddfb-0d2b-3eac-aaf6-d965f59add30'; // 모모스커피 부산본점(금정구 오시게로 20)
 
 describe('기록 줄 — 고른 글이 먼저', () => {
   it('고정 글이 원래 순서와 상관없이 맨 앞에 서고, 같은 글은 두 번 안 나온다', () => {
@@ -18,10 +26,34 @@ describe('기록 줄 — 고른 글이 먼저', () => {
   });
 });
 
-describe('로컬 탐색 여섯 칸', () => {
-  it('축제·전통시장·액티비티·산책·자연·야경 순서이고 이름표가 여섯 언어 다 있다', () => {
-    expect(LOCAL_PICK_ORDER).toEqual(['FESTIVAL', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE', 'NIGHT_VIEW']);
+describe('로컬 탐색 여덟 칸', () => {
+  it('맛집·카페가 맨 앞이고 뒤는 예전 여섯 칸의 순서 그대로이며, 이름표가 여섯 언어 다 있다', () => {
+    expect(LOCAL_PICK_ORDER).toEqual(['LOCAL_RESTAURANT', 'LOCAL_CAFE', 'FESTIVAL', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE', 'NIGHT_VIEW']);
     for (const key of LOCAL_PICK_ORDER) for (const lang of LANGUAGE_CODES) expect(pickLabel(key, lang)).toBeTruthy();
+  });
+
+  it('맛집은 수변최고돼지국밥, 카페는 모모스커피 부산본점(영도점이 아니다)으로 고정이고, 칸마다 다른 장소다', () => {
+    expect(LOCAL_PICK_PLACES.LOCAL_RESTAURANT).toBe(RESTAURANT_ID);
+    expect(LOCAL_PICK_PLACES.LOCAL_CAFE).toBe(CAFE_ID);
+    expect(LOCAL_PICK_PLACES.LOCAL_CAFE).not.toBe('a6e61415-5b19-3e1a-b069-a7876fbb92c6'); // 모모스커피 영도점
+    const ids = Object.values(LOCAL_PICK_PLACES);
+    for (const id of ids) expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
+    expect(new Set(ids).size).toBe(ids.length);
+    // 축제를 뺀 모든 칸에 장소가 있다 — 빠진 칸은 카드가 조용히 사라진다.
+    for (const key of LOCAL_PICK_ORDER) if (key !== 'FESTIVAL') expect(LOCAL_PICK_PLACES[key]).toBeTruthy();
+  });
+
+  it('🔴 맛집·카페 이름표는 로컬 탐색 화면의 갈래 칩과 같은 말이다 — 칩 이름을 만드는 localFacetLabel 과 번역표를 따른다', () => {
+    const chips: Array<[LocalPickKey, string]> = [['LOCAL_RESTAURANT', '맛집'], ['LOCAL_CAFE', '카페']];
+    for (const [featureKey, labelKo] of chips) {
+      const chip = { featureKey, labelKo, labelEn: null, placeCount: 1 }; // 서버는 갈래 이름을 한국어로만 준다
+      for (const lang of ['ko', 'en', 'ja', 'zh-Hans', 'zh-Hant'] as const) {
+        const tx = (ko: string, en: string) => pickLanguage(lang, { ko, en });
+        expect(pickLabel(featureKey, lang)).toBe(localFacetLabel(chip, lang, tx));
+      }
+      // 베트남어는 번역표의 말이다 — 칩 쪽은 localFacetLabel 이 일본어·중국어만 번역표로 보내서 아직 영어로 나온다(홈이 아니라 칩의 빈틈).
+      expect(pickLabel(featureKey, 'vi')).toBe(getTranslation(labelKo, 'vi'));
+    }
   });
 
   it('BIFF 는 기간 안에만 축제 칸에 선다', () => {
@@ -37,22 +69,55 @@ describe('로컬 탐색 여섯 칸', () => {
     expect(pickFestival([later], '2026-10-09')).toBe(later);
   });
 
-  it('여섯 칸을 만들고, BIFF 기간에는 축제 칸이 영화의전당·BIFF 이름이다. 한 곳이 실패하면 그 칸만 빠진다', async () => {
+  it('여덟 칸을 만들고, BIFF 기간에는 축제 칸이 영화의전당·BIFF 이름이다. 한 곳이 실패하면 그 칸만 빠진다', async () => {
     (getPlace as jest.Mock).mockImplementation(async (id: string) => {
       if (id === 'd7d68934-1a4e-31c5-836a-0f94134e81e4') throw new Error('boom');
       return { placeId: id, nameKo: `place-${id.slice(0, 4)}`, nameEn: null, address: '부산' };
     });
     (getFestivals as jest.Mock).mockResolvedValue([]);
     const picks = await loadLocalPicks(new Date(2026, 9, 9));
-    expect(picks.map((p) => p.key)).toEqual(['FESTIVAL', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE']);
-    expect(picks[0].place.placeId).toBe('d8836d09-0c5c-4d15-a962-95894af98d2e');
-    expect(picks[0].title?.ko).toContain('부산국제영화제');
+    expect(picks.map((p) => p.key)).toEqual(['LOCAL_RESTAURANT', 'LOCAL_CAFE', 'FESTIVAL', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE']);
+    const festival = picks.find((p) => p.key === 'FESTIVAL');
+    expect(festival?.place.placeId).toBe('d8836d09-0c5c-4d15-a962-95894af98d2e');
+    expect(festival?.title?.ko).toContain('부산국제영화제');
+  });
+
+  it('맛집·카페 칸은 고정한 장소를 서버에서 받아 그리고, 「더 보기」는 로컬 탐색의 맛집·카페 갈래로 간다', async () => {
+    (getPlace as jest.Mock).mockClear();
+    (getPlace as jest.Mock).mockImplementation(async (id: string) => ({ placeId: id, nameKo: `place-${id.slice(0, 4)}`, nameEn: null, address: '부산' }));
+    (getFestivals as jest.Mock).mockResolvedValue([]);
+    const picks = await loadLocalPicks(new Date(2026, 9, 9));
+    expect(picks.slice(0, 2).map((p) => [p.key, p.place.placeId, p.href])).toEqual([
+      ['LOCAL_RESTAURANT', RESTAURANT_ID, '/explore?facet=LOCAL_RESTAURANT'],
+      ['LOCAL_CAFE', CAFE_ID, '/explore?facet=LOCAL_CAFE'],
+    ]);
+    // 이름·주소는 서버 답을 그대로 쓴다 — 코드에 적어 둔 것은 placeId 뿐이다.
+    expect(picks[0].place.nameKo).toBe(`place-${RESTAURANT_ID.slice(0, 4)}`);
+    const asked = (getPlace as jest.Mock).mock.calls.map(([id]) => id);
+    expect(asked).toEqual(expect.arrayContaining([RESTAURANT_ID, CAFE_ID]));
+  });
+
+  it('🔴 맛집이나 카페를 못 불러오면 그 카드만 빠지고, 줄 전체는 그대로 선다', async () => {
+    (getFestivals as jest.Mock).mockResolvedValue([]);
+    const failing = (ids: string[]) => async (id: string) => {
+      if (ids.includes(id)) throw new Error('boom');
+      return { placeId: id, nameKo: `place-${id.slice(0, 4)}`, nameEn: null, address: '부산' };
+    };
+
+    (getPlace as jest.Mock).mockImplementation(failing([RESTAURANT_ID]));
+    expect((await loadLocalPicks(new Date(2026, 9, 9))).map((p) => p.key)).toEqual(['LOCAL_CAFE', 'FESTIVAL', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE', 'NIGHT_VIEW']);
+
+    (getPlace as jest.Mock).mockImplementation(failing([CAFE_ID]));
+    expect((await loadLocalPicks(new Date(2026, 9, 9))).map((p) => p.key)).toEqual(['LOCAL_RESTAURANT', 'FESTIVAL', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE', 'NIGHT_VIEW']);
+
+    (getPlace as jest.Mock).mockImplementation(failing([RESTAURANT_ID, CAFE_ID]));
+    expect((await loadLocalPicks(new Date(2026, 9, 9))).map((p) => p.key)).toEqual(['FESTIVAL', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE', 'NIGHT_VIEW']);
   });
 
   it('BIFF 가 끝나면 축제 데이터의 축제가 칸을 채운다', async () => {
     (getPlace as jest.Mock).mockImplementation(async (id: string) => ({ placeId: id, nameKo: id, nameEn: null, address: '부산' }));
     (getFestivals as jest.Mock).mockResolvedValue([{ placeId: 'fest', nameKo: '불꽃축제', address: '부산', startDate: '2026-11-07', endDate: '2026-11-07', overlapDates: [] }]);
     const picks = await loadLocalPicks(new Date(2026, 10, 1));
-    expect(picks[0]).toMatchObject({ key: 'FESTIVAL', place: { placeId: 'fest', nameKo: '불꽃축제' } });
+    expect(picks.find((p) => p.key === 'FESTIVAL')).toMatchObject({ key: 'FESTIVAL', place: { placeId: 'fest', nameKo: '불꽃축제' } });
   });
 });

@@ -21,7 +21,7 @@ import { useAuth } from '@/auth/AuthProvider';
 import { resolveHomeTripDestination } from './tripNavigation';
 import { HomeRow, homeCardWidth } from './HomeRow';
 import type { HomeLocalPick } from './useHomeData';
-import { localSectionTitle, moreLabel, pickLabel } from './homeCuration';
+import { LOCAL_PICK_ORDER, localSectionTitle, moreLabel, pickLabel } from './homeCuration';
 import { addressForLanguage } from '@/discovery/localAddress';
 import { otherNameFor } from '@/discovery/localNames';
 import { placeNameForLanguage } from '@/discovery/romanize';
@@ -179,7 +179,8 @@ export function StoryRow({
 // ── 로컬 탐색 (갈래마다 대표 한 곳 — S15P21E201-2021) ─────────────────────────
 //
 // 전에는 「지금 열리는 부산 축제」「부산 로컬 둘러보기」 두 줄에 스무 장이 섰다 — 홈이 어지럽다는 피드백.
-// 이제 한 줄에 여섯 장: 축제·전통시장·액티비티·산책·자연·야경 하나씩, 카드마다 갈래 이름표와 「더 보기」.
+// 이제 한 줄에 여덟 장: 맛집·카페(S15P21E201-2059)·축제·전통시장·액티비티·산책·자연·야경 하나씩, 카드마다 갈래 이름표와 「더 보기」.
+// 어떤 갈래가 어느 순서로 서는지, 갈래마다 어느 장소인지는 homeCuration.ts 한 곳에 있다 — 여기는 그린다.
 
 function LocalPickCard({
   pick,
@@ -281,7 +282,8 @@ export function LocalPicksRow({
       arrows={arrows}
     >
       {picks === null
-        ? [0, 1, 2, 3, 4, 5].map((slot) => <View key={slot} style={[styles.storySkeleton, { width: cardWidth, height: cardWidth }]} />)
+        // 불러오는 중 빈 칸은 갈래 수만큼 — 숫자를 따로 적어 두면 갈래를 더할 때 줄 길이가 그 숫자와 어긋난다.
+        ? LOCAL_PICK_ORDER.map((key) => <View key={key} testID="local-pick-skeleton" style={[styles.storySkeleton, { width: cardWidth, height: cardWidth }]} />)
         : picks.map((pick) => (
             <LocalPickCard
               key={pick.key}
