@@ -11,6 +11,7 @@ import {
   PharmacyCard,
   ToiletCard,
   type FacilityActions,
+  type ListLink,
 } from '../NearbyFacilityCards';
 import type { FacilityItem, LockerDetail, ParkingDetail, PharmacyDetail, ToiletDetail } from '../nearbyFacilities';
 
@@ -354,5 +355,58 @@ describe('물품보관함 카드', () => {
     const view = render(<LockerCard item={locker()} actions={actions()} />);
 
     expect(view.queryByText(/부산광역시/)).toBeNull();
+  });
+});
+
+describe('지도와 짝지은 카드(link) — S15P21E201-2052', () => {
+  const link = (over: Partial<ListLink> = {}): ListLink => ({ number: 3, selected: false, onSelect: jest.fn(), ...over });
+
+  it('🔴 네 카드 모두 지도의 번호 점과 같은 번호 핀이 있다 — 안 짝지으면(link 없음) 핀이 없다', () => {
+    const cards = [
+      <ParkingCard key="p" item={parking()} actions={actions()} link={link({ number: 1 })} stayHours={2} />,
+      <PharmacyCard key="ph" item={pharmacy()} actions={actions()} link={link({ number: 2 })} onCall={null} />,
+      <ToiletCard key="t" item={toilet()} actions={actions()} link={link({ number: 3 })} />,
+      <LockerCard key="l" item={locker()} actions={actions()} link={link({ number: 4 })} />,
+    ];
+    cards.forEach((card, index) => {
+      const view = render(card);
+      expect(within(view.getByTestId(/^facility-pin-/)).getByText(String(index + 1))).toBeTruthy();
+    });
+    const alone = render(<ParkingCard item={parking()} actions={actions()} stayHours={2} />);
+    expect(alone.queryByTestId('facility-pin-f1')).toBeNull();
+  });
+
+  it('🔴 카드를 누르면 «고르는» 함수만 불린다 — 길 안내·지도 앱은 아래 단추가 따로 한다', () => {
+    const own = actions();
+    const mine = link();
+    const view = render(<ParkingCard item={parking()} actions={own} link={mine} stayHours={2} />);
+
+    fireEvent.press(view.getByTestId('facility-open-f1'));
+    expect(mine.onSelect).toHaveBeenCalledTimes(1);
+    expect(own.onRoute).not.toHaveBeenCalled();
+    expect(own.onMap).not.toHaveBeenCalled();
+
+    fireEvent.press(view.getByTestId('facility-route-f1'));
+    expect(own.onRoute).toHaveBeenCalledTimes(1);
+    fireEvent.press(view.getByTestId('facility-map-f1'));
+    expect(own.onMap).toHaveBeenCalledTimes(1);
+    expect(mine.onSelect).toHaveBeenCalledTimes(1);
+  });
+
+  it('골라진 카드는 선택 상태로 읽히고, 아닌 카드는 아니다 — 안 짝지은 카드는 선택 상태를 말하지 않는다', () => {
+    const on = render(<ToiletCard item={toilet()} actions={actions()} link={link({ selected: true })} />);
+    expect(on.getByTestId('facility-open-f1').props.accessibilityState).toEqual({ selected: true });
+    const off = render(<ToiletCard item={toilet()} actions={actions()} link={link({ selected: false })} />);
+    expect(off.getByTestId('facility-open-f1').props.accessibilityState).toEqual({ selected: false });
+    const alone = render(<ToiletCard item={toilet()} actions={actions()} />);
+    expect(alone.getByTestId('facility-open-f1').props.accessibilityState?.selected).toBeUndefined();
+  });
+
+  it('읽어 주는 말은 「지도에서 보기」 — 이름·거리와 함께(가까운 도움의 줄과 같은 문구)', () => {
+    const view = render(<ParkingCard item={parking()} actions={actions()} link={link()} stayHours={2} />);
+    expect(view.getByTestId('facility-open-f1').props.accessibilityLabel).toBe('시험주차장, 230m 지도에서 보기');
+    mockLang = 'en';
+    const english = render(<ParkingCard item={parking()} actions={actions()} link={link()} stayHours={2} />);
+    expect(english.getByTestId('facility-open-f1').props.accessibilityLabel).toBe('Show 시험주차장, 230m on the map');
   });
 });

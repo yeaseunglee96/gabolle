@@ -1,6 +1,8 @@
 // 근처 편의시설 카드 넷 — 주차장 · 약국 · 공중화장실 · 지하철 물품보관함 (S15P21E201-2052).
 //
 // 카드를 누르면 «가는 법»이 열린다(app/field/nearby.tsx 가 정한다). 이 파일은 그리기만 한다 — 위치·서버·길 안내는 모른다.
+// 🔴 지도와 짝지어 쓸 때(link)는 카드를 누르면 «지도에서 그 점이 골라진다» — 가까운 도움(nearby-help.tsx)의 목록과 같은 규칙이다(S15P21E201-2052).
+//    그때 가는 법은 카드 아래의 단추(길 안내 · 지도 앱 · 전화)가 맡는다. link 가 없으면(카드만 따로 쓸 때) 예전처럼 누르면 가는 법이 열린다.
 //
 // 🔴 «모른다»를 «없다»로 그리지 않는다.
 //    · 요금을 모르는 유료 주차장은 「무료」도 「0원」도 아니고 「요금 정보 없음」이다(feeSummaryOf).
@@ -40,9 +42,16 @@ export type FacilityActions = {
   onMap: () => void;
 };
 
+/**
+ * 위의 지도와 짝지을 때 카드가 받는 것 — 지도의 번호 점과 맞는 번호, 지금 골라졌는가, 눌렀을 때 «고르는» 함수.
+ * 안 주면(null·생략) 카드는 지도와 상관없이 따로 선 카드다.
+ */
+export type ListLink = { number: number; selected: boolean; onSelect: () => void };
+
 type CardProps<K extends FacilityItem['kind']> = {
   item: Extract<FacilityItem, { kind: K }>;
   actions: FacilityActions;
+  link?: ListLink | null;
 };
 
 // ── 공통 부품 ──────────────────────────────────────────────────────────────
@@ -72,29 +81,39 @@ function nameParts(name: string, language: string): { title: string; sub: string
   return { title: name, sub: roman && roman !== name ? roman : null };
 }
 
-function Frame({ item, title, sub, actions, callAction, children }: {
+function Frame({ item, title, sub, actions, link, callAction, children }: {
   item: FacilityItem;
   title: string;
   sub: string | null;
   actions: FacilityActions;
+  link?: ListLink | null;
   /** 약국의 전화 걸기 */
   callAction?: { label: string; onPress: () => void } | null;
   children: ReactNode;
 }) {
   const { tx, language } = useI18n();
   const address = addressForLanguage({ address: item.address }, language);
-  const open = actions.onRoute ?? actions.onMap;
   const summary = [title, distanceText(item.distanceM)].join(', ');
+  // 지도와 짝지었으면 누르면 지도에서 그 점이 골라지고(가까운 도움과 같은 규칙), 아니면 예전처럼 가는 법이 열린다.
+  const open = link ? link.onSelect : (actions.onRoute ?? actions.onMap);
+  const label = link
+    ? txf(tx, '%s 지도에서 보기', 'Show %s on the map', summary)
+    : `${summary}, ${actions.onRoute ? tx('길 안내', 'Directions') : tx('지도 앱', 'Map app')}`;
   return (
-    <View testID={`facility-card-${item.id}`} style={styles.card}>
+    <View testID={`facility-card-${item.id}`} style={[styles.card, link?.selected && styles.cardOn]}>
       <Pressable
         testID={`facility-open-${item.id}`}
         accessibilityRole="button"
-        accessibilityLabel={`${summary}, ${actions.onRoute ? tx('길 안내', 'Directions') : tx('지도 앱', 'Map app')}`}
+        accessibilityState={link ? { selected: link.selected } : undefined}
+        accessibilityLabel={label}
         onPress={open}
         style={({ pressed }) => [styles.body, pressed && styles.pressed]}
       >
         <View style={styles.titleRow}>
+          {link ? (
+            // 지도의 번호 점과 같은 번호 — 점과 카드를 눈으로 맞춰 본다.
+            <View testID={`facility-pin-${item.id}`} style={styles.pin}><Text variant="caption" weight="bold" color={color.text.onAction}>{link.number}</Text></View>
+          ) : null}
           <View style={styles.titleCol}>
             <Text variant="body" weight="bold">{title}</Text>
             {sub ? <Text variant="caption" color={color.text.body}>{sub}</Text> : null}
@@ -138,14 +157,14 @@ function openBadge(status: OpenStatus, tx: Tx, testID: string) {
 
 // ── 주차장 ─────────────────────────────────────────────────────────────────
 
-export function ParkingCard({ item, actions, stayHours }: CardProps<'PARKING'> & { stayHours: number }) {
+export function ParkingCard({ item, actions, link, stayHours }: CardProps<'PARKING'> & { stayHours: number }) {
   const { tx, language } = useI18n();
   const detail = item.detail;
   const { title, sub } = nameParts(item.name, language);
   const fee = feeSummaryOf(detail);
   const stayLabel = txf(tx, '%s시간 기준', `for %s ${enPlural(stayHours, 'hour', 'hours')}`, stayHours);
   return (
-    <Frame item={item} title={title} sub={sub} actions={actions}>
+    <Frame item={item} title={title} sub={sub} actions={actions} link={link}>
       <View style={styles.feeBlock}>
         {fee.kind === 'free' ? (
           <Text testID={`facility-fee-${item.id}`} variant="title" weight="bold" color={color.state.success}>{tx('무료', 'Free')}</Text>
@@ -185,13 +204,13 @@ export function ParkingCard({ item, actions, stayHours }: CardProps<'PARKING'> &
 
 // ── 약국 ───────────────────────────────────────────────────────────────────
 
-export function PharmacyCard({ item, actions, onCall }: CardProps<'PHARMACY'> & { onCall: ((tel: string) => void) | null }) {
+export function PharmacyCard({ item, actions, link, onCall }: CardProps<'PHARMACY'> & { onCall: ((tel: string) => void) | null }) {
   const { tx, language } = useI18n();
   const detail = item.detail;
   const { title, sub } = nameParts(item.name, language);
   const call = detail.tel && onCall ? { label: txf(tx, '%s에 전화하기', 'Call %s', title), onPress: () => onCall(detail.tel as string) } : null;
   return (
-    <Frame item={item} title={title} sub={sub} actions={actions} callAction={call}>
+    <Frame item={item} title={title} sub={sub} actions={actions} link={link} callAction={call}>
       <View style={styles.badges}>
         {openBadge(openStatusOf(detail), tx, `facility-status-${item.id}`)}
       </View>
@@ -223,7 +242,7 @@ const DIAPER_PLACE_LABEL: Record<string, readonly [string, string]> = {
   BOTH: ['남녀 화장실 모두', 'Both restrooms'],
 };
 
-export function ToiletCard({ item, actions }: CardProps<'TOILET'>) {
+export function ToiletCard({ item, actions, link }: CardProps<'TOILET'>) {
   const { tx, language } = useI18n();
   const detail = item.detail;
   const { title, sub } = nameParts(item.name, language);
@@ -232,7 +251,7 @@ export function ToiletCard({ item, actions }: CardProps<'TOILET'>) {
   const hoursPerDay = detail.openHours ? /^(\d{1,2})시간$/.exec(detail.openHours.trim())?.[1] ?? null : null;
   const place = detail.diaperPlace && DIAPER_PLACE_LABEL[detail.diaperPlace] ? tx(...DIAPER_PLACE_LABEL[detail.diaperPlace]) : null;
   return (
-    <Frame item={item} title={title} sub={sub} actions={actions}>
+    <Frame item={item} title={title} sub={sub} actions={actions} link={link}>
       <View style={styles.badges}>
         {detail.accessible ? <Badge testID={`facility-accessible-${item.id}`} tone="info" text={`♿ ${tx('장애인용', 'Accessible')}`} /> : null}
         {detail.diaper ? (
@@ -262,7 +281,7 @@ const SIZE_LABEL: Record<LockerSize, readonly [string, string]> = {
   xlarge: ['특대형', 'X-Large'],
 };
 
-export function LockerCard({ item, actions }: CardProps<'LOCKER'>) {
+export function LockerCard({ item, actions, link }: CardProps<'LOCKER'>) {
   const { tx, language } = useI18n();
   const detail = item.detail;
   // 외국어 화면은 영어 역명을 크게, 한국어 역명(안내 방송·표지판)을 아래에 — 영어 이름이 없으면 한국어를 크게.
@@ -272,7 +291,7 @@ export function LockerCard({ item, actions }: CardProps<'LOCKER'>) {
   const fee = parseLockerFee(detail.feeText);
   const counts: Record<LockerSize, number> = { small: detail.small, medium: detail.medium, large: detail.large, xlarge: detail.xlarge };
   return (
-    <Frame item={item} title={title} sub={sub} actions={actions}>
+    <Frame item={item} title={title} sub={sub} actions={actions} link={link}>
       <View style={styles.badges}>
         {detail.line ? <Badge testID={`facility-line-${item.id}`} tone="info" text={txf(tx, '%s호선', 'Line %s', detail.line)} /> : null}
       </View>
@@ -297,7 +316,9 @@ export function LockerCard({ item, actions }: CardProps<'LOCKER'>) {
 }
 
 const styles = StyleSheet.create({
-  card: { gap: spacing[2], padding: spacing[3], borderRadius: radius.lg, backgroundColor: color.surface.card },
+  card: { gap: spacing[2], padding: spacing[3], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1.5, borderColor: color.surface.card },
+  cardOn: { borderColor: color.text.heading },
+  pin: { width: 26, height: 26, borderRadius: radius.full, backgroundColor: color.text.heading, alignItems: 'center', justifyContent: 'center' },
   body: { gap: spacing[2] },
   pressed: { opacity: 0.7 },
   titleRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[3] },

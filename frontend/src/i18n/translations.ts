@@ -3711,6 +3711,8 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '%s곳 · 가장 가까운 곳 %s': { ja: '%s件 · 最寄りは%s', zhHans: '%s 处 · 最近距离 %s', zhHant: '%s 處 · 最近距離 %s', vi: '%s bãi · gần nhất %s' },
   '「%s」 근처에서 찾았어요. 거리도 그 장소에서 잰 거예요.': { ja: '「%s」の近くで探しました。距離もその場所から測っています。', zhHans: '已在「%s」附近搜索，距离也是从该地点量起。', zhHant: '已在「%s」附近搜尋，距離也是從該地點量起。', vi: 'Đã tìm quanh “%s”. Khoảng cách cũng tính từ địa điểm đó.' },
   '고른 장소 근처에서 찾았어요. 거리도 그 장소에서 잰 거예요.': { ja: '選んだ場所の近くで探しました。距離もその場所から測っています。', zhHans: '已在所选地点附近搜索，距离也是从该地点量起。', zhHant: '已在所選地點附近搜尋，距離也是從該地點量起。', vi: 'Đã tìm quanh địa điểm bạn chọn. Khoảng cách cũng tính từ địa điểm đó.' },
+  // 근처 편의시설 지도 — 거리를 잰 자리(장소 기준·서면 기준)를 찍는 짧은 표시(S15P21E201-2052).
+  '기준점': { ja: '基準点', zhHans: '基准点', zhHant: '基準點', vi: 'Điểm gốc' },
 };
 
 export function getTranslation(ko: string, field: 'ja' | 'zhHans' | 'zhHant' | 'vi'): string | null {
