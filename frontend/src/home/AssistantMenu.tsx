@@ -18,6 +18,7 @@ import { takeScreenGuide } from '@/onboarding/firstRun';
 
 const cameraIcon = require('../../assets/icons/common/camera.png');
 const speakerIcon = require('../../assets/icons/common/speaker.png');
+const pinIcon = require('../../assets/icons/common/pin.png');
 
 type Item = {
   key: string;
@@ -32,6 +33,8 @@ type Item = {
 const ITEMS: Item[] = [
   { key: 'menu', ko: '메뉴판 번역', en: 'Menu translation', subKo: '메뉴판을 찍으면 읽어 드려요', subEn: 'Snap a menu and we read it', path: '/field/menu-scan', icon: cameraIcon },
   { key: 'speak', ko: '통역', en: 'Interpreter', subKo: '현장에서 말하고 들려주기', subEn: 'Speak and play it out loud', path: '/field/speak', icon: speakerIcon },
+  // 근처 편의시설 — 통역 바로 아래(S15P21E201-2052, 사용자 지시 2026-10-15). 주차장·약국·화장실·짐보관 네 탭 화면으로 간다.
+  { key: 'nearby', ko: '근처 편의시설', en: 'Nearby facilities', subKo: '주차장 · 약국 · 화장실 · 짐보관', subEn: 'Parking · pharmacies · restrooms · lockers', path: '/field/nearby', icon: pinIcon },
   // 챗봇만 마스코트를 쓴다 — 셋 중 「우리가 하는 것」이 어느 것인지 그림으로 구분된다.
   { key: 'chat', ko: 'AI 챗봇', en: 'AI chat', subKo: '일정 · 통역 · 여행 도움', subEn: 'Plans · phrases · travel help', path: '/chat' },
 ];
@@ -46,7 +49,7 @@ export const ASSISTANT_PATHS = ITEMS.map((item) => item.path);
 
 /** 라벨 부제 — 메뉴에 있는 것을 그대로 적는다. 없는 것을 약속하지 않는다. */
 export function assistantSubtitle(tx: (ko: string, en: string) => string) {
-  return tx('메뉴판 번역 · 통역 · AI 챗봇', 'Menu · interpreter · AI chat');
+  return tx('메뉴판 번역 · 통역 · 근처 편의시설 · AI 챗봇', 'Menu · interpreter · nearby · AI chat');
 }
 
 export function AssistantMenu({

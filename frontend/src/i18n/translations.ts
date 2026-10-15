@@ -176,6 +176,7 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '확인했지만 형식을 읽지 못했어요': { ja: '確認しましたが、形式を読み取れませんでした', zhHans: '已查看，但无法识别其格式', zhHant: '已查看，但無法辨識其格式', vi: 'Đã kiểm tra nhưng không đọc được định dạng' },
   '그림은 조금 뒤에 다시 만들 수 있어요. 메뉴판 읽기는 그대로 쓸 수 있어요.': { ja: '絵は少し後にまた作れます。メニューの読み取りはそのままお使いいただけます。', zhHans: '稍后可以再次生成图片。菜单识别功能仍可正常使用。', zhHant: '稍後可以再次生成圖片。菜單辨識功能仍可正常使用。', vi: 'Bạn có thể tạo lại hình sau một chút. Vẫn dùng được chức năng đọc thực đơn.' },
   '메뉴판 번역 · 통역 · AI 챗봇': { ja: 'メニュー翻訳 · 通訳 · AIチャット', zhHans: '菜单翻译 · 口译 · AI 聊天', zhHant: '菜單翻譯 · 口譯 · AI 聊天', vi: 'Dịch thực đơn · Phiên dịch · Chatbot AI' },
+  '메뉴판 번역 · 통역 · 근처 편의시설 · AI 챗봇': { ja: 'メニュー翻訳 · 通訳 · 近くの施設 · AIチャット', zhHans: '菜单翻译 · 口译 · 附近设施 · AI 聊天', zhHant: '菜單翻譯 · 口譯 · 附近設施 · AI 聊天', vi: 'Dịch thực đơn · Phiên dịch · Tiện ích gần đây · Chatbot AI' },
   '도우미 메뉴 닫기': { ja: 'アシスタントメニューを閉じる', zhHans: '关闭助手菜单', zhHant: '關閉助手選單', vi: 'Đóng menu trợ lý' },
   '기록 전체 보기': { ja: '記録をすべて見る', zhHans: '查看全部记录', zhHant: '查看全部記錄', vi: 'Xem tất cả ghi chép' },
   '이 갈래 전체 보기': { ja: 'このカテゴリをすべて見る', zhHans: '查看该类别全部', zhHant: '查看該類別全部', vi: 'Xem tất cả loại này' },
