@@ -1843,6 +1843,7 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '설명 가능한 추천': { ja: '理由がわかるおすすめ', zhHans: '可解释的推荐', zhHant: '可解釋的推薦', vi: 'Gợi ý có giải thích' },
   '가볼래 AI 여행 도우미 열기': { ja: 'GABOLLE AI旅行アシスタントを開く', zhHans: '打开 GABOLLE AI 旅行助手', zhHant: '打開 GABOLLE AI 旅行助手', vi: 'Mở trợ lý du lịch AI GABOLLE' },
   'AI에게 물어보기': { ja: 'AIに聞いてみる', zhHans: '询问 AI', zhHant: '詢問 AI', vi: 'Hỏi AI' },
+  '동백이에게 물어보기': { ja: 'トンベギに聞いてみる', zhHans: '问问冬柏', zhHant: '問問冬柏', vi: 'Hỏi Dongbaek' },
   '일정 · 통역 · 여행 도움': { ja: '日程 ・通訳 ・旅行サポート', zhHans: '行程 · 翻译 · 旅行帮助', zhHant: '行程 · 翻譯 · 旅行協助', vi: 'Lịch trình · Phiên dịch · Hỗ trợ du lịch' },
   '초대 링크가 올바르지 않아요.': { ja: '招待リンクが正しくありません。', zhHans: '该邀请链接无效。', zhHant: '該邀請連結無效。', vi: 'Liên kết mời không hợp lệ.' },
   '초대를 처리하지 못했어요. 잠시 후 다시 시도해 주세요.': { ja: '招待を処理できませんでした。しばらくしてから再度お試しください。', zhHans: '无法处理该邀请,请稍后再试。', zhHant: '無法處理該邀請,請稍後再試。', vi: 'Không xử lý được lời mời. Vui lòng thử lại sau.' },
