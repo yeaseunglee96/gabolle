@@ -57,18 +57,18 @@ public final class CertifiedRestaurantReader {
 	static final String UNKNOWN_AREA = "?";
 
 	/** 부산을 넉넉히 덮는 상자. 위경도를 뒤바꿔 적은 줄을 여기서 잡는다. */
-	private static final double LAT_MIN = 34.8;
+	static final double LAT_MIN = 34.8;
 
-	private static final double LAT_MAX = 35.5;
+	static final double LAT_MAX = 35.5;
 
-	private static final double LNG_MIN = 128.7;
+	static final double LNG_MIN = 128.7;
 
-	private static final double LNG_MAX = 129.4;
+	static final double LNG_MAX = 129.4;
 
 	/** {@code place.source_id} 와 {@code place.photo_source} 의 칸 길이. */
-	private static final int SOURCE_ID_MAX = 200;
+	static final int SOURCE_ID_MAX = 200;
 
-	private static final int PHOTO_SOURCE_MAX = 100;
+	static final int PHOTO_SOURCE_MAX = 100;
 
 	/** 부산의 열여섯 구·군 — 주소 첫머리가 이 중 하나면 그 주소의 구다. */
 	private static final Set<String> BUSAN_GU = Set.of("중구", "서구", "동구", "영도구", "부산진구", "동래구", "남구", "북구",
@@ -361,7 +361,7 @@ public final class CertifiedRestaurantReader {
 		return (at < tokens.length && BUSAN_GU.contains(tokens[at])) ? tokens[at] : null;
 	}
 
-	private static String required(JsonNode node, String field) {
+	static String required(JsonNode node, String field) {
 		String value = optional(node, field);
 		if (value == null) {
 			throw new IllegalArgumentException(field + " 가 비었다");
@@ -369,7 +369,7 @@ public final class CertifiedRestaurantReader {
 		return value;
 	}
 
-	private static String optional(JsonNode node, String field) {
+	static String optional(JsonNode node, String field) {
 		JsonNode value = node.path(field);
 		if (value.isMissingNode() || value.isNull()) {
 			return null;
@@ -381,7 +381,7 @@ public final class CertifiedRestaurantReader {
 		return text.isEmpty() ? null : text;
 	}
 
-	private static double number(JsonNode node, String field) {
+	static double number(JsonNode node, String field) {
 		JsonNode value = node.path(field);
 		if (!value.isNumber()) {
 			throw new IllegalArgumentException(field + " 는 숫자여야 한다: " + value);

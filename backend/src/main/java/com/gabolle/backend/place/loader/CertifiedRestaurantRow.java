@@ -30,14 +30,31 @@ public record CertifiedRestaurantRow(
 		String menu,
 		UUID existingPlaceId,
 		String photoUrl,
-		String photoSource) {
+		String photoSource) implements LocalPickRow {
+
+	/** 새 장소의 갈래 — 앱의 여섯 갈래 가운데 음식. */
+	static final String NEW_PLACE_CATEGORY = "FOOD";
 
 	public CertifiedRestaurantRow {
 		sources = List.copyOf(sources);
 	}
 
 	/** 표식의 구·동. */
+	@Override
 	public CertifiedRestaurant.Area area() {
 		return new CertifiedRestaurant.Area(this.gu, this.dong);
+	}
+
+	/** 인증한 목록마다 한 줄 — 맛집 파일에는 방송·수상 같은 덧붙임이 없다. */
+	@Override
+	public List<CertMark> certMarks() {
+		return this.sources.stream().map(source -> new CertMark(source, false)).toList();
+	}
+
+	/** 번호에서 언제나 같은 장소 — 갈래 {@code FOOD}, 출처 {@link CertifiedRestaurant#SOURCE_TYPE}. */
+	@Override
+	public NewPlace newPlace() {
+		return new NewPlace(CertifiedRestaurantLoader.placeIdOf(this.sourceId), CertifiedRestaurant.SOURCE_TYPE,
+				this.sourceId, NEW_PLACE_CATEGORY);
 	}
 }

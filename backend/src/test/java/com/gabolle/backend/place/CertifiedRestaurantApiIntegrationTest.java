@@ -23,6 +23,7 @@ import com.gabolle.backend.place.api.RestaurantAreaResponse;
 import com.gabolle.backend.place.api.RestaurantAreaResponse.GuItem;
 import com.gabolle.backend.place.api.RestaurantPageResponse;
 import com.gabolle.backend.place.api.RestaurantPageResponse.RestaurantItem;
+import com.gabolle.backend.place.domain.CertifiedRestaurant.Kind;
 import com.gabolle.backend.place.domain.CertifiedRestaurant.Source;
 import com.gabolle.backend.place.domain.InterestTagCode;
 import com.gabolle.backend.place.loader.CertifiedRestaurantLoader;
@@ -260,6 +261,159 @@ class CertifiedRestaurantApiIntegrationTest extends PlacePostgresIntegrationTest
 		assertThat(page.items()).extracting(PlaceSummaryResponse::nameKo).contains(this.fixture.prefix() + "가식당");
 	}
 
+	// ── 카페 (S15P21E201-2059) ─────────────────────────────────────────────
+
+	@Test
+	@DisplayName("🔴 kind 가 맛집과 카페를 가른다 — 같은 구·동이어도 구 목록·동 목록·장소 목록이 섞이지 않고, kind 를 안 주면 맛집이다")
+	void kindSeparatesRestaurantsFromCafes() {
+		loadAll(row("1", "맛집하나", this.gu, "ZZ가동", 35.31, 129.31, Source.MODEL_RESTAURANT));
+		insertCafe("카페하나", this.gu, "ZZ가동", 35.32, 129.32, "KTO_CAFE");
+		insertCafe("카페둘", this.gu, "ZZ나동", 35.33, 129.33, "REDTABLE_FEATURED");
+		insertCafe("다른구카페", this.otherGu, "ZZ가동", 35.34, 129.34, "KTO_CAFE");
+
+		GuItem restaurantGu = guItem(this.queryService.areas(), this.gu);
+		assertThat(restaurantGu.placeCount()).isEqualTo(1);
+		assertThat(restaurantGu.dongs()).extracting("dong", "placeCount").containsExactly(tuple("ZZ가동", 1L));
+		assertThat(this.queryService.areas().areas()).extracting(GuItem::gu).doesNotContain(this.otherGu);
+
+		RestaurantAreaResponse cafes = this.queryService.areas(Kind.CAFE, null, null);
+		GuItem cafeGu = guItem(cafes, this.gu);
+		assertThat(cafeGu.placeCount()).isEqualTo(2);
+		assertThat(cafeGu.dongs()).extracting("dong", "placeCount").containsExactlyInAnyOrder(tuple("ZZ가동", 1L), tuple("ZZ나동", 1L));
+		assertThat(guItem(cafes, this.otherGu).placeCount()).isEqualTo(1);
+		// 좌표를 안 주면 가장 가까운 구도 없다.
+		assertThat(cafes.nearestGu()).isNull();
+
+		assertThat(this.queryService.restaurants(this.gu, "ZZ가동", null).items()).extracting(item -> item.place().nameKo())
+				.containsExactly(this.fixture.prefix() + "맛집하나");
+		assertThat(this.queryService.restaurants(Kind.CAFE, this.gu, "ZZ가동", null).items())
+				.extracting(item -> item.place().nameKo()).containsExactly(this.fixture.prefix() + "카페하나");
+		assertThat(this.queryService.restaurants(Kind.CAFE, this.gu, null, null).items()).extracting(item -> item.place().nameKo())
+				.containsExactlyInAnyOrder(this.fixture.prefix() + "카페하나", this.fixture.prefix() + "카페둘");
+	}
+
+	@Test
+	@DisplayName("🔴 카드의 소개 목록은 선언 순서(관광공사 → 레드테이블 → 현지인 추천)이고, 소개한 목록이 많은 카페가 먼저이며, 레드테이블의 방송·수상 표시는 그 표식에서만 읽는다")
+	void cafeItemsCarrySourcesInOrderAndTheBroadcastFlag() {
+		UUID many = insertCafe("여럿이소개", this.gu, "ZZ가동", 35.31, 129.31, "LOCAL_SURVEY", "REDTABLE_FEATURED:media", "KTO_CAFE");
+		insertCafe("레드테이블만", this.gu, "ZZ가동", 35.32, 129.32, "REDTABLE_FEATURED");
+		insertCafe("관광공사만", this.gu, "ZZ가동", 35.33, 129.33, "KTO_CAFE");
+		insertCafe("아무표식없음", this.gu, "ZZ가동", 35.34, 129.34);
+
+		RestaurantPageResponse page = this.queryService.restaurants(Kind.CAFE, this.gu, "ZZ가동", null);
+
+		assertThat(page.items()).extracting(item -> item.place().nameKo()).containsExactly(
+				this.fixture.prefix() + "여럿이소개", this.fixture.prefix() + "관광공사만", this.fixture.prefix() + "레드테이블만",
+				this.fixture.prefix() + "아무표식없음");
+		RestaurantItem first = page.items().get(0);
+		assertThat(first.place().placeId()).isEqualTo(many);
+		assertThat(first.certifiedSources()).containsExactly("KTO_CAFE", "REDTABLE_FEATURED", "LOCAL_SURVEY");
+		assertThat(first.broadcastOrAward()).isTrue();
+		// 방송·수상 표시가 없으면 칸이 비어 있다(거짓을 내보내지 않는다).
+		assertThat(page.items().get(2).certifiedSources()).containsExactly("REDTABLE_FEATURED");
+		assertThat(page.items().get(2).broadcastOrAward()).isNull();
+		assertThat(page.items().get(1).broadcastOrAward()).isNull();
+		assertThat(page.items().get(3).certifiedSources()).isEmpty();
+	}
+
+	@Test
+	@DisplayName("🔴 /facets 에 카페가 건수·이름표와 함께 맛집 바로 뒤에 붙고, 기존 여덟은 순서·이름 그대로다 — GET /places?facetKey=LOCAL_CAFE 로도 나온다")
+	void facetsListTheCafeKeyRightAfterTheRestaurantKey() {
+		PlaceFacetResponse.FacetItem before = interestFacet(this.facetService.facets());
+		long cafesBefore = keyCount(before, "LOCAL_CAFE");
+
+		loadAll(row("1", "맛집하나", this.gu, "ZZ가동", 35.31, 129.31, Source.MODEL_RESTAURANT));
+		insertCafe("카페하나", this.gu, "ZZ가동", 35.32, 129.32, "KTO_CAFE");
+		insertCafe("카페둘", this.gu, "ZZ나동", 35.33, 129.33, "REDTABLE_FEATURED");
+
+		PlaceFacetResponse.FacetItem after = interestFacet(this.facetService.facets());
+		assertThat(keyCount(after, "LOCAL_CAFE")).isEqualTo(cafesBefore + 2);
+		PlaceFacetResponse.FacetKeyCount cafe = after.keys().stream().filter(key -> key.featureKey().equals("LOCAL_CAFE")).findFirst()
+				.orElseThrow();
+		assertThat(cafe.labelKo()).isEqualTo("카페");
+
+		List<String> keys = after.keys().stream().map(PlaceFacetResponse.FacetKeyCount::featureKey).toList();
+		assertThat(keys.subList(0, 8)).containsExactlyElementsOf(InterestTagCode.displayOrder().stream().map(Enum::name).toList());
+		// 글자순이면 LOCAL_CAFE 가 앞이다 — 선언 순서라 맛집이 먼저이고 카페가 바로 뒤다.
+		assertThat(keys.indexOf("LOCAL_CAFE")).isEqualTo(keys.indexOf("LOCAL_RESTAURANT") + 1);
+
+		PlacePageResponse page = this.searchService.searchByFacet(InterestTagCode.FEATURE_TYPE, "LOCAL_CAFE", 50);
+		assertThat(page.items()).extracting(PlaceSummaryResponse::nameKo)
+				.contains(this.fixture.prefix() + "카페하나", this.fixture.prefix() + "카페둘")
+				.doesNotContain(this.fixture.prefix() + "맛집하나");
+	}
+
+	// ── 내 위치의 구 (S15P21E201-2059) ──────────────────────────────────────
+
+	@Test
+	@DisplayName("🔴 좌표를 주면 그 갈래의 장소 가운데 가장 가까운 곳의 구가 nearestGu 다 — 숨긴 곳은 세지 않고, 맛집과 카페는 따로 잰다")
+	void nearestGuIsTheGuOfTheClosestPlaceOfThatKind() {
+		String near = "ZZ가까운구" + this.fixture.token();
+		String far = "ZZ먼구" + this.fixture.token();
+		String hiddenGu = "ZZ숨은구" + this.fixture.token();
+		insertCafe("가까운카페", near, "ZZ가동", 35.1631, 129.1636, "KTO_CAFE");
+		insertCafe("먼카페", far, "ZZ나동", 35.1700, 129.1700, "KTO_CAFE");
+		// 숨긴 곳이 조회 좌표와 정확히 같은 자리(거리 0)다 — 숨긴 곳을 세면 이 구가 답이 된다.
+		UUID hidden = insertCafe("숨은카페", hiddenGu, "ZZ다동", 35.16312, 129.16362, "KTO_CAFE");
+		this.jdbcTemplate.update("UPDATE place SET curation_status = 'HIDDEN' WHERE place_id = ?", hidden);
+
+		// 가장 가까운 곳은 「가까운카페」(수 m)다. 숨긴 곳이 거리 0 으로 더 가까워도 세지 않는다.
+		assertThat(this.queryService.areas(Kind.CAFE, 35.16312, 129.16362).nearestGu()).isEqualTo(near);
+		// 먼카페 쪽으로 옮겨 가면 그쪽이다.
+		assertThat(this.queryService.areas(Kind.CAFE, 35.1699, 129.1699).nearestGu()).isEqualTo(far);
+		// 맛집은 이 둘레에 없다 — 카페 때문에 맛집의 구가 정해지지 않는다.
+		assertThat(this.queryService.areas(Kind.RESTAURANT, 35.16312, 129.16362).nearestGu()).isNull();
+		// 구 목록은 그대로 온다 — 좌표는 nearestGu 만 더한다.
+		assertThat(this.queryService.areas(Kind.CAFE, 35.16312, 129.16362).areas()).extracting(GuItem::gu).contains(near, far)
+				.doesNotContain(hiddenGu);
+	}
+
+	@Test
+	@DisplayName("🔴 가장 가까운 곳이 5km 를 넘으면 nearestGu 는 null 이다 — 부산 밖에서 엉뚱한 구를 짐작하지 않는다")
+	void nothingWithinFiveKilometresIsNull() {
+		String inside = "ZZ안쪽구" + this.fixture.token();
+		String outside = "ZZ바깥구" + this.fixture.token();
+		// 위도 1° 는 약 111.2km 다 — 같은 경도에서 0.0440° 는 약 4.89km 이고, 0.0460° 는 약 5.11km 다.
+		UUID insideCafe = insertCafe("안쪽카페", inside, "ZZ가동", 35.1440, 129.0000, "KTO_CAFE");
+		insertCafe("바깥카페", outside, "ZZ나동", 35.1460, 129.0000, "KTO_CAFE");
+		// 경계상자(5km 반폭 사각형)의 모서리 — 상자 안이지만 직선거리는 약 6.9km 다. 실제 거리로 다시 거르지 않으면 이 구가 답이 된다.
+		String corner = "ZZ모서리구" + this.fixture.token();
+		insertCafe("모서리카페", corner, "ZZ다동", 35.1440, 129.0540, "KTO_CAFE");
+
+		assertThat(this.queryService.areas(Kind.CAFE, 35.1000, 129.0000).nearestGu()).isEqualTo(inside);
+		// 안쪽 카페를 닫은 곳으로 만들면 5km 를 넘는 카페(상자 밖 하나, 상자 모서리 하나)만 남는다 — 가장 가까워도 5km 밖이라 null.
+		this.jdbcTemplate.update("UPDATE place SET closed_on = DATE '2026-01-01' WHERE place_id = ?", insideCafe);
+		assertThat(this.queryService.areas(Kind.CAFE, 35.1000, 129.0000).nearestGu()).isNull();
+		// 서울에서 물으면 당연히 null.
+		assertThat(this.queryService.areas(Kind.CAFE, 37.5665, 126.9780).nearestGu()).isNull();
+	}
+
+	@Test
+	@DisplayName("🔴 좌표가 하나만 오거나 범위 밖이거나 숫자가 아니면 400 이다 — 앱이 좌표를 잘못 보내도 조용히 무시하지 않는다")
+	void badCoordinatesAreRejected() {
+		assertThatThrownBy(() -> this.queryService.areas(Kind.CAFE, 35.1, null)).isInstanceOf(PlaceRequestException.class)
+				.hasMessageContaining("함께");
+		assertThatThrownBy(() -> this.queryService.areas(Kind.CAFE, null, 129.1)).isInstanceOf(PlaceRequestException.class);
+		assertThatThrownBy(() -> this.queryService.areas(Kind.CAFE, 91.0, 129.1)).isInstanceOf(PlaceRequestException.class)
+				.hasMessageContaining("위도");
+		assertThatThrownBy(() -> this.queryService.areas(Kind.CAFE, 35.1, 181.0)).isInstanceOf(PlaceRequestException.class)
+				.hasMessageContaining("경도");
+		assertThatThrownBy(() -> this.queryService.areas(Kind.CAFE, Double.NaN, 129.1)).isInstanceOf(PlaceRequestException.class);
+		assertThatThrownBy(() -> this.queryService.areas(Kind.CAFE, 35.1, Double.POSITIVE_INFINITY))
+				.isInstanceOf(PlaceRequestException.class);
+	}
+
+	@Test
+	@DisplayName("kind 글자는 앞뒤 공백·대소문자를 눈감고, 안 주면 맛집이며, 모르는 값은 400 이다")
+	void kindParameterIsParsedStrictlyButKindly() {
+		assertThat(this.queryService.parseKind(null)).isEqualTo(Kind.RESTAURANT);
+		assertThat(this.queryService.parseKind("  ")).isEqualTo(Kind.RESTAURANT);
+		assertThat(this.queryService.parseKind("cafe")).isEqualTo(Kind.CAFE);
+		assertThat(this.queryService.parseKind(" RESTAURANT ")).isEqualTo(Kind.RESTAURANT);
+		assertThatThrownBy(() -> this.queryService.parseKind("BAR")).isInstanceOf(PlaceRequestException.class)
+				.hasMessageContaining("RESTAURANT");
+	}
+
 	// ── 도우미 ────────────────────────────────────────────────────────────
 
 	private static GuItem guItem(RestaurantAreaResponse areas, String gu) {
@@ -276,6 +430,24 @@ class CertifiedRestaurantApiIntegrationTest extends PlacePostgresIntegrationTest
 	private static long keyCount(PlaceFacetResponse.FacetItem item, String key) {
 		return item.keys().stream().filter(entry -> entry.featureKey().equals(key)).mapToLong(
 				PlaceFacetResponse.FacetKeyCount::placeCount).findFirst().orElse(0L);
+	}
+
+	/**
+	 * 카페 갈래 장소 하나 — 적재기 없이 표식을 직접 단다(카페 적재기는 따로 시험한다). {@code certKeys} 는 인증 표식의 열쇠이고,
+	 * {@code "REDTABLE_FEATURED:media"} 는 방송·수상 표시가 붙은 레드테이블 표식이다.
+	 */
+	private UUID insertCafe(String name, String gu, String dong, double lat, double lng, String... certKeys) {
+		UUID id = this.fixture.insertPlace(name, null, "CAFE_HEALING", lat, lng);
+		this.fixture.insertTagFeature(id, "INTEREST_TAG", "LOCAL_CAFE", "VERIFIED", "true");
+		this.fixture.insertTagFeature(id, "ADMIN_AREA_TAG", gu + "/" + dong, "ESTIMATED",
+				"{\"gu\":\"" + gu + "\",\"dong\":\"" + dong + "\"}");
+		for (String certKey : certKeys) {
+			boolean media = certKey.endsWith(":media");
+			String key = media ? certKey.substring(0, certKey.indexOf(':')) : certKey;
+			this.fixture.insertTagFeature(id, "CERTIFICATION_TAG", key, "VERIFIED",
+					media ? "{\"source\":\"레드테이블\",\"broadcastOrAward\":true}" : "{\"source\":\"" + key + "\"}");
+		}
+		return id;
 	}
 
 	private void loadAll(CertifiedRestaurantRow... rows) {

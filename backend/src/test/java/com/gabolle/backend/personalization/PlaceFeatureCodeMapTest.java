@@ -306,7 +306,7 @@ class PlaceFeatureCodeMapTest extends PostgresIntegrationTest {
 	}
 
 	@Test
-	@DisplayName("🔴 탐색 갈래가 자바 목록과 DB 사전에 똑같이 있다 — 항상 나오는 여덟에, 자료가 있을 때만 나오는 갈래(맛집)를 더해서")
+	@DisplayName("🔴 탐색 갈래가 자바 목록과 DB 사전에 똑같이 있다 — 항상 나오는 여덟에, 자료가 있을 때만 나오는 갈래(맛집·카페)를 더해서")
 	void interestTagDictionaryMatchesTheEnum() {
 		List<String> inDb = this.jdbcTemplate.queryForList(
 				"SELECT feature_key FROM place_feature_code WHERE feature_type = 'INTEREST_TAG'",
@@ -323,7 +323,7 @@ class PlaceFeatureCodeMapTest extends PostgresIntegrationTest {
 	}
 
 	@Test
-	@DisplayName("🔴 인증 목록 낱말(CERTIFICATION_TAG)이 자바 목록과 DB 사전에 똑같이 있다")
+	@DisplayName("🔴 인증 목록 낱말(CERTIFICATION_TAG)이 자바 목록과 DB 사전에 똑같이 있다 — 공공기관 셋, 카페 쪽 둘(관광공사·레드테이블), 현지인 추천")
 	void certificationDictionaryMatchesTheEnum() {
 		List<String> inDb = this.jdbcTemplate.queryForList(
 				"SELECT feature_key FROM place_feature_code WHERE feature_type = 'CERTIFICATION_TAG'",
@@ -336,7 +336,7 @@ class PlaceFeatureCodeMapTest extends PostgresIntegrationTest {
 	}
 
 	@Test
-	@DisplayName("🔴 맛집 갈래 낱말은 탐색 여덟과 온보딩 여섯 어디와도 겹치지 않는다 — 겹치면 추천 점수가 조용히 달라진다")
+	@DisplayName("🔴 맛집·카페 갈래 낱말은 탐색 여덟과 온보딩 여섯 어디와도 겹치지 않는다 — 겹치면 추천 점수가 조용히 달라진다(카페는 온보딩의 CAFE_HEALING 과 다른 낱말이다)")
 	void extraInterestTagsNeverCollideWithOtherDictionaries() {
 		List<String> extras = ExtraInterestTagCode.all().stream().map(Enum::name).toList();
 
@@ -347,6 +347,9 @@ class PlaceFeatureCodeMapTest extends PostgresIntegrationTest {
 		assertThat(extras).doesNotContainAnyElementsOf(onboarding);
 		// 맛집 낱말이 두 곳(상수·enum)에 적혀 있어 어긋나지 않게 못 박는다.
 		assertThat(CertifiedRestaurant.EXPLORE_KEY).isEqualTo(ExtraInterestTagCode.LOCAL_RESTAURANT.name());
+		assertThat(CertifiedRestaurant.Kind.CAFE.exploreKey()).isEqualTo(ExtraInterestTagCode.LOCAL_CAFE.name());
+		// 온보딩 취향의 「카페·힐링」(CAFE_HEALING)과 탐색 갈래의 「카페」(LOCAL_CAFE)는 이름이 비슷해도 다른 서랍의 다른 낱말이다.
+		assertThat(onboarding).contains("CAFE_HEALING").doesNotContain("LOCAL_CAFE");
 	}
 
 	@Test
