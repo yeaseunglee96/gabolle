@@ -29,9 +29,18 @@ it('🔴 일본어·중국어는 한국어 이름을 번역표에서 찾는다 �
   expect(localFacetLabel(entry, 'en', ja)).toBe('Festivals');
 });
 
-// 맛집 갈래 (S15P21E201-2051) — 여덟 갈래와 달리 서버에 자료가 있을 때만 오고, 이름은 서버가 한국어(「맛집」)만 준다.
+// 맛집·카페 갈래 (S15P21E201-2051 · S15P21E201-2059) — 여덟 갈래와 달리 서버에 자료가 있을 때만 오고, 이름은 서버가 한국어(「맛집」「카페」)만 준다.
 describe('맛집 갈래 이름', () => {
   const restaurant = { featureKey: 'LOCAL_RESTAURANT', placeCount: 655, labelKo: '맛집', labelEn: null };
+  const cafe = { featureKey: 'LOCAL_CAFE', placeCount: 262, labelKo: '카페', labelEn: null };
+
+  it('🔴 카페도 한국어는 서버 이름 그대로, 영어는 우리 이름표(Cafes)이고, 일본어·중국어는 번역표의 「카페」를 찾는다', () => {
+    expect(localFacetLabel(cafe, 'ko')).toBe('카페');
+    expect(localFacetLabel(cafe, 'en')).toBe('Cafes');
+    const table: Record<string, string> = { '카페': 'カフェ' };
+    const ja = (ko: string, en: string) => table[ko] ?? en;
+    expect(localFacetLabel(cafe, 'ja', ja)).toBe('カフェ');
+  });
 
   it('한국어는 서버 이름 그대로, 영어는 우리 이름표다', () => {
     expect(localFacetLabel(restaurant, 'ko')).toBe('맛집');
@@ -45,7 +54,7 @@ describe('맛집 갈래 이름', () => {
   });
 
   it('🔴 서버가 이 갈래를 주면 보이고, 안 주거나 0곳이면 안 보인다 — 앱을 서버보다 먼저 배포해도 된다', () => {
-    const known = new Set(['WALK', 'LOCAL_RESTAURANT']);
+    const known = new Set(['WALK', 'LOCAL_RESTAURANT', 'LOCAL_CAFE']);
     const group = (keys: Array<{ featureKey: string; placeCount: number; labelKo: string }>) => ({ state: 'success' as const, facets: [{ userInputCode: 'EXPLORE', placeFeatureType: 'INTEREST_TAG', matchKind: 'TAG_OVERLAP', placeCount: 0, keys }] });
 
     const withData = flattenLocalFacets(group([{ featureKey: 'WALK', placeCount: 3, labelKo: '산책' }, { featureKey: 'LOCAL_RESTAURANT', placeCount: 655, labelKo: '맛집' }]), known);
@@ -56,6 +65,12 @@ describe('맛집 갈래 이름', () => {
 
     const empty = flattenLocalFacets(group([{ featureKey: 'WALK', placeCount: 3, labelKo: '산책' }, { featureKey: 'LOCAL_RESTAURANT', placeCount: 0, labelKo: '맛집' }]), known);
     expect(empty?.map((entry) => entry.featureKey)).toEqual(['WALK']);
+
+    // 카페도 같은 규칙이다 — 자료가 들어오면 맛집 뒤에 붙고, 없거나 0곳이면 안 보인다.
+    const withCafe = flattenLocalFacets(group([{ featureKey: 'WALK', placeCount: 3, labelKo: '산책' }, { featureKey: 'LOCAL_RESTAURANT', placeCount: 655, labelKo: '맛집' }, { featureKey: 'LOCAL_CAFE', placeCount: 262, labelKo: '카페' }]), known);
+    expect(withCafe?.map((entry) => entry.featureKey)).toEqual(['WALK', 'LOCAL_RESTAURANT', 'LOCAL_CAFE']);
+    const cafeEmpty = flattenLocalFacets(group([{ featureKey: 'WALK', placeCount: 3, labelKo: '산책' }, { featureKey: 'LOCAL_CAFE', placeCount: 0, labelKo: '카페' }]), known);
+    expect(cafeEmpty?.map((entry) => entry.featureKey)).toEqual(['WALK']);
 
     // 이름표 없이 오면(구버전 서버) 거른다 — 이름 없는 칩을 그리지 않는다.
     const unnamed = flattenLocalFacets(group([{ featureKey: 'WALK', placeCount: 3, labelKo: '산책' }, { featureKey: 'LOCAL_RESTAURANT', placeCount: 655, labelKo: '' }]), known);

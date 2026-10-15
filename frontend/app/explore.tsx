@@ -1,6 +1,7 @@
 // 로컬 탐색 화면 (상세설계서 v2 P-17). 첫 칸은 「로컬 장소」 묶음(S15P21E201-2024)이고, 그 뒤로 8개 갈래
 // (축제·야시장·전통시장·액티비티·산책·자연·야경·기념품샵) 중 하나를 고르며, 내 근처와 부산 전체를 전환해 본다.
-// 서버에 자료가 있으면 맨 뒤에 「맛집」이 더해진다(S15P21E201-2051) — 공공기관이 인증한 식당만이고, 범위 대신 구 → 동을 고른다.
+// 서버에 자료가 있으면 맨 뒤에 「맛집」과 「카페」가 더해진다(S15P21E201-2051 · S15P21E201-2059) — 현지인이 추천했거나 공공기관이 인증·소개한 곳만이고,
+// 범위 대신 구 → 동을 고른다. 내 위치를 읽었으면 가장 가까운 곳의 구를 미리 골라 그 구의 전체 목록을 바로 보여 준다.
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { AppImage } from '@/components/AppImage';
@@ -32,14 +33,14 @@ import { localizeMessage } from '@/i18n/messages';
 import { syncLocationConsent } from '@/personalization/locationConsent';
 import { useLocationGate } from '@/personalization/useLocationGate';
 import { SuggestPlaceLink } from '@/discovery/SuggestPlaceLink';
-import { isLocalRestaurant, type RestaurantItem } from '@/discovery/localRestaurants';
+import { localKindOf, placeCafeAfterRestaurant, type RestaurantItem } from '@/discovery/localRestaurants';
 import { RestaurantBrowser, RestaurantSourceBadges } from '@/discovery/RestaurantBrowser';
 
 // 여덟 갈래의 실제 값(jaehyeon 님 확인) — 서버가 이 여덟을 항상 함께 돌려주므로, 응답에서
 // 이 값과 일치하는 항목만 골라 순서는 서버가 준 그대로 둔다. 화면 쪽에서 새로 만들지 않는다.
-// LOCAL_RESTAURANT(맛집)는 여덟과 달리 «자료가 있을 때만» 온다(S15P21E201-2051) — 서버가 안 주면 이 집합에 있어도 칩이 안 그려지고,
-// 0곳이면 아래 flattenLocalFacets 가 거른다. 앱을 서버보다 먼저 배포해도 되는 이유다.
-const KNOWN_FACET_KEYS = new Set(['FESTIVAL', 'NIGHT_MARKET', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE', 'NIGHT_VIEW', 'SOUVENIR_SHOP', 'LOCAL_RESTAURANT']);
+// LOCAL_RESTAURANT(맛집)·LOCAL_CAFE(카페)는 여덟과 달리 «자료가 있을 때만» 온다(S15P21E201-2051 · S15P21E201-2059) — 서버가 안 주면 이 집합에 있어도
+// 칩이 안 그려지고, 0곳이면 아래 flattenLocalFacets 가 거른다. 앱을 서버보다 먼저 배포해도 되는 이유다.
+const KNOWN_FACET_KEYS = new Set(['FESTIVAL', 'NIGHT_MARKET', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE', 'NIGHT_VIEW', 'SOUVENIR_SHOP', 'LOCAL_RESTAURANT', 'LOCAL_CAFE']);
 
 // : 장소가 0곳인 갈래는 목록에서 아예 뺀다(지우는 게 아니라 거르는 것
 // 적재가 돌아 placeCount 가 늘면 다음 조회에서 코드 변경 없이 다시 나타난다).
@@ -69,9 +70,12 @@ export default function LocalExplore() {
     setLoading(false);
   }, []);
 
-  const detectLocation = useCallback(async () => {
-    // 🔴 위치 동의가 먼저다(S15P21E201-1691) — 「내 위치로」를 누른 것은 쓰고 싶다는 뜻이라, 거절했어도 다시 묻는다.
-    if (!(await locationGate.request())) { setLocationState('denied'); return; }
+  const detectLocation = useCallback(async (mode: 'request' | 'ensure' = 'request') => {
+    // 🔴 위치 동의가 먼저다(S15P21E201-1691) — 「내 위치로」를 누른 것('request')은 쓰고 싶다는 뜻이라, 거절했어도 다시 묻는다.
+    //    맛집·카페 칩을 누른 것('ensure')은 그렇지 않다 — 칩은 갈래를 고르는 손짓이지 위치를 쓰겠다는 말이 아니다. 물은 적이 없을 때만 한 번
+    //    묻고, 거절했으면 조르지 않는다(그 뒤에도 구를 직접 고르면 된다).
+    const allowed = mode === 'ensure' ? await locationGate.ensure() : await locationGate.request();
+    if (!allowed) { setLocationState('denied'); return; }
     setLocationState('detecting');
     try {
       const permission = await Location.requestForegroundPermissionsAsync();
@@ -82,7 +86,7 @@ export default function LocalExplore() {
     } catch {
       setLocationState('denied');
     }
-  }, [locationGate.request]);
+  }, [locationGate.request, locationGate.ensure]);
 
   const restoreGrantedLocation = useCallback(async () => {
     // 🔴 동의가 없으면 조용히 읽지도 않는다(S15P21E201-1691). 묻는 것은 「내 위치로」를 누를 때다.
@@ -105,7 +109,9 @@ export default function LocalExplore() {
   useEffect(() => { void restoreGrantedLocation(); }, [restoreGrantedLocation]);
   useEffect(() => { if (requestedFacet) setSelectedKey(requestedFacet); }, [requestedFacet]);
 
-  const facets = flattenLocalFacets(result, KNOWN_FACET_KEYS);
+  // 카페는 맛집 바로 뒤에 — 서버가 글자순으로 주던 응답이 와도 같은 순서다.
+  const flatFacets = flattenLocalFacets(result, KNOWN_FACET_KEYS);
+  const facets = flatFacets ? placeCafeAfterRestaurant(flatFacets) : flatFacets;
   // 홈에서 특정 갈래를 눌러 들어온 경우 그 갈래를 맨 위에서 바로 펼친다. 선택값을 버린 채
   // 같은 첫 화면만 보여 주면 사용자는 버튼이 동작하지 않았다고 느낀다.
   // 첫 칸은 「로컬 장소」 묶음이다(S15P21E201-2024) — 전에는 서버 순서대로 「전통시장」이 첫 칸이었다.
@@ -130,8 +136,18 @@ export default function LocalExplore() {
   const selectedFacet = visibleFacets?.find((entry) => entry.featureKey === selectedKey) ?? visibleFacets?.[0] ?? null;
   // 폰 2열 · 600~1023 3열 · 1024~ 4열. 계산은 exploreGrid 가 하고 여기서는 값만 받는다.
   const cardWidth = exploreCardWidth(width);
-  // 맛집은 「내 근처 / 부산 전체」가 아니라 구 → 동이 범위를 대신한다(S15P21E201-2051).
-  const restaurantSelected = isLocalRestaurant(selectedFacet);
+  // 맛집·카페는 「내 근처 / 부산 전체」가 아니라 구 → 동이 범위를 대신한다(S15P21E201-2051 · S15P21E201-2059).
+  const localKind = localKindOf(selectedFacet);
+
+  // 맛집·카페 칩을 누르면 내 위치로 구를 미리 고른다. 위치를 이미 읽었으면(전에 동의한 사람) 그것을 쓰고, 아니면 이 화면에서 한 번만 묻는다.
+  const locateTried = useRef(false);
+  const selectFacet = useCallback((key: string) => {
+    setSelectedKey(key);
+    if (localKindOf({ featureKey: key }) && !coords && !locateTried.current) {
+      locateTried.current = true;
+      void detectLocation('ensure');
+    }
+  }, [coords, detectLocation]);
 
   return (
     <Screen scroll wide={split} style={styles.screen}>
@@ -189,11 +205,11 @@ export default function LocalExplore() {
             <FacetPicker
               facets={visibleFacets}
               selectedKey={selectedFacet?.featureKey ?? null}
-              onSelect={setSelectedKey}
+              onSelect={selectFacet}
               mode={wide ? 'wrap' : 'rail'}
               language={language}
             />
-            {restaurantSelected ? null : (
+            {localKind ? null : (
               <ScopeSwitch
                 options={[
                   { value: 'nearby', label: tx('내 근처', 'Nearby') },
@@ -217,8 +233,10 @@ export default function LocalExplore() {
                 {isLocalPlaces(selectedFacet) ? null : <>{' '}<Text variant="display" weight="bold" color={color.text.muted}>{tx(`${selectedFacet.placeCount}곳`, `${selectedFacet.placeCount} places`)}</Text></>}
               </Text>
               <Text variant="caption" style={styles.resultNote}>
-                {restaurantSelected
-                  ? tx('공공기관이 인증한 식당만 보여 드려요. 구와 동을 차례로 골라 보세요.', 'Only restaurants certified by public agencies. Pick a district, then a neighborhood.')
+                {localKind === 'RESTAURANT'
+                  ? tx('현지인이 추천했거나 공공기관이 인증한 식당만 보여 드려요. 구와 동을 차례로 골라 보세요.', 'Only restaurants recommended by locals or certified by public agencies. Pick a district, then a neighborhood.')
+                  : localKind === 'CAFE'
+                    ? tx('현지인이 추천했거나 공공기관이 소개한 카페만 보여 드려요. 구와 동을 차례로 골라 보세요.', 'Only cafes recommended by locals or featured by public agencies. Pick a district, then a neighborhood.')
                   : scope === 'all'
                     ? tx('부산 전체는 거리 제한 없이 찾아요.', 'All Busan searches without a distance limit.')
                     : tx('내 근처는 반경 안에서 찾아요. 결과의 검색 범위를 확인하거나 부산 전체로 바꿔 보세요.', 'Nearby searches within a radius. Check the range shown with results, or switch to All Busan.')}
@@ -226,8 +244,8 @@ export default function LocalExplore() {
             </View>
           ) : null}
 
-          {restaurantSelected
-            ? <RestaurantBrowser wide={wide} renderRows={(items) => <PlaceRows items={items} cardWidth={cardWidth} />} />
+          {localKind
+            ? <RestaurantBrowser key={localKind} kind={localKind} wide={wide} coords={coords} renderRows={(items) => <PlaceRows items={items} cardWidth={cardWidth} />} />
             : selectedFacet ? <LocalBranchList facet={selectedFacet} groupFacets={facets ?? []} scope={scope} coords={coords} canAskAgain={canAskAgain} onRetryLocation={() => void detectLocation()} cardWidth={cardWidth} /> : null}
         </View>
       ) : null}
@@ -425,8 +443,8 @@ function PlaceRows({ items, showDistance = false, cardWidth }: {
         {/* 번역 이름이 없어 한글로 남은 이름엔 읽는 법을 곁들인다(S15P21E201-1867) — 외국어 화면에서 「부산연등회」만 있으면 읽지도 묻지도 못한다. */}
         {language !== 'ko' && localPlaceName(item, language) === item.nameKo && romanizeKorean(item.nameKo) ? <Text variant="caption" color={color.text.body} numberOfLines={1}>{romanizeKorean(item.nameKo)}</Text> : null}
         {item.address ? <Text variant="caption" color={color.text.muted} numberOfLines={1}>{addressForLanguage(item, language)}</Text> : null}
-        {/* 맛집 목록의 카드에만 온다 — 어느 공공 목록이 인증한 식당인지(S15P21E201-2051). 다른 갈래의 카드는 이 칸이 없어 아무것도 안 그린다. */}
-        {'certifiedSources' in item ? <RestaurantSourceBadges sources={item.certifiedSources} /> : null}
+        {/* 맛집·카페 목록의 카드에만 온다 — 어느 목록이 소개·인증했는지, 현지인이 추천했는지(S15P21E201-2051 · S15P21E201-2059). 다른 갈래의 카드는 이 칸이 없어 아무것도 안 그린다. */}
+        {'certifiedSources' in item ? <RestaurantSourceBadges sources={item.certifiedSources} broadcastOrAward={item.broadcastOrAward === true} /> : null}
         {/* 🔴 거리는 「내 근처」일 때만. 부산 전체로 찾을 때는 거리 기준이 없어서,
             그리면 없는 기준을 있는 것처럼 보여준다. */}
         {showDistance && 'distanceM' in item ? <Text variant="caption" weight="bold" color={color.text.accent}>{item.distanceM.toLocaleString()}m</Text> : null}
