@@ -48,6 +48,8 @@ type RouteMapProps = {
   refitKey?: string | number | null;
   /** 고른 곳을 지도 가운데로 옮긴다 — 웹 RouteMap 과 같은 뜻(S15P21E201-1535). 기본은 꺼짐. */
   focusSelected?: boolean;
+  /** 점 표시(기준 장소 등)도 맞추는 범위에 넣는다 — 웹 RouteMap 과 같은 뜻(S15P21E201-2052). 기본은 꺼짐. */
+  fitPoints?: boolean;
   /** 길 안내 중 — 내 위치를 따라가고 처음 한 번 동네가 보이게 확대한다(S15P21E201-1903). */
   followLocation?: boolean;
   /** 지도가 좌우로 화면 밖에 걸친 폭(px) — 그만큼 +/− 단추를 안쪽으로 들인다(S15P21E201-1943). */
@@ -76,6 +78,7 @@ export function RouteMap({
   topInset = 0,
   refitKey = null,
   focusSelected = false,
+  fitPoints = false,
   followLocation = false,
   sideBleed = 0,
 }: RouteMapProps) {
@@ -116,6 +119,7 @@ export function RouteMap({
       fitPadding: fitPadding(bottomInset, height, topInset),
       colors: { navy: color.brand.navy, selected: color.action.secondary, canvas: color.canvas, casing: color.surface.card },
       focus: focusSelected,
+      fitPoints,
       shiftY: focusShiftY(bottomInset, height, topInset),
     };
     webViewRef.current.injectJavaScript(`window.__renderKakaoMap(${JSON.stringify(data)}); true;`);

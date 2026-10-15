@@ -34,6 +34,8 @@ jest.mock('@/personalization/locationConsent', () => ({ ...jest.requireActual('@
 jest.mock('@/personalization/useLocationGate', () => ({ useLocationGate: () => ({ request: mockRequest, sheet: null }) }));
 jest.mock('@/field/nearbyFacilities', () => ({ ...jest.requireActual('@/field/nearbyFacilities'), getNearbyFacilities: jest.fn() }));
 jest.mock('@/utils/externalMaps', () => ({ listAvailableMapApps: jest.fn() }));
+// 지도는 부품이 따로 시험한다(src/map/__tests__). 지도에 무엇을 주는가는 nearbyFacilitiesMap.test.tsx 가 본다 — 여기서는 빈 껍데기.
+jest.mock('@/map/RouteMap', () => ({ RouteMap: () => null }));
 
 // 느린 PC·CI 에서는 첫 화면을 그리는 데만 1초가 넘게 걸린다(nearbyFacilitiesScreen.test.tsx 와 같은 까닭).
 configure({ asyncUtilTimeout: 8000 });
@@ -118,12 +120,14 @@ describe('장소 기준으로 열린다', () => {
     expect(mockRequest).not.toHaveBeenCalled();
   });
 
-  it('🔴 «길 안내»가 없다 — 출발지가 내가 아니라 그 장소다. 지도 앱만, 카드를 눌러도 지도 앱이 열린다', async () => {
+  it('🔴 «길 안내»가 없다 — 출발지가 내가 아니라 그 장소다. 지도 앱 단추만 있고, 그 단추를 눌러야 지도 앱이 열린다(카드를 누르면 지도에서 그 점이 골라질 뿐)', async () => {
     const view = await renderScreen();
 
     expect(view.queryByTestId('facility-route-p-cheap')).toBeNull();
     expect(view.getByTestId('facility-map-p-cheap')).toBeTruthy();
     fireEvent.press(view.getByTestId('facility-open-p-cheap'));
+    expect(listAvailableMapApps).not.toHaveBeenCalled();
+    fireEvent.press(view.getByTestId('facility-map-p-cheap'));
     await waitFor(() => expect(listAvailableMapApps).toHaveBeenCalledTimes(1));
     expect(mockPush).not.toHaveBeenCalled();
   });

@@ -34,6 +34,8 @@ jest.mock('@/personalization/locationConsent', () => ({ ...jest.requireActual('@
 jest.mock('@/personalization/useLocationGate', () => ({ useLocationGate: () => ({ request: mockRequest, sheet: null }) }));
 jest.mock('@/field/nearbyFacilities', () => ({ ...jest.requireActual('@/field/nearbyFacilities'), getNearbyFacilities: jest.fn() }));
 jest.mock('@/utils/externalMaps', () => ({ listAvailableMapApps: jest.fn() }));
+// 지도는 부품이 따로 시험한다(src/map/__tests__). 지도에 무엇을 주는가는 nearbyFacilitiesMap.test.tsx 가 본다 — 여기서는 빈 껍데기.
+jest.mock('@/map/RouteMap', () => ({ RouteMap: () => null }));
 
 // 🔴 느린 PC·CI(여러 잡이 한 기계에서 돈다)에서는 첫 화면을 그리는 데만 1초가 넘게 걸린다 — 기본 대기 1초로는 모자라다.
 //    실측: 위치를 읽은 뒤 서버를 부르기까지 0.7초, 목록을 그리기까지 0.8초.
@@ -191,12 +193,14 @@ describe('위치를 못 쓸 때 — 서면 기준', () => {
     expect(view.getByTestId('facility-ask-location')).toBeTruthy();
   });
 
-  it('🔴 서면에서 찾은 곳에는 «길 안내»가 없다 — 지도 앱만. 카드를 눌러도 지도 앱이 열린다', async () => {
+  it('🔴 서면에서 찾은 곳에는 «길 안내»가 없다 — 지도 앱 단추만, 그 단추를 눌러야 지도 앱이 열린다(카드를 누르면 지도에서 그 점이 골라질 뿐)', async () => {
     const view = await renderScreen();
 
     expect(view.queryByTestId('facility-route-p-paid')).toBeNull();
     expect(view.getByTestId('facility-map-p-paid')).toBeTruthy();
     fireEvent.press(view.getByTestId('facility-open-p-paid'));
+    expect(listAvailableMapApps).not.toHaveBeenCalled();
+    fireEvent.press(view.getByTestId('facility-map-p-paid'));
     await waitFor(() => expect(listAvailableMapApps).toHaveBeenCalledTimes(1));
     expect(mockPush).not.toHaveBeenCalled();
   });
@@ -276,12 +280,12 @@ describe('가는 법 — 내 위치를 알 때', () => {
     expect(params.destName).toBe('먼주차장');
   });
 
-  it('카드를 누르면 길 안내로 간다', async () => {
+  it('🔴 카드를 누르면 길 안내로 가지 않는다 — 지도에서 그 점이 골라질 뿐이다(S15P21E201-2052). 길 안내는 «길 안내» 단추가 한다', async () => {
     const view = await renderScreen();
 
     fireEvent.press(view.getByTestId('facility-open-p-paid'));
 
-    expect(mockPush).toHaveBeenCalledWith(expect.objectContaining({ pathname: '/route-detail' }));
+    expect(mockPush).not.toHaveBeenCalled();
   });
 
   it('지도 앱 — 프로젝트의 외부 지도 열기 함수로 그 자리의 이름·좌표를 열고, 첫 지도 앱을 연다', async () => {

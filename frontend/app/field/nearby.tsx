@@ -11,6 +11,9 @@
 // 🔴 «장소 기준»으로도 열린다 — 장소 상세의 「근처 주차장」 줄이 `?lat=&lng=&name=&kind=PARKING&stay=1` 로 연다(S15P21E201-2052).
 //    이때는 내 위치를 읽지도 묻지도 않는다(그 장소 근처가 궁금한 것이지 내 근처가 아니다). 화면이 «「이름」 근처에서 찾았다 · 거리도 그
 //    장소에서 잰 것»이라고 밝히고, «내 위치로 찾기»를 눌러야 비로소 위치를 묻는다. 길 안내도 안 연다 — 출발지가 내가 아니라 그 장소다.
+// 🔴 지도 — 목록 바로 위에 가까운 도움(nearby-help.tsx)과 같은 지도 상자(RouteMap, 높이 220)를 둔다(S15P21E201-2052). 목록의 곳마다 번호 점이 있고,
+//    카드를 누르면 지도에서 그 점이, 지도의 점을 누르면 그 카드가 골라진다. 가는 법은 카드 아래의 단추가 맡는다.
+//    기준점: 내 위치로 찾았으면 지도의 «현재 위치» 점이 곧 기준이고, 장소 기준이거나 위치를 못 써 서면에서 찾았으면 그 자리를 «기준점»으로 찍는다.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Linking, Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -37,17 +40,26 @@ import {
   type LatLng,
   type NearbyFacilities,
 } from '@/field/nearbyFacilities';
-import { LockerCard, ParkingCard, PharmacyCard, ToiletCard, type FacilityActions } from '@/field/NearbyFacilityCards';
+import { LockerCard, ParkingCard, PharmacyCard, ToiletCard, type FacilityActions, type ListLink } from '@/field/NearbyFacilityCards';
 import { distanceText } from '@/field/subwayStations';
 import { useI18n } from '@/i18n';
 import { enPlural, txf } from '@/i18n/format';
 import { readCurrentPosition } from '@/location/currentPosition';
+import { RouteMap, type MapPointLayer, type MapRouteLayer } from '@/map/RouteMap';
+import type { MapStop } from '@/map/types';
 import { syncLocationConsent } from '@/personalization/locationConsent';
 import { useLocationGate } from '@/personalization/useLocationGate';
 import { listAvailableMapApps } from '@/utils/externalMaps';
 
 /** 이만큼 가까우면 걸어서 가는 길로 연다(nearby-help 와 같다). */
 const WALK_ROUTE_M = 1200;
+/**
+ * 지도에 줄 «빈 값»들 — 렌더마다 새 배열을 만들면 지도 effect 가 렌더마다 다시 돈다(nearby-help.tsx 와 같은 까닭).
+ * 이 지도는 경로가 아니다 — 번호 점을 선으로 잇지 않으려고 routes 에 빈 배열을 준다(안 주면 점을 순서대로 잇는다).
+ */
+const NO_ITEMS: FacilityItem[] = [];
+const NO_POINTS: MapPointLayer[] = [];
+const NO_ROUTES: MapRouteLayer[] = [];
 
 /** idle — 아직 위치를 읽으려 하지 않았다(장소 기준으로 열렸을 때). */
 type LocationState = 'idle' | 'detecting' | 'granted' | 'denied';
@@ -110,6 +122,8 @@ export default function NearbyFacilitiesScreen() {
   const [canAskAgain, setCanAskAgain] = useState(true);
   const [load, setLoad] = useState<Load>({ status: 'loading' });
   const [reloadKey, setReloadKey] = useState(0);
+  // 사람이 누른 곳(목록 카드나 지도의 점). 지금 목록에 없으면 첫 곳이 골라진 것으로 본다 — 아래 selectedId.
+  const [pickedId, setPickedId] = useState('');
 
   // ── 위치 ────────────────────────────────────────────────────────────────
 
@@ -193,7 +207,32 @@ export default function NearbyFacilitiesScreen() {
     if (next === kind) return;
     setKind(next);
     setRadiusM(DEFAULT_RADIUS_M);
+    setPickedId('');
   };
+
+  // ── 지도 ────────────────────────────────────────────────────────────────
+
+  // 지도에 줄 번호 점 — 목록과 같은 곳, 같은 순서, 같은 번호(카드의 번호 핀과 맞는다).
+  const items = load.status === 'ready' ? load.data.items : NO_ITEMS;
+  const stops: MapStop[] = useMemo(
+    () => items.map((item, index) => ({ id: item.id, number: index + 1, name: item.name, latitude: item.lat, longitude: item.lng })),
+    [items],
+  );
+  // 🔴 고른 곳은 목록과 «같은 렌더에서» 정한다 — effect 로 한 렌더 늦게 고르면 그 «고른 곳 바뀜»이 지도의 「고르면 확대」 규칙을 건드려,
+  //    전체를 맞춘 직후 1번으로 확대한다(가까운 도움 nearby-help.tsx 에서 운영 캡처로 겪었다, S15P21E201-1889).
+  const selectedId = stops.some((stop) => stop.id === pickedId) ? pickedId : (stops[0]?.id ?? '');
+  // 거리를 어디서 쟀나 — 내 위치로 찾았으면 지도의 «현재 위치» 점이 곧 기준이다. 장소 기준이거나 위치를 못 써 서면에서 찾았으면
+  // 그 자리(origin)를 «기준점»으로 찍는다. 그 자리는 목록의 점이 아니라서 번호 장소가 아닌 점 표시(points)로 준다.
+  const showReference = anchored || usingFallback;
+  const referenceName = anchored ? (anchor?.name ?? '') : tx('서면', 'Seomyeon');
+  const referenceLabel = tx('기준점', 'Origin');
+  const points: MapPointLayer[] = useMemo(
+    () => (showReference
+      ? [{ id: 'reference', label: referenceLabel, color: color.state.info, stops: [{ id: 'reference', number: 0, name: referenceName, latitude: origin.latitude, longitude: origin.longitude }] }]
+      : NO_POINTS),
+    [showReference, referenceLabel, referenceName, origin],
+  );
+  const currentLocation = anchored ? null : coords;
 
   // ── 가는 법 ─────────────────────────────────────────────────────────────
 
@@ -214,13 +253,15 @@ export default function NearbyFacilitiesScreen() {
   });
   const call = useCallback((tel: string) => { void Linking.openURL(telOf(tel)); }, []);
 
-  const renderCard = (item: FacilityItem) => {
+  const renderCard = (item: FacilityItem, index: number) => {
     const actions = actionsFor(item);
+    // 지도의 번호 점과 짝 — 카드를 누르면 지도에서 그 점이 골라진다(가는 법은 카드 아래 단추).
+    const link: ListLink = { number: index + 1, selected: item.id === selectedId, onSelect: () => setPickedId(item.id) };
     switch (item.kind) {
-      case 'PARKING': return <ParkingCard key={item.id} item={item} actions={actions} stayHours={stayHours} />;
-      case 'PHARMACY': return <PharmacyCard key={item.id} item={item} actions={actions} onCall={call} />;
-      case 'TOILET': return <ToiletCard key={item.id} item={item} actions={actions} />;
-      case 'LOCKER': return <LockerCard key={item.id} item={item} actions={actions} />;
+      case 'PARKING': return <ParkingCard key={item.id} item={item} actions={actions} link={link} stayHours={stayHours} />;
+      case 'PHARMACY': return <PharmacyCard key={item.id} item={item} actions={actions} link={link} onCall={call} />;
+      case 'TOILET': return <ToiletCard key={item.id} item={item} actions={actions} link={link} />;
+      case 'LOCKER': return <LockerCard key={item.id} item={item} actions={actions} link={link} />;
     }
   };
 
@@ -319,6 +360,13 @@ export default function NearbyFacilitiesScreen() {
         </View>
       ) : null}
 
+      {/* 지도 — 불러오는 중에는 자리만 지키고(빈 목록이어도 RouteMap 은 던지지 않는다), 결과가 있으면 번호 점이 찍힌다.
+          오류·결과 없음에는 그릴 것이 없어 두지 않는다 — 빈 회색 칸을 남기지 않으려고. 못 그리면 RouteMap 이 기존 실패 안내를 낸다. */}
+      {load.status === 'loading' || (load.status === 'ready' && load.data.items.length > 0) ? (
+        <View testID="facility-map" style={styles.mapWrap}>
+          <RouteMap stops={stops} points={points} routes={NO_ROUTES} selectedId={selectedId} onSelect={setPickedId} focusSelected fitPoints currentLocation={currentLocation} height={220} />
+        </View>
+      ) : null}
       {load.status === 'loading' ? (
         <View testID="facility-loading" style={styles.state}><Text variant="body" weight="bold">{tx('가까운 곳을 찾고 있어요…', 'Finding places near you…')}</Text></View>
       ) : load.status === 'error' ? (
@@ -366,6 +414,7 @@ const styles = StyleSheet.create({
   chip: { minHeight: 44, minWidth: 64, justifyContent: 'center', paddingHorizontal: spacing[3], borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1.5, borderColor: color.surface.field },
   chipOn: { backgroundColor: color.action.secondary, borderColor: color.action.secondary },
   state: { gap: spacing[3], padding: spacing[4], marginBottom: spacing[3], borderRadius: radius.lg, backgroundColor: color.surface.card },
+  mapWrap: { overflow: 'hidden', borderRadius: radius.lg, marginBottom: spacing[3] },
   list: { gap: spacing[2], marginTop: spacing[2], marginBottom: spacing[3] },
   foot: { marginTop: spacing[4], marginBottom: spacing[8] },
 });
