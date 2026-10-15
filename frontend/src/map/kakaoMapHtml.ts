@@ -181,6 +181,8 @@ export function buildKakaoMapHtml(appKey: string): string {
     // 🔴 맞추는 범위는 번호 장소만이다(S15P21E201-1903) — 출발지·숙소 같은 점 표시까지 넣으면 먼 출발지(부산역) 때문에
     //    해운대 네 곳이 한 점에 뭉쳤다(김해~기장이 한 화면). 번호 장소가 없을 때만(주변 도움 지도 등) 점 표시로 맞춘다.
     var fitStops = stops.length ? stops : visible;
+    // 점 표시(기준 장소 등)도 맞춘다 — 근처 편의시설 지도(S15P21E201-2052). 안 주면 전과 같다. 웹 mapFocus.ts 의 fitTargets(includePoints) 와 같다.
+    if (data.fitPoints) fitStops = visible;
     var bounds = new maps.LatLngBounds();
     for (var fb = 0; fb < fitStops.length; fb++) bounds.extend(new maps.LatLng(fitStops[fb].latitude, fitStops[fb].longitude));
     for (var s = 0; s < visible.length; s++) {
@@ -215,12 +217,15 @@ export function buildKakaoMapHtml(appKey: string): string {
       }
       content.style.transition = 'transform 300ms cubic-bezier(.34,1.3,.64,1)';
       styleSelection(content, markerColor, stop.id === selectedId);
-      markers[stop.id] = { el: content, color: markerColor };
+      markers[stop.id] = { el: content, color: markerColor, z: layer ? 1 : 2 };
       (function (stopId) { content.onclick = function () { post('select', stopId); }; })(stop.id);
       // 🔴 출발지·숙소 같은 표시는 번호 장소 아래에 깐다(S15P21E201-1788) — 가까우면 「출발지」가 1번을 덮었다.
       //    겹쳐도 글자가 더 넓어 옆으로 보인다. 웹 RouteMap.tsx 와 같은 값.
       var overlay = new maps.CustomOverlay({ position: position, content: content, yAnchor: 0.5, zIndex: layer ? 1 : 2 });
       overlay.setMap(map); overlays.push(overlay);
+      // 🔴 고른 점은 겹친 점들 위에 — 마커 요소의 z-index 는 오버레이 상자 안에서만 통해서 오버레이 자체를 올린다(웹 RouteMap.tsx 의 SELECTED_Z_INDEX 와 같다, S15P21E201-2052).
+      markers[stop.id].overlay = overlay;
+      if (stop.id === selectedId && overlay.setZIndex) overlay.setZIndex(3);
     }
 
     window.__moveKakaoLocation(data.currentLocation);
@@ -308,7 +313,10 @@ export function buildKakaoMapHtml(appKey: string): string {
     if (!map) return;
     focusNow = !!data.focus;
     shiftNow = data.shiftY || 0;
-    for (var id in markers) styleSelection(markers[id].el, markers[id].color, id === data.selectedId);
+    for (var id in markers) {
+      styleSelection(markers[id].el, markers[id].color, id === data.selectedId);
+      if (markers[id].overlay && markers[id].overlay.setZIndex) markers[id].overlay.setZIndex(id === data.selectedId ? 3 : markers[id].z);
+    }
     if (selectedNow === data.selectedId) return;
     selectedNow = data.selectedId;
     // 🔴 고르면 그 장소가 보일 만큼 확대한다(S15P21E201-1903) — 전에는 옮기기만 해서 멀리서 본 채 핀이 겹쳐 있었다.

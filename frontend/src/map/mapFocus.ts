@@ -75,8 +75,9 @@ export const FOCUS_LEVEL = 4;
  * 지도를 맞출 대상 — 번호 장소가 있으면 번호 장소만, 없으면 보이는 점 전부(주변 도움 지도처럼 점 표시만 있는 지도).
  * 🔴 출발지·숙소 같은 점 표시를 넣으면 먼 출발지(부산역) 때문에 해운대 네 곳이 한 점에 뭉쳤다(S15P21E201-1903, 실기기).
  */
-export function fitTargets<T>(stops: readonly T[], visible: readonly T[]): readonly T[] {
-  return stops.length ? stops : visible;
+export function fitTargets<T>(stops: readonly T[], visible: readonly T[], includePoints = false): readonly T[] {
+  // includePoints — 점 표시(기준 장소 등)도 맞춘다(근처 편의시설 지도, S15P21E201-2052). 기본은 꺼짐 — 다른 지도는 전과 같다.
+  return includePoints ? visible : (stops.length ? stops : visible);
 }
 
 /**

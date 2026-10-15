@@ -78,6 +78,19 @@ describe('앱 지도 — 빈 목록', () => {
   });
 });
 
+describe('앱 지도 — 점 표시를 맞추는 범위에 넣기(fitPoints, S15P21E201-2052)', () => {
+  it('🔴 fitPoints 를 주면 WebView 로 보내는 데이터에 담기고, 안 주면 false 다(다른 지도는 전과 같다)', () => {
+    mount(stops);
+    sdkLoaded();
+    expect(lastRender()).toContain('"fitPoints":false');
+
+    mockWebView.injected = [];
+    act(() => { create(<RouteMap stops={stops} routes={NO_ROUTES} selectedId="" onSelect={() => {}} fitPoints height={220} />); });
+    sdkLoaded();
+    expect(lastRender()).toContain('"fitPoints":true');
+  });
+});
+
 describe('앱 지도 — WebView 안 스크립트(kakaoMapHtml.ts)', () => {
   // HTML 안의 스크립트를 가짜 window·document 로 실제로 돌린다(routeMapSelect.test.tsx 와 같은 방법).
   const calls = { maps: 0 };

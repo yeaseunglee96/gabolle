@@ -12,6 +12,13 @@ describe('지도 맞추기 대상', () => {
     const visible = [stop('station')];
     expect(fitTargets([], visible)).toBe(visible);
   });
+  it('🔴 includePoints 를 켜면 번호 장소가 있어도 점 표시까지 전부로 맞춘다(근처 편의시설의 기준점, S15P21E201-2052) — 끄면 전과 같다', () => {
+    const stops = [stop('1')];
+    const visible = [...stops, stop('reference')];
+    expect(fitTargets(stops, visible, true)).toBe(visible);
+    expect(fitTargets(stops, visible, false)).toBe(stops);
+    expect(fitTargets(stops, visible)).toBe(stops);
+  });
   it('고를 때 확대하는 줌은 동네가 보이는 4 다', () => {
     expect(FOCUS_LEVEL).toBe(4);
   });
@@ -21,6 +28,9 @@ describe('앱 지도 스크립트(kakaoMapHtml)', () => {
   const html = buildKakaoMapHtml('key');
   it('🔴 맞추는 범위를 번호 장소로 잡는다', () => {
     expect(html).toContain('var fitStops = stops.length ? stops : visible;');
+  });
+  it('🔴 fitPoints 를 받으면 점 표시까지 맞춘다 — 안 받으면 번호 장소만(S15P21E201-2052)', () => {
+    expect(html).toContain('if (data.fitPoints) fitStops = visible;');
   });
   it('🔴 고르면 FOCUS_LEVEL 까지 확대한다 — mapFocus.ts 와 같은 값', () => {
     expect(html).toContain(`var FOCUS_LEVEL = ${FOCUS_LEVEL};`);

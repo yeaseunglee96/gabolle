@@ -48,6 +48,12 @@ function styleSelection(el: HTMLElement, markerColor: string, selected: boolean)
   el.style.zIndex = selected ? '2' : '1';
 }
 
+/**
+ * 고른 점의 오버레이 z-index(S15P21E201-2052) — 번호 장소(2)·점 표시(1)보다 위. 마커 요소의 z-index 는 «오버레이 상자 안»에서만 통해서,
+ * 점이 스무 곳쯤 몰린 지도(약국·화장실)에서는 고른 점이 나중에 그려진 점들 뒤에 가려 보이지 않았다. 오버레이 자체를 올려야 위에 온다.
+ */
+const SELECTED_Z_INDEX = 3;
+
 const SDK_ID = 'kakao-map-sdk';
 const SDK_HOST = 'dapi.kakao.com';
 // 지도가 부르는 곳은 `dapi.kakao.com` 하나가 아니다. 그 주소는 시작 파일이고
@@ -126,6 +132,12 @@ type RouteMapProps = {
    * 🔴 이 값만 바뀌어서는 다시 맞추지 않는다. 창을 여닫을 때마다 지도가 가운데를 다시 잡으며 튀면 안 된다 —
    *    다음에 맞출 때(고른 곳이 바뀔 때 등) 쓴다.
    */
+  /**
+   * 점 표시(points — 기준 장소·출발지 같은 번호 없는 표시)도 맞추는 범위에 넣는다(근처 편의시설 지도, S15P21E201-2052).
+   * 안 넣으면 결과가 한두 곳일 때 기준 장소가 지도 모서리에 반쯤 걸리거나 화면 밖에 있었다. 기본은 꺼짐 — 번호 장소만 맞춘다
+   * (먼 출발지·숙소 점 때문에 장소들이 한 점에 뭉치던 것, S15P21E201-1903).
+   */
+  fitPoints?: boolean;
   /** 지도가 좌우로 화면 밖에 걸친 폭(px) — 앱 지도의 +/− 단추가 쓴다. 웹 지도에는 단추가 없어 읽지 않는다(S15P21E201-1943). */
   sideBleed?: number;
   bottomInset?: number;
@@ -138,7 +150,7 @@ type RouteMapProps = {
   refitKey?: string | number | null;
 };
 
-export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POINT_LAYERS, currentLocation, onBackToList, height = 340, focusSelected = false, bottomInset = 0, topInset = 0, refitKey = null }: RouteMapProps) {
+export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POINT_LAYERS, currentLocation, onBackToList, height = 340, focusSelected = false, fitPoints = false, bottomInset = 0, topInset = 0, refitKey = null }: RouteMapProps) {
   const { tx } = useI18n();
   const hostRef = useRef<HTMLElement | null>(null);
   const mapRef = useRef<any>(null);
@@ -184,7 +196,7 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
   const onSelectRef = useRef(onSelect);
   onSelectRef.current = onSelect;
   // 마커마다 그 요소와 테두리 색 — 고른 곳이 바뀌면 이 둘만 고친다.
-  const markersRef = useRef(new Map<string, { el: HTMLElement; color: string }>());
+  const markersRef = useRef(new Map<string, { el: HTMLElement; color: string; baseZ: number; overlay?: any }>());
   // 지금 지도가 옮겨 가 있는 고른 곳 — 같은 값으로 다시 오면 옮기지 않는다.
   const appliedSelectionRef = useRef<string | null>(null);
   // 고른 곳으로 옮기는 함수 — 그릴 때 만든다(그때의 장소 목록을 안다).
@@ -266,7 +278,7 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
         overlaysRef.current = [];
         const bounds = new maps.LatLngBounds();
         // 🔴 맞추는 범위는 번호 장소만(S15P21E201-1903, kakaoMapHtml.ts 와 같다) — 먼 출발지까지 넣으면 장소들이 한 점에 뭉쳤다.
-        const fitStops = fitTargets(stops, visibleStops);
+        const fitStops = fitTargets(stops, visibleStops, fitPoints);
         fitStops.forEach((stop) => bounds.extend(new maps.LatLng(stop.latitude, stop.longitude)));
         const selectedNow = selectedRef.current;
         markersRef.current = new Map();
@@ -290,12 +302,15 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
           }
           content.style.transition = 'transform 300ms cubic-bezier(.34,1.3,.64,1)';
           styleSelection(content, markerColor, stop.id === selectedNow);
-          markersRef.current.set(stop.id, { el: content, color: markerColor });
+          markersRef.current.set(stop.id, { el: content, color: markerColor, baseZ: pointLayer ? 1 : 2 });
           content.onclick = () => onSelectRef.current(stop.id);
           // 🔴 출발지·숙소 같은 표시는 번호 장소 아래에 깐다(S15P21E201-1788) — 가까우면 「출발지」가 1번을 덮었다.
           //    겹쳐도 글자가 더 넓어 옆으로 보인다. kakaoMapHtml.ts 와 같은 값.
           const overlay = new maps.CustomOverlay({ position, content, yAnchor: 0.5, zIndex: pointLayer ? 1 : 2 });
           overlay.setMap(map); overlaysRef.current.push(overlay);
+          const marker = markersRef.current.get(stop.id);
+          if (marker) marker.overlay = overlay;
+          if (stop.id === selectedNow) overlay.setZIndex?.(SELECTED_Z_INDEX);
         });
         // 🔴 일정 경로 선 하나 — 넓은 흰 테두리를 먼저 깔고 그 위에 실선(S15P21E201-1656). 전에는 어림 구간을 5px 짧은
         //    점선으로 그렸는데, 선 모양이 자동차 길이라 꺾임점이 촘촘해서 점선이 꺾임마다 끊기며 떨려 보였다(사용자 —
@@ -446,12 +461,15 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
     };
     // 고른 곳·현재 위치·누를 때 함수는 일부러 뺐다 — 위 selectedRef 설명.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [appKey, points, routes, stops]);
+  }, [appKey, points, routes, stops, fitPoints]);
 
   // 고른 곳만 바뀌면 다시 그리지 않는다 — 마커 모양만 바꾸고 지금 화면·줌에서 panTo(S15P21E201-1654).
   useEffect(() => {
     if (Platform.OS !== 'web' || !mapReady) return;
-    markersRef.current.forEach(({ el, color: markerColor }, id) => styleSelection(el, markerColor, id === selectedId));
+    markersRef.current.forEach(({ el, color: markerColor, baseZ, overlay }, id) => {
+      styleSelection(el, markerColor, id === selectedId);
+      overlay?.setZIndex?.(id === selectedId ? SELECTED_Z_INDEX : baseZ);
+    });
     if (appliedSelectionRef.current === selectedId) return;
     appliedSelectionRef.current = selectedId;
     // 고르면 그 장소가 보일 만큼 확대한다(S15P21E201-1903) — 이미 더 가까이 보고 있으면 그대로 둔다.
