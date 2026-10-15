@@ -75,8 +75,9 @@ export function localPickHref(key: LocalPickKey): string {
 }
 
 /**
- * 홈 로컬 탐색 여섯 칸 — S15P21E201-2021. 전에는 「지금 열리는 부산 축제」「부산 로컬 둘러보기」 두 줄에
+ * 홈 로컬 탐색 여덟 칸 — S15P21E201-2021. 전에는 「지금 열리는 부산 축제」「부산 로컬 둘러보기」 두 줄에
  * 스무 장이 섰다(어지럽다는 피드백). 이제 갈래마다 대표 하나씩.
+ * 맛집·카페(S15P21E201-2059)를 포함해 순서는 homeCuration 의 LOCAL_PICK_ORDER 다 — 칸마다 정해 둔 placeId 의 장소를 서버에서 받아 그린다.
  * 축제 칸: 기간 안의 대표 축제(BIFF) → 없으면 축제 데이터에서 오늘 열리는 것. 한 칸이 실패하면 그 칸만 빠진다.
  */
 export async function loadLocalPicks(now: Date = new Date()): Promise<HomeLocalPick[]> {
@@ -124,7 +125,7 @@ export type HomeData = {
   signedIn: boolean;
   stories: StoryDto[] | null;
   weather: HomeWeather | null;
-  /** 로컬 탐색 여섯 칸. null 이면 아직 불러오는 중. */
+  /** 로컬 탐색 여덟 칸. null 이면 아직 불러오는 중. */
   localPicks: HomeLocalPick[] | null;
   trip: TripSummaryDto | null;
   tripsLoaded: boolean;
@@ -196,7 +197,7 @@ export function useHomeData(enabled = true): HomeData {
     queryFn: () => loadFeaturedStories(accessToken).catch(() => []),
   });
 
-  // 로컬 탐색 여섯 칸 — 날짜가 바뀌면(축제 칸) 다시 고른다.
+  // 로컬 탐색 여덟 칸 — 날짜가 바뀌면(축제 칸) 다시 고른다.
   const localPicksQuery = useQuery({
     queryKey: ['home', 'localPicks', today()],
     enabled,
