@@ -655,6 +655,9 @@ DELETE FROM place         WHERE source_type = 'TOURAPI'  AND dataset_version = '
 구·동을 값(JSON) 안이 아니라 **열쇠**에 넣은 것은, 목록을 구·동으로 거르려면 DB 가 비교해야 하는데 이 저장소의 조회는 JPQL(JPA 의 객체 질의어)이고
 JPQL 은 JSONB 안을 못 보기 때문이다.
 
+> **2026-10-15 (S15P21E201-2059).** 「맛집」 칩에는 이제 공공 인증 말고 **현지인이 추천한 식당**(`CERTIFICATION_TAG/LOCAL_SURVEY`, 13절)도 든다. 이 적재기가 다는 것은 위 표 그대로이고, 현지인 추천은 13절 SQL 이 단다.
+> 같은 엔진으로 **카페**를 넣는 적재기는 14절이다.
+
 새로 만들기 전에 `SamePlaceGuard`(3절 ①과 같은 **같은 곳 검사** — 이름이 같고 150m 안이면 같은 곳)를 거친다.
 - **같은 곳이 이미 있고 추천에 쓰는 장소면** 새로 만들지 않고 그 장소에 표식을 단다(수집 쪽 짝짓기가 놓친 것을 주워 담는다)
 - **체인 가게 30~150m · 해변·산책로·공원 150m~1km** 같은 이름은 넣지도 달지도 않고 사람 확인 목록으로 남긴다(`same-place-review-BUSAN_CERTIFIED_FOOD-<수집분>.csv`, 입력 파일 옆)
@@ -727,6 +730,16 @@ DELETE FROM place         WHERE source_type = 'BUSAN_CERTIFIED_FOOD' AND dataset
 
 첫 줄은 **이미 있던 장소에 단 표식도 같이** 지운다(그 표식도 같은 `source_type` 이다) — 이미 있던 장소 자체는 안 건드린다. 새 장소에 그 뒤 다른 적재(영업시간·사진 등)가 표식을 붙였으면
 둘째 줄이 외래키에 막힌다. 그때는 `place_id IN (SELECT place_id FROM place WHERE source_type = 'BUSAN_CERTIFIED_FOOD' AND dataset_version = …)` 로 그 표식을 먼저 지운다.
+
+### 11-6. 다시 돌려도 다른 출처가 단 표식은 지워지지 않는다 (S15P21E201-2059 에서 코드로 확인)
+
+이 적재기는 **더하기만 한다.** 엔진(`LocalPickLoader.saveChunk` — 맛집과 카페 적재기가 같이 쓴다)이 DB 에 쓰는 길은 `saveAll`(없는 장소·표식을 새로 넣는 것) 하나뿐이고 `delete`·`update` 호출이 없다.
+표식은 (장소, 종류, 열쇠)가 이미 있으면 건너뛴다(`addIfAbsent`). 그래서 같은 파일을 다시 돌려도:
+
+- 현지인 추천(`CERTIFICATION_TAG/LOCAL_SURVEY`, 13절)과 카페 표식(`INTEREST_TAG/LOCAL_CAFE`)은 **지워지지 않는다** — 이 적재기에 그것을 지우는 코드가 없다
+- 🔴 **반대 방향의 함정을 하나 막았다.** 13-3 이 카페로 옮긴 장소에 이 적재기가 맛집 표식을 **되살리면** 한 장소가 맛집과 카페 양쪽에 선다. 그래서 `CertifiedRestaurantLoader.keepsOutOfExplore` 가
+  「장소 갈래가 `CAFE_HEALING` 이고 카페 표식이 이미 있는 곳」에는 맛집 표식을 달지 않는다(구·동과 인증 목록은 그대로 단다). **카페 표식이 아직 없는 카페 갈래 장소**에는 예전처럼 맛집 표식이 붙는다 —
+  그곳을 옮기는 일은 13절 SQL 의 몫이므로, 새 맛집 파일을 넣은 뒤에는 13-4 의 SQL 을 한 번 더 돌린다(멱등이라 안전하다)
 
 ## 12. 근처 편의시설 — 주차장 · 약국 · 공중화장실 · 지하철 물품보관함 (S15P21E201-2052, 2026-10-14 추가)
 
@@ -861,6 +874,225 @@ DELETE FROM facility WHERE dataset_version = 'facilities-20261014';
 
 다른 표를 가리키는 곳이 없어 외래키에 막히지 않는다. 같은 파일을 다시 돌려 행이 새 수집분 이름으로 갱신됐다면 그 이름으로 지운다. 한 종류만 지우려면 `AND kind = 'PHARMACY'` 를 붙인다.
 폐업한 곳만 치우고 싶으면 **새 수집분을 돌린 뒤** `DELETE FROM facility WHERE kind = 'PHARMACY' AND dataset_version <> '<새 수집분>'` (새 파일에 없어서 옛 이름으로 남은 행) — 먼저 `SELECT` 로 개수와 이름을 눈으로 본다.
+
+## 13. 현지인 설문 추천 47곳 — 「현지인 추천」 배지 + 맛집에 든 카페 옮기기 (S15P21E201-2059, 2026-10-15 추가)
+
+앱 「로컬 탐색」 카드에 **「현지인 추천」 배지**를 다는 자료다. 부산 현지인 설문에서 추천받은 곳 가운데 47곳(맛집 35 · 카페 12)이고, **전부 우리 DB 에 이미 있는 장소**라 장소를 새로
+만들지 않고 표식(`place_feature` — 장소에 붙는 사실 한 줄)만 단다. 적재기(자바 러너)가 아니라 **SQL 한 파일**이다 — 이미 있는 47곳에 표식 몇 줄을 다는 일이라 러너를 만들 이유가 없고,
+파일 하나가 한눈에 읽힌다. 같은 파일이 **맛집(`LOCAL_RESTAURANT`)에 든 카페를 카페(`LOCAL_CAFE`)로 옮기는 일**도 한다(13-3).
+
+🔴 **배포(마이그레이션)가 먼저다.** `V20261015120000__local_survey_and_cafe.sql` 이 사전(`place_feature_code` — 표식에 올 수 있는 낱말의 목록)에 새 낱말 `LOCAL_CAFE` ·
+`LOCAL_SURVEY` · `KTO_CAFE` · `REDTABLE_FEATURED` 를 넣는다. 사전에 낱말이 없으면 SQL 의 첫 확인이 **아무것도 바꾸지 않고 멈춘다**(「배포가 먼저 나가야 한다」).
+앱의 카페 칩은 서버가 `/facets` 에 카페를 건수와 함께 줘야 나타난다.
+
+### 13-1. 파일
+
+`backend/scripts/local-picks-20261015/` (이 저장소 안에 있다 — 입력 파일은 만든 사람 PC 에만 있던 것을 같이 커밋했다).
+
+| 파일 | 무엇 |
+|---|---|
+| `survey-local-picks-20261015.ndjson` | 입력 47줄(**한 줄에 JSON 하나인 글 파일**). `placeId` · `name` · `category`(`FOOD` 35 · `CAFE_HEALING` 12) · `gu` · `dong` · `recommenders`(추천한 사람 수 — 한 곳은 `null`) |
+| `make_sql.mjs` | 입력 → SQL. `node make_sql.mjs` 로 다시 만든다. **SQL 은 손으로 고치지 않고 이 스크립트를 고친다** |
+| `local_picks_20261015.sql` | 운영에서 돌릴 파일. 한 트랜잭션(**전부 되거나 전부 안 되는 한 덩어리**)이고 **멱등**(**두 번 돌려도 결과가 같다**)이다 |
+
+### 13-2. 무엇을 다나
+
+| 대상 | 내용 |
+|---|---|
+| `INTEREST_TAG` = `LOCAL_RESTAURANT` / `LOCAL_CAFE` | 입력의 `category` 가 `FOOD` 면 맛집, `CAFE_HEALING` 이면 카페. 추정(`ESTIMATED`) — 설문 추천과 우리 장소 갈래에서 옮긴 것이지 가게에 직접 확인한 것이 아니다 |
+| `ADMIN_AREA_TAG` = `구/동` | **한 장소에 하나** — 이미 있으면 파일의 구·동이 달라도 먼저 것을 둔다. 추정 |
+| `CERTIFICATION_TAG` = `LOCAL_SURVEY` | 값 `{"source":"현지인 추천","recommenders":n}`. 설문에서 실제로 추천받은 기록이라 확인됨(`VERIFIED`). **추천한 사람 수를 모르는 한 곳은 `recommenders` 칸을 뺀다**(0 으로 채우지 않는다) |
+
+- 표식의 `source_type` 은 `LOCAL_SURVEY`, `source_version` 은 `survey-local-picks-20261015` 다 — 되돌릴 때 이 둘로 걸린다
+- 표식 id 는 **이름 기반 UUID**(**같은 입력 글자에서 언제나 같은 값이 나오는 번호**)다. 맛집 적재기와 같은 식(`gabolle:place_feature:<출처>:<장소>:<종류>:<열쇠>` 를 MD5 로 해시)이라 자바의
+  `UUID.nameUUIDFromBytes` 와 같은 값이 나온다 — `LocalPicksSqlIntegrationTest` 가 두 값을 맞춰 본다
+- **달 수 없는 곳은 건너뛴다**(에러로 멈추지 않는다): DB 에 없는 장소 · 추천에서 빠진 장소(숨김·합쳐짐 등 `curation_status` 가 `CURATED` 가 아님) · 폐업일자가 있는 장소.
+  이런 곳은 SQL 출력의 **「확인 1」** 표에 이름과 이유가 나온다 — 비어 있어야 47곳이 다 달린다
+
+### 13-3. 맛집에 든 카페를 카페로 옮긴다
+
+공공 인증 맛집 중에는 **장소 갈래(`place.category`)가 `CAFE_HEALING`(카페·힐링) 인 곳**이 있어, 맛집 칩에 카페가 섞여 보인다. 그 곳들의 `LOCAL_RESTAURANT` 를 떼고 `LOCAL_CAFE` 로 옮긴다.
+
+- **몇 곳을 옮기는지 먼저 센다** — 출력의 **「확인 3」**(옮길 곳 수, 그중 이미 카페 표식도 있는 곳 수)
+- 카페 표식이 **이미 있는 곳**은 맛집 표식만 지운다. 같은 장소에 같은 표식이 둘이면 `uq_place_feature_keyed`(**장소·종류·열쇠가 같은 표식을 둘 못 두게 하는 DB 규칙**)에 걸리기 때문이다
+- 나머지는 **같은 행의 열쇠만 바꾼다**(`UPDATE`) — 표식 id · 출처(`BUSAN_CERTIFIED_FOOD`) · 수집분 · 증거 등급이 그대로라 어느 적재가 단 표식인지 되짚을 수 있다
+- **장소 갈래가 음식(`FOOD`)인 곳은 안 건드린다.** 음식점을 겸하는 카페는 맛집 표식과 카페 표식이 둘 다 설 수 있다(「확인 6」이 둘 다 선 곳을 보여 준다)
+
+### 13-4. 돌리기
+
+서버는 `ubuntu@3.34.84.167`(`api.gabolle.kr`), DB 는 8-1 의 컨테이너(`local-route-personalization-postgres-1`)다. `psql` 은 PostgreSQL 의 명령줄 도구, `ON_ERROR_STOP` 은
+**문장 하나가 틀리면 거기서 멈추게 하는 옵션**이다. 파일이 `BEGIN` 으로 시작하므로 멈추면 아무것도 바뀌지 않는다.
+
+```bash
+PEM=<각자 받은 .pem>
+HOST=ubuntu@3.34.84.167
+
+# 1) SQL 을 올린다 (내 PC → 서버)
+ssh -i $PEM $HOST 'mkdir -p /home/ubuntu/load'
+scp -i $PEM backend/scripts/local-picks-20261015/local_picks_20261015.sql $HOST:/home/ubuntu/load/
+
+# 2) 돌린다. 출력의 「확인」 표들을 읽는다
+ssh -i $PEM $HOST "docker exec -i local-route-personalization-postgres-1 psql -U app_user -d app_db -v ON_ERROR_STOP=1 < /home/ubuntu/load/local_picks_20261015.sql"
+```
+
+**두 번째 실행은 출력의 「확인 3」 이 0 곳이고 새로 단 표식이 한 줄도 없어야 한다.** 아니면 멈추고 본다.
+
+### 13-5. 확인
+
+파일 기준 기대값이다(입력의 `existingTags` 에 이미 맛집·구동·인증이 달려 있다고 적힌 4곳이 있다 — DB 가 파일을 받은 뒤로 바뀌었으면 숫자가 달라진다).
+
+| SQL 출력 | 기대 |
+|---|---|
+| 확인 1 (달 수 없는 곳) | 비어 있음 |
+| 확인 4 (이 수집분이 단 표식) | `CERTIFICATION_TAG/LOCAL_SURVEY` 47 · `INTEREST_TAG/LOCAL_RESTAURANT` 31 · `INTEREST_TAG/LOCAL_CAFE` 12 · `ADMIN_AREA_TAG` 43 |
+| 확인 5 (지금 갈래별 곳 수) | 카페가 옮긴 곳 + 12 이상, 맛집은 옮긴 곳만큼 줄어듦 |
+| 확인 6 (맛집·카페 둘 다 선 곳) | 음식점을 겸하는 카페뿐 |
+
+API 로도 본다 — 로그인한 토큰(손님 토큰도 된다)으로 `GET /api/v1/places/facets` 의 `INTEREST_TAG` 항목 `keys` 에 `LOCAL_CAFE`(`카페`)가 **`LOCAL_RESTAURANT` 바로 뒤에** 건수와
+함께 나오는지, `GET /api/v1/places/restaurants?kind=CAFE&gu=부산진구` 의 카드에 `certifiedSources: ["LOCAL_SURVEY"]` 가 들어 있는지 본다.
+
+### 13-6. 되돌리기
+
+```sql
+-- 설문 표식을 지운다 (이 수집분이 단 것만 — 갈래·구동·현지인 추천)
+DELETE FROM gabolle.place_feature WHERE source_type = 'LOCAL_SURVEY' AND source_version = 'survey-local-picks-20261015';
+
+-- 카페로 옮긴 곳을 맛집으로 되돌리려면 (옮긴 표식은 출처가 BUSAN_CERTIFIED_FOOD 로 남아 있다 — 카페 적재기(14절)가 단 표식은 출처가 달라 안 걸린다)
+UPDATE gabolle.place_feature f SET feature_key = 'LOCAL_RESTAURANT' FROM gabolle.place p
+ WHERE p.place_id = f.place_id AND p.category = 'CAFE_HEALING' AND f.feature_type = 'INTEREST_TAG'
+   AND f.feature_key = 'LOCAL_CAFE' AND f.source_type = 'BUSAN_CERTIFIED_FOOD';
+```
+
+## 14. 카페 250곳 — 로컬 탐색 「카페」 갈래 (S15P21E201-2059, 2026-10-15 추가)
+
+앱 「로컬 탐색」에 「카페」 칩(맛집 바로 다음)을 채우는 자료다. 구 → 동으로 골라 그 동의 카페를 본다(맛집과 같은 틀). 적재기는 `LocalCafeLoaderRunner`(`LocalCafeReader` + `LocalCafeLoader`)이고,
+**맛집 적재기(11절)와 같은 엔진**(`LocalPickLoader`)을 쓴다 — 이미 있는 장소에는 **표식만 달고**, 없는 장소는 **새로 만들고**, 새로 만들기 전에 같은 곳 검사(`SamePlaceGuard`)를 거친다.
+
+🔴 **배포(마이그레이션)가 먼저, 적재가 나중이다.** 13절과 같은 마이그레이션이 사전에 `KTO_CAFE` · `REDTABLE_FEATURED` 를 넣는다.
+🔴 **이 적재기를 머지하는 것과 자료를 넣는 것은 다르다** — 배포는 적재기를 올려 놓을 뿐 아무것도 넣지 않는다. 아래를 누군가 한 번 돌려야 한다.
+
+### 14-1. 입력 파일과 한 줄 모양
+
+파일은 git 에 없다 — 만든 사람 PC 의 `gabolle-archive/cafes-20261015.ndjson`(**한 줄에 JSON 하나인 글 파일**, 250줄)이다.
+
+```json
+{"sourceId":"KTO2841481","name":"공극샌드커피","lat":35.1845252618,"lng":129.2131276086,"address":"부산광역시 기장군 기장읍 공수해안길 41","tel":null,"photoUrl":"http://tong.visitkorea.or.kr/cms/resource/76/2841476_image2_1.jpg","photoSource":"한국관광공사 공공누리 제3유형","sources":["한국관광공사"],"existingPlaceId":null,"existingCategory":null,"gu":"기장군","dong":"기장읍"}
+{"sourceId":"RT1192","name":"백구당","lat":35.1048197,"lng":129.035743,"address":"부산광역시 중구 중앙대로81번길 3","tel":"051-465-0109","photoUrl":null,"photoSource":null,"sources":["레드테이블(방송·수상)"],"intro":"…","existingPlaceId":"fe8f096a-ca9b-3a0f-ae00-6d7f456831f8","existingCategory":"CAFE_HEALING","gu":"중구","dong":"중앙동4가"}
+```
+
+- `sourceId` 의 앞머리가 **출처**다 — `KTO` + 한국관광공사 콘텐츠 번호(contentid), `RT` + 레드테이블 식당 번호(RSTR_ID). 레드테이블은 부산광역시가 공공데이터포털에 연 식당 목록이다
+- `sources` 는 `한국관광공사` · `레드테이블` · `레드테이블(방송·수상)` 중 하나 이상(「방송·수상」은 레드테이블이 TV 맛집 프로그램에 나왔거나 블루리본 서베이 같은 평가를 받았다고 적어 둔 곳). **번호 앞머리와 맞아야 한다**(`KTO…` 는 `한국관광공사` 를, `RT…` 는 레드테이블 쪽을 포함)
+- `gu`·`dong` 은 좌표를 VWorld(국토교통부 지도 서비스)로 **역지오코딩**(좌표로 행정 주소를 알아내는 것)해서 얻은 법정동이다
+- `existingPlaceId` 가 있으면 우리 DB 에 이미 있는 장소다 — **장소는 새로 안 만들고 표식만 단다. 장소의 갈래(`category`)도 안 바꾼다.** `existingCategory` 는 그 장소가 가진 갈래(`FOOD` 10곳 · `CAFE_HEALING` 21곳)로, 읽어 두기만 한다 — **음식 갈래인 곳도 카페로 옮기지 않고 그대로 두되 카페 표식만 더한다**
+- `tel` · `intro` 는 읽기만 하고 DB 에 넣지 않는다(`place` 에 전화번호 칸이 없고, `intro` 는 레드테이블이 쓴 홍보 문구라 쓸 조건을 확인한 적이 없다)
+- 🔴 **모르는 칸·틀린 모양이 하나라도 있으면 줄 번호와 함께 멈추고 한 행도 안 넣는다.** 같은 `sourceId` 가 두 번 나와도 멈춘다. 구·동을 모르는 줄(`?`)과 주소의 구가 좌표의 구와 다른 줄만 11-1 과 같이 건너뛰고 로그에 남긴다
+- 🔴 **레드테이블 사진은 읽는 순간 멈춘다.** `photoUrl` 은 관광공사 줄(`KTO…`)에 `한국관광공사…` 출처 문구와 짝으로만 올 수 있다. 레드테이블 사진은 다시 써도 되는지 이용 조건을 확인하지 못했다.
+  수집 파일은 이미 비워 두었지만(레드테이블 175줄 모두 사진 없음), 사람이 파일을 다시 만들다 섞어도 여기서 막힌다
+
+### 14-2. 무엇을 넣나
+
+| 대상 | 내용 |
+|---|---|
+| 새 `place` | `category='CAFE_HEALING'`, `dataset_version=<수집분>`. **`source_type` 은 원천의 것을 그대로 쓴다** — 관광공사 줄은 `TOURAPI`(`source_id`=콘텐츠 번호), 레드테이블 줄은 `REDTABLE`(`source_id`=식당 번호). 장소 번호도 그 적재기들이 쓰는 식(`gabolle:place:TOURAPI:<번호>` · `gabolle:place:REDTABLE:<번호>`)이라, **같은 가게를 그 적재기가 먼저(또는 나중에) 넣어도 같은 장소 번호**라 두 번 만들어지지 않는다. 관광공사 사진은 `https` 로 바꿔(`tong.visitkorea.or.kr`) 출처 문구와 함께 `photo_url`·`photo_source` 에 넣는다 |
+| `CATEGORY_TAG` = `CAFE_HEALING` | **새 장소에만.** 추정 |
+| `INTEREST_TAG` = `LOCAL_CAFE` | 카페 갈래 표식. 확인됨(`VERIFIED`) — 목록이 카페로 소개한 것. `/facets` 가 건수를 센다 |
+| `ADMIN_AREA_TAG` = `구/동` | 한 장소에 하나 — 이미 있으면 먼저 것을 두고 로그에 센다. 추정 |
+| `CERTIFICATION_TAG` = `KTO_CAFE` · `REDTABLE_FEATURED` | 소개한 목록마다 한 줄. 값 `{"source":"한국관광공사"}` · `{"source":"레드테이블"}`. 레드테이블이 방송·수상을 적어 둔 곳은 **`"broadcastOrAward":true` 가 더 붙는다.** 확인됨 |
+
+- 표식의 `source_type` 은 `BUSAN_LOCAL_CAFE`, `source_version` 은 수집분이다 — 새 장소의 `CATEGORY_TAG` 와 이미 있던 장소에 단 표식까지 모두 같다. 되돌릴 때 이 둘로 한 번에 걸린다
+- 새로 만들기 전 같은 곳 검사: **이름이 같고 150m 안이면** 새로 안 만들고 그 장소에 표식을 단다(체인은 30m). 체인 가게 30~150m 같은 이름은 넣지도 달지도 않고 사람 확인 목록 CSV 로 남긴다
+  (`same-place-review-BUSAN_LOCAL_CAFE-<수집분>.csv`, 입력 파일 옆). 이 파일에는 같은 이름이 두 번 나오는 쌍이 하나 있다(`제일다방` RT11463 · RT18013) — 가까우면 한 장소로 합쳐진다
+
+### 14-3. 돌리기
+
+서버는 `ubuntu@3.34.84.167`(`api.gabolle.kr`), 이미지는 `local-route-backend:candidate`, 망은 `local-route-personalization_data_net` 이다(11-3 과 같다).
+
+```bash
+PEM=<각자 받은 .pem>
+HOST=ubuntu@3.34.84.167
+
+# 1) 입력 파일을 올린다 (내 PC → 서버)
+ssh -i $PEM $HOST 'mkdir -p /home/ubuntu/load'
+scp -i $PEM /c/Users/SSAFY/Desktop/gabolle-archive/cafes-20261015.ndjson $HOST:/home/ubuntu/load/
+
+# 2) 서버에 들어가 2절대로 DB 접속값을 빌린다 (끝나면 /tmp/load.env 를 지운다 — 5절)
+ssh -i $PEM $HOST
+docker inspect backend --format '{{range .Config.Env}}{{println .}}{{end}}'   | grep -E '^(GABOLLE_DB_|SPRING_PROFILES_ACTIVE)' > /tmp/load.env
+wc -l /tmp/load.env    # 네 줄이면 정상
+
+# 3) 3절의 run 함수를 정의한 뒤 (IMG 는 지금 도는 백엔드와 같은 이미지로 잡는다), 돌린다
+IMG=$(docker inspect backend --format '{{.Config.Image}}')
+NET=local-route-personalization_data_net
+#   run() { … }   ← 3절 그대로
+RUN=run
+$RUN --gabolle.place.loader.local-cafes=/load/cafes-20261015.ndjson \
+     --gabolle.place.loader.dataset-version=cafes-20261015
+```
+
+`--gabolle.place.loader.dataset-version` 을 빼면 컨테이너가 죽는다(어느 수집분인지 안 적으면 나중에 되돌릴 수 없어서 일부러 그렇다). 맛집 적재(11절)의 `certified-restaurants` 프로퍼티와 **이름이 다르다** — `local-cafes` 다.
+
+마침 줄: `카페 적재를 마쳤다 — 읽은 줄 N · 넣을 곳 M · 안 넣고 건너뜀 K(구·동 모름 a · 주소의 구와 안 맞음 b) · 새 장소 …곳(사진 …) · 있던 장소에 표식 …줄 · … · 출처별 {KTO=…, RT=…} · 구별 {…}`.
+안 넣은 줄이 있으면 앞에 **한 줄씩** 찍힌다(`안 넣고 건너뜀(ADDRESS_GU_MISMATCH) — …`).
+
+**2026-10-15 파일**(이 날짜의 파일 한 개 기준이다 — 파일이 바뀌면 숫자도 바뀐다)을 처음 돌리면 **읽은 줄 250 · 넣을 곳 250 · 건너뜀 0** 이어야 한다. 그중 `existingPlaceId` 가 있는 **31줄(음식 10 · 카페 21)은 표식만** 달고,
+나머지 **219줄**이 새 장소 후보다(관광공사 57 · 레드테이블 162, 사진이 있는 줄은 55). 같은 곳 검사가 걸러 낸 만큼 새 장소는 219곳보다 줄고 「같은 곳이라 표식만」 줄이 그만큼 는다.
+`existingPlaceId 의 장소가 이 DB 에 없어` 경고가 나오면 운영이 아닌 DB 의 번호로 만든 파일이다 — 멈추고 수집 쪽에 알린다.
+**두 번째 실행은 새 장소 0곳 · 새 표식 0** 이어야 한다 — 아니면 멈추고 본다.
+
+### 14-4. 확인
+
+```sql
+-- 이 수집분이 단 표식 종류별 개수
+SELECT feature_type, feature_key, evidence_status, count(*)
+  FROM place_feature
+ WHERE source_type = 'BUSAN_LOCAL_CAFE' AND source_version = 'cafes-20261015'
+ GROUP BY 1, 2, 3 ORDER BY 1, 2, 3;
+
+-- 새로 만든 카페 (출처별 · 사진 수)
+SELECT source_type, count(*) AS places, count(photo_url) AS photos
+  FROM place WHERE dataset_version = 'cafes-20261015' AND source_type IN ('TOURAPI', 'REDTABLE') GROUP BY 1;
+
+-- 🔴 레드테이블 카페에는 사진이 하나도 없어야 한다 — 0 이어야 한다
+SELECT count(*) FROM place
+ WHERE dataset_version = 'cafes-20261015' AND source_type = 'REDTABLE' AND (photo_url IS NOT NULL OR photo_source IS NOT NULL);
+
+-- 지금 카페 갈래 곳 수와 구별 분포
+SELECT split_part(a.feature_key, '/', 1) AS gu, count(DISTINCT a.place_id) AS cafes
+  FROM place_feature a JOIN place_feature c ON c.place_id = a.place_id
+ WHERE a.feature_type = 'ADMIN_AREA_TAG' AND c.feature_type = 'INTEREST_TAG' AND c.feature_key = 'LOCAL_CAFE'
+ GROUP BY 1 ORDER BY 2 DESC;
+```
+
+API 로도 본다 — 로그인한 토큰으로 `GET /api/v1/places/facets` 의 `INTEREST_TAG` `keys` 에 `LOCAL_CAFE` 가 **맛집 바로 뒤에** 나오는지, `GET /api/v1/places/restaurants/areas?kind=CAFE` 가 구 → 동 목록을,
+`GET /api/v1/places/restaurants/areas?kind=CAFE&lat=35.1631&lng=129.1636` 가 `nearestGu` 에 `해운대구` 를, `GET /api/v1/places/restaurants?kind=CAFE&gu=해운대구` 가 그 구의 카페를 주는지 본다.
+
+### 14-5. 되돌리기
+
+표식과 새 장소 모두 출처와 수집분이 찍혀 있다. **표식을 먼저** 지운다(`fk_place_feature_place`).
+
+```sql
+DELETE FROM place_feature WHERE source_type = 'BUSAN_LOCAL_CAFE' AND source_version = 'cafes-20261015';
+DELETE FROM place         WHERE dataset_version = 'cafes-20261015' AND source_type IN ('TOURAPI', 'REDTABLE');
+```
+
+첫 줄은 **이미 있던 장소에 단 표식도 같이** 지운다(그 표식도 같은 출처다) — 이미 있던 장소 자체는 안 건드린다. 새 장소에 그 뒤 다른 적재(영업시간·사진 등)가 표식을 붙였으면 둘째 줄이 외래키에 막힌다.
+그때는 `place_id IN (SELECT place_id FROM place WHERE dataset_version = 'cafes-20261015' AND source_type IN ('TOURAPI', 'REDTABLE'))` 로 그 표식을 먼저 지운다.
+
+## 15. 로컬 탐색 끝점이 바뀐 것 — 종류(kind) · 내 위치의 구 (S15P21E201-2059)
+
+맛집과 카페는 **같은 끝점 둘**을 쓴다. 옛 앱은 아무것도 안 바꿔도 된다(새 칸은 전부 선택이고 기본은 예전 그대로다).
+
+| 끝점 | 새 칸 | 뜻 |
+|---|---|---|
+| `GET /api/v1/places/restaurants/areas` | `kind` = `RESTAURANT`(기본) \| `CAFE` | 어느 갈래의 구 → 동 목록인가. 모르는 값은 400 이다 |
+| | `lat` · `lng` | 내 위치. **둘이 함께** 와야 하고(하나만 오거나 범위 밖이면 400) 오면 응답에 `nearestGu` 를 더한다 |
+| `GET /api/v1/places/restaurants` | `kind` | 어느 갈래의 목록인가. 각 줄에 `broadcastOrAward`(레드테이블이 방송·수상을 적어 둔 곳이면 `true`, 아니면 칸째 없음)가 더해질 수 있다 |
+| `GET /api/v1/places/facets` | — | `INTEREST_TAG` 의 `keys` 끝에 `LOCAL_RESTAURANT`(맛집) 다음 `LOCAL_CAFE`(카페)가 건수와 함께 붙는다(자료가 없는 동안은 아예 없다) |
+
+- **`nearestGu`** = 그 갈래의 장소 가운데 **내 위치에서 가장 가까운 곳의 구**. 가장 가까운 곳이 **5km 를 넘으면 `null`**(부산 밖에서 엉뚱한 구를 짐작하지 않는다). 외부 지도 서비스를 부르지 않는다 — 이미 DB 에 있는 구·동 표식과 좌표만 쓴다.
+  동점이면 장소 번호 순이라 늘 같은 답이 나온다. **구 경계 가까이에서는 옆 구의 가게가 더 가까울 수 있다**(행정 구역이 아니라 가게까지의 거리로 고르므로) — 사용자가 다른 구 칩을 누르면 그대로 따른다
+- **좌표는 이 계산에만 쓰고 저장도 기록도 하지 않는다.** 앱은 약 100m 단위(소수 셋째 자리)로 줄여 보낸다(`coarseCoordinate`)
+- `certifiedSources` 의 낱말: 공공기관 `BUSAN_FOOD_INFO` · `MODEL_RESTAURANT` · `TAXI_DRIVER_PICK`, 카페 `KTO_CAFE` · `REDTABLE_FEATURED`, 현지인 설문 `LOCAL_SURVEY`. 소개·인증한 목록이 많은 곳이 먼저, 같으면 이름 순이다
 
 ## 되돌리기
 

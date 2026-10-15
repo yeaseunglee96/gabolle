@@ -800,9 +800,9 @@ class RouteAuthorizationRegistryTest {
 		put(m, "GET /api/v1/places/facets", Policy.AUTHENTICATED_ONLY,
 				"갈래별 건수. 공용 기준 데이터다. PlaceFacetInterestTagIntegrationTest");
 		put(m, "GET /api/v1/places/restaurants/areas", Policy.AUTHENTICATED_ONLY,
-				"S15P21E201-2051 — 「맛집」 갈래의 구·동 목록과 맛집 수. 공공기관이 인증한 식당을 센 공용 기준 데이터라 요청자별로 답이 갈리지 않는다 — facets 와 같은 정책이다. CertifiedRestaurantApiIntegrationTest");
+				"S15P21E201-2051 — 「맛집」·「카페」(kind) 갈래의 구·동 목록과 곳 수. 공용 기준 데이터라 요청자별로 답이 갈리지 않는다 — facets 와 같은 정책이다. S15P21E201-2059 부터 lat·lng 를 주면 nearestGu(가장 가까운 곳의 구)를 더하는데, 좌표는 그 계산에만 쓰고 저장·기록하지 않으며 답이 요청자가 아니라 좌표로만 정해진다. CertifiedRestaurantApiIntegrationTest");
 		put(m, "GET /api/v1/places/restaurants", Policy.AUTHENTICATED_ONLY,
-				"S15P21E201-2051 — 구·동으로 거른 인증 맛집 목록. 요청자와 무관한 공용 기준 데이터다 — 사용자 값은 받는 자리가 없다(구·동·limit 뿐). CertifiedRestaurantApiIntegrationTest");
+				"S15P21E201-2051 — 구·동으로 거른 맛집·카페(kind) 목록. 요청자와 무관한 공용 기준 데이터다 — 사용자 값은 받는 자리가 없다(종류·구·동·limit 뿐). CertifiedRestaurantApiIntegrationTest");
 		put(m, "GET /api/v1/places/categories", Policy.AUTHENTICATED_ONLY,
 				"적재된 place.category 값과 건수. 요청자와 무관한 공용 기준 데이터라 facets 와 같은 정책이다. PlaceCategoryServiceTest");
 		put(m, "GET /api/v1/places/condition-coverage", Policy.AUTHENTICATED_ONLY,

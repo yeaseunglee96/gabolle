@@ -236,6 +236,29 @@ class CertifiedRestaurantLoaderIntegrationTest extends PlacePostgresIntegrationT
 				"ADMIN_AREA_TAG:ZZ시험구/ZZ아동", "CERTIFICATION_TAG:BUSAN_FOOD_INFO", "CERTIFICATION_TAG:MODEL_RESTAURANT");
 	}
 
+	@Test
+	@DisplayName("🔴 카페로 옮겨진 장소(갈래 CAFE_HEALING + 카페 표식)는 이 적재기를 다시 돌려도 맛집으로 되살아나지 않는다 — 장소 갈래가 음식이면 둘 다 선다 (S15P21E201-2059)")
+	void aPlaceMovedToCafesIsNotBroughtBackToRestaurants() {
+		UUID movedCafe = this.fixture.insertPlace("옮긴카페", null, "CAFE_HEALING", 35.4101, 129.4101);
+		this.fixture.insertTagFeature(movedCafe, "INTEREST_TAG", "LOCAL_CAFE", "VERIFIED", "true");
+		UUID both = this.fixture.insertPlace("겸하는곳", null, "FOOD", 35.4201, 129.4201);
+		this.fixture.insertTagFeature(both, "INTEREST_TAG", "LOCAL_CAFE", "VERIFIED", "true");
+		UUID untouched = this.fixture.insertPlace("카페표식없는카페", null, "CAFE_HEALING", 35.4301, 129.4301);
+
+		CertifiedRestaurantLoader.Result result = load(List.of(
+				row("1", "옮긴카페", 35.4101, 129.4101, "ZZ시험구", "ZZ하동", movedCafe, null, null, Source.MODEL_RESTAURANT),
+				row("2", "겸하는곳", 35.4201, 129.4201, "ZZ시험구", "ZZ하동", both, null, null, Source.MODEL_RESTAURANT),
+				row("3", "카페표식없는카페", 35.4301, 129.4301, "ZZ시험구", "ZZ하동", untouched, null, null, Source.MODEL_RESTAURANT)));
+
+		assertThat(result.markedExisting()).isEqualTo(3);
+		// 카페로 옮겨진 곳 — 맛집 표식은 안 붙고, 구·동과 인증 목록은 그대로 붙는다.
+		assertThat(featureKeys(movedCafe)).containsExactlyInAnyOrder("ADMIN_AREA_TAG:ZZ시험구/ZZ하동", "CERTIFICATION_TAG:MODEL_RESTAURANT");
+		// 음식점을 겸하는 카페 — 장소 갈래가 음식이라 맛집 표식이 붙는다(카페 표식은 그대로).
+		assertThat(featureKeys(both)).contains("INTEREST_TAG:LOCAL_RESTAURANT");
+		// 아직 카페 표식이 없는 카페 갈래 장소는 예전처럼 맛집 표식이 붙는다 — 옮기는 일은 운영 SQL 의 몫이다.
+		assertThat(featureKeys(untouched)).contains("INTEREST_TAG:LOCAL_RESTAURANT");
+	}
+
 	// ── 같은 곳 검사 ───────────────────────────────────────────────────────
 
 	@Test

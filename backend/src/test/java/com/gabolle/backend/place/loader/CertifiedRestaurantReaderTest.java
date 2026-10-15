@@ -167,6 +167,16 @@ class CertifiedRestaurantReaderTest {
 	}
 
 	@Test
+	@DisplayName("🔴 카페·현지인 추천의 이름은 맛집 파일에서 읽히지 않는다 — 엉뚱한 장소에 엉뚱한 출처가 달리지 않게 멈춘다 (S15P21E201-2059)")
+	void cafeAndSurveySourcesAreNotRestaurantFileSources() throws IOException {
+		for (String label : List.of("한국관광공사", "레드테이블", "레드테이블(방송·수상)", "현지인 추천")) {
+			Path file = write(BASE.replace("\"모범음식점\"", "\"" + label + "\""));
+			assertThatThrownBy(() -> CertifiedRestaurantReader.read(file)).as(label).hasMessageContaining("모르는 인증 목록")
+					.hasMessageContaining(label);
+		}
+	}
+
+	@Test
 	@DisplayName("🔴 구·동을 아는 줄의 좌표가 부산 밖이면 멈춘다 — 위경도를 뒤바꾼 줄을 잡는다")
 	void badCoordinatesStopWhenTheAreaIsKnown() throws IOException {
 		Path swapped = write(BASE.replace("\"lat\":35.1,\"lng\":129.0", "\"lat\":129.0,\"lng\":35.1"));
@@ -254,6 +264,17 @@ class CertifiedRestaurantReaderTest {
 		assertThat(Source.fromFileLabel("택슐랭")).contains(Source.TAXI_DRIVER_PICK);
 		assertThat(Source.fromFileLabel("모르는 목록")).isEmpty();
 		assertThat(Source.fromFileLabel(null)).isEmpty();
+		// 카페 쪽 둘과 현지인 추천은 낱말·이름은 있지만 맛집 수집 파일에는 올 수 없다 (S15P21E201-2059).
+		assertThat(Source.fromFileLabel("한국관광공사")).isEmpty();
+		assertThat(Source.fromFileLabel("레드테이블")).isEmpty();
+		assertThat(Source.fromFileLabel("현지인 추천")).isEmpty();
+		assertThat(Source.fromCode("KTO_CAFE")).contains(Source.KTO_CAFE);
+		assertThat(Source.fromCode("REDTABLE_FEATURED")).contains(Source.REDTABLE_FEATURED);
+		assertThat(Source.fromCode("LOCAL_SURVEY")).contains(Source.LOCAL_SURVEY);
+		assertThat(Source.LOCAL_SURVEY.fileLabel()).isEqualTo("현지인 추천");
+		// 응답의 certifiedSources 는 선언 순서다 — 공공기관 셋, 카페 쪽 둘, 현지인 추천.
+		assertThat(Source.values()).extracting(Enum::name).containsExactly("BUSAN_FOOD_INFO", "MODEL_RESTAURANT",
+				"TAXI_DRIVER_PICK", "KTO_CAFE", "REDTABLE_FEATURED", "LOCAL_SURVEY");
 		assertThat(Source.fromCode("MODEL_RESTAURANT")).contains(Source.MODEL_RESTAURANT);
 		assertThat(Source.fromCode("model_restaurant")).isEmpty();
 		// 장소 상세의 공인 표식(RECOGNITION)이 이미 쓰는 낱말과 같다.
@@ -264,6 +285,17 @@ class CertifiedRestaurantReaderTest {
 		assertThat(ExtraInterestTagCode.from("local_restaurant")).contains(ExtraInterestTagCode.LOCAL_RESTAURANT);
 		assertThat(ExtraInterestTagCode.from("FESTIVAL")).isEmpty();
 		assertThat(ExtraInterestTagCode.LOCAL_RESTAURANT.labelKo()).isEqualTo("맛집");
+		// 카페 갈래 (S15P21E201-2059) — 선언 순서가 /facets 의 순서라 맛집 다음이다.
+		assertThat(CertifiedRestaurant.Kind.CAFE.exploreKey()).isEqualTo(ExtraInterestTagCode.LOCAL_CAFE.name());
+		assertThat(CertifiedRestaurant.Kind.RESTAURANT.exploreKey()).isEqualTo(CertifiedRestaurant.EXPLORE_KEY);
+		assertThat(ExtraInterestTagCode.LOCAL_CAFE.labelKo()).isEqualTo("카페");
+		assertThat(ExtraInterestTagCode.all()).containsExactly(ExtraInterestTagCode.LOCAL_RESTAURANT,
+				ExtraInterestTagCode.LOCAL_CAFE);
+		assertThat(CertifiedRestaurant.Kind.fromParam(" cafe ")).contains(CertifiedRestaurant.Kind.CAFE);
+		assertThat(CertifiedRestaurant.Kind.fromParam("RESTAURANT")).contains(CertifiedRestaurant.Kind.RESTAURANT);
+		assertThat(CertifiedRestaurant.Kind.fromParam("BAR")).isEmpty();
+		assertThat(CertifiedRestaurant.Kind.fromParam("  ")).isEmpty();
+		assertThat(CertifiedRestaurant.Kind.fromParam(null)).isEmpty();
 	}
 
 	@Test
