@@ -86,7 +86,7 @@ public class PlaceQueryController {
 
 		PlacePageResponse page = hasQuery
 				? this.placeSearchService.search(query, category, limit, cursor)
-				: this.placeSearchService.searchByFacet(facetType, facetKey, limit);
+				: this.placeSearchService.searchByFacet(facetType, facetKey, limit, cursor);
 
 		return ApiResponse.success(page, resolveRequestId(requestId));
 	}
