@@ -211,7 +211,16 @@ public class ItineraryQueryService {
 				// 지도가 경로 선을 칠할 조건 — 사용자가 추천 단계에서 고른 것만 true (S15P21E201-1895).
 				paint.slopeAvoid(),
 				paint.shadePrefer(),
-				origin);
+				origin,
+				// 이 여행이 고른 이동수단 그대로(S15P21E201-2061) — 구간 줄의 「대중교통」 이름표와 길 안내가 열 탭을 화면이 이것으로 정한다.
+				// 안 고른 여행은 빈 배열이다(모른다).
+				travelModesOf(trip));
+	}
+
+	/** 여행의 이동수단 목록 — 저장된 배열을 그대로 목록으로. 안 골랐으면 빈 목록. */
+	private static List<String> travelModesOf(Trip trip) {
+		String[] modes = trip.travelModes();
+		return (modes == null) ? List.of() : List.of(modes);
 	}
 
 	/**
