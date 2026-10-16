@@ -84,6 +84,17 @@ describe('정보 줄', () => {
     expect(row).toMatchObject({ value: '밤', caption: '현지인 설문 14명' });
   });
 
+  // 🔴 2026-10-16 웹 점검 — 영어 화면에 「Local survey · 1 people」이 떴다(S15P21E201-2060).
+  it('좋은 때 — 영어는 설문이 한 명이면 「1 person」, 둘 이상이면 「people」이고 한국어 틀은 그대로다', () => {
+    const caption = (counts: { day?: number; night?: number; any?: number }, tx: (ko: string, en: string) => string) =>
+      bestTimeRow([f('BEST_TIME', counts)], tx)?.caption;
+    expect(caption({ night: 1 }, en)).toBe('Local survey · 1 person');
+    expect(caption({ day: 1, night: 1 }, en)).toBe('Local survey · 2 people');
+    expect(caption({ day: 2, night: 9, any: 3 }, en)).toBe('Local survey · 14 people');
+    expect(caption({ night: 1 }, ko)).toBe('현지인 설문 1명');
+    expect(caption({ day: 2, night: 9, any: 3 }, ko)).toBe('현지인 설문 14명');
+  });
+
   it('걷기 난이도 — 5 미만 쉬움 · 8.33 까지 보통 · 그 위 힘듦, 자연·산책만', () => {
     expect([4.99, 5, 8.33, 8.34].map(walkDifficulty)).toEqual(['easy', 'moderate', 'moderate', 'hard']);
     expect(walkDifficultyRow('NATURE_WALK', [f('SLOPE_PERCENT', { score: 12.8 })], ko)?.value).toBe('힘듦');

@@ -12,7 +12,7 @@
 //
 // 영업시간·체크인아웃·경사는 이미 [id].tsx 가 places.ts 로 그린다 — 여기서 다시 그리지 않는다(같은 정보 두 번 금지).
 // 걷기 난이도만 새로: 자연·산책(NATURE_WALK) 장소에서 SLOPE_PERCENT 의 score 로 판정한다.
-import { txf } from '@/i18n/format';
+import { enPlural, txf } from '@/i18n/format';
 import type { LanguageCode } from '@/i18n/languages';
 import type { EvidenceStatus, PlaceFeature } from '@/discovery/places';
 import { MODERATE_SLOPE_PERCENT, STEEP_SLOPE_PERCENT } from '@/map/slopeGrades';
@@ -169,7 +169,9 @@ export function bestTimeRow(features: readonly PlaceFeature[] | undefined, tx: T
     key: 'best-time',
     label: tx('좋은 때', 'Best time'),
     value: estimated(word, slot.status, tx),
-    caption: txf(tx, '현지인 설문 %s명', 'Local survey · %s people', String(best.total)),
+    // 🔴 영어는 개수에 맞춰 단수·복수를 고른다 — 설문이 한 명이면 「1 people」이 아니라 「1 person」(S15P21E201-2060, 2026-10-16 웹 점검).
+    //    번역표의 한국어 틀(「현지인 설문 %s명」)은 그대로라 다른 언어는 달라지지 않는다.
+    caption: txf(tx, '현지인 설문 %s명', `Local survey · %s ${enPlural(best.total, 'person', 'people')}`, String(best.total)),
   };
 }
 
