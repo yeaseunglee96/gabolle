@@ -11,6 +11,7 @@
 // 🔴 받지 못하면(오프라인·서버 없음) 걸음 문장만 빼고 접힌 칸과 같은 글로 남는다 — 지어낸 걸음을 그리지 않는다.
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
+import { router } from 'expo-router';
 
 import { Button } from '@/components/Button';
 import { Text } from '@/components/Text';
@@ -25,13 +26,15 @@ import type { LegRouteParams } from './legRoute';
 
 type Tx = (ko: string, en: string) => string;
 
-export function LegRow({ destName, label, transit, route, now, onOpen, accessToken, language, tx }: {
+export function LegRow({ destName, label, transit, car = false, route, now, onOpen, accessToken, language, tx }: {
   /** 이 구간이 가는 곳 — 화면에 적는 이름 */
   destName: string;
   /** 「이동 25분 · 1,550원」 — formatTravelLabel. 모르면 null */
   label: string | null;
   /** 대중교통 요금이 붙은 구간인가 — 수단을 모르는 칸에 「대중교통」을 지어 붙이지 않으려고 요금으로만 가른다 */
   transit: boolean;
+  /** 자동차 여행의 구간인가 — 요금(택시비·통행료)이 붙어도 「대중교통」이라고 적지 않는다(S15P21E201-2061). */
+  car?: boolean;
   /** 경로를 물을 좌표. 모르면 null — 누를 수 없는 글자로 남는다 */
   route: LegRouteParams | null;
   /** 지금 향하는 곳으로 가는 구간 — 펼친다 */
@@ -89,7 +92,21 @@ export function LegRow({ destName, label, transit, route, now, onOpen, accessTok
     );
   }
 
+  // 🔴 자동차 여행이면 도착지 근처 주차장으로 가는 작은 줄을 이동 칸 바로 아래에 둔다(사용자 요청 2026-10-16, S15P21E201-2061).
+  //    이동 칸 단추 안에 넣지 않는다 — 웹에서 단추 안에 단추가 된다.
+  const parking = car && route ? (
+    <Pressable
+      accessibilityRole="link"
+      accessibilityLabel={txf(tx, '%s 근처 주차장 보기', 'Parking near %s', destName)}
+      onPress={() => router.push({ pathname: '/field/nearby', params: { kind: 'PARKING', lat: route.destLat, lng: route.destLng, name: destName, stay: '1' } })}
+      style={({ pressed }) => [styles.parking, pressed && styles.pressed]}
+    >
+      <Text variant="micro" weight="bold" color={color.action.secondary}>{tx('🅿️ 근처 주차장 보기 ›', '🅿️ Parking nearby ›')}</Text>
+    </Pressable>
+  ) : null;
+
   return (
+    <View style={styles.legStack}>
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={txf(tx, '%s까지 가는 길 보기', 'Directions to %s', destName)}
@@ -99,10 +116,12 @@ export function LegRow({ destName, label, transit, route, now, onOpen, accessTok
       {/* 제목은 가는 곳 이름만 — 「가는 길」은 오른쪽 단추가 말한다. 폰 폭에서 한 줄로 자르면 이름이 「…」로 잘렸다. */}
       <View style={styles.rowCopy}>
         <Text variant="caption" weight="bold" numberOfLines={2}>{txf(tx, '%s까지', 'To %s', destName)}</Text>
-        {label ? <Text variant="micro" color={color.text.muted} numberOfLines={1}>{transit ? `${tx('대중교통', 'Transit')} · ${label}` : label}</Text> : null}
+        {label ? <Text variant="micro" color={color.text.muted} numberOfLines={1}>{car ? `${tx('자동차', 'Car')} · ${label}` : transit ? `${tx('대중교통', 'Transit')} · ${label}` : label}</Text> : null}
       </View>
       <View style={styles.go}><Text variant="micro" weight="bold" color={color.text.onAction}>{tx('길 안내 ›', 'Directions ›')}</Text></View>
     </Pressable>
+    {parking}
+    </View>
   );
 }
 
@@ -139,6 +158,8 @@ function barStyle(kind: TransitStepKind) {
 }
 
 const styles = StyleSheet.create({
+  legStack: { flex: 1, gap: 4 },
+  parking: { alignSelf: 'flex-start', paddingVertical: 4, paddingHorizontal: 2 },
   plain: { alignSelf: 'center' },
   pressed: { opacity: 0.72 },
   // 접힌 칸 — 테두리 있는 누르는 칸. 장소 카드(흰 채움·테두리 없음)와 모양부터 다르다.

@@ -21,7 +21,7 @@ import {
   type SpendAnswers,
   type SpendKey,
 } from '@/onboarding/spendProfile';
-import { FOODS } from '@/plan/foodConflicts';
+import { ANY_FOOD, ANY_FOOD_LABEL, FOODS, toggleFood } from '@/plan/foodConflicts';
 import { DIETS, EMPTY_CONDITIONS, loadTravelConditions, saveTravelConditions, type TravelConditions } from '@/plan/travelConditions';
 import {
   countAnswered,
@@ -154,7 +154,7 @@ function Chips({ options, values, onChange }: { options: { code: string; label: 
         key={option.code}
         accessibilityRole="checkbox"
         accessibilityState={{ checked: selected }}
-        onPress={() => onChange(selected ? values.filter((code) => code !== option.code) : [...values, option.code])}
+        onPress={() => onChange(toggleFood(values, option.code))}
         style={[styles.chip, selected && styles.chipSelected]}
       >
         <Text weight="bold" color={selected ? color.text.onAction : color.text.heading}>{option.label}</Text>
@@ -396,7 +396,7 @@ export function PreferencesBody() {
           {question.kind === 'multi' && <Chips
             values={saved.taste.foods ?? []}
             // 「채식」 취향 칩은 아래 식단 「채식」과 이름이 같아 헷갈린다 — 이미 고른 사람만 끌 수 있게 남긴다.
-            options={FOODS.filter(([code]) => code !== 'VEGETARIAN' || (saved.taste.foods ?? []).includes(code)).map(([code, labelKo, labelEn]) => ({ code, label: tx(labelKo, labelEn) }))}
+            options={[{ code: ANY_FOOD, label: tx(...ANY_FOOD_LABEL) }, ...FOODS.filter(([code]) => code !== 'VEGETARIAN' || (saved.taste.foods ?? []).includes(code)).map(([code, labelKo, labelEn]) => ({ code, label: tx(labelKo, labelEn) }))]}
             onChange={(values) => {
               // 마지막 하나까지 빼면 그건 "답 없음" 이다. 빈 배열을 저장해 두면 다음에
               // 「답 안 함」이 아니라 「(아무것도 아님)」이 보인다.

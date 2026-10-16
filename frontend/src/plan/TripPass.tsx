@@ -186,14 +186,27 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
   const frontTab = frontHidden ? -1 : 0;
   const backTab = flipped ? 0 : -1;
 
+  const [frontGone, setFrontGone] = useState(false);
+  // 앞면을 안 그리는 동안 그 자리 높이를 지켜 아래 내용이 끌려 올라오지 않게 한다(뒷면은 absolute 라 높이가 없다).
+  const [frontHeight, setFrontHeight] = useState(0);
+  const [backGone, setBackGone] = useState(true);
   useEffect(() => {
     if (!canFlip) return;
-    Animated.spring(flip, { toValue: flipped ? 1 : 0, damping: 14, stiffness: 120, mass: 1, useNativeDriver: true }).start();
+    if (flipped) setBackGone(false); else setFrontGone(false);
+    Animated.spring(flip, { toValue: flipped ? 1 : 0, damping: 14, stiffness: 120, mass: 1, useNativeDriver: true }).start(({ finished }) => {
+      if (!finished) return;
+      if (flipped) setFrontGone(true); else setBackGone(true);
+    });
   }, [canFlip, flip, flipped]);
 
 
   const frontRotate = flip.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '180deg'] });
   const backRotate = flip.interpolate({ inputRange: [0, 1], outputRange: ['180deg', '360deg'] });
+  // 🔴 뒤집힌 뒤 「일정 보기 →」 글자에 앞면 글자가 겹쳐 흐릿하게 이중으로 보였다(2026-10-16 사용자 캡처, S15P21E201-2061).
+  //    backfaceVisibility·정적 opacity 만으로는 기기에 따라 안 보이는 면이 비쳤다 — 돌림 값으로 반 바퀴에서 면을 확실히 끄고,
+  //    다 돈 뒤에는 안 보이는 면을 아예 그리지 않는다(frontGone/backGone).
+  const frontOpacity = flip.interpolate({ inputRange: [0, 0.5, 0.5001, 1], outputRange: [1, 1, 0, 0], extrapolate: 'clamp' });
+  const backOpacity = flip.interpolate({ inputRange: [0, 0.5, 0.5001, 1], outputRange: [0, 0, 1, 1], extrapolate: 'clamp' });
   const flipScale = flip.interpolate({ inputRange: [0, 1], outputRange: [1, wide ? 1.18 : 1.06] });
 
   return (
@@ -217,12 +230,15 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
                 { scale: flipScale },
               ],
             },
+            canFlip ? { opacity: frontOpacity } : null,
+            canFlip && frontGone ? styles.faceGone : null,
             // 🔴 뒤집힌 동안 앞면을 못 누르게 한다. RN 웹은 backfaceVisibility 를 지키지만
             //    안드로이드는 판마다 다르다 — 눌림까지 막아야 확실하다.
             canFlip && flipped ? styles.faceHidden : null,
           ]}
           pointerEvents={frontHidden ? 'none' : 'auto'}
           aria-hidden={frontHidden}
+          onLayout={(event) => { if (!frontGone) setFrontHeight(event.nativeEvent.layout.height); }}
         >
           {/* 🔴 앞면 어디를 눌러도 뒤집히지만 앞면은 «단추»가 아니다(S15P21E201-1666). 단추로 두면 화면 읽기 프로그램이
               앞면을 한 덩어리로 읽어 안쪽 「내 일정 보기」를 따로 못 누르고, 웹에서는 단추 안에 단추가 들어간다.
@@ -382,6 +398,8 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
           </Pressable>
         </Animated.View>
 
+        {canFlip && frontGone ? <View style={{ height: frontHeight }} /> : null}
+
         {/* 🔴 뒷면에 overflow:hidden 을 주지 않는다. 3D 가 평면으로 눌리면서 **앞면 위에
             거울상으로 비친다** — 실제로 났던 결함이라 인계 문서가 따로 적어 두었다.
             보이고 안 보이고는 backfaceVisibility 와 pointerEvents 로만 가른다. */}
@@ -397,6 +415,8 @@ export function TripPass({ data, wide = false, onReprint, details, onOpenItinera
                   { scale: flipScale },
                 ],
               },
+              { opacity: backOpacity },
+              backGone ? styles.faceGone : null,
               flipped ? null : styles.faceHidden,
             ]}
             pointerEvents={flipped ? 'auto' : 'none'}
@@ -487,6 +507,7 @@ const styles = StyleSheet.create({
   //    (웹만 지킨다. 네이티브는 이 속성이 없어 가운데 축으로 돈다 — 그래도 안 깨진다.)
   paper: { width: RECEIPT_WIDTH, backfaceVisibility: 'hidden', transformOrigin: 'top center' },
   faceHidden: { opacity: 0 },
+  faceGone: { display: 'none' },
   // 🔴 이 줄도 «종이»다. 흰 바탕은 머리(sheet)·스터브(stub)가 각자 칠하는데 여기만
   //    안 칠해서, 마지막 절취선 뒤의 「눌러서 여행표 상세 보기」가 페이지 바탕 위에 떠
   //    «승차권 밖으로 튀어나간» 것처럼 보였다(실기 빌드 29, S15P21E201-1460).

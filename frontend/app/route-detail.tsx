@@ -24,6 +24,8 @@ import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { useLayout } from '@/layout/useLayout';
 import { RouteMap, type MapRouteLayer } from '@/map/RouteMap';
+import { RouteColorLegend } from '@/map/RouteColorLegend';
+import { routeLegendOf } from '@/map/routeGrading';
 import type { MapStop } from '@/map/types';
 import { getRouteDirections, type RouteDirections, type RouteDirectionsResult, type RouteStep, type TravelMode } from '@/map/routeDirections';
 import { txf } from '@/i18n/format';
@@ -134,9 +136,12 @@ export default function RouteDetail() {
       color: color.text.heading,
       stops,
       ...(path.length >= 2 ? { path, estimated: directions?.estimated !== false } : { estimated: true }),
-      ...(directions?.pieces?.length ? { pieces: directions.pieces } : {}),
+      // 경사 조각이 오면(걷는 구간이 있는 대중교통·도보) 경사로 칠한다 — 등급을 밝혀 두어 범례가 같은 규칙을 읽는다.
+      ...(directions?.pieces?.length ? { pieces: directions.pieces, grading: { slope: true, shade: false } } : {}),
     }];
   }, [directions, mode, stops]);
+  // 🔴 지도 위쪽에 색의 뜻(경사) — 사용자 요청 2026-10-16(S15P21E201-2061). 칠한 선이 있을 때만 나온다(자동차·택시는 안 칠해 안 나온다).
+  const routeLegend = useMemo(() => routeLegendOf(routes), [routes]);
 
   function tabLine(each: TravelMode): string {
     const got = results[each];
@@ -151,7 +156,10 @@ export default function RouteDetail() {
   }
 
   const liveFix = riding && live.fix && usableFix(live.fix) ? { latitude: live.fix.latitude, longitude: live.fix.longitude } : null;
-  const map = (height: number) => <RouteMap stops={stops} selectedId="dest" onSelect={() => {}} routes={routes} height={height} refitKey={mode} currentLocation={liveFix} followLocation={riding} />;
+  const map = (height: number) => <View style={styles.mapWithLegend}>
+    <RouteMap stops={stops} selectedId="dest" onSelect={() => {}} routes={routes} height={height} refitKey={mode} currentLocation={liveFix} followLocation={riding} />
+    <RouteColorLegend legend={routeLegend} tx={tx} style={styles.mapLegend} />
+  </View>;
 
   return (
     <Screen scroll wide>
@@ -224,6 +232,12 @@ export default function RouteDetail() {
               {mode === 'CAR' && destPlaceId ? (
                 <View style={styles.actions}>
                   <Button label={tx('택시 기사에게 보여주기', 'Show to a taxi driver')} onPress={() => router.push(`/taxi-card/${destPlaceId}`)} containerStyle={styles.actionButton} />
+                </View>
+              ) : null}
+              {/* 🔴 택시·자동차 탭이면 도착지 근처 주차장 — 차를 가져온 사람이 어디 댈지 바로 본다(사용자 요청 2026-10-16, S15P21E201-2061). */}
+              {mode === 'CAR' && hasCoords ? (
+                <View style={styles.actions}>
+                  <Button label={tx('도착지 근처 주차장 보기', 'Parking near the destination')} variant="outline" onPress={() => router.push({ pathname: '/field/nearby', params: { kind: 'PARKING', lat: String(destLat), lng: String(destLng), name: destName ?? '', stay: '1' } })} containerStyle={styles.actionButton} />
                 </View>
               ) : null}
             </View>
@@ -399,6 +413,8 @@ function StepText({ guidance, tx }: { guidance: string; tx: Tx }) {
 }
 
 const styles = StyleSheet.create({
+  mapWithLegend: { position: 'relative' },
+  mapLegend: { position: 'absolute', top: spacing[2], left: spacing[2], right: spacing[2] },
   topBar: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', marginBottom: spacing[3] },
   back: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card },
   pressed: { opacity: 0.72, transform: [{ scale: 0.96 }] },

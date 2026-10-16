@@ -299,7 +299,7 @@ function PlanConditions() {
             testID="plan-self-plan"
             variant="outline"
             accessibilityState={{ busy: selfPlanBusy }}
-            label={selfPlanBusy ? tx('만드는 중…', 'Building…') : tx('AI 없이 직접 짜기', 'Plan it myself (no AI)')}
+            label={selfPlanBusy ? tx('만드는 중…', 'Building…') : tx('스스로 일정 계획하기', 'Plan it myself')}
             disabled={submitting || selfPlanBusy || !readyToBuild}
             onPress={() => { completeStep(step + 1); void startSelfPlan(); }}
           />
