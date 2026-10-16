@@ -33,16 +33,20 @@ export const CATEGORY_OPTIONS: readonly PlanOption[] = [
   ['FESTIVAL_EVENT', '축제 & 행사', 'Festivals & events', '여행 날짜에 열리는 축제만', 'Only festivals on your travel dates'],
 ] as const;
 
-/** 여행 취향 카드의 사진 — 글자만 있던 카드가 안 읽혔다(2026-09-21 실기, S15P21E201-1442). 온보딩용으로 그려 둔 그림(assets/taste)의 480px 축소판. */
+/**
+ * 여행 취향 카드의 사진 — 글자만 있던 카드가 안 읽혔다(2026-09-21 실기, S15P21E201-1442).
+ * 🔴 2026-10-16 사용자 지시(S15P21E201-2061): AI 가 그린 그림 대신 카테고리가 잘 드러나는 «부산 대표 관광지 실제 사진»으로 바꿨다.
+ *    부산관광아카이브의 공공누리 제1유형 사진을 800px 로 줄였다(자르지 않았다). 화면에는 출처를 적지 않는다(사용자 지시) —
+ *    어디서 왔는지는 assets/taste/photo/README.md 에 사진마다 적어 두었다. 옛 그림(assets/taste/thumb)은 지우지 않았다.
+ */
 export const CATEGORY_IMAGES: Record<string, number> = {
-  SEA_BEACH: require('../../assets/taste/thumb/sea-beach.jpg'),
-  CITY: require('../../assets/taste/thumb/city.jpg'),
-  CAFE_HEALING: require('../../assets/taste/thumb/cafe.jpg'),
-  CULTURE_TEMPLE: require('../../assets/taste/thumb/culture.jpg'),
-  FOOD: require('../../assets/taste/thumb/food.jpg'),
-  NATURE_WALK: require('../../assets/taste/thumb/nature.jpg'),
-  // 저장소의 광안대교 야경(assets/home/gwangalli.png)을 같은 크기로 자른 것 — 부산불꽃축제·드론쇼가 열리는 자리다. 새 외부 사진이 아니다.
-  FESTIVAL_EVENT: require('../../assets/taste/thumb/festival.jpg'),
+  SEA_BEACH: require('../../assets/taste/photo/sea-beach.jpg'), // 해운대해수욕장 항공
+  CITY: require('../../assets/taste/photo/city.jpg'), // 용두산공원 꽃시계와 부산타워
+  CAFE_HEALING: require('../../assets/taste/photo/cafe.jpg'), // 흰여울문화마을 바다 옆 골목
+  CULTURE_TEMPLE: require('../../assets/taste/photo/culture.jpg'), // 해동용궁사 야경
+  FOOD: require('../../assets/taste/photo/food.jpg'), // 부산 어묵
+  NATURE_WALK: require('../../assets/taste/photo/nature.jpg'), // 오륙도 해맞이공원 수선화 길
+  FESTIVAL_EVENT: require('../../assets/taste/photo/festival.jpg'), // 부산바다축제 불꽃
 };
 
 export const ATMOSPHERE_OPTIONS: readonly PlanOption[] = [

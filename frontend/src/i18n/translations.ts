@@ -3434,6 +3434,11 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '자정을 넘겨서 이 시간으로는 바꿀 수 없어요.': { ja: '深夜0時を過ぎるため、この時間には変更できません。', zhHans: '会超过午夜，无法改成这个时间。', zhHant: '會超過午夜，無法改成這個時間。' , vi: 'Sẽ quá nửa đêm nên không thể đổi sang thời gian này.' },
   // ── 직접 짜기 · 참고 명소 (S15P21E201-2018 · 2019) ──────────
   'AI 없이 직접 짜기': { ja: 'AIなしで自分で組む', zhHans: '不用AI，自己安排', zhHant: '不用AI，自己安排', vi: 'Tự lên lịch, không dùng AI' },
+  '상관 없음': { ja: 'こだわりなし', zhHans: '都可以', zhHant: '都可以', vi: 'Không quan trọng' },
+  '도착지 근처 주차장 보기': { ja: '目的地近くの駐車場を見る', zhHans: '查看目的地附近停车场', zhHant: '查看目的地附近停車場', vi: 'Xem bãi đỗ xe gần điểm đến' },
+  '%s 근처 주차장 보기': { ja: '%s 近くの駐車場を見る', zhHans: '查看%s附近停车场', zhHant: '查看%s附近停車場', vi: 'Xem bãi đỗ xe gần %s' },
+  '🅿️ 근처 주차장 보기 ›': { ja: '🅿️ 近くの駐車場 ›', zhHans: '🅿️ 附近停车场 ›', zhHant: '🅿️ 附近停車場 ›', vi: '🅿️ Bãi đỗ xe gần đây ›' },
+  '스스로 일정 계획하기': { ja: '自分で旅程を計画する', zhHans: '自己规划行程', zhHant: '自己規劃行程', vi: 'Tự lên kế hoạch lịch trình' },
   '「넣기」를 누르면 %d일차 맨 끝에 들어가요.': { ja: '「追加」を押すと%d日目の最後に入ります。', zhHans: '点击「添加」即放到第%d天的最后。', zhHant: '點擊「新增」即放到第%d天的最後。', vi: 'Nhấn «Thêm» để đặt vào cuối ngày %d.' },
   '광안대교 야경이 보이는 해변': { ja: '広安大橋の夜景が見えるビーチ', zhHans: '可看广安大桥夜景的海滩', zhHant: '可看廣安大橋夜景的海灘', vi: 'Bãi biển ngắm cầu Gwangan về đêm' },
   '금정산 자락의 천년 고찰': { ja: '金井山のふもとにある千年の古刹', zhHans: '金井山脚下的千年古刹', zhHant: '金井山腳下的千年古剎', vi: 'Ngôi chùa nghìn năm dưới chân núi Geumjeong' },

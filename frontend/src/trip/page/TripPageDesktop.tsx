@@ -31,7 +31,7 @@ import { PLACE_CATEGORY_LABELS } from '@/discovery/placeCategoryLabels';
 import { RouteMap } from '@/map/RouteMap';
 import { BIG_MAP_CHIP_COVER, bigMapHeight } from '@/map/mapFocus';
 import { courseLetter } from '@/plan/CourseCard';
-import { stopClock, type DayStart, type ItineraryItemDto } from '@/plan/itinerary';
+import { isCarTrip, stopClock, type DayStart, type ItineraryItemDto } from '@/plan/itinerary';
 import { formatTravelLabel, totalTravelMinutes } from '@/plan/itinerarySummary';
 import { legRouteParams } from '@/trip/page/legRoute';
 import { LegRow } from '@/trip/page/LegRow';
@@ -309,6 +309,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
                     destName={stopNameForLanguage(selectedLeg.item.title, itemOtherName(selectedLeg.item, photos[selectedLeg.item.placeId], language), language)}
                     label={selectedLeg.label}
                     transit={typeof selectedLeg.item.travelFareKrw === 'number' && selectedLeg.item.travelFareKrw > 0}
+                    car={isCarTrip(itinerary?.value)}
                     route={selectedLeg.params}
                     now={false}
                     onOpen={() => router.push({ pathname: '/route-detail', params: selectedLeg.params })}
@@ -367,6 +368,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
                           destName={stopNameForLanguage(item.title, itemOtherName(item, photo, language), language)}
                           label={leg}
                           transit={typeof item.travelFareKrw === 'number' && item.travelFareKrw > 0}
+                    car={isCarTrip(itinerary?.value)}
                           route={legParams}
                           now={false}
                           onOpen={() => router.push({ pathname: '/route-detail', params: legParams })}

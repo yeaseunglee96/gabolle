@@ -13,7 +13,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { enterApp } from '@/auth/enterApp';
 import { useI18n } from '@/i18n';
 import { useLayout } from '@/layout/useLayout';
-import { FOODS } from '@/plan/foodConflicts';
+import { ANY_FOOD, ANY_FOOD_LABEL, FOODS, toggleFood } from '@/plan/foodConflicts';
 import {
   countTasteAnswers,
   getTasteProfile,
@@ -76,13 +76,13 @@ function FoodChips({ values, desktop, onChange }: { values: string[]; desktop: b
   const { tx } = useI18n();
   return <>
   <View style={styles.chips}>
-    {FOODS.map(([code, labelKo, labelEn]) => {
+    {[[ANY_FOOD, ...ANY_FOOD_LABEL] as const, ...FOODS].map(([code, labelKo, labelEn]) => {
       const selected = values.includes(code);
       return <Pressable
         key={code}
         accessibilityRole="checkbox"
         accessibilityState={{ checked: selected }}
-        onPress={() => onChange(selected ? values.filter((value) => value !== code) : [...values, code])}
+        onPress={() => onChange(toggleFood(values, code))}
         style={[styles.chip, selected && (desktop ? styles.chipSelectedDesktop : styles.chipSelected)]}
       >
         <Text weight="bold" color={selected ? (desktop ? color.action.secondary : color.text.onAction) : color.text.heading}>{tx(labelKo, labelEn)}</Text>

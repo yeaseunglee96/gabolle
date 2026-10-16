@@ -48,7 +48,7 @@ import { useLocationGate } from '@/personalization/useLocationGate';
 import type { ExcludeReason } from '@/components/ExcludeConfirmModal';
 import { ImpressionView, useImpressionTracker } from '@/analytics/impressions';
 import {
-  pollItineraryJob, recordItineraryItemActual, removeItineraryItem, setItineraryItemLocked,
+  isCarTrip, pollItineraryJob, recordItineraryItemActual, removeItineraryItem, setItineraryItemLocked,
   type DayStart, type ItineraryItemDto, type ItineraryPaceItemDto, stopClock,
 } from '@/plan/itinerary';
 import { formatTravelLabel, totalTravelMinutes } from '@/plan/itinerarySummary';
@@ -684,6 +684,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
                 <TimelineStop
                   key={item.id}
                   item={item}
+                  car={isCarTrip(itinerary?.value)}
                   startKind={startKind}
                   index={index}
                   last={index === items.length - 1}
@@ -1059,7 +1060,7 @@ function RiskStrip({ atRisk, known, estimated, nameOf, tx }: { atRisk: Itinerary
   );
 }
 
-function TimelineStop({ item, name, startKind, index, last, freeBefore, date, photo, step, aim = false, risky, pace, paceEstimated, expanded, canEdit, busy, excluding, onToggle, onLock, onArrive, onExclude, onOpenPlace, onOpenLeg, legRoute, legGuide = false, onLegGuideDone, accessToken, language, tx, locale }: {
+function TimelineStop({ item, car = false, name, startKind, index, last, freeBefore, date, photo, step, aim = false, risky, pace, paceEstimated, expanded, canEdit, busy, excluding, onToggle, onLock, onArrive, onExclude, onOpenPlace, onOpenLeg, legRoute, legGuide = false, onLegGuideDone, accessToken, language, tx, locale }: {
   item: ItineraryItemDto; /** 화면에 적을 장소 이름 — 영어면 로마자가 붙는다(S15P21E201-1735). */ name: string; startKind: DayStart['kind']; index: number; last: boolean; freeBefore: number | null; date: string | null; photo: PlacePhoto | null; step?: StepState;
   /** 지금 향하는 곳 — 빨간 고리와 「다음」 표. 한 날에 한 곳뿐이다. */ aim?: boolean; risky: boolean;
   pace?: ItineraryPaceItemDto; paceEstimated: boolean; expanded: boolean; canEdit: boolean; busy: boolean; excluding: boolean;
@@ -1068,6 +1069,7 @@ function TimelineStop({ item, name, startKind, index, last, freeBefore, date, ph
   /** 들어오는 구간을 경로 상세로 연다. 앞 곳이나 이 곳의 좌표를 모르면 null — 누를 수 없는 글자로 둔다(legRoute.ts). */
   onOpenLeg: (() => void) | null;
   /** 들어오는 구간의 좌표 — 펼친 이동 칸이 경로를 물을 때 쓴다(LegRow). */ legRoute: LegRouteParams | null;
+  /** 자동차 여행인가(isCarTrip) */ car?: boolean;
   /** 이 칸 위에 이동 칸 첫 안내를 띄운다(한 날에 한 칸) */ legGuide?: boolean; onLegGuideDone?: () => void;
   accessToken: string | null; language: LanguageCode; tx: Tx; locale: string;
 }) {
@@ -1120,6 +1122,7 @@ function TimelineStop({ item, name, startKind, index, last, freeBefore, date, ph
             destName={name}
             label={leg}
             transit={typeof item.travelFareKrw === 'number' && item.travelFareKrw > 0}
+            car={car}
             route={legRoute}
             now={aim}
             onOpen={onOpenLeg}

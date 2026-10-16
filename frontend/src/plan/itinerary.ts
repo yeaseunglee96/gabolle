@@ -155,7 +155,14 @@ export type ItineraryDto = {
    * 직접 짠 일정에는 고른 추천 코스가 없어서 여행 화면이 「코스 A 확정」·코스 바꾸기를 안 그린다. 옛 서버에는 칸이 없다(추천으로 본다).
    */
   origin?: 'SELF' | 'RECOMMENDATION' | null;
+  /** 여행이 고른 이동수단 — 자동차 ["PRIVATE_CAR"] · 대중교통 ["BUS","SUBWAY"] · 도보 ["WALK"] (서버 !2162). 옛 서버에는 칸이 없다. */
+  travelModes?: string[];
 };
+
+/** 자동차 여행인가 — 구간 줄에 「대중교통」 대신 「자동차」를 적고, 도착지 근처 주차장 안내를 보인다(S15P21E201-2061). */
+export function isCarTrip(itinerary: { travelModes?: string[] | null } | null | undefined): boolean {
+  return (itinerary?.travelModes ?? []).includes('PRIVATE_CAR');
+}
 
 export type ItineraryVersionEntryDto = {
   version: number;
