@@ -1,3 +1,5 @@
+import { pickLanguage } from '@/i18n/pick';
+
 import { flattenLocalFacets, localFacetLabel, localPlaceName } from '../localExplore';
 
 const entry = { featureKey: 'WALK', labelKo: '산책', placeCount: 3 };
@@ -27,6 +29,40 @@ it('🔴 일본어·중국어는 한국어 이름을 번역표에서 찾는다 �
   const ja = (ko: string, en: string) => (ko === '축제' ? '祭り' : en);
   expect(localFacetLabel(entry, 'ja', ja)).toBe('祭り');
   expect(localFacetLabel(entry, 'en', ja)).toBe('Festivals');
+});
+
+// 🔴 2026-10-16 웹 점검 — 베트남어 탐색 칩이 「Festivals … Restaurants, Cafes」로 영어였다(S15P21E201-2060).
+//    번역표에 베트남어가 다 있는데 localFacetLabel 이 일본어·중국어만 표로 보냈다. 갈래 열 개 × 여섯 언어를 실제 번역표로 본다.
+describe('갈래 이름은 여섯 언어 모두 번역표를 거친다', () => {
+  // 시험이 번역표를 직접 읽는다 — 가짜 표가 아니라 앱이 실제로 쓰는 표다(pickLanguage).
+  const KEYS: Array<[string, string, string]> = [
+    ['FESTIVAL', '축제', 'Festivals'], ['NIGHT_MARKET', '야시장', 'Night markets'], ['TRADITIONAL_MARKET', '전통시장', 'Traditional markets'],
+    ['ACTIVITY', '액티비티', 'Activities'], ['WALK', '산책', 'Walks'], ['NATURE', '자연', 'Nature'], ['NIGHT_VIEW', '야경', 'Night views'],
+    ['SOUVENIR_SHOP', '기념품샵', 'Souvenir shops'], ['LOCAL_RESTAURANT', '맛집', 'Restaurants'], ['LOCAL_CAFE', '카페', 'Cafes'],
+  ];
+  const VI: Record<string, string> = {
+    FESTIVAL: 'Lễ hội', NIGHT_MARKET: 'Chợ đêm', TRADITIONAL_MARKET: 'Chợ truyền thống', ACTIVITY: 'Hoạt động', WALK: 'Dạo bộ',
+    NATURE: 'Thiên nhiên', NIGHT_VIEW: 'Cảnh đêm', SOUVENIR_SHOP: 'Cửa hàng lưu niệm', LOCAL_RESTAURANT: 'Quán ngon', LOCAL_CAFE: 'Cà phê',
+  };
+
+  it.each(KEYS)('베트남어 %s 칩은 영어 「%s」 가 아니라 번역표의 베트남어다', (featureKey, labelKo, english) => {
+    const chip = { featureKey, labelKo, labelEn: null, placeCount: 1 };
+    const tx = (ko: string, en: string) => pickLanguage('vi', { ko, en });
+    expect(localFacetLabel(chip, 'vi', tx)).toBe(VI[featureKey]);
+    expect(localFacetLabel(chip, 'vi', tx)).not.toBe(english);
+  });
+
+  it.each(KEYS)('다른 다섯 언어 %s 칩도 그대로다 — ko 서버 이름, en 우리 이름표, ja·zh 번역표', (featureKey, labelKo, english) => {
+    const chip = { featureKey, labelKo, labelEn: null, placeCount: 1 };
+    const tx = (lang: 'ja' | 'zh-Hans' | 'zh-Hant') => (ko: string, en: string) => pickLanguage(lang, { ko, en });
+    expect(localFacetLabel(chip, 'ko')).toBe(labelKo);
+    expect(localFacetLabel(chip, 'en')).toBe(english);
+    for (const lang of ['ja', 'zh-Hans', 'zh-Hant'] as const) expect(localFacetLabel(chip, lang, tx(lang))).not.toBe(english);
+  });
+
+  it('tx 를 안 주면(번역표를 못 거치는 호출) 베트남어도 영어로 물러선다 — 한국어가 새지 않는다', () => {
+    expect(localFacetLabel({ featureKey: 'FESTIVAL', labelKo: '축제', labelEn: null, placeCount: 1 }, 'vi')).toBe('Festivals');
+  });
 });
 
 // 맛집·카페 갈래 (S15P21E201-2051 · S15P21E201-2059) — 여덟 갈래와 달리 서버에 자료가 있을 때만 오고, 이름은 서버가 한국어(「맛집」「카페」)만 준다.

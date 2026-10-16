@@ -39,8 +39,8 @@ export type LocalPickKey = 'LOCAL_RESTAURANT' | 'LOCAL_CAFE' | 'FESTIVAL' | 'TRA
 type Labels = Record<LanguageCode, string>;
 
 export const LOCAL_PICK_LABELS: Record<LocalPickKey, Labels> = {
-  // 맛집·카페 이름표는 로컬 탐색 화면의 갈래 칩과 «같은 말»이다 — 한국어·영어는 그 화면의 localFacetLabel 과, 일본어·중국어는 번역표
-  // (translations.ts)의 「맛집」「카페」와 같다. 베트남어도 번역표의 말을 쓴다(그 화면의 칩은 localFacetLabel 이 번역표를 안 찾아 아직 영어로 나온다).
+  // 맛집·카페 이름표는 로컬 탐색 화면의 갈래 칩과 «같은 말»이다 — 한국어·영어는 그 화면의 localFacetLabel 과, 일본어·중국어·베트남어는 번역표
+  // (translations.ts)의 「맛집」「카페」와 같다(베트남어 칩도 2026-10-16 부터 localFacetLabel 이 번역표를 찾는다, S15P21E201-2060).
   // 시험(homeCuration.test.ts)이 칩과 어긋나면 알린다.
   LOCAL_RESTAURANT: { ko: '맛집', en: 'Restaurants', ja: 'グルメ', 'zh-Hans': '美食', 'zh-Hant': '美食', vi: 'Quán ngon' },
   LOCAL_CAFE: { ko: '카페', en: 'Cafes', ja: 'カフェ', 'zh-Hans': '咖啡', 'zh-Hant': '咖啡', vi: 'Cà phê' },

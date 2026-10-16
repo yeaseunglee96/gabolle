@@ -47,11 +47,11 @@ describe('로컬 탐색 여덟 칸', () => {
     const chips: Array<[LocalPickKey, string]> = [['LOCAL_RESTAURANT', '맛집'], ['LOCAL_CAFE', '카페']];
     for (const [featureKey, labelKo] of chips) {
       const chip = { featureKey, labelKo, labelEn: null, placeCount: 1 }; // 서버는 갈래 이름을 한국어로만 준다
-      for (const lang of ['ko', 'en', 'ja', 'zh-Hans', 'zh-Hant'] as const) {
+      for (const lang of ['ko', 'en', 'ja', 'zh-Hans', 'zh-Hant', 'vi'] as const) {
         const tx = (ko: string, en: string) => pickLanguage(lang, { ko, en });
         expect(pickLabel(featureKey, lang)).toBe(localFacetLabel(chip, lang, tx));
       }
-      // 베트남어는 번역표의 말이다 — 칩 쪽은 localFacetLabel 이 일본어·중국어만 번역표로 보내서 아직 영어로 나온다(홈이 아니라 칩의 빈틈).
+      // 🔴 베트남어도 번역표의 말이다 — 전에는 칩 쪽이 localFacetLabel 이 일본어·중국어만 번역표로 보내서 영어로 나왔다(S15P21E201-2060).
       expect(pickLabel(featureKey, 'vi')).toBe(getTranslation(labelKo, 'vi'));
     }
   });
