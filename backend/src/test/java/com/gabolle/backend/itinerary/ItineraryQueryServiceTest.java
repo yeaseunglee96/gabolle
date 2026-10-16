@@ -417,6 +417,47 @@ class ItineraryQueryServiceTest {
 		assertThat(this.service.getDetail(itineraryId, this.requesterId).partySize()).isEqualTo(3);
 	}
 
+	/** 이동수단을 지정해 여행을 만든다 — travelModes 말고는 {@link #threeDayTrip()} 과 같다. */
+	private Trip tripWithModes(String... modes) {
+		return new Trip(this.tripId, this.requesterId, LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 12),
+				null, null, null, 1, null, "Asia/Seoul", modes, null, null, Instant.now());
+	}
+
+	/**
+	 * S15P21E201-2061 — 자동차로 만든 여행의 구간이 전부 「대중교통 · 이동 5분 · 4,800원」으로 보였다. 구간 요금은 대중교통
+	 * (교통카드)에도 자동차(택시비 + 통행료)에도 채워져서 요금만으로는 수단을 못 가르는데, 일정 응답에 여행의 수단이 없어서
+	 * 화면이 요금만 보고 「대중교통」이라 적었다. 응답이 여행이 고른 수단을 그대로 싣는다.
+	 */
+	@Test
+	@DisplayName("🔴 S15P21E201-2061 — 일정 응답이 여행이 고른 이동수단을 그대로 싣는다 — 자동차는 PRIVATE_CAR")
+	void detailCarriesTravelModes() {
+		stubTripMembership(tripWithModes("PRIVATE_CAR"));
+		String itineraryId = seedItinerary(1, List.of());
+
+		assertThat(this.service.getDetail(itineraryId, this.requesterId).travelModes()).containsExactly("PRIVATE_CAR");
+	}
+
+	@Test
+	@DisplayName("S15P21E201-2061 — 대중교통은 BUS·SUBWAY, 도보는 WALK 로 — 고른 순서를 지킨다")
+	void detailCarriesTransitAndWalkModes() {
+		stubTripMembership(tripWithModes("BUS", "SUBWAY"));
+		String transitId = seedItinerary(1, List.of());
+		assertThat(this.service.getDetail(transitId, this.requesterId).travelModes()).containsExactly("BUS", "SUBWAY");
+
+		stubTripMembership(tripWithModes("WALK"));
+		String walkId = seedItinerary(1, List.of());
+		assertThat(this.service.getDetail(walkId, this.requesterId).travelModes()).containsExactly("WALK");
+	}
+
+	@Test
+	@DisplayName("🔴 S15P21E201-2061 — 이동수단을 안 고른 여행은 null 이 아니라 빈 배열 — 화면이 수단 이름을 지어 붙이지 않는다")
+	void detailTravelModesIsEmptyNotNullWhenNotChosen() {
+		stubTripMembership(threeDayTrip());
+		String itineraryId = seedItinerary(1, List.of());
+
+		assertThat(this.service.getDetail(itineraryId, this.requesterId).travelModes()).isNotNull().isEmpty();
+	}
+
 	// ── 비용 × 인원 (S15P21E201-1579) ─────────────────────────────────────
 
 	/** 대표 메뉴가 한 그릇 15,000원인 장소 하나를 첫날에 둔 일정을, 인원만 바꿔 연다. */

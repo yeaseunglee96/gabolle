@@ -80,7 +80,35 @@ public record ItineraryDetailResponse(
 		 * 화면은 {@code SELF} 일 때 「코스 A 확정」·코스 바꾸기를 안 그린다 — 고른 추천 코스가 없다.
 		 * 저장 전 미리보기(2안·3안)는 추천이므로 {@code RECOMMENDATION}.
 		 */
-		String origin) {
+		String origin,
+
+		/**
+		 * 이 여행이 고른 이동수단 — {@code trip.travel_modes} 그대로({@code WALK} · {@code BUS} · {@code SUBWAY} ·
+		 * {@code TAXI} · {@code PRIVATE_CAR} · …). 화면이 구간 줄에 「대중교통」을 붙일지, 길 안내를 어느 수단 탭으로 열지,
+		 * 자동차 여행에 주차장 안내를 보일지를 이것으로 정한다(S15P21E201-2061).
+		 *
+		 * <p>🔴 <b>빈 배열은 「안 골랐다·모른다」다.</b> 이동수단을 안 고른 옛 여행이 그렇다 — 화면은 이때 수단 이름을 지어
+		 * 붙이지 않는다. 구간의 {@code travelFareKrw} 만으로는 수단을 가를 수 없다: 요금은 대중교통(교통카드 요금)에도,
+		 * 자동차(택시비 + 통행료)에도 채워지는데, 화면이 요금만 보고 「대중교통」이라 적어 자동차 여행의 구간이 전부
+		 * 「대중교통 · 이동 5분 · 4,800원」으로 보였다.
+		 */
+		List<String> travelModes) {
+
+	/** 수단을 모르면 {@code null} 이 아니라 빈 배열이다 — 화면이 두 갈래를 따로 검사하지 않게. */
+	public ItineraryDetailResponse {
+		travelModes = (travelModes == null) ? List.of() : List.copyOf(travelModes);
+	}
+
+	/** 이동수단 칸 이전의 생성자 — 수단을 모른다(빈 배열)고 본다. */
+	public ItineraryDetailResponse(String id, String title, int version, List<Day> days,
+			Integer totalEstimatedCostKrw, Integer totalWalkingMeters, FallbackMode fallbackMode, String myRole,
+			boolean canEdit, List<String> warningCodes, String tripId, int accessibilityUnverifiedCount,
+			int partySize, Integer budgetCapKrw, boolean stepFree, boolean slopeAvoid, boolean shadePrefer,
+			String origin) {
+		this(id, title, version, days, totalEstimatedCostKrw, totalWalkingMeters, fallbackMode, myRole, canEdit,
+				warningCodes, tripId, accessibilityUnverifiedCount, partySize, budgetCapKrw, stepFree, slopeAvoid,
+				shadePrefer, origin, List.of());
+	}
 
 	/** 직접 짜기 칸 이전의 생성자 — 추천이 만든 일정으로 본다. */
 	public ItineraryDetailResponse(String id, String title, int version, List<Day> days,
