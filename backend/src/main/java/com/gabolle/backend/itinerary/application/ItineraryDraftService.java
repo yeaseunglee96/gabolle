@@ -19,6 +19,8 @@ import java.util.OptionalInt;
 import java.util.Set;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -74,6 +76,8 @@ import com.gabolle.backend.trip.domain.WalkOnlyFirstDay;
 @Service
 @Profile({ "db", "dev" })
 public class ItineraryDraftService implements ItineraryDraftPort {
+
+    private static final Logger log = LoggerFactory.getLogger(ItineraryDraftService.class);
 
     private final TripRepository tripRepository;
 
@@ -288,6 +292,8 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                 .filter((p) -> !eventDays.containsKey(p.placeId()) || !eventDays.get(p.placeId()).isEmpty())
                 .toList()));
         BudgetCap cap = budgetCapOf(trip, places);
+        // 고른 음식 취향이 일정에 최소 하나는 들어가게 한다(S15P21E201-2061) — 어느 음식을 골랐고 후보가 어느 음식인가.
+        FoodPreferencePicks.Picks foodPicks = foodPicksOf(trip, places);
         // 걷기만 고른 여행이면 첫날은 출발지에서 걸어서 30분 안(S15P21E201-1634). 아니면 null.
         double[] firstDayOrigin = WalkOnlyFirstDay.applies(trip)
                 ? new double[] { trip.originLat(), trip.originLng() } : null;
@@ -311,7 +317,7 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         }
         Set<UUID> nightFriendly = eveningDay[0] ? nightFriendly(places) : Set.of();
         Distribution distribution = distributeByDay(places, days, cap, mealsByDay, itemsByDay, eveningDay,
-                nightFriendly, eventDays, firstDayOrigin);
+                nightFriendly, eventDays, firstDayOrigin, foodPicks);
         List<List<ItineraryDraftCommand.PlannedPlace>> byDay = distribution.byDay();
         SpareCandidates spare = new SpareCandidates(places, byDay, cap, coordinatesOf(places), eventDays,
                 firstDayOrigin, eveningDay, nightFriendly);
@@ -345,6 +351,10 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             }
             placeIdsByDay.add(placeIdsToday);
         }
+
+        // 고른 음식 취향이 일정에 못 들어갔으면(앉힌 날 그 집이 닫혀 칸을 다른 곳이 가져간 경우 등) 열려 있는 그 음식 후보로
+        // 같은 종류 칸의 한 곳을 바꿔 넣는다 — 구간을 만들기 전이라 바꾼 곳의 구간도 함께 잰다(S15P21E201-2061).
+        repairFoodPicks(foodPicks, places, cap, placedByDay, placeIdsByDay, trip, verdicts);
 
         List<ItineraryDraft.DraftLeg> legs = this.legPlanner.buildLegs(trip, placeIdsByDay);
 
@@ -380,6 +390,9 @@ public class ItineraryDraftService implements ItineraryDraftPort {
                         slot.dataStatus(), placed.place().reasonCodes(), placed.warningCodes()));
             }
         }
+
+        // 고른 음식 취향이 끝내 일정에 못 들어갔으면 그 사실을 로그에 남긴다 — 후보가 없어서인지, 있는데 자리가 없어서인지.
+        logUncoveredFood(trip, foodPicks, places, items);
 
         // 경고는 서로 독립이라 같이 나올 수 있다 — 하나를 고르지 않는다.
         List<String> draftWarnings = new ArrayList<>(3);
@@ -564,7 +577,8 @@ public class ItineraryDraftService implements ItineraryDraftPort {
 
     private Distribution distributeByDay(
             List<ItineraryDraftCommand.PlannedPlace> places, int days, BudgetCap cap, int[] mealsPerDay, int[] itemsPerDay,
-            boolean[] eveningDay, Set<UUID> nightFriendly, Map<UUID, Set<Integer>> eventDays, double[] firstDayOrigin) {
+            boolean[] eveningDay, Set<UUID> nightFriendly, Map<UUID, Set<Integer>> eventDays, double[] firstDayOrigin,
+            FoodPreferencePicks.Picks foodPicks) {
 
         List<List<ItineraryDraftCommand.PlannedPlace>> byDay = new ArrayList<>(days);
         for (int i = 0; i < days; i++) {
@@ -585,6 +599,12 @@ public class ItineraryDraftService implements ItineraryDraftPort {
             dayAnchor[0] = firstDayOrigin; // 걷기만 고른 여행의 첫날은 출발지가 중심이다(S15P21E201-1634)
         }
 
+        // 🔴 S15P21E201-2061 — 고른 음식 취향은 순위 차례를 기다리지 않고 **먼저** 앉힌다. 밥집 자리는 하루 끼니 수(보통 둘)뿐이라
+        //    순위가 앞선 다른 밥집이 자리를 다 차지하면, 돼지국밥을 골랐어도 일정에 돼지국밥집이 하나도 없었다. 아래 훑기는
+        //    남은 자리를 순위대로 메운다 — 이미 앉힌 곳은 건너뛴다.
+        Set<UUID> reserved = seatChosenCuisines(places, foodPicks, byDay, foodPerDay, cafePerDay, cap, mealsPerDay,
+                itemsPerDay, eveningDay, nightFriendly, coords, dayAnchor, eventDays, firstDayOrigin);
+
         // 🔴 S15P21E201-1494 — **두 번 훑는다.** 한 번만 훑으면서 순위대로 무조건 앉히면,
         //    앞쪽 후보가 자리를 다 채워서 **뒤에 있는 「지역이 맞는 후보」의 차례가 안 온다.**
         //
@@ -598,6 +618,9 @@ public class ItineraryDraftService implements ItineraryDraftPort {
         //    값을 모르는 곳)가 맡는다. 두 훑기 모두에서 먼저 본다 — 두 번째 훑기가 순위대로 메우며 비싼 곳을 되살리면 안 된다.
         List<ItineraryDraftCommand.PlannedPlace> deferred = new ArrayList<>();
         for (ItineraryDraftCommand.PlannedPlace place : places) {
+            if (reserved.contains(place.placeId())) {
+                continue;
+            }
             if (cap != null && cap.wouldExceed(place)) {
                 continue;
             }
@@ -661,6 +684,194 @@ public class ItineraryDraftService implements ItineraryDraftPort {
     /** 날짜별 배분 결과와, 명소가 모자라 빈 자리가 남았는지, 하루에 먼 곳이 섞였는지. */
     private record Distribution(List<List<ItineraryDraftCommand.PlannedPlace>> byDay, boolean sightSlotUnfilled,
             boolean regionMixed) { }
+
+    // ── 고른 음식 취향이 일정에 최소 하나는 들어가게 (S15P21E201-2061) ──────────────────────────────
+
+    /**
+     * 사용자가 고른 음식과, 후보가 어느 음식인가. 여행의 가장 최신 선호 판에서 읽는다(일정 응답의 경사·그늘 조건과 같은 규칙).
+     * 음식을 안 골랐거나 장소 표식을 읽는 문이 없는 컨텍스트(시험용 조립)면 {@link FoodPreferencePicks.Picks#NONE} — 전과 똑같이 돈다.
+     */
+    private FoodPreferencePicks.Picks foodPicksOf(Trip trip, List<ItineraryDraftCommand.PlannedPlace> places) {
+        if (this.placeFeatures == null || places.isEmpty() || trip.tripId() == null) {
+            return FoodPreferencePicks.Picks.NONE;
+        }
+        List<String> chosen = FoodPreferencePicks.chosenOf(this.tripRepository.findLatestSnapshot(trip.tripId()).orElse(null));
+        if (chosen.isEmpty()) {
+            return FoodPreferencePicks.Picks.NONE;
+        }
+        List<UUID> ids = new ArrayList<>(places.size());
+        for (ItineraryDraftCommand.PlannedPlace place : places) {
+            ids.add(place.placeId());
+        }
+        return new FoodPreferencePicks.Picks(chosen, FoodPreferencePicks.cuisinesOf(this.placeFeatures.findByPlaceIdIn(ids)));
+    }
+
+    /**
+     * 고른 음식마다 그 음식 후보 하나를 날에 먼저 앉힌다. 후보는 들어온 차례(순위) 그대로 보고, 첫 번째로 자리가 나는 곳이 앉는다.
+     *
+     * <p>지역이 맞는 날을 먼저 찾고({@code regionOnly}), 없으면 지역을 안 따진다 — 고른 음식을 지역 때문에 빼지 않는다. 예산 상한을 넘는
+     * 곳은 앉히지 않는다(예산은 사용자가 정한 선이다). 앞의 음식을 앉히며 같이 앉은 곳이 이 음식이기도 하면(국밥집 겸 밀면집) 이미 덮인 것이다.
+     * 자리가 모자라 다 못 앉히면(음식 다섯을 골랐는데 끼니가 넷) 앞에서 고른 차례대로 앉는다.
+     *
+     * @return 앉힌 곳 — 부르는 쪽이 순위 훑기에서 건너뛴다
+     */
+    private Set<UUID> seatChosenCuisines(List<ItineraryDraftCommand.PlannedPlace> places, FoodPreferencePicks.Picks picks,
+            List<List<ItineraryDraftCommand.PlannedPlace>> byDay, int[] foodPerDay, int[] cafePerDay, BudgetCap cap,
+            int[] mealsPerDay, int[] itemsPerDay, boolean[] eveningDay, Set<UUID> nightFriendly,
+            Map<UUID, double[]> coords, double[][] dayAnchor, Map<UUID, Set<Integer>> eventDays, double[] firstDayOrigin) {
+
+        Set<UUID> seated = new HashSet<>();
+        if (picks.none()) {
+            return seated;
+        }
+        Map<String, List<ItineraryDraftCommand.PlannedPlace>> byCuisine = FoodPreferencePicks.candidatesByCuisine(picks, places);
+        for (String cuisine : picks.chosen()) {
+            List<ItineraryDraftCommand.PlannedPlace> candidates = byCuisine.getOrDefault(cuisine, List.of());
+            if (candidates.isEmpty() || candidates.stream().anyMatch((c) -> seated.contains(c.placeId()))) {
+                continue;
+            }
+            boolean done = false;
+            for (boolean regionOnly : new boolean[] { true, false }) {
+                for (ItineraryDraftCommand.PlannedPlace place : candidates) {
+                    if (cap != null && cap.wouldExceed(place)) {
+                        continue;
+                    }
+                    if (seat(byDay, foodPerDay, cafePerDay, true, place, mealsPerDay, itemsPerDay, eveningDay, nightFriendly,
+                            coords, dayAnchor, regionOnly, eventDays.get(place.placeId()), firstDayOrigin)) {
+                        if (cap != null) {
+                            cap.take(place);
+                        }
+                        seated.add(place.placeId());
+                        done = true;
+                        break;
+                    }
+                }
+                if (done) {
+                    break;
+                }
+            }
+        }
+        return seated;
+    }
+
+    /**
+     * 고른 음식이 일정에 못 들어갔으면 열려 있는 그 음식 후보로 «같은 종류 칸의 한 곳» 을 바꿔 넣는다.
+     *
+     * <p>{@link #distributeByDay} 가 그 음식 후보를 먼저 앉히지만, 앉은 날 그 집이 쉬는 날이면 칸에 앉히는 단계({@link #placeIntoSlots})가
+     * 영업하는 다른 곳으로 칸을 채우며 그 집을 밀어낸다. 그때 여기서 영업시간이 맞는 다른 후보를 찾아 바꾼다.
+     *
+     * <p>바꿀 칸의 조건: 같은 종류(밥집은 밥집, 카페는 카페)이고, 꼭 갈 곳이 아니고, 빼도 이미 덮은 다른 고른 음식이 안 줄어드는 곳.
+     * 그중 순위가 가장 낮은 곳의 칸을 쓴다. 바꿀 후보도 칸도 없으면 그대로 둔다 — 로그는 {@link #logUncoveredFood} 가 남긴다.
+     */
+    private void repairFoodPicks(FoodPreferencePicks.Picks picks, List<ItineraryDraftCommand.PlannedPlace> places, BudgetCap cap,
+            List<List<Placed>> placedByDay, List<List<UUID>> placeIdsByDay, Trip trip, ViolationMemo verdicts) {
+
+        if (picks.none()) {
+            return;
+        }
+        Map<String, List<ItineraryDraftCommand.PlannedPlace>> byCuisine = FoodPreferencePicks.candidatesByCuisine(picks, places);
+        for (String cuisine : picks.chosen()) {
+            Set<UUID> placedIds = placedIdsOf(placedByDay);
+            Set<String> before = FoodPreferencePicks.covered(picks, placedIds);
+            if (before.contains(cuisine)) {
+                continue;
+            }
+            for (ItineraryDraftCommand.PlannedPlace candidate : byCuisine.getOrDefault(cuisine, List.of())) {
+                if (placedIds.contains(candidate.placeId()) || (cap != null && cap.wouldExceed(candidate))) {
+                    continue;
+                }
+                int bestDay = -1;
+                int bestSlot = -1;
+                int bestRank = Integer.MIN_VALUE;
+                for (int day = 0; day < placedByDay.size(); day++) {
+                    List<Placed> today = placedByDay.get(day);
+                    LocalDate visitDate = trip.startDate().plusDays(day);
+                    for (int slot = 0; slot < today.size(); slot++) {
+                        Placed out = today.get(slot);
+                        ItineraryDraftCommand.PlannedPlace outPlace = out.place();
+                        if (isFood(outPlace) != isFood(candidate) || isCafe(outPlace) != isCafe(candidate)
+                                || isMustVisit(outPlace) || outPlace.rank() < bestRank) {
+                            continue;
+                        }
+                        // 빼도 이미 덮은 음식이 줄지 않고, 이 음식이 새로 덮여야 한다.
+                        Set<UUID> after = new HashSet<>(placedIds);
+                        after.remove(outPlace.placeId());
+                        after.add(candidate.placeId());
+                        Set<String> covered = FoodPreferencePicks.covered(picks, after);
+                        if (!covered.containsAll(before) || !covered.contains(cuisine)) {
+                            continue;
+                        }
+                        Slot where = out.slot();
+                        OffsetDateTime at = (where.start() == null) ? null
+                                : visitDate.atTime(where.start()).atZone(ZONE).toOffsetDateTime();
+                        if (at != null && verdicts.at(candidate.placeId(), at) != null) {
+                            continue; // 그 시각에 닫힌 곳은 넣지 않는다
+                        }
+                        bestDay = day;
+                        bestSlot = slot;
+                        bestRank = outPlace.rank();
+                    }
+                }
+                if (bestDay >= 0) {
+                    Placed out = placedByDay.get(bestDay).get(bestSlot);
+                    List<Placed> today = new ArrayList<>(placedByDay.get(bestDay));
+                    today.set(bestSlot, new Placed(candidate, out.slot(), candidate.warningCodes()));
+                    placedByDay.set(bestDay, today);
+                    placeIdsByDay.get(bestDay).set(bestSlot, candidate.placeId());
+                    if (cap != null) {
+                        cap.take(candidate);
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    private static Set<UUID> placedIdsOf(List<List<Placed>> placedByDay) {
+        Set<UUID> ids = new HashSet<>();
+        for (List<Placed> day : placedByDay) {
+            for (Placed placed : day) {
+                ids.add(placed.place().placeId());
+            }
+        }
+        return ids;
+    }
+
+    private static boolean isMustVisit(ItineraryDraftCommand.PlannedPlace place) {
+        return place.reasonCodes() != null && place.reasonCodes().contains(SeedBoost.REASON_CODE_MUST_VISIT);
+    }
+
+    /**
+     * 고른 음식이 끝내 일정에 못 들어갔으면 로그에 남긴다 — 후보가 하나도 없어서인지(상가 자료에 표식이 없는 시장 먹거리처럼), 후보는
+     * 있는데 자리·영업시간·예산 때문인지. 일정은 그대로 나간다(고른 음식 하나 때문에 여행을 못 만들지 않는다).
+     */
+    private void logUncoveredFood(Trip trip, FoodPreferencePicks.Picks picks, List<ItineraryDraftCommand.PlannedPlace> places,
+            List<ItineraryDraft.DraftItem> items) {
+
+        if (picks.none()) {
+            return;
+        }
+        Set<UUID> placed = new HashSet<>();
+        for (ItineraryDraft.DraftItem item : items) {
+            placed.add(item.placeId());
+        }
+        Set<String> covered = FoodPreferencePicks.covered(picks, placed);
+        Map<String, List<ItineraryDraftCommand.PlannedPlace>> byCuisine = FoodPreferencePicks.candidatesByCuisine(picks, places);
+        for (String cuisine : picks.chosen()) {
+            if (covered.contains(cuisine)) {
+                continue;
+            }
+            int candidates = byCuisine.getOrDefault(cuisine, List.of()).size();
+            if (candidates == 0) {
+                log.warn("고른 음식 취향 {} 에 맞는 후보가 하나도 없어 일정에 못 넣고 넘어간다 — tripId={}, 후보 {}곳 가운데 그 음식 표식이 붙은 곳이 없다",
+                        cuisine, trip.tripId(), places.size());
+            }
+            else {
+                log.warn("고른 음식 취향 {} 의 후보가 {}곳 있었는데 자리(끼니 수·영업시간·예산)가 없어 일정에 못 넣었다 — tripId={}",
+                        cuisine, candidates, trip.tripId());
+            }
+        }
+    }
 
     /**
      * 고정된 식사 시각대 — 이 시간에 사람은 밥을 먹는다.

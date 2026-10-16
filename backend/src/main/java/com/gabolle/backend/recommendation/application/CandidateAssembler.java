@@ -2,12 +2,14 @@ package com.gabolle.backend.recommendation.application;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -17,6 +19,7 @@ import com.gabolle.backend.common.json.JsonPayloads;
 import com.gabolle.backend.common.privacy.SensitivePayloadGuard;
 import com.gabolle.backend.recommendation.adapter.EngineCandidate;
 import com.gabolle.backend.recommendation.adapter.EngineCandidateBatch;
+import com.gabolle.backend.recommendation.adapter.SeedBoost;
 import com.gabolle.backend.recommendation.domain.CandidateStage;
 import com.gabolle.backend.recommendation.domain.ConstraintSeverity;
 import com.gabolle.backend.recommendation.domain.ConstraintVerdict;
@@ -102,7 +105,8 @@ public class CandidateAssembler {
 		// final_score 는 여전히 preRankScore 그대로이고 바뀐 것은 순서뿐이다. 벌점을 점수에
 		// 반영하면 "취향에 얼마나 맞는가" 와 "고르게 만들려고 깎았는가" 가 한 숫자에 섞인다.
 		DiversityReranker.Reranked reranked = this.reranker.rerank(rankable);
-		List<EngineCandidate> ordered = reranked.ordered();
+		// 고른 음식 취향마다 상위(반환 창)에 그 음식 후보가 하나는 있게 한다 — 일정 조립이 그 후보를 앉힐 수 있으려면 창 안에 있어야 한다.
+		List<EngineCandidate> ordered = withCuisineCoverage(reranked.ordered(), topK);
 
 		// 반환될 것을 먼저 정해야 대조 기여도의 기준선을 잴 수 있다 — 그 기준선이 이 결과
 		// 안에서의 평균이라, 반환되지 않는 후보까지 넣으면 보지도 않은 장소가 평균을 끈다.
@@ -150,6 +154,93 @@ public class CandidateAssembler {
 
 		return new CandidateAssembly(List.copyOf(rows), List.copyOf(returnedItems),
 				generated.size(), rankable.size(), returnedCount, metrics);
+	}
+
+	/**
+	 * 고른 음식 취향마다 <b>반환 창(상위 {@code topK})</b> 안에 그 음식 후보가 하나는 들어가게 한다 — S15P21E201-2061.
+	 *
+	 * <p>🔴 <b>왜.</b> 일정 조립은 이 창 안의 후보로만 날과 끼니 칸을 채운다. 돼지국밥을 골랐는데 돼지국밥 후보가 전부 창 밖(순위
+	 * {@code topK} 보다 아래)이면, 조립이 아무리 애써도 일정에 돼지국밥집을 넣을 수 없다. 다양성 재정렬이 같은 음식의 겹침을 뒤로
+	 * 미는 일이 겹치면 더 그렇다.
+	 *
+	 * <p>무엇을 하나: 창 안에 없는 고른 음식마다, 창 밖에서 순위가 가장 높은 그 음식 후보를 창 안의 한 자리와 맞바꾼다. 맞바꿀 자리는
+	 * 창 안에서 <b>순위가 가장 낮은</b>, 고른 음식을 덮지 않고, 꼭 갈 곳({@value SeedBoost#REASON_CODE_MUST_VISIT})이 아니고, 갈래가 같은(밥집은
+	 * 밥집) 후보다 — 날의 구성(끼니·명소)이 안 바뀐다. 그런 자리가 없으면 그대로 둔다(일정 쪽이 로그를 남긴다).
+	 *
+	 * <p>어느 음식을 골랐는지는 후보의 {@code cuisine} 점수 항에 남은 {@code matched}(고른 음식 중 그 후보가 가진 것)로 안다 — 안 골랐으면
+	 * 어느 후보에도 없어 이 함수는 아무것도 안 한다. 조건을 통과한 후보({@code ordered} 는 순위 매길 수 있는 것만)에서만 고르므로 알레르기·
+	 * 식단·이동 조건을 어긴 곳은 올라오지 않는다.
+	 */
+	static List<EngineCandidate> withCuisineCoverage(List<EngineCandidate> ordered, int topK) {
+		if (topK <= 0 || ordered.size() <= topK) {
+			return ordered; // 창이 곧 전부다 — 밖에 올릴 후보가 없다
+		}
+		Set<String> chosen = new LinkedHashSet<>();
+		for (EngineCandidate candidate : ordered) {
+			chosen.addAll(matchedCuisines(candidate));
+		}
+		if (chosen.isEmpty()) {
+			return ordered;
+		}
+		List<EngineCandidate> result = new ArrayList<>(ordered);
+		Set<String> covered = new HashSet<>();
+		for (int i = 0; i < topK; i++) {
+			covered.addAll(matchedCuisines(result.get(i)));
+		}
+		for (String cuisine : chosen) {
+			if (covered.contains(cuisine)) {
+				continue;
+			}
+			int in = -1;
+			for (int i = topK; i < result.size(); i++) {
+				if (matchedCuisines(result.get(i)).contains(cuisine)) {
+					in = i;
+					break;
+				}
+			}
+			if (in < 0) {
+				continue;
+			}
+			EngineCandidate promoted = result.get(in);
+			String category = DiversityKeys.categoryOf(promoted);
+			int out = -1;
+			for (int i = topK - 1; i >= 0; i--) {
+				EngineCandidate victim = result.get(i);
+				if (matchedCuisines(victim).isEmpty() && !isMustVisit(victim)
+						&& Objects.equals(DiversityKeys.categoryOf(victim), category)) {
+					out = i;
+					break;
+				}
+			}
+			if (out < 0) {
+				continue;
+			}
+			// 자리를 맞바꾼다 — 밀려난 후보는 올라온 후보가 있던 창 밖 자리로 간다(순위표에는 그대로 남는다).
+			EngineCandidate demoted = result.get(out);
+			result.set(out, promoted);
+			result.set(in, demoted);
+			covered.addAll(matchedCuisines(promoted));
+		}
+		return result;
+	}
+
+	/** 이 후보가 가진, 사용자가 고른 음식들 — 채점기가 {@code cuisine} 항에 남긴 {@code matched}. 안 골랐으면 빈 집합. */
+	private static Set<String> matchedCuisines(EngineCandidate candidate) {
+		Object component = candidate.scoreComponents() == null ? null : candidate.scoreComponents().get("cuisine");
+		if (!(component instanceof Map<?, ?> detail) || !(detail.get("matched") instanceof Collection<?> codes)) {
+			return Set.of();
+		}
+		Set<String> out = new LinkedHashSet<>();
+		for (Object code : codes) {
+			if (code != null && !code.toString().isBlank()) {
+				out.add(code.toString());
+			}
+		}
+		return out;
+	}
+
+	private static boolean isMustVisit(EngineCandidate candidate) {
+		return candidate.reasonCodes().contains(SeedBoost.REASON_CODE_MUST_VISIT);
 	}
 
 	/**
