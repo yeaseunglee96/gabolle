@@ -24,7 +24,7 @@ import { PhotoSubjectBadge } from '@/components/PhotoSubjectBadge';
 import { color, gutter, radius, spacing } from '@/design/tokens';
 import { flattenLocalFacets, getFacets, getNearbyPlaces, localFacetLabel, localPlaceName, type FacetsLoadResult, type LocalFacetEntry, type NearbyPlacesLoadResult } from '@/discovery/localExplore';
 import { getAllLocalPlaces, getNearbyLocalPlaces, isLocalPlaces, localPlacesLabel, withLocalPlacesFirst } from '@/discovery/localPlaces';
-import { getPlacesByFacet, photoLabels, type PhotoSubject, type PlaceSearchItem } from '@/discovery/places';
+import { getPlacesByFacetPage, photoLabels, type PhotoSubject, type PlaceSearchItem } from '@/discovery/places';
 import { useI18n } from '@/i18n';
 import { romanizeKorean } from '@/discovery/romanize';
 import { addressForLanguage } from '@/discovery/localAddress';
@@ -316,6 +316,13 @@ function LocalBranchList({ facet, groupFacets, scope, coords, canAskAgain, onRet
   const [allItems, setAllItems] = useState<PlaceSearchItem[] | null>(null);
   const [allError, setAllError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  // 🔴 부산 전체는 20곳씩 끊어 받는다 — 서버가 준 커서로 «더 보기»를 이어 간다(S15P21E201-2060). 전에는 첫 20곳만 보였다:
+  //    2026-10-16 웹 점검에서 축제 76 · 전통시장 33 · 액티비티 33 · 자연 27 이 모두 20장에서 끊겼다. null 이면 더 없다.
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [moreFailed, setMoreFailed] = useState(false);
+  // 갈래·범위가 바뀌면 이어 받던 요청은 낡은 것이다 — 그 답이 새 목록 뒤에 붙지 않게 «몇 번째 목록인가»를 들고 있는다.
+  const listGeneration = useRef(0);
 
   // 위치를 모르면 부산 중심으로 찾는다 — S15P21E201-982.
   const center = scope === 'nearby' && coords ? { lat: coords.latitude, lng: coords.longitude } : BUSAN_CENTER;
@@ -328,14 +335,19 @@ function LocalBranchList({ facet, groupFacets, scope, coords, canAskAgain, onRet
   useEffect(() => {
     let active = true;
     const controller = new AbortController();
+    listGeneration.current += 1;
     setLoading(true);
+    setNextCursor(null);
+    setMoreFailed(false);
+    setLoadingMore(false);
     (async () => {
       if (scope === 'all') {
         try {
-          const items = isLocalPlaces(facet)
-            ? await getAllLocalPlaces(groupFacets, controller.signal)
-            : await getPlacesByFacet(facet.placeFeatureType, facet.featureKey, 20, controller.signal);
-          if (active) { setAllItems(items); setAllError(null); setLoading(false); }
+          // 묶음(「로컬 장소」)은 갈래마다 몇 곳씩 섞은 유한한 목록이라 이어 받을 쪽이 없다.
+          const page = isLocalPlaces(facet)
+            ? { items: await getAllLocalPlaces(groupFacets, controller.signal), nextCursor: null }
+            : await getPlacesByFacetPage(facet.placeFeatureType, facet.featureKey, 20, null, controller.signal);
+          if (active) { setAllItems(page.items); setNextCursor(page.nextCursor); setAllError(null); setLoading(false); }
         } catch (error) {
           if (active) { setAllItems([]); setAllError(error instanceof Error ? error.message : tx('장소를 불러오지 못했어요.', 'Could not load places.')); setLoading(false); }
         }
@@ -348,13 +360,44 @@ function LocalBranchList({ facet, groupFacets, scope, coords, canAskAgain, onRet
     // groupFacets 는 렌더마다 새 배열이라 갈래 열쇠(groupKeys)로만 다시 부른다.
   }, [center.lat, center.lng, facet.featureKey, facet.placeFeatureType, scope, tx, groupKeys]);
 
+  // 「더 보기」 — 다음 쪽을 받아 목록 뒤에 붙인다. 같은 장소가 두 쪽에 걸려 와도 한 번만 그린다(쪽 사이에 자료가 바뀌었을 때).
+  const loadMore = async () => {
+    if (!nextCursor || loadingMore || isLocalPlaces(facet)) return;
+    const generation = listGeneration.current;
+    setLoadingMore(true);
+    setMoreFailed(false);
+    try {
+      const page = await getPlacesByFacetPage(facet.placeFeatureType, facet.featureKey, 20, nextCursor);
+      if (generation !== listGeneration.current) return;
+      setAllItems((previous) => {
+        const seen = new Set((previous ?? []).map((item) => item.placeId));
+        return [...(previous ?? []), ...page.items.filter((item) => !seen.has(item.placeId))];
+      });
+      setNextCursor(page.nextCursor);
+    } catch {
+      if (generation === listGeneration.current) setMoreFailed(true);
+    } finally {
+      if (generation === listGeneration.current) setLoadingMore(false);
+    }
+  };
+
   if (loading || (scope === 'nearby' && !result) || (scope === 'all' && !allItems)) {
     return <View accessibilityLiveRegion="polite" style={styles.branchBody}><ActivityIndicator color={color.action.primary} /></View>;
   }
   if (scope === 'all') {
     if (allError) return <View style={styles.branchBody}><Text color={color.text.body}>{allError}</Text></View>;
     if (!allItems?.length) return <View style={styles.branchBody}><Text color={color.text.body}>{tx('부산 전체에서도 이 갈래의 장소를 찾지 못했어요.', 'No places in this category were found across Busan.')}</Text></View>;
-    return <PlaceRows items={allItems} cardWidth={cardWidth} />;
+    return (
+      <>
+        <PlaceRows items={allItems} cardWidth={cardWidth} />
+        {nextCursor ? (
+          <View style={styles.loadMore}>
+            {moreFailed ? <Text accessibilityRole="alert" variant="caption" color={color.text.body}>{tx('더 불러오지 못했어요.', "We couldn't load more.")}</Text> : null}
+            <Button testID="explore-load-more" label={loadingMore ? tx('불러오는 중…', 'Loading…') : tx('더 보기', 'Load more')} variant="tertiary" disabled={loadingMore} onPress={() => void loadMore()} />
+          </View>
+        ) : null}
+      </>
+    );
   }
   if (!result) return null;
   if (result.state !== 'success') {
@@ -470,6 +513,8 @@ const styles = StyleSheet.create({
   categoryChipSelected: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
   branchBody: { padding: spacing[4], paddingTop: 0, gap: spacing[2] },
   branchRetry: { alignSelf: 'flex-start' },
+  // 「더 보기」 — 격자 아래 가운데. 실패 문구가 있으면 단추 위에 선다.
+  loadMore: { alignItems: 'center', gap: spacing[2], marginTop: spacing[4] },
   expandedNotice: { padding: spacing[2], borderRadius: radius.md, backgroundColor: color.surface.tint },
 
   // ── 고르는 줄 ──────────────────────────────────────────────

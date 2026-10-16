@@ -458,14 +458,35 @@ export async function searchPlacesByName(query: string, signal?: AbortSignal): P
   return dto.items.map(toPlaceSearchItem);
 }
 
-/** 로컬 갈래별 장소 조회 — 거리 제한 없음 */
+/** 갈래 목록 한 쪽 — nextCursor 가 있으면 그것으로 다음 쪽을 이어 받는다. 없으면 끝이다. */
+export type PlaceSearchPage = { items: PlaceSearchItem[]; nextCursor: string | null };
+
+/**
+ * 로컬 갈래별 장소 한 쪽 — 거리 제한 없음. 🔴 서버가 준 커서로 끝까지 넘겨 볼 수 있다(S15P21E201-2060).
+ *
+ * 전에는 첫 쪽(20곳)만 받고 뒤를 버려서, 축제처럼 76곳인 갈래가 20장에서 끊겼다. 서버(백엔드 S15P21E201-2060)가 이제 hasNext 일 때
+ * nextCursor 를 준다. 🔴 옛 서버는 hasNext:true 에 nextCursor:null 이었다 — 그때는 이어 받을 길이 없으니 «끝»으로 둔다
+ * (눌러도 안 되는 「더 보기」를 그리지 않는다).
+ */
+export async function getPlacesByFacetPage(
+  facetType: string,
+  facetKey: string,
+  limit = 20,
+  cursor: string | null = null,
+  signal?: AbortSignal,
+): Promise<PlaceSearchPage> {
+  const query = new URLSearchParams({ facetType, facetKey, limit: String(limit) });
+  if (cursor) query.set('cursor', cursor);
+  const dto = await apiRequest<PlacePageDto>(`/api/v1/places?${query.toString()}`, { signal });
+  return { items: dto.items.map(toPlaceSearchItem), nextCursor: dto.hasNext && dto.nextCursor ? dto.nextCursor : null };
+}
+
+/** 로컬 갈래별 장소 조회 — 거리 제한 없음. 첫 쪽만 필요한 곳(홈 칸·섞어 보기)이 쓴다. */
 export async function getPlacesByFacet(
   facetType: string,
   facetKey: string,
   limit = 20,
   signal?: AbortSignal,
 ): Promise<PlaceSearchItem[]> {
-  const query = new URLSearchParams({ facetType, facetKey, limit: String(limit) });
-  const dto = await apiRequest<PlacePageDto>(`/api/v1/places?${query.toString()}`, { signal });
-  return dto.items.map(toPlaceSearchItem);
+  return (await getPlacesByFacetPage(facetType, facetKey, limit, null, signal)).items;
 }

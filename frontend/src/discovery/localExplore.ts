@@ -22,13 +22,15 @@ const ENGLISH_FACET_LABELS: Record<string, string> = {
  * 갈래 이름 — 서버는 한국어·영어 이름만 준다.
  * 🔴 일본어·중국어 화면에서 「Festivals」「Traditional markets」가 영어로 떴다(5개 언어 점검 2026-09-29).
  *    tx 를 주면 한국어 이름을 번역표에서 찾는다 — 표에 없으면 tx 가 영어로 떨어진다.
+ * 🔴 베트남어도 같다 — 2026-10-16 웹 점검에서 베트남어 탐색 칩이 「Festivals … Restaurants, Cafes」로 영어였다(S15P21E201-2060).
+ *    번역표에는 갈래 열 개의 베트남어(「Lễ hội」「Quán ngon」「Cà phê」 …)가 이미 다 있었는데, 여기서 베트남어를 표로 안 보냈다.
  */
 export function localFacetLabel(entry: FacetKeyEntry, language: LanguageCode, tx?: (ko: string, en: string) => string): string {
   const text = resolveTextLanguage(language);
   if (text === 'ko') return entry.labelKo;
   const english = entry.labelEn?.trim() || ENGLISH_FACET_LABELS[entry.featureKey] || entry.labelKo;
-  // resolveTextLanguage 는 한국어가 아니면 전부 'en' 이다 — 일본어·중국어는 원래 코드로 가른다.
-  const tableLanguage = language === 'ja' || language === 'zh-Hans' || language === 'zh-Hant';
+  // resolveTextLanguage 는 한국어가 아니면 전부 'en' 이다 — 영어 말고 번역표가 있는 네 언어는 원래 코드로 가른다.
+  const tableLanguage = language === 'ja' || language === 'zh-Hans' || language === 'zh-Hant' || language === 'vi';
   return tableLanguage && tx ? tx(entry.labelKo, english) : english;
 }
 export function localPlaceName(place: { nameKo: string; nameEn: string | null; localNames?: LocalNames }, language: LanguageCode): string {

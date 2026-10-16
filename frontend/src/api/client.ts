@@ -68,10 +68,15 @@ export function isServerError(error: unknown): boolean {
   return error instanceof ApiClientError && isServerErrorStatus(error.status);
 }
 
-function serverErrorMessage(status: number): string {
+/**
+ * 🔴 «지금 서버가 바쁘다» — S15P21E201-2060. 서버가 5xx 나 429(너무 많은 요청)로 답했을 때 사람에게 하는 말이다.
+ * 사람이 할 일은 «잠시 뒤 다시»뿐이고, 그 원인은 사용자의 인터넷이 아니다 — 「인터넷 연결을 확인해 주세요」(offline 화면)가 아니라 이 말이다.
+ * 한국어 원문이 번역표의 열쇠다(src/i18n/messages.ts — 화면은 localizeMessage 를 거쳐 여섯 언어로 그린다).
+ */
+function serverBusyMessage(): string {
   return apiLanguage === 'en'
-    ? `The server could not handle this just now. Please try again shortly. (HTTP ${status})`
-    : `서버가 잠시 응답하지 못했어요. 잠시 후 다시 시도해 주세요. (HTTP ${status})`;
+    ? 'The server is busy right now. Please try again shortly.'
+    : '서버가 잠시 바빠요. 잠시 후 다시 시도해 주세요.';
 }
 
 /**
@@ -150,6 +155,36 @@ async function probeApiReachable(): Promise<boolean> {
   }
 }
 
+/** 같은 순간에 여러 요청이 실패해도 서버를 한 번만 두드린다. */
+let answerProbe: Promise<boolean> | null = null;
+
+/**
+ * 웹에서 fetch 가 던진 뒤, 서버가 «대답은 했는지»를 본다 — S15P21E201-2060.
+ *
+ * `mode: 'no-cors'` 요청은 응답 내용을 못 읽는 대신(불투명 응답) **어떤 응답이든 오면 성공으로 끝난다.** CORS 머리 없는 503·429 도
+ * 여기서는 성공이다. 진짜로 못 닿았을 때(오프라인·DNS 실패·연결 거부·시간 초과)만 던진다. 응답 내용은 안 본다.
+ * 브라우저가 «오프라인»이라고 알면 물을 필요도 없다. 앱(iOS·안드로이드)에는 CORS 가 없어 5xx 가 그대로 읽히므로 이 길을 안 탄다.
+ */
+function serverAnsweredWithoutBrowserAccess(): Promise<boolean> {
+  if (Platform.OS !== 'web') return Promise.resolve(false);
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) return Promise.resolve(false);
+  if (!answerProbe) {
+    answerProbe = (async () => {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), RECOVERY_PROBE_TIMEOUT_MS);
+      try {
+        await fetch(`${API_BASE_URL}${RECOVERY_PROBE_PATH}`, { method: 'GET', mode: 'no-cors', cache: 'no-store', signal: controller.signal });
+        return true;
+      } catch {
+        return false;
+      } finally {
+        clearTimeout(timer);
+      }
+    })().finally(() => { answerProbe = null; });
+  }
+  return answerProbe;
+}
+
 function setApiUnavailable(next: boolean) {
   if (apiUnavailable === next) return;
   apiUnavailable = next;
@@ -162,6 +197,7 @@ function setApiUnavailable(next: boolean) {
 export function __resetApiAvailabilityForTests() {
   stopRecoveryProbe();
   apiUnavailable = false;
+  answerProbe = null;
 }
 
 export function subscribeApiAvailability(listener: ApiAvailabilityListener) {
@@ -469,6 +505,13 @@ async function performRequest<T>(path: string, options: RequestOptions, isRetry:
     if (requestOptions.signal?.aborted) {
       throw new ApiClientError('요청을 취소했어요.', REQUEST_CANCELLED_CODE, 0);
     }
+    // 🔴 웹에서 fetch 가 던졌다고 «인터넷이 끊겼다»는 뜻이 아니다 — S15P21E201-2060. 서버 앞단(nginx)이 요청이 몰려 503·429 로 막으면
+    //    그 응답에는 CORS 머리(다른 출처 페이지에 응답을 넘겨도 된다는 표시)가 없어서, 브라우저는 응답을 앱에 안 넘기고 fetch 를
+    //    통신 실패와 똑같이 던진다. 그래서 서버는 대답했는데(운영 점검에서 503·429 가 찍혔다) 화면은 「인터넷 연결을 확인해 주세요」였다.
+    //    서버가 대답은 했는지를 따로 본 뒤, 했으면 «바쁨»으로 말한다. 끊김 띠(setApiUnavailable)도 올리지 않는다 — 서버는 살아 있다.
+    if (await serverAnsweredWithoutBrowserAccess()) {
+      throw new ApiClientError(serverBusyMessage(), SERVER_ERROR_CODE, 503);
+    }
     setApiUnavailable(true);
     // 원인을 버리지 않는다. 자세한 이유는 ApiUnavailableError 참고.
     throw new ApiUnavailableError(undefined, describeThrown(error));
@@ -524,8 +567,10 @@ async function performRequest<T>(path: string, options: RequestOptions, isRetry:
   if (!isJson) {
     // 5xx 의 HTML 본문(nginx 의 502 안내 쪽)을 "예상하지 못한 응답" 으로 부르지 않는다.
     // 그 이름이 화면에서 "아직 만들지 않은 기능" 으로 번역되는 것이 이 버그였다.
-    if (serverSideFailure) {
-      throw new ApiClientError(serverErrorMessage(response.status), SERVER_ERROR_CODE, response.status);
+    // 🔴 429(너무 많은 요청)도 같다 — 우리 봉투가 아니라 서버 앞단이 주는 안내라 본문이 JSON 이 아니다. 전에는 「예상하지 못한 서버
+    //    응답이에요. (HTTP 429)」로 나갔다(S15P21E201-2060). 우리 앱이 봉투로 준 429(로그인 시도 한도 등)는 아래 JSON 길이라 그 문장 그대로다.
+    if (serverSideFailure || response.status === 429) {
+      throw new ApiClientError(serverBusyMessage(), SERVER_ERROR_CODE, response.status);
     }
     throw new ApiClientError(`예상하지 못한 서버 응답이에요. (HTTP ${response.status})`, 'INVALID_RESPONSE', response.status);
   }

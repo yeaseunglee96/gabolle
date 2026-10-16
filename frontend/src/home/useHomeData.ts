@@ -156,11 +156,16 @@ export const HOME_WEATHER_STALE_MS = 10 * 60 * 1000;
 export const HOME_WEATHER_REFETCH_MS = 15 * 60 * 1000;
 
 export function useHomeWeather(enabled = true): HomeWeather | null {
-  const { accessToken } = useAuth();
+  const { accessToken, ready } = useAuth();
   const weatherQuery = useQuery({
-    // 날씨도 스토리와 같다 — 익명으로는 401 이다.
-    queryKey: ['home', 'weather', today()],
-    enabled: enabled && Boolean(accessToken),
+    // 🔴 게스트(가입 안 한 사람)에게도 부른다 — S15P21E201-2060. 전에는 「날씨도 스토리와 같다 — 익명으로는 401 이다」라는 주석대로
+    //    로그인한 사람에게만 불러서, 게스트 홈에는 날씨 칩이 아예 없었다. 그런데 서버는 익명 출입증에도 날씨를 준다 —
+    //    익명은 미리 받아 둔 예보(캐시)까지만 닿아서 기상청 호출 한도를 태울 길이 없다(WeatherController). 2026-10-16 운영 실측 200.
+    //    로그인 복원이 끝난 뒤에(ready) 부른다 — 복원 중에는 아직 접속 표를 몰라 손님 몫으로 한 번 부르게 된다(S15P21E201-1686 과 같은 이유).
+    //    서버가 «아직 준비 안 됨»(404)이면 loadWeatherForecast 가 success 가 아니라서 아래가 null 을 돌려주고 칩만 빠진다.
+    //    열쇠에 회원/손님을 넣는다 — 손님으로 «준비 안 됨»을 받아 둔 채 로그인하면, 로그인한 사람은 기상청까지 닿는데 옛 답이 남는다.
+    queryKey: ['home', 'weather', today(), accessToken ? 'member' : 'guest'],
+    enabled: enabled && ready,
     queryFn: () => loadWeatherForecast(today(), accessToken),
     staleTime: HOME_WEATHER_STALE_MS,
     refetchInterval: HOME_WEATHER_REFETCH_MS,

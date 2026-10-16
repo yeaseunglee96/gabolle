@@ -20,6 +20,8 @@ export const MESSAGE_EN: Record<string, string> = {
   '지금은 이 정보를 불러올 수 없어요. 잠시 뒤 다시 시도해 주세요.': "We can't load this right now. Please try again in a moment.",
   '서버 응답이 늦어 요청을 마쳤어요. 잠시 후 다시 시도해 주세요.': 'The server took too long to respond. Please try again shortly.',
   '서버에 연결할 수 없어요. 잠시 후 다시 시도해 주세요.': 'The server is unavailable. Please try again shortly.',
+  // 서버가 5xx·429 로 답했을 때(client.ts serverBusyMessage) — 「인터넷 연결을 확인해 주세요」가 아니라 이 말이다(S15P21E201-2060).
+  '서버가 잠시 바빠요. 잠시 후 다시 시도해 주세요.': 'The server is busy right now. Please try again shortly.',
   '요청을 취소했어요.': 'The request was cancelled.',
   '요청이 취소됐어요.': 'The request was cancelled.',
   '요청을 처리하지 못했어요.': 'We could not complete that request.',

@@ -217,9 +217,11 @@ export default function Place() {
               <View pointerEvents="none" style={styles.shadeLower} />
               <View pointerEvents="none" style={styles.shadeLowest} />
               <View pointerEvents="box-none" style={styles.heroCopy}>
-                <Text variant="display" weight="bold" color={color.text.onAction} style={styles.heroText}>{resolved.title}</Text>
-                <Text color={color.text.onAction} style={styles.heroText}>{resolved.subtitle}</Text>
-                {resolved.koreanAddress ? <Text testID="place-korean-address" selectable variant="caption" color={color.text.onAction} style={[styles.heroText, styles.koreanAddress]}>{resolved.koreanAddress}</Text> : null}
+                {/* 🔴 이름·주소는 오른쪽을 비운다 — 사진 판의 「›」 단추(웹)와 「1/15」 쪽 번호가 오른쪽에 떠 있어서, 긴 이름(「Gamcheon Culture Village」
+                    · 「수변최고돼지국밥」)이 두 줄로 꺾이면 그 위로 겹쳤다(2026-10-16 웹 점검, S15P21E201-2060). 출처·「행사장 사진」 줄은 맨 아래라 안 겹친다. */}
+                <Text variant="display" weight="bold" color={color.text.onAction} style={[styles.heroText, styles.heroTextInset]}>{resolved.title}</Text>
+                <Text color={color.text.onAction} style={[styles.heroText, styles.heroTextInset]}>{resolved.subtitle}</Text>
+                {resolved.koreanAddress ? <Text testID="place-korean-address" selectable variant="caption" color={color.text.onAction} style={[styles.heroText, styles.koreanAddress, styles.heroTextInset]}>{resolved.koreanAddress}</Text> : null}
                 {/* 「행사장 사진」 표시·출처 줄의 접근성 라벨이 왜 있는지는 아래 한 장 그림의 주석에 있다. */}
                 <PhotoSubjectBadge photoSubject={photoIndex === 0 ? resolved.apiPlace?.photoSubject : null} style={styles.subjectBadge} />
                 {photoCredit?.credit ? (
@@ -425,6 +427,9 @@ const styles = StyleSheet.create({
   koreanAddress: { opacity: 0.85, marginTop: 2 },
   heroText: { textShadowColor: 'rgba(8, 27, 53, 0.9)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 },
   heroCopy: { gap: spacing[1], padding: spacing[4] },
+  // 여러 장일 때 이름·주소의 오른쪽 여백 — 「›」 단추(오른쪽 8 + 폭 36)와 쪽 번호 알약(오른쪽 12 + 폭 약 50) 왼쪽 끝보다 안쪽에서 꺾이게 한다.
+  // heroCopy 의 안쪽 여백 16 에 더해 40 이니 글자 오른쪽 끝은 사진 오른쪽에서 56 안쪽이다(단추 왼쪽 끝 44 + 12).
+  heroTextInset: { paddingRight: spacing[8] + spacing[2] },
   subjectBadge: { marginTop: spacing[2] },
   // opacity 0.8 을 뽑았다. 이 줄은 공공누리 이용 조건이라
   // 읽힐 수 있어야 한다 — 지켜야 하는 표기를 일부러 흐리게 할 이유가 없다.

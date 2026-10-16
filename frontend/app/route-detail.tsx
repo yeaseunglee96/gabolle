@@ -11,6 +11,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
 import { askRideNotifications, RidePanel } from '@/field/RidePanel';
+import { RouteGuestNotice } from '@/field/RouteGuestNotice';
 import { useLocationGate } from '@/personalization/useLocationGate';
 import { usableFix } from '@/trip/page/autoArrival';
 import { useLiveLocation } from '@/trip/page/useLiveLocation';
@@ -50,10 +51,20 @@ function parseText(value: string | string[] | undefined): string | undefined {
   return raw && raw.length ? raw : undefined;
 }
 
+/** 로그인하고 돌아올 주소 — 이 화면에 온 값(출발·도착·수단)을 그대로 되살린다. */
+function returnPathOf(params: Record<string, string | string[] | undefined>): string {
+  const query = new URLSearchParams();
+  for (const key of ['originLat', 'originLng', 'originName', 'destLat', 'destLng', 'destName', 'destPlaceId', 'mode']) {
+    const value = parseText(params[key]);
+    if (value !== undefined) query.set(key, value);
+  }
+  return `/route-detail?${query.toString()}`;
+}
+
 export default function RouteDetail() {
   const { tx, language } = useI18n();
   const router = useRouter();
-  const { accessToken } = useAuth();
+  const { accessToken, ready } = useAuth();
   const params = useLocalSearchParams<{ originLat?: string; originLng?: string; originName?: string; destLat?: string; destLng?: string; destName?: string; destPlaceId?: string; mode?: string }>();
 
   const originLat = parseNumber(params.originLat);
@@ -80,9 +91,15 @@ export default function RouteDetail() {
   const [results, setResults] = useState<Partial<Record<TravelMode, RouteDirectionsResult>>>({});
 
   const hasCoords = originLat != null && originLng != null && destLat != null && destLng != null;
+  // 🔴 게스트(가입 안 한 사람)에게는 길찾기를 열지 않는다 — S15P21E201-2060. 서버가 로그인한 사람에게만 답하는 자리라(바깥 업체 호출을 우리 비용으로
+  //    대신 시켜 주는 창구를 막으려는 것, RouteController) 보내 봐야 셋 다 401 이고, 화면에는 그 서버 원문이 그대로 떴다.
+  //    로그인 복원이 끝난 뒤에 가른다 — 복원 중에는 아직 접속 표를 몰라서 로그인한 사람도 잠깐 표 없이 보인다.
+  const guest = Boolean(ready) && !accessToken;
+  // 로그인하고 돌아오면 이 길 안내 그대로 — 부른 쪽이 넘긴 값을 되살린다.
+  const returnTo = returnPathOf(params);
 
   useEffect(() => {
-    if (!hasCoords) return;
+    if (!hasCoords || !ready || !accessToken) return;
     let active = true;
     setResults({});
     // 셋을 한꺼번에 묻는다 — 탭마다 걸리는 시간이 적혀 있어야 누르기 전에 비교가 된다.
@@ -93,7 +110,7 @@ export default function RouteDetail() {
     }
     return () => { active = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [originLat, originLng, destLat, destLng, accessToken]);
+  }, [originLat, originLng, destLat, destLng, accessToken, ready]);
 
   const stops: MapStop[] = useMemo(() => {
     if (!hasCoords) return [];
@@ -106,7 +123,7 @@ export default function RouteDetail() {
   // 데스크톱 판인가 — 폭만이 아니라 폴드 펼침 가로까지, 판정은 useLayout 한 곳(S15P21E201-1563).
   const twoColumn = useLayout().desktop;
   const result = results[mode];
-  const loading = hasCoords && !result;
+  const loading = hasCoords && !guest && !result;
   const directions = result?.state === 'success' ? result.directions : null;
 
   // 받은 길이 있으면 그 길을, 없으면(받는 중·실패) 두 점을 옅은 직선으로 — 직선을 실제 길인 척 그리지 않는다.
@@ -161,7 +178,7 @@ export default function RouteDetail() {
             <Text variant="caption" color={color.text.muted} style={styles.rideNote}>{tx('대중교통·택시·도보 비교는 「탑승 끝내기」 뒤에 다시 보여요', 'Transit, taxi and walking options come back after you end the ride')}</Text>
           </View>
         ) : <>
-          <View accessibilityRole="tablist" style={styles.tabs}>
+          <View accessibilityRole="tablist" style={[styles.tabs, guest && styles.hidden]}>
             {ROUTE_MODES.map((each) => {
               const selected = each === mode;
               return (
@@ -187,6 +204,8 @@ export default function RouteDetail() {
               {loading ? (
                 <Card style={styles.stateCard}><Text color={color.text.body}>{tx('경로를 불러오고 있어요…', 'Loading the route…')}</Text></Card>
               ) : null}
+
+              {guest && hasCoords ? <RouteGuestNotice route={{ originLat: originLat!, originLng: originLng!, destLat: destLat!, destLng: destLng!, destName }} returnTo={returnTo} /> : null}
 
               {result && result.state !== 'success' ? (
                 <Card style={styles.stateCard} accessibilityRole="alert"><Text variant="title" weight="bold">{tx('경로를 불러오지 못했어요', 'Could not load the route')}</Text><Text color={color.text.body}>{localizeMessage(tx, result.message)}</Text></Card>
@@ -385,6 +404,7 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.72, transform: [{ scale: 0.96 }] },
   heading: { gap: spacing[2], marginBottom: spacing[4] },
   tabs: { flexDirection: 'row', gap: spacing[2], marginBottom: spacing[4] },
+  hidden: { display: 'none' },
   tab: { flex: 1, minHeight: 56, paddingHorizontal: spacing[2], paddingVertical: spacing[2], borderRadius: radius.md, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center', gap: 2 },
   tabSelected: { backgroundColor: color.action.secondary },
   stateCard: { gap: spacing[3], alignItems: 'center' },
