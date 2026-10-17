@@ -104,8 +104,8 @@ describe('칩 순서', () => {
     const texts = textsInOrder(screen.toJSON());
     expect(texts.indexOf('맛집')).toBeGreaterThan(-1);
     expect(texts.indexOf('카페')).toBe(texts.indexOf('맛집') + 2); // 맛집 칩의 건수 글자 하나가 사이에 있다
-    // 일반 갈래(산책)는 그 앞에 그대로다.
-    expect(texts.indexOf('산책')).toBeLessThan(texts.indexOf('맛집'));
+    // 탭 순서는 홈과 같다(2026-10-17) — 맛집·카페가 산책보다 앞이다.
+    expect(texts.indexOf('산책')).toBeGreaterThan(texts.indexOf('카페'));
   });
 
   it('맛집·카페를 고르면 범위 토글(내 근처/부산 전체)이 사라지고 구 → 동이 범위를 대신한다', async () => {
