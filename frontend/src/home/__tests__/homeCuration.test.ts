@@ -15,7 +15,7 @@ import type { StoryDto } from '@/social/stories';
 const story = (id: string, image = true) => ({ id, images: image ? [{ url: 'x', position: 0 }] : [] }) as unknown as StoryDto;
 
 // 맛집·카페 칸에 고정한 장소 — 바꾸라는 지시가 없으면 바뀌지 않아야 하는 값이라 시험에도 적어 둔다.
-const RESTAURANT_ID = 'fe2f8382-a076-3173-8605-777a4c500702'; // 수변최고돼지국밥(수영구 민락동)
+const RESTAURANT_ID = 'd330bc4c-3a6c-3d05-8e66-13ba3707b1d0'; // 이재모피자(중구 광복중앙로) — 2026-10-17 지시
 const CAFE_ID = '5416ddfb-0d2b-3eac-aaf6-d965f59add30'; // 모모스커피 부산본점(금정구 오시게로 20)
 
 describe('기록 줄 — 고른 글이 먼저', () => {
@@ -58,7 +58,10 @@ describe('로컬 탐색 여덟 칸', () => {
 
   it('BIFF 는 기간 안에만 축제 칸에 선다', () => {
     expect(currentFeaturedFestival('2026-10-09')?.title.ko).toContain('부산국제영화제');
-    expect(currentFeaturedFestival('2026-10-16')).toBeNull();
+    // 2026-10-17 지시 — 영화제가 끝난 뒤 홈 축제 칸 표지는 부산불꽃축제.
+    expect(currentFeaturedFestival('2026-10-17')?.title.ko).toBe('부산불꽃축제');
+    expect(currentFeaturedFestival('2026-10-17')?.placeId).toBe('68c965a4-9b99-331b-a8f1-d7f0a31ba419');
+    expect(currentFeaturedFestival('2028-01-10')).toBeNull();
   });
 
   it('축제 데이터에서는 오늘 열리는 것 중 짧은 것, 없으면 가장 먼저 열리는 것', () => {
@@ -114,10 +117,11 @@ describe('로컬 탐색 여덟 칸', () => {
     expect((await loadLocalPicks(new Date(2026, 9, 9))).map((p) => p.key)).toEqual(['FESTIVAL', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE', 'NIGHT_VIEW']);
   });
 
-  it('BIFF 가 끝나면 축제 데이터의 축제가 칸을 채운다', async () => {
+  it('대표 축제 기간이 아니면 축제 데이터의 축제가 칸을 채운다', async () => {
     (getPlace as jest.Mock).mockImplementation(async (id: string) => ({ placeId: id, nameKo: id, nameEn: null, address: '부산' }));
-    (getFestivals as jest.Mock).mockResolvedValue([{ placeId: 'fest', nameKo: '불꽃축제', address: '부산', startDate: '2026-11-07', endDate: '2026-11-07', overlapDates: [] }]);
-    const picks = await loadLocalPicks(new Date(2026, 10, 1));
+    (getFestivals as jest.Mock).mockResolvedValue([{ placeId: 'fest', nameKo: '불꽃축제', address: '부산', startDate: '2028-02-07', endDate: '2028-02-07', overlapDates: [] }]);
+    // 부산불꽃축제 대표 칸(2026-10-16 ~ 2027-12-31)이 끝난 뒤의 날짜로 본다.
+    const picks = await loadLocalPicks(new Date(2028, 1, 1));
     expect(picks.find((p) => p.key === 'FESTIVAL')).toMatchObject({ key: 'FESTIVAL', place: { placeId: 'fest', nameKo: '불꽃축제' } });
   });
 });
