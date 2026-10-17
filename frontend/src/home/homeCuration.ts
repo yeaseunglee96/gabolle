@@ -64,12 +64,12 @@ export const LOCAL_PICK_LABELS: Record<LocalPickKey, Labels> = {
  * (영도점 a6e61415-5b19-3e1a-b069-a7876fbb92c6 이 아니다).
  */
 export const LOCAL_PICK_PLACES: Record<Exclude<LocalPickKey, 'FESTIVAL'>, string> = {
-  LOCAL_RESTAURANT: 'fe2f8382-a076-3173-8605-777a4c500702', // 수변최고돼지국밥 — 수영구 민락동
+  LOCAL_RESTAURANT: 'd330bc4c-3a6c-3d05-8e66-13ba3707b1d0', // 이재모피자 — 중구 광복중앙로 31 (2026-10-17 지시, 전에는 수변최고돼지국밥)
   LOCAL_CAFE: '5416ddfb-0d2b-3eac-aaf6-d965f59add30', // 모모스커피 부산본점 — 금정구 오시게로 20(부곡동)
   TRADITIONAL_MARKET: 'f548797c-361a-3b3a-8210-616be343a29d', // 국제시장
   ACTIVITY: '6e2e7cfd-d5f6-3588-a8f2-7a8fa9733b0c', // 광안리 SUP Zone — 광안대교 아래 패들보드
   WALK: '3667f940-f493-318d-845c-53f701a365df', // 절영해안산책로
-  NATURE: '8dac92c6-81e7-37ed-8f06-e2a0a089d0d0', // 아홉산숲
+  NATURE: '26ed1b95-df02-3f44-a340-518027ce8fa8', // 금정산 (2026-10-17 지시, 전에는 아홉산숲)
   NIGHT_VIEW: 'd7d68934-1a4e-31c5-836a-0f94134e81e4', // 황령산 전망대
 };
 
@@ -85,6 +85,13 @@ export const LOCAL_PICK_ORDER: readonly LocalPickKey[] = ['FESTIVAL', 'TRADITION
  */
 export type FeaturedFestival = { placeId: string; startDate: string; endDate: string; title: Labels };
 export const FEATURED_FESTIVALS: readonly FeaturedFestival[] = [
+  // 🔴 2026-10-17 사용자 지시 — 홈 축제 칸 표지는 부산불꽃축제로 둔다. 기간을 넓게 잡아 늘 이 칸에 선다(바꾸려면 이 줄의 기간·장소만).
+  {
+    placeId: '68c965a4-9b99-331b-a8f1-d7f0a31ba419', // 부산불꽃축제 — 광안리
+    startDate: '2026-10-16',
+    endDate: '2027-12-31',
+    title: { ko: '부산불꽃축제', en: 'Busan Fireworks Festival', ja: '釜山花火大会', 'zh-Hans': '釜山烟花节', 'zh-Hant': '釜山煙火節', vi: 'Lễ hội pháo hoa Busan' },
+  },
   {
     placeId: 'd8836d09-0c5c-4d15-a962-95894af98d2e', // 영화의전당
     startDate: '2026-10-06',
