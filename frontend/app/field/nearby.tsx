@@ -117,6 +117,8 @@ export default function NearbyFacilitiesScreen() {
   const [accessibleOnly, setAccessibleOnly] = useState(false);
   const [diaperOnly, setDiaperOnly] = useState(false);
   const [radiusM, setRadiusM] = useState(DEFAULT_RADIUS_M);
+  // 2km 안에도 없을 때 «서면 기준으로 찾기» — 시외에서 열면 빈 화면에서 갈 곳이 없었다.
+  const [atSeomyeon, setAtSeomyeon] = useState(false);
   const [coords, setCoords] = useState<LatLng | null>(null);
   const [locationState, setLocationState] = useState<LocationState>(anchor ? 'idle' : 'detecting');
   const [canAskAgain, setCanAskAgain] = useState(true);
@@ -164,7 +166,7 @@ export default function NearbyFacilitiesScreen() {
 
   // 장소 기준에서 «내 위치로 찾기» — 위치를 얻는 데 성공해야 기준을 옮긴다. 거절하면 그 장소 기준 그대로다(서면으로 튀지 않는다).
   const switchToMyLocation = useCallback(async () => {
-    if (await ask()) setAnchored(false);
+    if (await ask()) { setAnchored(false); setAtSeomyeon(false); }
   }, [ask]);
 
   // 처음부터 장소 기준이면 내 위치를 읽지 않는다 — 그 장소 근처가 궁금한 것이고, 위치 창은 «내 위치로 찾기»를 눌렀을 때만 뜬다.
@@ -172,8 +174,8 @@ export default function NearbyFacilitiesScreen() {
 
   // 장소 기준이면 그 장소에서, 아니면 내 위치에서 — 내 위치를 모르면 서면에서 찾는다.
   const origin: LatLng = useMemo(
-    () => (anchored && anchor ? { latitude: anchor.latitude, longitude: anchor.longitude } : coords ?? SEOMYEON),
-    [anchored, anchor, coords],
+    () => (atSeomyeon ? SEOMYEON : anchored && anchor ? { latitude: anchor.latitude, longitude: anchor.longitude } : coords ?? SEOMYEON),
+    [atSeomyeon, anchored, anchor, coords],
   );
   const usingFallback = !anchored && locationState === 'denied';
   // 장소 기준일 때는 위치를 읽는 중이어도 기다리지 않는다 — 읽는 것은 «내 위치로 찾기» 뒤의 일이고 지금 보이는 목록과 상관없다.
@@ -193,7 +195,7 @@ export default function NearbyFacilitiesScreen() {
       accessible: kind === 'TOILET' && accessibleOnly,
       diaper: kind === 'TOILET' && diaperOnly,
       // 장소의 자리는 줄이지 않고 보낸다 — 100m 로 줄이는 것은 «내 위치»를 가리려는 약속이다.
-      exact: anchored,
+      exact: anchored && !atSeomyeon,
       signal: controller.signal,
     }).then((data) => {
       if (alive) setLoad({ status: 'ready', data });
@@ -223,8 +225,8 @@ export default function NearbyFacilitiesScreen() {
   const selectedId = stops.some((stop) => stop.id === pickedId) ? pickedId : (stops[0]?.id ?? '');
   // 거리를 어디서 쟀나 — 내 위치로 찾았으면 지도의 «현재 위치» 점이 곧 기준이다. 장소 기준이거나 위치를 못 써 서면에서 찾았으면
   // 그 자리(origin)를 «기준점»으로 찍는다. 그 자리는 목록의 점이 아니라서 번호 장소가 아닌 점 표시(points)로 준다.
-  const showReference = anchored || usingFallback;
-  const referenceName = anchored ? (anchor?.name ?? '') : tx('서면', 'Seomyeon');
+  const showReference = anchored || usingFallback || atSeomyeon;
+  const referenceName = anchored && !atSeomyeon ? (anchor?.name ?? '') : tx('서면', 'Seomyeon');
   const referenceLabel = tx('기준점', 'Origin');
   const points: MapPointLayer[] = useMemo(
     () => (showReference
@@ -238,7 +240,7 @@ export default function NearbyFacilitiesScreen() {
 
   // 길 안내는 «내 위치에서 찾은» 결과에만 — 장소 기준(출발지가 그 장소)이나 서면 기준에서 찾은 길은 내 길이 아니다.
   const actionsFor = (item: FacilityItem): FacilityActions => ({
-    onRoute: coords && !anchored
+    onRoute: coords && !anchored && !atSeomyeon
       ? () => router.push({ pathname: '/route-detail', params: {
         originLat: String(coords.latitude), originLng: String(coords.longitude), originName: tx('내 위치', 'My location'),
         destLat: String(item.lat), destLng: String(item.lng), destName: item.name,
@@ -379,7 +381,9 @@ export default function NearbyFacilitiesScreen() {
           <Text variant="body" weight="bold">{txf(tx, '반경 %s 안에는 아직 없어요.', 'Nothing within %s yet.', distanceText(load.data.radiusM))}</Text>
           {radiusM < WIDE_RADIUS_M
             ? <Button testID="facility-widen" label={tx('2km까지 넓혀 찾기', 'Search up to 2 km')} variant="tertiary" compact onPress={() => setRadiusM(WIDE_RADIUS_M)} />
-            : null}
+            : !atSeomyeon && origin !== SEOMYEON
+              ? <Button testID="facility-seomyeon" label={tx('서면 기준으로 찾기', 'Search around Seomyeon')} variant="tertiary" compact onPress={() => setAtSeomyeon(true)} />
+              : null}
         </View>
       ) : (
         <>

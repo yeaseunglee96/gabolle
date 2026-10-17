@@ -312,7 +312,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
                     car={isCarTrip(itinerary?.value)}
                     route={selectedLeg.params}
                     now={false}
-                    onOpen={() => router.push({ pathname: '/route-detail', params: selectedLeg.params })}
+                    onOpen={() => router.push({ pathname: '/route-detail', params: isCarTrip(itinerary?.value) ? { ...selectedLeg.params, mode: 'CAR' } : selectedLeg.params })}
                     accessToken={accessToken}
                     language={language}
                     tx={tx}
@@ -371,7 +371,7 @@ export function TripPageDesktop({ source, askName = false }: { source: TripPageS
                     car={isCarTrip(itinerary?.value)}
                           route={legParams}
                           now={false}
-                          onOpen={() => router.push({ pathname: '/route-detail', params: legParams })}
+                          onOpen={() => router.push({ pathname: '/route-detail', params: isCarTrip(itinerary?.value) ? { ...legParams, mode: 'CAR' } : legParams })}
                           accessToken={accessToken}
                           language={language}
                           tx={tx}

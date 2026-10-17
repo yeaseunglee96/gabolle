@@ -711,7 +711,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
                     // 들어오는 구간을 경로 상세로 — 대중교통·택시·도보를 나란히 본다(S15P21E201-1831).
                     const params = legRouteParams(items, index, day?.start, nameOf, tx);
                     // 이동 칸을 한 번 눌러 본 사람에게는 첫 안내를 다시 띄우지 않는다(㉔-5 규칙).
-                    return params ? () => { setLegGuide(false); void markScreenGuideUsed('legs'); router.push({ pathname: '/route-detail', params }); } : null;
+                    return params ? () => { setLegGuide(false); void markScreenGuideUsed('legs'); router.push({ pathname: '/route-detail', params: isCarTrip(itinerary?.value) ? { ...params, mode: 'CAR' } : params }); } : null;
                   })()}
                   legGuide={legGuide && index === firstLegIndex}
                   onLegGuideDone={() => setLegGuide(false)}

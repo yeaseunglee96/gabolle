@@ -3670,6 +3670,7 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '기저귀 교환대': { ja: 'おむつ交換台', zhHans: '尿布台', zhHant: '尿布台', vi: 'Bàn thay tã' },
   '반경 %s 안에는 아직 없어요.': { ja: '半径%s以内にはまだありません。', zhHans: '半径 %s 内暂时没有。', zhHant: '半徑 %s 內暫時沒有。', vi: 'Chưa có nơi nào trong bán kính %s.' },
   '2km까지 넓혀 찾기': { ja: '2kmまで広げて探す', zhHans: '扩大到 2 公里查找', zhHant: '擴大到 2 公里搜尋', vi: 'Mở rộng tìm trong 2 km' },
+  '서면 기준으로 찾기': { ja: '西面を基準に探す', zhHans: '以西面为中心查找', zhHant: '以西面為中心搜尋', vi: 'Tìm quanh Seomyeon' },
   '%s곳 중 앞의 %s곳만 보여 드려요': { ja: '%s件中、先頭の%s件のみ表示しています', zhHans: '共 %s 处，仅显示前 %s 处', zhHant: '共 %s 處，僅顯示前 %s 處', vi: 'Có %s nơi, chỉ hiển thị %s nơi đầu tiên' },
   '거리는 직선이에요. 공공 자료를 바탕으로 해서 현장과 다를 수 있어요.': { ja: '距離は直線距離です。公共データに基づくため、現地と異なる場合があります。', zhHans: '距离为直线距离。信息基于公共数据，可能与现场情况不同。', zhHant: '距離為直線距離。資訊依據公共資料，可能與現場情況不同。', vi: 'Khoảng cách tính theo đường chim bay. Dữ liệu dựa trên nguồn công khai nên có thể khác thực tế.' },
   '지도 앱': { ja: '地図アプリ', zhHans: '地图应用', zhHant: '地圖應用程式', vi: 'Ứng dụng bản đồ' },
