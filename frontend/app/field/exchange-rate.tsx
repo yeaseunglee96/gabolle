@@ -41,16 +41,23 @@ function digitsOnly(value: string): string {
  *    않는 자리 구분(쉼표)으로 내려간다 — 환전 화면에서 숫자가 잘못 보이면 실제 돈 액수를
  *    오해하게 되므로, 여기서만은 «다른 나라 표기가 섞이는 것»조차 허용하지 않는다.
  */
-function grouped(value: number, locale: string): string {
-  const rounded = Math.round(value);
+function grouped(value: number, locale: string, fractionDigits = 0): string {
+  const factor = 10 ** fractionDigits;
+  const rounded = Math.round(value * factor) / factor;
   try {
     if (Intl.NumberFormat.supportedLocalesOf([locale]).length) {
-      return new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(rounded);
+      return new Intl.NumberFormat(locale, { minimumFractionDigits: 0, maximumFractionDigits: fractionDigits }).format(rounded);
     }
   } catch {
     // 아래 자리 구분으로 내려간다.
   }
-  return rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  const [whole, fraction] = rounded.toString().split('.');
+  return whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (fraction ? `.${fraction}` : '');
+}
+
+/** 결과의 소수 자리 — 원·엔은 정수, 그 밖의 외화는 센트까지(50,000원 → 37 이 아니라 37.06 달러, 2026-10-17 폰). */
+function fractionDigitsFor(code: string): number {
+  return code === 'KRW' || code === 'JPY' ? 0 : 2;
 }
 
 /**
@@ -206,7 +213,7 @@ export default function Exchange() {
             </View>
             <TextInput
               accessibilityLabel={tx('바꿀 금액', 'Amount to convert')}
-              value={amount}
+              value={amount ? grouped(Number(amount), locale) : ''}
               onChangeText={(v) => setAmount(digitsOnly(v))}
               keyboardType="number-pad"
               placeholder="0"
@@ -216,7 +223,7 @@ export default function Exchange() {
 
             <View style={styles.resultBox}>
               <View style={styles.codeRow}><CurrencyBadge code={outCode} /><Text variant="caption" weight="bold" color={color.text.eyebrow}>{outCode}</Text></View>
-              <Text variant="display" weight="bold" style={styles.result}>{grouped(Math.round(converted), locale)}</Text>
+              <Text variant="display" weight="bold" style={styles.result}>{grouped(converted, locale, fractionDigitsFor(outCode))}</Text>
             </View>
 
             {/* 기준율과 매도율을 같이 적는다. 기준율만 보여주면 환전소에서 그 값이 안 나온다. */}
