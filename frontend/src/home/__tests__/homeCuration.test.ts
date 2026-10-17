@@ -61,7 +61,7 @@ describe('로컬 탐색 여덟 칸', () => {
     // 2026-10-17 지시 — 영화제가 끝난 뒤 홈 축제 칸 표지는 부산불꽃축제.
     expect(currentFeaturedFestival('2026-10-17')?.title.ko).toBe('부산불꽃축제');
     expect(currentFeaturedFestival('2026-10-17')?.placeId).toBe('68c965a4-9b99-331b-a8f1-d7f0a31ba419');
-    expect(currentFeaturedFestival('2026-10-16')).toBeNull();
+    expect(currentFeaturedFestival('2028-01-10')).toBeNull();
   });
 
   it('축제 데이터에서는 오늘 열리는 것 중 짧은 것, 없으면 가장 먼저 열리는 것', () => {
@@ -117,10 +117,11 @@ describe('로컬 탐색 여덟 칸', () => {
     expect((await loadLocalPicks(new Date(2026, 9, 9))).map((p) => p.key)).toEqual(['FESTIVAL', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE', 'NIGHT_VIEW']);
   });
 
-  it('BIFF 가 끝나면 축제 데이터의 축제가 칸을 채운다', async () => {
+  it('대표 축제 기간이 아니면 축제 데이터의 축제가 칸을 채운다', async () => {
     (getPlace as jest.Mock).mockImplementation(async (id: string) => ({ placeId: id, nameKo: id, nameEn: null, address: '부산' }));
-    (getFestivals as jest.Mock).mockResolvedValue([{ placeId: 'fest', nameKo: '불꽃축제', address: '부산', startDate: '2026-11-07', endDate: '2026-11-07', overlapDates: [] }]);
-    const picks = await loadLocalPicks(new Date(2026, 10, 1));
+    (getFestivals as jest.Mock).mockResolvedValue([{ placeId: 'fest', nameKo: '불꽃축제', address: '부산', startDate: '2028-02-07', endDate: '2028-02-07', overlapDates: [] }]);
+    // 부산불꽃축제 대표 칸(2026-10-16 ~ 2027-12-31)이 끝난 뒤의 날짜로 본다.
+    const picks = await loadLocalPicks(new Date(2028, 1, 1));
     expect(picks.find((p) => p.key === 'FESTIVAL')).toMatchObject({ key: 'FESTIVAL', place: { placeId: 'fest', nameKo: '불꽃축제' } });
   });
 });
