@@ -3318,6 +3318,7 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '도움': { ja: 'ヘルプ', zhHans: '帮助', zhHant: '幫助', vi: 'Trợ giúp' },
   '긴급 도움 · 119 112 1330': { ja: '緊急ヘルプ · 119 112 1330', zhHans: '紧急求助 · 119 112 1330', zhHant: '緊急求助 · 119 112 1330', vi: 'Trợ giúp khẩn cấp · 119 112 1330' },
   '가까운 병원·약국': { ja: '近くの病院・薬局', zhHans: '附近的医院·药店', zhHant: '附近的醫院·藥局', vi: 'Bệnh viện, nhà thuốc gần đây' },
+  '근처 병원·약국': { ja: '近くの病院・薬局', zhHans: '附近的医院·药店', zhHant: '附近的醫院·藥局', vi: 'Bệnh viện, nhà thuốc gần đây' },
   '처음 쓰는 분께': { ja: 'はじめての方へ', zhHans: '新手指南', zhHant: '新手指南', vi: 'Cho người dùng lần đầu' },
   '약관': { ja: '規約', zhHans: '条款', zhHant: '條款', vi: 'Điều khoản' },
   '자료 출처': { ja: 'データの出典', zhHans: '资料来源', zhHant: '資料來源', vi: 'Nguồn dữ liệu' },

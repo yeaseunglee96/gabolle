@@ -37,12 +37,12 @@ export const FOOTER_GROUPS: FooterGroup[] = [
     { ko: '부산 축제', en: 'Busan festivals', href: '/festivals' },
   ] },
   { ko: '도움', en: 'Help', links: [
-    { ko: '긴급 도움 · 119 112 1330', en: 'Emergency · 119 112 1330', href: '/emergency' },
-    { ko: '가까운 병원·약국', en: 'Nearby hospitals & pharmacies', href: '/nearby-help' },
-    { ko: '처음 쓰는 분께', en: 'Getting started', href: '/help' },
+    { ko: '긴급 도움', en: 'Emergency help', href: '/emergency' },
+    { ko: '근처 병원·약국', en: 'Nearby hospitals & pharmacies', href: '/nearby-help' },
+    { ko: '도움말·문의', en: 'Help & support', href: '/help' },
     { ko: '문의하기', en: 'Contact us', mail: SUPPORT_MAIL },
   ] },
-  { ko: '약관', en: 'Policies', links: [
+  { ko: '약관·고지', en: 'Policies & notices', links: [
     { ko: '이용약관', en: 'Terms of service', href: '/legal/terms' },
     { ko: '개인정보 처리방침', en: 'Privacy policy', href: '/legal/privacy', emphasis: true },
     { ko: '자료 출처', en: 'Data sources', href: '/legal/data-sources' },
