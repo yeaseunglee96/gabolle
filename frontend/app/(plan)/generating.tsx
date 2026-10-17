@@ -16,7 +16,7 @@ import { adaptStreamedJob, createRecommendationJobAdapter, type RecommendationJo
 import { openJobProgressStream, supportsJobProgressStream } from '@/plan/recommendationJobStream';
 import { loadRecommendationResult } from '@/plan/recommendations';
 import { ACCESSIBILITY_UNVERIFIED, itineraryAccessibilityCounts, selectedMobilityAids } from '@/plan/accessibilityNotice';
-import { isCarTrip, loadItinerary, type ItineraryDto } from '@/plan/itinerary';
+import { loadItinerary, type ItineraryDto } from '@/plan/itinerary';
 import { TripPass } from '@/plan/TripPass';
 import { markChecklistStep } from '@/onboarding/firstRun';
 import { loadPlacePhotos } from '@/plan/placePhotos';
@@ -278,7 +278,7 @@ export default function Generating() {
   // 확인 표(여행 만들기)와 같은 함수 — 두 곳이 같은 말을 해야 한다.
   const keptConditions = conditionLabels(draft, tx);
   // 표의 탈 것은 고른 값이 아니라 실제로 짜인 일정이 말한다 — 자동차 일정이 「대중교통」으로 찍히던 것.
-  const tripTransport = isCarTrip(itinerary) ? 'CAR' : (draft.transport || null);
+  const tripTransport = (itinerary?.travelModes ?? []).includes('PRIVATE_CAR') ? 'CAR' : (draft.transport || null);
   const tripPass = buildTripPass({
     conditions: keptConditions,
     itinerary,

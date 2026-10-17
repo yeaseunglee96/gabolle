@@ -42,9 +42,9 @@ export const CATEGORY_OPTIONS: readonly PlanOption[] = [
 export const CATEGORY_IMAGES: Record<string, number> = {
   SEA_BEACH: require('../../assets/taste/photo/sea-beach.jpg'), // 해운대해수욕장 항공
   CITY: require('../../assets/taste/photo/city.jpg'), // 해운대스퀘어 야경 (2026-10-17 교체 — 용두산공원은 주제와 안 맞는다는 지시)
-  CAFE_HEALING: require('../../assets/taste/photo/cafe.jpg'), // 웨이브온커피 바다 뷰 카페 (2026-10-17 교체)
-  CULTURE_TEMPLE: require('../../assets/taste/photo/culture.jpg'), // 해동용궁사 야경
-  FOOD: require('../../assets/taste/photo/food.jpg'), // 부산 어묵
+  CAFE_HEALING: require('../../assets/taste/photo/cafe.jpg'), // 모모스커피 커피 (2026-10-17 사용자 지정)
+  CULTURE_TEMPLE: require('../../assets/taste/photo/culture.jpg'), // 해동용궁사 바다 쪽 전경 (2026-10-17 사용자 지정)
+  FOOD: require('../../assets/taste/photo/food.jpg'), // 부산삼겹살 하단본점 한 상 (2026-10-17 사용자 지정)
   NATURE_WALK: require('../../assets/taste/photo/nature.jpg'), // 오륙도 해맞이공원 수선화 길
   FESTIVAL_EVENT: require('../../assets/taste/photo/festival.jpg'), // 부산바다축제 불꽃
 };

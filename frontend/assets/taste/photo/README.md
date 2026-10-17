@@ -6,9 +6,9 @@
 |---|---|---|
 | sea-beach.jpg | 바다 & 해변 | 해운대해수욕장 항공 — https://archive.visitbusan.net/upload/2025/12/09/20251209133436230889_m.png |
 | city.jpg | 도심 탐험 | 해운대스퀘어 야경 (2026-10-17 교체) — https://archive.visitbusan.net/upload/2025/12/09/20251209133436211826_m.png |
-| cafe.jpg | 카페 & 힐링 | 웨이브온커피 (2026-10-17 교체) — https://archive.visitbusan.net/upload/2025/09/10/20250910110023287264_m.png |
-| culture.jpg | 문화 & 사찰 | 해동용궁사 야경 — https://archive.visitbusan.net/upload/2025/12/05/20251205154347184083_m.png |
-| food.jpg | 맛집 & 먹거리 | 부산 어묵(BIFF거리) — https://archive.visitbusan.net/upload/2025/09/10/20250910110022912964_m.png |
+| cafe.jpg | 카페 & 힐링 | 모모스커피 (2026-10-17 사용자 지정, 사용자가 받아 준 원본) |
+| culture.jpg | 문화 & 사찰 | 해동용궁사 전경 (2026-10-17 사용자 지정, 사용자가 받아 준 원본) |
+| food.jpg | 맛집 & 먹거리 | 부산삼겹살 하단본점 (2026-10-17 사용자 지정, 사용자가 받아 준 원본) |
 | nature.jpg | 자연 & 산책 | 오륙도 해맞이공원 — https://archive.visitbusan.net/upload/2025/08/06/20250806174158992445_m.png |
 | festival.jpg | 축제 & 행사 | 제29회 부산바다축제 불꽃 — https://archive.visitbusan.net/upload/2025/12/01/20251201105219676898_m.png |
 
