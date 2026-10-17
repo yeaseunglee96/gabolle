@@ -21,7 +21,7 @@ describe('WebFooter — 앱과 웹', () => {
     mount();
     expect(screen.queryByText('여행 중에는 앱이 더 편해요')).toBeNull();
     expect(screen.queryByText('Google Play 심사 중')).toBeNull();
-    expect(screen.getByLabelText('약관')).toBeTruthy();
+    expect(screen.getByLabelText('약관·고지')).toBeTruthy();
   });
 
   it('웹에서는 앱 받기 띠가 그대로다', () => {
