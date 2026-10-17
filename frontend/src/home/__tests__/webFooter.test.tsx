@@ -20,9 +20,12 @@ describe('WebFooter', () => {
     expect(screenFileExists(href)).toBe(true);
   });
 
-  it('🔴 문의하기는 약관에 적힌 문의처로 메일을 쓴다 — 화면이 없어 빈 링크로 두지 않는다', () => {
-    const contact = FOOTER_GROUPS.flatMap((group) => group.links).find((link) => link.ko === '문의하기');
-    expect(contact?.mail).toBe('gabolle.support@gmail.com');
+  it('🔴 맨 아래에는 겹치는 길을 두지 않는다 — 문의는 도움말·문의 안, 축제는 로컬 탐색, 계정 삭제는 마이페이지(2026-10-17)', () => {
+    const labels = FOOTER_GROUPS.flatMap((group) => group.links).map((link) => link.ko);
+    expect(labels).not.toContain('문의하기');
+    expect(labels).not.toContain('부산 축제');
+    expect(labels).not.toContain('계정 삭제');
+    expect(labels).toContain('도움말·문의');
   });
 
   it('앱 받기는 심사를 통과한 App Store 주소로 간다 — 포스터·팸플릿 QR 과 같다', () => {

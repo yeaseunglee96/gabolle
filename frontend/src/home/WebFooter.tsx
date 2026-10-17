@@ -24,9 +24,8 @@ const qrAppStore = require('../../assets/brand/qr-appstore.png');
 const qrPlayStore = require('../../assets/brand/qr-googleplay.png');
 const brandLogo = require('../../assets/brand/gabolle-logo-hd.png');
 
-/** href 는 앱 안 화면, mail 은 메일 앱으로 — 「문의하기」는 약관에 적힌 문의처로 바로 메일을 쓴다 */
+/** href 는 앱 안 화면, mail 은 메일 앱으로. 「문의하기」는 2026-10-17 에 뺐다 — 문의는 「도움말·문의」 화면 안에 있다(사용자 지시). */
 type FooterLink = { ko: string; en: string; href?: Href; mail?: string; emphasis?: boolean };
-const SUPPORT_MAIL = 'gabolle.support@gmail.com';
 type FooterGroup = { ko: string; en: string; links: FooterLink[] };
 
 export const FOOTER_GROUPS: FooterGroup[] = [
@@ -34,19 +33,16 @@ export const FOOTER_GROUPS: FooterGroup[] = [
     { ko: '여행 만들기', en: 'Plan a trip', href: '/plan' },
     { ko: '피드', en: 'Feed', href: '/feed' },
     { ko: '로컬 탐색', en: 'Explore locally', href: '/explore' },
-    { ko: '부산 축제', en: 'Busan festivals', href: '/festivals' },
   ] },
   { ko: '도움', en: 'Help', links: [
     { ko: '긴급 도움', en: 'Emergency help', href: '/emergency' },
     { ko: '근처 병원·약국', en: 'Nearby hospitals & pharmacies', href: '/nearby-help' },
     { ko: '도움말·문의', en: 'Help & support', href: '/help' },
-    { ko: '문의하기', en: 'Contact us', mail: SUPPORT_MAIL },
   ] },
   { ko: '약관·고지', en: 'Policies & notices', links: [
     { ko: '이용약관', en: 'Terms of service', href: '/legal/terms' },
     { ko: '개인정보 처리방침', en: 'Privacy policy', href: '/legal/privacy', emphasis: true },
     { ko: '자료 출처', en: 'Data sources', href: '/legal/data-sources' },
-    { ko: '계정 삭제', en: 'Delete account', href: '/legal/account-deletion' },
   ] },
 ];
 
