@@ -79,7 +79,7 @@ describe('로컬 탐색 여덟 칸', () => {
     });
     (getFestivals as jest.Mock).mockResolvedValue([]);
     const picks = await loadLocalPicks(new Date(2026, 9, 9));
-    expect(picks.map((p) => p.key)).toEqual(['FESTIVAL', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE', 'LOCAL_RESTAURANT', 'LOCAL_CAFE']);
+    expect(picks.map((p) => p.key)).toEqual(['FESTIVAL', 'LOCAL_RESTAURANT', 'LOCAL_CAFE', 'TRADITIONAL_MARKET', 'NATURE', 'WALK', 'ACTIVITY']);
     const festival = picks.find((p) => p.key === 'FESTIVAL');
     expect(festival?.place.placeId).toBe('d8836d09-0c5c-4d15-a962-95894af98d2e');
     expect(festival?.title?.ko).toContain('부산국제영화제');
@@ -90,7 +90,7 @@ describe('로컬 탐색 여덟 칸', () => {
     (getPlace as jest.Mock).mockImplementation(async (id: string) => ({ placeId: id, nameKo: `place-${id.slice(0, 4)}`, nameEn: null, address: '부산' }));
     (getFestivals as jest.Mock).mockResolvedValue([]);
     const picks = await loadLocalPicks(new Date(2026, 9, 9));
-    expect(picks.slice(-2).map((p) => [p.key, p.place.placeId, p.href])).toEqual([
+    expect(picks.slice(1, 3).map((p) => [p.key, p.place.placeId, p.href])).toEqual([
       ['LOCAL_RESTAURANT', RESTAURANT_ID, '/explore?facet=LOCAL_RESTAURANT'],
       ['LOCAL_CAFE', CAFE_ID, '/explore?facet=LOCAL_CAFE'],
     ]);
@@ -108,13 +108,13 @@ describe('로컬 탐색 여덟 칸', () => {
     };
 
     (getPlace as jest.Mock).mockImplementation(failing([RESTAURANT_ID]));
-    expect((await loadLocalPicks(new Date(2026, 9, 9))).map((p) => p.key)).toEqual(['FESTIVAL', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE', 'NIGHT_VIEW', 'LOCAL_CAFE']);
+    expect((await loadLocalPicks(new Date(2026, 9, 9))).map((p) => p.key)).toEqual(['FESTIVAL', 'LOCAL_CAFE', 'NIGHT_VIEW', 'TRADITIONAL_MARKET', 'NATURE', 'WALK', 'ACTIVITY']);
 
     (getPlace as jest.Mock).mockImplementation(failing([CAFE_ID]));
-    expect((await loadLocalPicks(new Date(2026, 9, 9))).map((p) => p.key)).toEqual(['FESTIVAL', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE', 'NIGHT_VIEW', 'LOCAL_RESTAURANT']);
+    expect((await loadLocalPicks(new Date(2026, 9, 9))).map((p) => p.key)).toEqual(['FESTIVAL', 'LOCAL_RESTAURANT', 'NIGHT_VIEW', 'TRADITIONAL_MARKET', 'NATURE', 'WALK', 'ACTIVITY']);
 
     (getPlace as jest.Mock).mockImplementation(failing([RESTAURANT_ID, CAFE_ID]));
-    expect((await loadLocalPicks(new Date(2026, 9, 9))).map((p) => p.key)).toEqual(['FESTIVAL', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE', 'NIGHT_VIEW']);
+    expect((await loadLocalPicks(new Date(2026, 9, 9))).map((p) => p.key)).toEqual(['FESTIVAL', 'NIGHT_VIEW', 'TRADITIONAL_MARKET', 'NATURE', 'WALK', 'ACTIVITY']);
   });
 
   it('대표 축제 기간이 아니면 축제 데이터의 축제가 칸을 채운다', async () => {
