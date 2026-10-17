@@ -130,7 +130,7 @@ export default function FeedbackScreen() {
             maxLength={CONTENT_MAX + 50}
             multiline
             textAlignVertical="top"
-            placeholder={type === 'BUG' ? tx('어느 화면에서 무엇을 했을 때 어떻게 됐는지 적어 주세요.', 'Tell us which screen, what you did, and what happened.') : tx('바라는 점을 자유롭게 적어 주세요.', 'Tell us what you would like.')}
+            placeholder={type === 'BUG' ? tx('이용에 불편을 끼쳐 드려 죄송합니다. 발견한 버그를 적어 주시면 빠른 시일 안에 고치겠습니다.', 'We are sorry for the trouble. Describe the bug you found and we will fix it as soon as we can.') : type === 'IDEA' ? tx('건의 사항을 적어 주세요.', 'Please write your suggestion.') : tx('자유롭게 의견을 적어 주세요.', 'Feel free to share your thoughts.')}
             placeholderTextColor={color.text.muted}
             style={[styles.input, styles.textarea]}
             accessibilityLabel={tx('내용', 'Details')}
