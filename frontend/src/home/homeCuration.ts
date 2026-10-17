@@ -74,7 +74,8 @@ export const LOCAL_PICK_PLACES: Record<Exclude<LocalPickKey, 'FESTIVAL'>, string
 };
 
 /** 줄에 서는 순서. 예전 여섯 칸 그대로 앞에 두고 맛집·카페는 맨 뒤다(S15P21E201-2059 — 사용자 지시 2026-10-15, 처음엔 맨 앞이었다). */
-export const LOCAL_PICK_ORDER: readonly LocalPickKey[] = ['FESTIVAL', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE', 'NIGHT_VIEW', 'LOCAL_RESTAURANT', 'LOCAL_CAFE'];
+export const LOCAL_PICK_ORDER: readonly LocalPickKey[] = ['FESTIVAL', 'LOCAL_RESTAURANT', 'LOCAL_CAFE', 'NIGHT_VIEW', 'TRADITIONAL_MARKET', 'NATURE', 'WALK', 'ACTIVITY'];
+// 2026-10-17 순서 변경 — 가장 많이 찾는 맛집·카페를 축제 바로 뒤로(폰 첫 화면에 보이게). 로컬 탐색 화면(app/explore.tsx)도 같은 순서다.
 
 /**
  * 기간을 아는 대표 축제. 축제 데이터(관광공사)에 아직 없는 큰 축제를 여기 적는다 — 기간 안에만 축제 칸에 선다.

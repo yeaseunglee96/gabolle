@@ -34,6 +34,7 @@ import { syncLocationConsent } from '@/personalization/locationConsent';
 import { useLocationGate } from '@/personalization/useLocationGate';
 import { SuggestPlaceLink } from '@/discovery/SuggestPlaceLink';
 import { localKindOf, placeCafeAfterRestaurant, type RestaurantItem } from '@/discovery/localRestaurants';
+import { LOCAL_PICK_ORDER } from '@/home/homeCuration';
 import { RestaurantBrowser, RestaurantSourceBadges } from '@/discovery/RestaurantBrowser';
 
 // 여덟 갈래의 실제 값(jaehyeon 님 확인) — 서버가 이 여덟을 항상 함께 돌려주므로, 응답에서
@@ -111,7 +112,8 @@ export default function LocalExplore() {
 
   // 카페는 맛집 바로 뒤에 — 서버가 글자순으로 주던 응답이 와도 같은 순서다.
   const flatFacets = flattenLocalFacets(result, KNOWN_FACET_KEYS);
-  const facets = flatFacets ? placeCafeAfterRestaurant(flatFacets) : flatFacets;
+  // 탭 순서는 홈 로컬 탐색과 같다(LOCAL_PICK_ORDER). 거기 없는 갈래(야시장·기념품)는 서버 순서대로 뒤에 선다.
+  const facets = flatFacets ? orderLikeHome(placeCafeAfterRestaurant(flatFacets)) : flatFacets;
   // 홈에서 특정 갈래를 눌러 들어온 경우 그 갈래를 맨 위에서 바로 펼친다. 선택값을 버린 채
   // 같은 첫 화면만 보여 주면 사용자는 버튼이 동작하지 않았다고 느낀다.
   // 첫 칸은 「로컬 장소」 묶음이다(S15P21E201-2024) — 전에는 서버 순서대로 「전통시장」이 첫 칸이었다.
@@ -564,3 +566,8 @@ const styles = StyleSheet.create({
   cardPhoto: { width: '100%', aspectRatio: 1, borderRadius: radius.md, backgroundColor: color.surface.soft },
   cardBody: { gap: 2, paddingTop: spacing[1] },
 });
+
+function orderLikeHome<T extends { featureKey: string }>(facets: T[]): T[] {
+  const rank = (key: string) => { const index = (LOCAL_PICK_ORDER as readonly string[]).indexOf(key); return index < 0 ? LOCAL_PICK_ORDER.length : index; };
+  return [...facets].sort((a, b) => rank(a.featureKey) - rank(b.featureKey));
+}

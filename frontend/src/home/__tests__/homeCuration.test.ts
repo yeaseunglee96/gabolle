@@ -28,7 +28,7 @@ describe('기록 줄 — 고른 글이 먼저', () => {
 
 describe('로컬 탐색 여덟 칸', () => {
   it('예전 여섯 칸이 앞이고 맛집·카페가 맨 뒤이며, 이름표가 여섯 언어 다 있다', () => {
-    expect(LOCAL_PICK_ORDER).toEqual(['FESTIVAL', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE', 'NIGHT_VIEW', 'LOCAL_RESTAURANT', 'LOCAL_CAFE']);
+    expect(LOCAL_PICK_ORDER).toEqual(['FESTIVAL', 'LOCAL_RESTAURANT', 'LOCAL_CAFE', 'NIGHT_VIEW', 'TRADITIONAL_MARKET', 'NATURE', 'WALK', 'ACTIVITY']);
     for (const key of LOCAL_PICK_ORDER) for (const lang of LANGUAGE_CODES) expect(pickLabel(key, lang)).toBeTruthy();
   });
 
