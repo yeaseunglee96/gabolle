@@ -16,7 +16,7 @@ import { PhotoCredit } from '@/components/PhotoCredit';
 import { PlacePhotoGallery } from '@/components/PlacePhotoGallery';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
-import { formatBreakTime, formatCheckInOut, formatFeatureSlot, formatLastOrderTime, formatSlopePercent, formatSoloFriendly, formatStairsPresent, getPlace, hasFoodSafetyConfirmed, isMuslimFriendlyListed, needsFoodSafetyCheck, photoLabels, placePhotos, type Place as ApiPlace } from '@/discovery/places';
+import { formatBreakTime, formatCheckInOut, formatFeatureSlot, formatLastOrderTime, formatSoloFriendly, getPlace, hasFoodSafetyConfirmed, isMuslimFriendlyListed, knownAccessText, needsFoodSafetyCheck, photoLabels, placePhotos, type Place as ApiPlace } from '@/discovery/places';
 import { placeNameForLanguage } from '@/discovery/romanize';
 import { DEMO_PLACES, loadSavedPlaceIds, setSavedPlace } from '@/discovery/savedPlaces';
 import { useI18n } from '@/i18n';
@@ -303,10 +303,10 @@ export default function Place() {
         {/* : 이동약자 접근성 — 여기 있는 건 이 장소 자체의 경사·계단 정보다.
             "구간(경로)" 단위 접근성은 아직 백엔드에 없어 이 증분에 없다 — 티켓 코멘트 참고.
         */}
-        {resolved.apiPlace && (formatStairsPresent(resolved.apiPlace, tx) || formatSlopePercent(resolved.apiPlace, tx)) ? (
+        {resolved.apiPlace && (knownAccessText(resolved.apiPlace, 'STAIRS_PRESENT', tx) || knownAccessText(resolved.apiPlace, 'SLOPE_PERCENT', tx)) ? (
           <View style={styles.infoRows}>
-            {formatStairsPresent(resolved.apiPlace, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted} style={styles.infoLabel}>{tx('계단', 'Stairs')}</Text><Text variant="body" style={styles.infoValue}>{formatStairsPresent(resolved.apiPlace, tx)}</Text></View> : null}
-            {formatSlopePercent(resolved.apiPlace, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted} style={styles.infoLabel}>{tx('경사', 'Slope')}</Text><Text variant="body" style={styles.infoValue}>{formatSlopePercent(resolved.apiPlace, tx)}</Text></View> : null}
+            {knownAccessText(resolved.apiPlace, 'STAIRS_PRESENT', tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted} style={styles.infoLabel}>{tx('계단', 'Stairs')}</Text><Text variant="body" style={styles.infoValue}>{knownAccessText(resolved.apiPlace, 'STAIRS_PRESENT', tx)}</Text></View> : null}
+            {knownAccessText(resolved.apiPlace, 'SLOPE_PERCENT', tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted} style={styles.infoLabel}>{tx('경사', 'Slope')}</Text><Text variant="body" style={styles.infoValue}>{knownAccessText(resolved.apiPlace, 'SLOPE_PERCENT', tx)}</Text></View> : null}
           </View>
         ) : null}
         {/* 대표 메뉴·외국어 메뉴판·편의시설·입장료·가까운 명소·좋은 때·걷기 난이도(S15P21E201-1888). 값이 없으면 아무것도 안 그린다. */}

@@ -1,5 +1,5 @@
 // 장소 상세가 서버 값을 사람이 읽는 말로 옮기는가 — S15P21E201-1202.
-import { formatFeatureSlot, formatOpeningHoursValue, formatSlopePercent } from '../places';
+import { formatFeatureSlot, formatOpeningHoursValue, formatSlopePercent, knownAccessText } from '../places';
 import type { Place } from '../places';
 
 const tx = (ko: string) => ko;
@@ -93,5 +93,19 @@ describe('영업시간 — 서버가 읽었다고 한 것을 화면도 읽는다
     const shown = formatFeatureSlot({ value: HOURS_VALUE, evidenceStatus: 'ESTIMATED' } as never, tx) ?? '';
     expect(shown).toBe('매일 10:00~20:00 (추정)');
     expect(shown).not.toContain('{');
+  });
+});
+
+describe('장소 화면의 계단·경사 — 확인한 것만 보인다 (2026-10-17)', () => {
+  it('확인했거나 추정한 값은 보인다', () => {
+    expect(knownAccessText(placeWith('STAIRS_PRESENT', false, 'VERIFIED'), 'STAIRS_PRESENT', tx)).toBe('계단 없음');
+    expect(knownAccessText(placeWith('STAIRS_PRESENT', true), 'STAIRS_PRESENT', tx)).toContain('계단 있음');
+    expect(knownAccessText(placeWith('SLOPE_PERCENT', SLOPE_VALUE), 'SLOPE_PERCENT', tx)).toBeTruthy();
+  });
+  it('🔴 확인 못 한 장소는 줄을 그리지 않는다 — 「아직 확인하지 않았어요」를 반복하지 않는다', () => {
+    expect(knownAccessText(placeWith('STAIRS_PRESENT', null, 'NOT_COLLECTED'), 'STAIRS_PRESENT', tx)).toBeNull();
+    expect(knownAccessText(placeWith('STAIRS_PRESENT', null, 'UNKNOWN'), 'STAIRS_PRESENT', tx)).toBeNull();
+    expect(knownAccessText(placeWith('SLOPE_PERCENT', 'garbage'), 'SLOPE_PERCENT', tx)).toBeNull();
+    expect(knownAccessText({ features: [] } as unknown as Place, 'SLOPE_PERCENT', tx)).toBeNull();
   });
 });

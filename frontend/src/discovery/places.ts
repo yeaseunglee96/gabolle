@@ -378,6 +378,17 @@ export function formatStairsPresent(place: Place, tx: (ko: string, en: string) =
   return slot.evidenceStatus === 'ESTIMATED' ? txf(tx, '%s (추정)', '%s (est.)', label) : label;
 }
 
+/**
+ * 장소 화면용 — 값을 확인했거나 추정한 것만. 확인 못 한 장소에는 줄 자체를 그리지 않는다(2026-10-17 사용자 지시:
+ * 대부분의 장소가 「아직 확인하지 않았어요」라 쓸모없는 줄이 반복됐다). 형식을 못 읽은 값도 숨긴다.
+ */
+export function knownAccessText(place: Place, kind: 'STAIRS_PRESENT' | 'SLOPE_PERCENT', tx: (ko: string, en: string) => string): string | null {
+  const slot = toFeatureSlot(findFeature(place, kind));
+  if (!slot || slot.evidenceStatus === 'UNKNOWN' || slot.evidenceStatus === 'NOT_COLLECTED' || slot.value == null) return null;
+  if (kind === 'SLOPE_PERCENT' && slopeText(slot.value) === null) return null;
+  return kind === 'STAIRS_PRESENT' ? formatStairsPresent(place, tx) : formatSlopePercent(place, tx);
+}
+
 // 경사도(SLOPE_PERCENT) — 점수형 피처. 화면에는 숫자 대신 말(완만해요·조금 가파라요·가파라요)로 낸다(S15P21E201-2023).
 /** 경사도 표시용 숫자 추출 — 못 꺼내면 null */
 function slopeText(value: unknown): string | null {
