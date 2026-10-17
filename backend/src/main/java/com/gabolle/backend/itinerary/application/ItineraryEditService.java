@@ -477,6 +477,11 @@ public class ItineraryEditService {
             Trip trip = tripRepository.findById(itinerary.tripId()).orElse(null);
             DayWindow window = trip == null ? null : DayWindow.of(trip);
             dayStart = (window != null && window.known()) ? window.start() : null;
+            // 🔴 오늘이 그날이면 지금보다 앞선 시각으로 세우지 않는다 — 18시에 직접 짜기를 하면 첫 곳이 10:14 로 섰다
+            //    (2026-10-17 폰 1.0.5). 10분 단위로 올린 «지금»이 하루 시작보다 늦으면 그 시각에 나선다.
+            if (dayStart != null && !day.isEmpty()) {
+                dayStart = notBeforeNow(day.get(0).visitDate(), dayStart);
+            }
             // 🔴 활동 시작은 «출발지를 나서는» 시각이다 — 첫 곳에는 출발지에서 가는 이동 뒤에 닿는다(S15P21E201-2043).
             //    직접 짜기에서 서면역→해운대 45분을 빼고 첫 곳을 09:00 에 세웠다. 바탕 판에 첫 곳이 있으면 그 시각이 이미 이동을 품고 있다.
             if (dayStart != null && !day.isEmpty()) {
@@ -515,6 +520,20 @@ public class ItineraryEditService {
     }
 
     /** 출발지를 나선 시각에 첫 구간 이동을 더한 도착 시각. 이동을 모르거나 자정을 넘기면 나선 시각 그대로. */
+    private static final java.time.ZoneId TRIP_ZONE = java.time.ZoneId.of("Asia/Seoul");
+
+    /** 그날이 오늘(부산 시각)이면 하루 시작을 «지금»(10분 단위 올림)보다 앞세우지 않는다. 다른 날·자정 넘김은 그대로. */
+    LocalTime notBeforeNow(LocalDate visitDate, LocalTime dayStart) {
+        if (visitDate == null || dayStart == null) return dayStart;
+        LocalDateTime now = LocalDateTime.now(clock.withZone(TRIP_ZONE));
+        if (!visitDate.equals(now.toLocalDate())) return dayStart;
+        int minutes = now.getHour() * 60 + now.getMinute();
+        int rounded = ((minutes + 9) / 10) * 10;
+        if (rounded >= 24 * 60) return dayStart;
+        LocalTime nowRounded = LocalTime.of(rounded / 60, rounded % 60);
+        return nowRounded.isAfter(dayStart) ? nowRounded : dayStart;
+    }
+
     static LocalTime arrivalAfterOriginLeg(LocalTime leaveAt, Integer originLegMinutes) {
         if (originLegMinutes == null || originLegMinutes <= 0) {
             return leaveAt;
