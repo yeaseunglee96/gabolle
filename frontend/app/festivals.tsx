@@ -189,7 +189,8 @@ export default function Festivals() {
       // 사진이 그 축제를 찍은 것이 아닐 수 있다 — 대부분은 열리는 장소 사진이다.
       // 그대로 두면 「이 축제가 이렇게 생겼구나」로 읽힌다.
       const photo = photoLabels(festival, tx);
-      return <View key={festival.placeId} style={[styles.card, cardWidth !== null && { width: cardWidth }]}>
+      // 카드를 누르면 그 축제(장소) 상세로 — 전에는 「+ 내 일정에 추가」만 눌려 축제를 더 알아볼 길이 없었다(2026-10-17 폰 1.0.5).
+      return <Pressable key={festival.placeId} accessibilityRole="link" onPress={() => router.push({ pathname: '/place/[id]', params: { id: festival.placeId } })} style={({ pressed }) => [styles.card, cardWidth !== null && { width: cardWidth }, pressed && styles.cardPressed]}>
         {festival.photoUrl ? <View>
           <AppImage source={{ uri: festival.photoUrl }} resizeMode="cover" style={styles.image} />
           {photo.badge && <View style={styles.photoBadge}><Text variant="caption" weight="bold" color={color.text.onAction}>{photo.badge}</Text></View>}
@@ -204,7 +205,7 @@ export default function Festivals() {
             <Text variant="caption" weight="bold" color={color.action.outline}>{tx('+ 내 일정에 추가', '+ Add to my itinerary')}</Text>
           </Pressable>
         </View>
-      </View>;
+      </Pressable>;
     })}</View>}
     <AddPlaceToItineraryModal visible={addPlaceId != null} placeId={addPlaceId ?? ''} onClose={() => setAddPlaceId(null)} />
   </Screen>;
@@ -216,6 +217,7 @@ const THREE_COLUMNS_FROM = 1200;
 const styles = StyleSheet.create({
   screen: { backgroundColor: color.canvas },
   topBar: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  cardPressed: { opacity: 0.85 },
   back: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card }, pressed: { opacity: 0.72, transform: [{ scale: 0.96 }] }, logo: { width: 154, height: 28 }, spacer: { width: 44 },
   heading: { gap: spacing[2], marginTop: spacing[4], marginBottom: spacing[6] },
   filterCard: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card }, 

@@ -39,7 +39,8 @@ export function LocationPickMap({ initial, moveTo, onCenter, height = 280 }: Loc
   }
   return (
     <View style={[styles.shell, { height }]}>
-      <WebView ref={webRef} originWhitelist={['*']} source={{ html, baseUrl: BASE_URL }} onMessage={onMessage} style={styles.map} javaScriptEnabled />
+      {/* 🔴 domStorageEnabled — 경로 지도(RouteMap)와 같게. 빠져 있어 앱에서 카카오 지도가 회색 빈칸으로 남았다(2026-10-17 폰 1.0.5 실측). */}
+      <WebView ref={webRef} originWhitelist={['*']} source={{ html, baseUrl: BASE_URL }} onMessage={onMessage} style={styles.map} javaScriptEnabled domStorageEnabled />
       <CenterPin />
     </View>
   );
@@ -47,5 +48,6 @@ export function LocationPickMap({ initial, moveTo, onCenter, height = 280 }: Loc
 
 const styles = StyleSheet.create({
   shell: { width: '100%', borderRadius: radius.lg, overflow: 'hidden', backgroundColor: color.surface.soft, alignItems: 'center', justifyContent: 'center' },
-  map: { width: '100%', height: '100%' },
+  // 가운데 정렬 칸 안에서도 지도가 칸을 다 차지하게 — 퍼센트 크기만으로는 WebView 가 0 으로 잡힐 수 있다.
+  map: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: 'transparent' },
 });

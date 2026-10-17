@@ -51,7 +51,8 @@ export function transitStepKind(step: RouteStep): TransitStepKind {
 export function modeFareLine(directions: RouteDirections, tx: Tx): string | null {
   if (directions.mode === 'CAR' && directions.taxiFareKrw != null) {
     const fare = directions.taxiFareKrw.toLocaleString('en-US');
-    return tx(`택시 약 ${fare}원`, `Taxi ~₩${fare}`);
+    // 탭 이름이 이미 「택시·자동차」다 — 「택시 약 18,100원」은 칸을 넘어 「택시 약 18,10…」으로 잘렸다(2026-10-17 폰).
+    return txf(tx, '약 %s원', 'About ₩%s', fare);
   }
   if (directions.mode === 'TRANSIT' && directions.transitFareKrw != null) {
     const fare = directions.transitFareKrw.toLocaleString('en-US');

@@ -153,7 +153,7 @@ export default function SelfPlanScreen() {
           <View key={item.id} style={styles.stop} testID={`self-plan-stop-${index + 1}`}>
             <Text weight="bold" style={styles.clock}>{clock ?? '--:--'}</Text>
             <View style={styles.stopCopy}>
-              <Text weight="bold" numberOfLines={1}>{stopNameForLanguage(item.title, item.nameEn, language)}</Text>
+              <Text weight="bold" numberOfLines={2}>{stopNameForLanguage(item.title, item.nameEn, language)}</Text>
               <Text variant="caption" color={color.text.muted} numberOfLines={1}>
                 {[stay != null ? formatStay(stay, tx) : null, item.travelDurationMin != null && index > 0 ? tx(`이동 ${item.travelDurationMin}분`, `Travel ${item.travelDurationMin} min`) : null].filter(Boolean).join(' · ')}
               </Text>
