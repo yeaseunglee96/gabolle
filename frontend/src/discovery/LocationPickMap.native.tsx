@@ -49,5 +49,5 @@ export function LocationPickMap({ initial, moveTo, onCenter, height = 280 }: Loc
 const styles = StyleSheet.create({
   shell: { width: '100%', borderRadius: radius.lg, overflow: 'hidden', backgroundColor: color.surface.soft, alignItems: 'center', justifyContent: 'center' },
   // 가운데 정렬 칸 안에서도 지도가 칸을 다 차지하게 — 퍼센트 크기만으로는 WebView 가 0 으로 잡힐 수 있다.
-  map: { ...StyleSheet.absoluteFillObject, backgroundColor: 'transparent' },
+  map: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: 'transparent' },
 });
