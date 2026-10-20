@@ -3,7 +3,7 @@
 // 🔴 위치를 못 쓰면 서면으로 넘어가던 것을 대신한다. 공항에 막 내린 사람에게 «서면 근처 환전소»는 쓸모가 없다.
 //    검색은 출발지 검색과 같은 길(GET /api/v1/origins — 카카오 지도 장소 검색)을 쓰고, 자주 가는 곳은 한 번에 누른다.
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, TextInput, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { ChipLabel } from '@/components/ChipLabel';
 import { Text } from '@/components/Text';
@@ -26,10 +26,13 @@ export const POPULAR_AREAS: ReadonlyArray<NearArea & { nameEn: string }> = [
 const MIN_QUERY = 2;
 const DEBOUNCE_MS = 300;
 
-export function NearAreaPicker({ accessToken, onPick, testID = 'near-area' }: {
+export function NearAreaPicker({ accessToken, onPick, testID = 'near-area', title, style }: {
   accessToken: string | null;
   onPick: (area: NearArea) => void;
   testID?: string;
+  /** 위에 적는 물음. 없으면 「어디 근처를 볼까요?」 */
+  title?: string;
+  style?: StyleProp<ViewStyle>;
 }) {
   const { tx, language } = useI18n();
   const [query, setQuery] = useState('');
@@ -54,8 +57,8 @@ export function NearAreaPicker({ accessToken, onPick, testID = 'near-area' }: {
   const pick = (area: NearArea) => { setQuery(''); setResults(null); onPick(area); };
 
   return (
-    <View testID={testID} style={styles.box}>
-      <Text variant="body" weight="bold">{tx('어디 근처를 볼까요?', 'Where should we look?')}</Text>
+    <View testID={testID} style={[styles.box, style]}>
+      <Text variant="body" weight="bold">{title ?? tx('어디 근처를 볼까요?', 'Where should we look?')}</Text>
       <TextInput
         testID={`${testID}-input`}
         value={query}

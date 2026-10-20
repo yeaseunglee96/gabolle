@@ -344,8 +344,8 @@ export default function NearbyFacilitiesScreen() {
             : <Button testID="facility-open-settings" label={tx('설정에서 위치 허용하기', 'Allow location in Settings')} variant="tertiary" compact onPress={() => void Linking.openSettings()} />}
         </View>
       ) : null}
-      {/* 위치를 쓰고 있어도 다른 곳으로 바꿀 수 있다 — 숙소 근처 짐보관을 미리 찾는 것처럼. */}
-      <NearAreaPicker testID="facility-area" accessToken={accessToken} onPick={pickArea} />
+      {/* 🔴 위치를 못 쓸 때만 맨 위 — 고르지 않으면 볼 것이 없다. 위치를 쓰면 결과가 먼저고 이 칸은 목록 아래(사용자 지시 2026-10-20). */}
+      {usingFallback ? <NearAreaPicker testID="facility-area" accessToken={accessToken} onPick={pickArea} style={styles.pickerTop} /> : null}
       {locationState === 'detecting' ? (
         <View style={styles.notice}><Text variant="caption" weight="bold" color={color.text.body}>{tx('위치를 확인하고 있어요…', 'Finding your location…')}</Text></View>
       ) : null}
@@ -407,7 +407,7 @@ export default function NearbyFacilitiesScreen() {
           <Text variant="body" weight="bold">{txf(tx, '반경 %s 안에는 아직 없어요.', 'Nothing within %s yet.', distanceText(load.data.radiusM))}</Text>
           {radiusM < WIDE_RADIUS_M
             ? <Button testID="facility-widen" label={tx('2km까지 넓혀 찾기', 'Search up to 2 km')} variant="tertiary" compact onPress={() => setRadiusM(WIDE_RADIUS_M)} />
-            : <Text variant="caption" color={color.text.body}>{tx('위 「어디 근처를 볼까요?」에서 다른 곳을 골라 보세요.', 'Choose another place in “Where should we look?” above.')}</Text>}
+            : <Text variant="caption" color={color.text.body}>{tx('아래 「다른 곳 근처 보기」에서 다른 곳을 골라 보세요.', 'Pick another place in “Look around somewhere else” below.')}</Text>}
         </View>
       ) : (
         <>
@@ -419,6 +419,9 @@ export default function NearbyFacilitiesScreen() {
         </>
       )}
 
+      {usingFallback ? null : (
+        <NearAreaPicker testID="facility-area" accessToken={accessToken} onPick={pickArea} title={tx('다른 곳 근처 보기', 'Look around somewhere else')} style={styles.pickerBottom} />
+      )}
       <Text variant="caption" color={color.text.muted} style={styles.foot}>{tx('거리는 직선이에요. 공공 자료를 바탕으로 해서 현장과 다를 수 있어요.', 'Distances are straight-line. Based on public data, so details may differ on site.')}</Text>
       {locationGate.sheet}
     </Screen>
@@ -445,4 +448,6 @@ const styles = StyleSheet.create({
   mapWrap: { overflow: 'hidden', borderRadius: radius.lg, marginBottom: spacing[3] },
   list: { gap: spacing[2], marginTop: spacing[2], marginBottom: spacing[3] },
   foot: { marginTop: spacing[4], marginBottom: spacing[8] },
+  pickerTop: { marginBottom: spacing[4] },
+  pickerBottom: { marginTop: spacing[4] },
 });

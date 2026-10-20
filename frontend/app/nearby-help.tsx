@@ -67,7 +67,7 @@ type Found = { source: 'server' | 'local'; items: HelpItem[] } | null;
 const KIND_LABEL: Record<HelpKind, [string, string]> = {
   hospital: ['병원·의원', 'Hospitals'],
   pharmacy: ['약국', 'Pharmacies'],
-  police: ['경찰', 'Police'],
+  police: ['경찰서', 'police stations'],
 };
 
 /** 종별 이름 — 외국어 화면에서만 옮긴다. 모르는 종별은 그대로 */
@@ -237,7 +237,6 @@ export default function NearbyHelpScreen() {
     <Pressable testID="nearby-kakao" accessibilityRole="link" onPress={() => void Linking.openURL(kakaoSearchUrl(kind))} style={({ pressed }) => [styles.more, pressed && styles.pressed]}>
       <View style={styles.grow}>
         <Text variant="body" weight="bold">{txf(tx, '카카오맵에서 %s 더 찾기', 'Find more %s on Kakao Map', tx(...KIND_LABEL[kind]))}</Text>
-        <Text variant="caption" color={color.text.body}>{tx('리뷰와 사진까지 보고 싶을 때', 'When you want reviews and photos too')}</Text>
       </View>
       <Text variant="title" color={color.text.muted}>›</Text>
     </Pressable>
