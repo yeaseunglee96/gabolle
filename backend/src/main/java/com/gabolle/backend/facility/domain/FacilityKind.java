@@ -18,7 +18,13 @@ public enum FacilityKind {
 	TOILET,
 
 	/** 지하철 물품보관함 — 역 단위, 크기별 칸 수. */
-	LOCKER;
+	LOCKER,
+
+	/**
+	 * 환전소 — 🔴 우리 표에 없다. 부를 때마다 카카오 로컬에 묻는다({@code ExchangeSearch}, S15P21E201-2066).
+	 * 로더(FacilityLoader)는 이 종류의 행을 만들지 않는다.
+	 */
+	EXCHANGE;
 
 	/** 이름으로 찾는다 — 대소문자를 가리지 않는다. 모르는 이름이면 비어 있다. */
 	public static Optional<FacilityKind> fromName(String name) {
