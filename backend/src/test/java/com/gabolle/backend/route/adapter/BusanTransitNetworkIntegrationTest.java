@@ -190,7 +190,8 @@ class BusanTransitNetworkIntegrationTest {
 		long subwayStops = loaded.stops().stream().filter(stop -> stop.kind() == TransitNetwork.Kind.SUBWAY).count();
 
 		assertThat(busStops).as("버스 정류장이 안 올라왔다").isGreaterThan(5_000);
-		assertThat(subwayStops).as("지하철 역이 안 올라왔다 — 부산 도시철도는 114역이다").isEqualTo(114);
+		// 도시철도 114역 + 부산김해경전철 21역 + 동해선 23역 = 158 (S15P21E201-2072)
+		assertThat(subwayStops).as("지하철 역이 안 올라왔다 — 부산 도시철도 114 + 경전철 21 + 동해선 23 = 158역이다").isEqualTo(158);
 	}
 
 	@Test
@@ -200,10 +201,10 @@ class BusanTransitNetworkIntegrationTest {
 
 		List<TransitNetwork.Route> subwayRoutes = subwayRoutesOf(loaded);
 
-		// 4호선 × 상행·하행 = 8. 요일(평일·토·일)을 안 거르면 24가 된다.
+		// 도시철도 4호선 × 상행·하행 = 8 + 경전철·동해선 × 2 = 12 (S15P21E201-2072). 요일(평일·토·일)을 안 거르면 도시철도만 24가 된다.
 		assertThat(subwayRoutes)
-				.as("지하철 노선이 %d갈래다 — 8이 아니면 요일 거르기가 안 먹은 것이다", subwayRoutes.size())
-				.hasSize(8);
+				.as("지하철 노선이 %d갈래다 — 12가 아니면 요일 거르기가 안 먹은 것이다", subwayRoutes.size())
+				.hasSize(12);
 	}
 
 	@Test
@@ -333,6 +334,36 @@ class BusanTransitNetworkIntegrationTest {
 		System.out.println("### 명지 → 삼광사 " + leg.get().durationMin() + "분 · " + leg.get().steps());
 		assertThat(leg.get().durationMin()).isLessThan(150);
 		assertThat(leg.get().steps()).anyMatch(step -> step.name().contains("호선"));
+	}
+
+	@Test
+	@DisplayName("🔴 김해공항 → 서면은 부산김해경전철을 탄다 — 전에는 경전철이 노선망에 없어 공항버스만 나왔다 (S15P21E201-2072)")
+	void gimhaeAirportUsesTheLightRail() {
+		Optional<RouteLeg> leg = adapter().find(new RouteQuery(35.1732, 128.9466, SEOMYEON_LAT, SEOMYEON_LNG, TravelMode.TRANSIT));
+
+		assertThat(leg).isPresent();
+		System.out.println("### 김해공항 → 서면 " + leg.get().durationMin() + "분 · " + leg.get().steps());
+		assertThat(leg.get().steps()).as("경전철이 없다: %s", leg.get().steps()).anyMatch(step -> step.name().contains("경전철"));
+		assertThat(leg.get().durationMin()).isLessThan(55);
+	}
+
+	@Test
+	@DisplayName("🔴 태종대 — 800m 안에 정류장이 없어도 1.5km 까지 넓혀 대중교통을 찾는다 (S15P21E201-2072)")
+	void taejongdaeFindsTransitWithWiderAccess() {
+		Optional<RouteLeg> leg = adapter().find(new RouteQuery(35.0966, 129.0306, 35.0516, 129.0870, TravelMode.TRANSIT));
+
+		assertThat(leg).as("자갈치 → 태종대 대중교통을 못 찾았다").isPresent();
+		System.out.println("### 자갈치 → 태종대 " + leg.get().durationMin() + "분 · " + leg.get().steps());
+	}
+
+	@Test
+	@DisplayName("동해선 — 센텀에서 기장까지 동해선이 낀다")
+	void donghaeLineIsUsed() {
+		Optional<RouteLeg> leg = adapter().find(new RouteQuery(35.1795, 129.1244, 35.2445, 129.2188, TravelMode.TRANSIT));
+
+		assertThat(leg).isPresent();
+		System.out.println("### 센텀 → 기장 " + leg.get().durationMin() + "분 · " + leg.get().steps());
+		assertThat(leg.get().steps()).anyMatch(step -> step.name().contains("동해선"));
 	}
 
 	private static List<TransitNetwork.Route> subwayRoutesOf(TransitNetwork loaded) {
