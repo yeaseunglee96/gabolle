@@ -124,6 +124,11 @@ public class TransitRouteAdapter implements RouteProviderPort {
 			if (byHeadway.isEmpty()) {
 				byHeadway = headway.planWithOneTransfer(network, origins, destinations, TYPICAL_DAYTIME_MINUTE);
 			}
+			// 한 번 갈아타서도 안 되면 노선망 설정의 최대 탑승 횟수까지 — 명지→삼광사(버스→지하철→버스)가 그랬다.
+			if (byHeadway.isEmpty()) {
+				byHeadway = headway.planWithTransfers(network, origins, destinations, TYPICAL_DAYTIME_MINUTE,
+						this.properties.getMaxRides());
+			}
 			if (byHeadway.isPresent()) {
 				return Optional.of(toLeg(network, query, byHeadway.get(), REASON_HEADWAY_ESTIMATE));
 			}
