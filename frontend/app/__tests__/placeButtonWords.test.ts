@@ -32,11 +32,13 @@ describe('장소 상세 단추 — 영어도 한 줄', () => {
     expect(source).not.toContain("'Save to candidates'");
   });
 
-  it('택시 단추는 「기사님께 보여주기」·「Show to driver」', () => {
-    expect(source).toContain("tx('기사님께 보여주기', 'Show to driver')");
+  // 🔴 장소 화면의 택시 단추는 「길 안내」로 바뀌었다(S15P21E201-2065, 사용자 결정) — 택시 주소 카드는 길 안내 화면의 택시·자동차 탭에 있다.
+  it('택시 단추 자리는 「길 안내」·「Directions」', () => {
+    expect(source).toContain("tx('길 안내', 'Directions')");
+    expect(source).not.toContain("tx('기사님께 보여주기', 'Show to driver')");
   });
 
-  it('길 안내 화면의 택시 단추(한 줄 전체 폭)는 그대로 — 거기는 꺾이지 않는다', () => {
-    expect(read('app/route-detail.tsx')).toContain("tx('택시 기사에게 보여주기', 'Show to a taxi driver')");
+  it('길 안내 화면의 택시 단추(한 줄 전체 폭)는 「택시 기사에게 주소 카드 보여주기」 — 거기는 꺾이지 않는다', () => {
+    expect(read('app/route-detail.tsx')).toContain("tx('택시 기사에게 주소 카드 보여주기', 'Show the address card to a taxi driver')");
   });
 });

@@ -39,7 +39,7 @@ const FEATURES: ReadonlyArray<{ title: [string, string]; body: [string, string];
   { title: ['동백이 AI 챗봇', 'Dongbaek AI chat'], body: ['오른쪽 아래 동백이를 누르고 「AI 챗봇」을 골라요. 어느 언어로 물어도 맛집·길·일정을 답해 줘요.', 'Tap Dongbaek at the bottom right and choose “AI chat”. Ask about food, routes, or plans in any language.'], path: '/chat' },
   { title: ['메뉴판 번역', 'Menu translation'], body: ['동백이 메뉴 › 메뉴판 번역에서 메뉴판을 찍으면 음식 이름과 설명을 내 언어로 읽어 줘요.', 'In the Dongbaek menu › Menu translation, snap a menu and read dishes in your language.'], path: '/field/menu-scan' },
   { title: ['통역', 'Interpreter'], body: ['동백이 메뉴 › 통역에서 내 언어로 말하면 한국어로 바꿔 소리로 들려줘요.', 'In the Dongbaek menu › Interpreter, speak in your language and hear it in Korean.'], path: '/field/speak' },
-  { title: ['택시 기사님께 보여주기', 'Show to a taxi driver'], body: ['장소 화면의 「기사님께 보여주기」를 누르면 한국어 이름과 주소가 크게 떠요. 화면을 기사님께 보여 주면 돼요.', 'Tap “Show to driver” on a place page to show its Korean name and address in large type.'] },
+  { title: ['길 안내 · 택시 주소 카드', 'Directions · taxi address card'], body: ['장소 화면의 「길 안내」를 누르면 내 위치에서 대중교통·택시·자동차·도보를 비교해요. 「택시·자동차」에서 「택시 기사에게 주소 카드 보여주기」를 누르면 한국어 이름과 주소가 크게 떠요.', 'Tap “Directions” on a place page to compare transit, taxi · car and walking from where you are. Under “Taxi · car”, tap “Show the address card to a taxi driver” to show the Korean name and address in large type.'] },
   { title: ['근처 편의시설', 'Nearby facilities'], body: ['동백이 메뉴 › 근처 편의시설에서 주차장·약국·화장실·짐보관을 지도로 찾아요. 위치를 허락하지 않으면 서면 기준으로 보여 줘요.', 'In the Dongbaek menu › Nearby facilities, find parking, pharmacies, restrooms, and lockers on a map. Without location access it centers on Seomyeon.'], path: '/field/nearby' },
   { title: ['긴급 도움', 'Emergency help'], body: ['급할 때는 긴급 도움에서 119(구급)·112(경찰)에 바로 전화하고, 분실물 찾는 곳도 볼 수 있어요.', 'In an emergency, call 119 (ambulance) or 112 (police) from Emergency help and find lost-and-found offices.'], path: '/emergency' },
   { title: ['여행 기록과 피드', 'Travel records and feed'], body: ['아래 「피드」에서 다른 여행자의 부산 기록을 보고, 여행 화면의 「기록 남기기」로 내 사진과 이야기를 남겨요.', 'Browse other travelers’ Busan records in Feed, and post your own photos and notes with “Write a record” on a trip.'], path: '/feed' },
@@ -50,7 +50,7 @@ const SUPPORT_EMAIL_FALLBACK = 'gabolle.support@gmail.com';
 
 /** 화면별 첫 안내 — 놓친 사람이 다시 켠다(UI 캔버스 ㉔-4, S15P21E201-1885). 제목은 안내 말풍선의 제목 그대로. */
 const GUIDES: ReadonlyArray<{ key: ScreenGuide; title: [string, string]; where: [string, string]; path: string }> = [
-  { key: 'taxi', title: ['말이 안 통해도 택시를 탈 수 있어요', 'Take a taxi even without Korean'], where: ['장소 정보 · 기사님께 보여주기', 'Place page · Show to driver'], path: `/place/${LOCAL_PICK_PLACES.NIGHT_VIEW}` },
+  { key: 'taxi', title: ['말이 안 통해도 택시를 탈 수 있어요', 'Take a taxi even without Korean'], where: ['장소 정보 · 길 안내', 'Place page · Directions'], path: `/place/${LOCAL_PICK_PLACES.NIGHT_VIEW}` },
   { key: 'assistant', title: ['여행 중에 막히면 여기예요', 'Stuck on the road? Start here'], where: ['오른쪽 아래 동백이 메뉴 · 눌러서 열면 떠요', 'Dongbaek menu, bottom right · shows when you open it'], path: '/home' },
   { key: 'legs', title: ['장소 사이 이 칸이 길 안내예요', 'This row between places is your directions'], where: ['여행 일정 · 장소 사이 이동 칸 · 여행을 열면 떠요', 'Trip plan · row between places · shows when you open a trip'], path: '/trips' },
 ];

@@ -228,10 +228,10 @@ export default function RouteDetail() {
               {/* 🔴 외부 지도 앱(카카오맵·구글맵)으로 보내지 않는다 — S15P21E201-1831. 이 앱이 푸는 문제가 「구글맵은 한국
                   대중교통·도보 길찾기를 못 하고, 카카오맵은 한국어뿐이다」라서(기획서 v7), 그 앱들로 보내면 풀던 문제로 되돌려 보낸다.
                   길·타는 법·택시비는 이 화면이 보여준다.
-                  🔴 택시 카드는 택시·자동차 탭에서만 — 대중교통·도보를 고른 사람에게 「택시 기사에게 보여주기」는 맥락이 안 맞는다. */}
+                  🔴 택시 카드는 택시·자동차 탭에서만 — 대중교통·도보를 고른 사람에게 「택시 기사에게 주소 카드 보여주기」는 맥락이 안 맞는다. */}
               {mode === 'CAR' && destPlaceId ? (
                 <View style={styles.actions}>
-                  <Button label={tx('택시 기사에게 보여주기', 'Show to a taxi driver')} onPress={() => router.push(`/taxi-card/${destPlaceId}`)} containerStyle={styles.actionButton} />
+                  <Button label={tx('택시 기사에게 주소 카드 보여주기', 'Show the address card to a taxi driver')} onPress={() => router.push(`/taxi-card/${destPlaceId}`)} containerStyle={styles.actionButton} />
                 </View>
               ) : null}
               {/* 🔴 택시·자동차 탭이면 도착지 근처 주차장 — 차를 가져온 사람이 어디 댈지 바로 본다(사용자 요청 2026-10-16, S15P21E201-2061). */}

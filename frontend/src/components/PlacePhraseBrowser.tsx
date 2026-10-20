@@ -119,11 +119,12 @@ export function PlacePhraseBrowser({ category, onOpenTaxiCard }: PlacePhraseBrow
 
 const styles = StyleSheet.create({
   koNote: { marginBottom: 8 },
-  container: { gap: spacing[3] },
+  // 🔴 창(PlacePhraseModal) 높이를 넘지 않게 줄어들 수 있어야 한다 — 웹에서 문장 카드가 창 밖으로 넘쳤다(S15P21E201-2065).
+  container: { gap: spacing[3], flexShrink: 1, minHeight: 0 },
   tabRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
   tab: { minHeight: 40, flexGrow: 1, flexBasis: '45%', alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[2], borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
   tabSelected: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
-  list: { flexGrow: 0 },
+  list: { flexGrow: 0, flexShrink: 1, minHeight: 0 },
   listContent: { gap: spacing[3], paddingVertical: spacing[1] },
   phraseCard: { gap: spacing[1], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
   phraseCardExpanded: { borderColor: color.text.heading, borderWidth: 1.5, backgroundColor: color.surface.tint },
