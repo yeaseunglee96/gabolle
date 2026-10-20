@@ -117,9 +117,13 @@ public class TransitRouteAdapter implements RouteProviderPort {
 		// 출발 시각을 아는 요청에는 이 길을 쓰지 않는다. 그때 위가 빈 값이면 답은 "그 시각에는
 		// 못 간다" 인데, 평균값으로 덮으면 없는 차를 타라고 말하는 것이 된다.
 		if (!exact) {
-			Optional<RaptorPlanner.Journey> byHeadway =
-					new HeadwayJourneyPlanner(this.properties.getRideSpeedKmh())
-							.plan(network, origins, destinations, TYPICAL_DAYTIME_MINUTE);
+			HeadwayJourneyPlanner headway = new HeadwayJourneyPlanner(this.properties.getRideSpeedKmh());
+			Optional<RaptorPlanner.Journey> byHeadway = headway.plan(network, origins, destinations, TYPICAL_DAYTIME_MINUTE);
+			// 한 번에 가는 노선이 없으면 한 번 갈아타는 길 — S15P21E201-2067. 전에는 여기서 바로 직선 어림으로 떨어져
+			// 갈아타야 하는 길(명지→삼광사)이 전부 「경로 서비스가 답하지 않아 직선거리로 어림」이었다.
+			if (byHeadway.isEmpty()) {
+				byHeadway = headway.planWithOneTransfer(network, origins, destinations, TYPICAL_DAYTIME_MINUTE);
+			}
 			if (byHeadway.isPresent()) {
 				return Optional.of(toLeg(network, query, byHeadway.get(), REASON_HEADWAY_ESTIMATE));
 			}
