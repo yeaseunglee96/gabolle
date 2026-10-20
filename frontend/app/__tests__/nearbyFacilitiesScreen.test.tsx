@@ -1,7 +1,7 @@
 // 근처 편의시설 화면 (S15P21E201-2052) — 네 탭 · 위치 · 서버 · 가는 법.
 // 🔴 지키는 것: ① 위치를 못 쓰면 서면 기준이라고 밝힌다 ② 서면에서 찾은 곳에는 «길 안내»를 열지 않는다(지도 앱만)
 //    ③ 위치를 읽는 동안에는 서버에 묻지 않는다(서면으로 한 번, 내 위치로 또 한 번 부르지 않는다) ④ 요금·시간을 «모른다»는 말을 지어내지 않는다.
-import { act, configure, fireEvent, render, waitFor } from '@testing-library/react-native';
+import { act, configure, fireEvent, render, waitFor, within } from '@testing-library/react-native';
 import * as Location from 'expo-location';
 import { Linking } from 'react-native';
 
@@ -413,13 +413,16 @@ describe('빈 결과 · 실패', () => {
     getMock.mockImplementation(async (kind: FacilityKind, _at: unknown, _token: unknown, options: { radiusM: number }) =>
       response(kind, [], { radiusM: options.radiusM }));
     const view = await renderScreen();
-    expect(view.getByText('반경 700m 안에는 아직 없어요.')).toBeTruthy();
+    expect(view.getByText('반경 700m 안에는 아직 없어요')).toBeTruthy();
 
     fireEvent.press(view.getByTestId('facility-widen'));
 
     await waitFor(() => expect(getMock).toHaveBeenLastCalledWith('PARKING', MY_POSITION, 'token', expect.objectContaining({ radiusM: 2000 })));
-    await waitFor(() => expect(view.getByText('반경 2.0km 안에는 아직 없어요.')).toBeTruthy());
+    await waitFor(() => expect(view.getByText('반경 2.0km 안에는 아직 없어요')).toBeTruthy());
     expect(view.queryByTestId('facility-widen')).toBeNull();
+    // 결과 없음 상자 안에 다른 곳 고르기가 같이 있다(S15P21E201-2069) — 목록 아래 따로 두지 않는다
+    expect(within(view.getByTestId('facility-empty')).getByTestId('facility-area')).toBeTruthy();
+    expect(view.getAllByTestId('facility-area')).toHaveLength(1);
   });
 
   it('다른 탭으로 가면 반경이 다시 700m 다', async () => {
