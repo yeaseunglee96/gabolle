@@ -49,6 +49,7 @@ import { RouteMap, type MapPointLayer, type MapRouteLayer } from '@/map/RouteMap
 import type { MapStop } from '@/map/types';
 import { syncLocationConsent } from '@/personalization/locationConsent';
 import { useLocationGate } from '@/personalization/useLocationGate';
+import { NearAreaPicker, type NearArea } from '@/field/NearAreaPicker';
 import { listAvailableMapApps } from '@/utils/externalMaps';
 
 /** 이만큼 가까우면 걸어서 가는 길로 연다(nearby-help 와 같다). */
@@ -63,7 +64,8 @@ const NO_ROUTES: MapRouteLayer[] = [];
 
 /** idle — 아직 위치를 읽으려 하지 않았다(장소 기준으로 열렸을 때). */
 type LocationState = 'idle' | 'detecting' | 'granted' | 'denied';
-type Load = { status: 'loading' } | { status: 'error' } | { status: 'ready'; data: NearbyFacilities };
+// pick — 내 위치를 못 쓰고 고른 자리도 없다. 🔴 서면으로 넘어가지 않고 «어디 근처를 볼까요?»를 묻는다(S15P21E201-2069).
+type Load = { status: 'loading' } | { status: 'pick' } | { status: 'error' } | { status: 'ready'; data: NearbyFacilities };
 /** 장소 상세에서 «이 장소 근처»로 열렸을 때의 기준점. */
 type Anchor = LatLng & { name: string | null };
 
@@ -108,10 +110,13 @@ export default function NearbyFacilitiesScreen() {
   const { accessToken, ready } = useAuth();
   const locationGate = useLocationGate(accessToken);
   const params = useLocalSearchParams<{ kind?: string; lat?: string; lng?: string; name?: string; stay?: string }>();
-  const anchor = useMemo(() => anchorFromParams(params.lat, params.lng, params.name), [params.lat, params.lng, params.name]);
+  const paramAnchor = useMemo(() => anchorFromParams(params.lat, params.lng, params.name), [params.lat, params.lng, params.name]);
+  // 「어디 근처를 볼까요?」에서 고른 자리 — 주소로 넘어온 장소보다 앞선다(S15P21E201-2069).
+  const [chosen, setChosen] = useState<Anchor | null>(null);
+  const anchor = chosen ?? paramAnchor;
   // 장소 기준으로 열렸나 — «내 위치로 찾기»가 성공하면 꺼진다(그 뒤로는 내 위치 기준). 처음부터 장소 기준이면 내 위치를 읽으려 하지 않는다.
-  const startedAnchored = useRef(anchor !== null);
-  const [anchored, setAnchored] = useState(anchor !== null);
+  const startedAnchored = useRef(paramAnchor !== null);
+  const [anchored, setAnchored] = useState(paramAnchor !== null);
   const [kind, setKind] = useState<FacilityKind>(kindFromParam(params.kind) ?? 'PARKING');
   const [stayHours, setStayHours] = useState(stayFromParam(params.stay) ?? DEFAULT_STAY_HOURS);
   const [accessibleOnly, setAccessibleOnly] = useState(false);
@@ -120,7 +125,7 @@ export default function NearbyFacilitiesScreen() {
   // 2km 안에도 없을 때 «서면 기준으로 찾기» — 시외에서 열면 빈 화면에서 갈 곳이 없었다.
   const [atSeomyeon, setAtSeomyeon] = useState(false);
   const [coords, setCoords] = useState<LatLng | null>(null);
-  const [locationState, setLocationState] = useState<LocationState>(anchor ? 'idle' : 'detecting');
+  const [locationState, setLocationState] = useState<LocationState>(paramAnchor ? 'idle' : 'detecting');
   const [canAskAgain, setCanAskAgain] = useState(true);
   const [load, setLoad] = useState<Load>({ status: 'loading' });
   const [reloadKey, setReloadKey] = useState(0);
@@ -166,8 +171,17 @@ export default function NearbyFacilitiesScreen() {
 
   // 장소 기준에서 «내 위치로 찾기» — 위치를 얻는 데 성공해야 기준을 옮긴다. 거절하면 그 장소 기준 그대로다(서면으로 튀지 않는다).
   const switchToMyLocation = useCallback(async () => {
-    if (await ask()) { setAnchored(false); setAtSeomyeon(false); }
+    if (await ask()) { setAnchored(false); setAtSeomyeon(false); setChosen(null); }
   }, [ask]);
+
+  // 고른 자리로 기준을 옮긴다 — 반경은 처음 값으로, 서면 기준은 끈다.
+  const pickArea = useCallback((area: NearArea) => {
+    setChosen({ latitude: area.latitude, longitude: area.longitude, name: area.name });
+    setAnchored(true);
+    setAtSeomyeon(false);
+    setRadiusM(DEFAULT_RADIUS_M);
+    setPickedId('');
+  }, []);
 
   // 처음부터 장소 기준이면 내 위치를 읽지 않는다 — 그 장소 근처가 궁금한 것이고, 위치 창은 «내 위치로 찾기»를 눌렀을 때만 뜬다.
   useEffect(() => { if (ready && !startedAnchored.current) void restore(); }, [ready, restore]);
@@ -186,6 +200,7 @@ export default function NearbyFacilitiesScreen() {
   useEffect(() => {
     // 위치를 읽는 동안에는 묻지 않는다 — 서면으로 한 번 찾고 내 위치로 또 찾는 두 번 호출을 피한다.
     if (!ready || locating) return;
+    if (usingFallback) { setLoad({ status: 'pick' }); return; }
     const controller = new AbortController();
     let alive = true;
     setLoad({ status: 'loading' });
@@ -203,7 +218,7 @@ export default function NearbyFacilitiesScreen() {
       if (alive) setLoad({ status: 'error' });
     });
     return () => { alive = false; controller.abort(); };
-  }, [ready, locating, anchored, kind, origin, accessToken, radiusM, stayHours, accessibleOnly, diaperOnly, reloadKey]);
+  }, [ready, locating, usingFallback, anchored, kind, origin, accessToken, radiusM, stayHours, accessibleOnly, diaperOnly, reloadKey]);
 
   const selectKind = (next: FacilityKind) => {
     if (next === kind) return;
@@ -323,12 +338,14 @@ export default function NearbyFacilitiesScreen() {
       ) : null}
       {usingFallback ? (
         <View testID="facility-fallback-notice" style={styles.notice}>
-          <Text variant="caption" weight="bold" color={color.state.info}>{tx('내 위치를 몰라 부산 중심(서면)에서 찾았어요. 거리도 그 기준이에요.', 'We could not get your location, so we searched from central Busan (Seomyeon). Distances use that point.')}</Text>
+          <Text variant="caption" weight="bold" color={color.state.info}>{tx('내 위치를 쓸 수 없어요. 아래에서 어디 근처를 볼지 골라 주세요.', 'We cannot use your location. Choose where to look below.')}</Text>
           {canAskAgain
             ? <Button testID="facility-ask-location" label={tx('내 위치로 다시 찾기', 'Search from my location')} variant="tertiary" compact onPress={() => void ask()} />
             : <Button testID="facility-open-settings" label={tx('설정에서 위치 허용하기', 'Allow location in Settings')} variant="tertiary" compact onPress={() => void Linking.openSettings()} />}
         </View>
       ) : null}
+      {/* 위치를 쓰고 있어도 다른 곳으로 바꿀 수 있다 — 숙소 근처 짐보관을 미리 찾는 것처럼. */}
+      <NearAreaPicker testID="facility-area" accessToken={accessToken} onPick={pickArea} />
       {locationState === 'detecting' ? (
         <View style={styles.notice}><Text variant="caption" weight="bold" color={color.text.body}>{tx('위치를 확인하고 있어요…', 'Finding your location…')}</Text></View>
       ) : null}
@@ -376,7 +393,9 @@ export default function NearbyFacilitiesScreen() {
           <RouteMap stops={stops} points={points} routes={NO_ROUTES} selectedId={selectedId} onSelect={setPickedId} focusSelected fitPoints currentLocation={currentLocation} height={220} />
         </View>
       ) : null}
-      {load.status === 'loading' ? (
+      {load.status === 'pick' ? (
+        <View testID="facility-pick" style={styles.state}><Text variant="body" weight="bold">{tx('위에서 장소를 검색하거나 자주 가는 곳을 눌러 주세요.', 'Search a place above, or tap one of the popular spots.')}</Text></View>
+      ) : load.status === 'loading' ? (
         <View testID="facility-loading" style={styles.state}><Text variant="body" weight="bold">{tx('가까운 곳을 찾고 있어요…', 'Finding places near you…')}</Text></View>
       ) : load.status === 'error' ? (
         <View testID="facility-error" style={styles.state}>
@@ -388,9 +407,7 @@ export default function NearbyFacilitiesScreen() {
           <Text variant="body" weight="bold">{txf(tx, '반경 %s 안에는 아직 없어요.', 'Nothing within %s yet.', distanceText(load.data.radiusM))}</Text>
           {radiusM < WIDE_RADIUS_M
             ? <Button testID="facility-widen" label={tx('2km까지 넓혀 찾기', 'Search up to 2 km')} variant="tertiary" compact onPress={() => setRadiusM(WIDE_RADIUS_M)} />
-            : !atSeomyeon && origin !== SEOMYEON
-              ? <Button testID="facility-seomyeon" label={tx('서면 기준으로 찾기', 'Search around Seomyeon')} variant="tertiary" compact onPress={() => setAtSeomyeon(true)} />
-              : null}
+            : <Text variant="caption" color={color.text.body}>{tx('위 「어디 근처를 볼까요?」에서 다른 곳을 골라 보세요.', 'Choose another place in “Where should we look?” above.')}</Text>}
         </View>
       ) : (
         <>

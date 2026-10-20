@@ -272,15 +272,15 @@ describe('③ 기준점 — 거리를 어디서 쟀는가', () => {
     expect(lastMap().points ?? []).toEqual([]);
   });
 
-  it('🔴 위치를 못 써 서면에서 찾았으면 서면을 «기준점»으로 찍는다 — 현재 위치 점은 없다', async () => {
+  it('🔴 위치를 못 써 고른 자리(김해공항)에서 찾았으면 그 자리를 «기준점»으로 찍는다 — 현재 위치 점은 없다', async () => {
     (syncLocationConsent as jest.Mock).mockResolvedValue(false);
     const view = await renderScreen();
-    expect(view.getByTestId('facility-fallback-notice')).toBeTruthy();
+    await act(async () => { fireEvent.press(view.getByTestId('facility-area-chip-김해공항')); });
     await waitFor(() => expect(lastMap().stops).toHaveLength(3));
     expect(lastMap().currentLocation).toBeNull();
     expect(lastMap().points).toEqual([{
       id: 'reference', label: '기준점', color: expect.any(String),
-      stops: [{ id: 'reference', number: 0, name: '서면', latitude: SEOMYEON.latitude, longitude: SEOMYEON.longitude }],
+      stops: [{ id: 'reference', number: 0, name: '김해공항', latitude: 35.1732, longitude: 128.9466 }],
     }]);
   });
 
