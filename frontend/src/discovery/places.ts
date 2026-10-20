@@ -268,6 +268,9 @@ export function formatOpeningHoursValue(value: unknown, tx: (ko: string, en: str
       return closed ? `${hours}\n${closed}` : hours;
     }
   }
+  // 🔴 늘 여는 곳(공원·해수욕장 등, 136곳) — 서버가 status 로 준다. 전에는 이것을 안 읽고 원문 「상시 개방」을 그대로 띄워
+  //    영어·일본어 화면에도 한국어가 나왔다(S15P21E201-2071, 2026-10-20 다섯 언어 점검).
+  if ((value as { status?: unknown }).status === 'ALWAYS_OPEN') return tx('상시 개방', 'Open at all times');
   const raw = (value as { raw?: unknown }).raw;
   if (typeof raw === 'string') return raw;
   if (raw && typeof raw === 'object' && typeof (raw as { hoursValue?: unknown }).hoursValue === 'string') {
