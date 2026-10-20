@@ -17,9 +17,10 @@ import { readCurrentPosition } from '@/location/currentPosition';
 import { __resetLocationConsentForTests } from '@/personalization/locationConsent';
 
 const mockPush = jest.fn();
+let mockSearchParams: Record<string, string> = {};
 jest.mock('expo-router', () => ({
   useRouter: () => ({ push: mockPush, replace: jest.fn(), back: jest.fn(), canGoBack: () => true }),
-  useLocalSearchParams: () => ({}),
+  useLocalSearchParams: () => mockSearchParams,
 }));
 jest.mock('@/auth/AuthProvider', () => ({ useAuth: () => ({ accessToken: null, ready: true }) }));
 jest.mock('@/components/BrandLogoLink', () => ({ BrandLogoLink: () => null }));
@@ -125,6 +126,29 @@ describe('② ③ ④ 이미 동의한 사람 — 지도 칸', () => {
     await act(async () => { finish(HOSPITALS); });
     await waitFor(() => expect(lastMap().stops).toHaveLength(2));
     await waitFor(() => expect(lastMap().selectedId).toBe('hospital-0'));
+  });
+
+  // S15P21E201-2070 — 경찰은 탭에서 뺐고, ?kind=police 로 열면 경찰서만 보는 화면이다(긴급 도움의 「근처 경찰서 찾기」).
+  it('🔴 탭은 병원·약국 둘 — 경찰 탭이 없고 제목은 「근처 병원·약국」', async () => {
+    const view = render(<NearbyHelpScreen />);
+    await waitFor(() => expect(getMock).toHaveBeenCalled());
+    expect(view.getByText('근처 병원·약국')).toBeTruthy();
+    expect(view.getByTestId('nearby-kind-hospital')).toBeTruthy();
+    expect(view.getByTestId('nearby-kind-pharmacy')).toBeTruthy();
+    expect(view.queryByTestId('nearby-kind-police')).toBeNull();
+  });
+
+  it('🔴 ?kind=police — 탭 없이 경찰서만 찾고, 위급 줄은 112', async () => {
+    mockSearchParams = { kind: 'police' };
+    try {
+      const view = render(<NearbyHelpScreen />);
+      await waitFor(() => expect(getMock).toHaveBeenLastCalledWith('police', MY_POSITION, null));
+      expect(view.getByText('근처 경찰서')).toBeTruthy();
+      expect(view.queryByTestId('nearby-kind-hospital')).toBeNull();
+      expect(view.getByTestId('nearby-call-112')).toBeTruthy();
+    } finally {
+      mockSearchParams = {};
+    }
   });
 
   it('탭을 바꾸면 그 종류로 다시 찾고, 그 종류의 번호 점이 지도에 채워진다', async () => {

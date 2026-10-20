@@ -48,10 +48,11 @@ export default function Emergency() {
 
     {/* 🔴 이 화면은 «전화만» — 병원 지도·목록은 「근처 병원·약국」 한 곳에 둔다(S15P21E201-2066, 사용자 결정 2026-10-20).
         같은 지도가 두 화면에 있어 겹쳤고, 급한 사람이 지도를 내려 보며 헤매지 않고 전화부터 걸게 한다. */}
-    <Pressable testID="emergency-nearby" accessibilityRole="link" onPress={() => router.push('/nearby-help')} style={({ pressed }) => [styles.lostRow, pressed && styles.pressed]}>
+    {/* 🔴 경찰서만 — 병원·약국은 「근처 병원·약국」(웹 아래쪽·메뉴)에 있다(S15P21E201-2070, 사용자 결정 2026-10-20). */}
+    <Pressable testID="emergency-nearby" accessibilityRole="link" onPress={() => router.push({ pathname: '/nearby-help', params: { kind: 'police' } })} style={({ pressed }) => [styles.lostRow, pressed && styles.pressed]}>
       <View style={styles.lineBody}>
-        <Text variant="body" weight="bold" color={color.text.heading}>{tx('근처 병원·약국·경찰 찾기', 'Find hospitals, pharmacies and police nearby')}</Text>
-        <Text variant="caption" color={color.text.body}>{tx('가까운 곳을 지도로 보고 길 안내를 받아요', 'See the nearest ones on a map and get directions')}</Text>
+        <Text variant="body" weight="bold" color={color.text.heading}>{tx('근처 경찰서 찾기', 'Find a police station nearby')}</Text>
+        <Text variant="caption" color={color.text.body}>{tx('가까운 경찰서를 지도로 보고 길 안내를 받아요', 'See the nearest police stations on a map and get directions')}</Text>
       </View>
       <Text variant="title" color={color.text.muted}>›</Text>
     </Pressable>

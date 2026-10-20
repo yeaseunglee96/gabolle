@@ -1,4 +1,6 @@
-// 가까운 도움 — 병원·약국·경찰을 골라 지도와 목록으로(UI 캔버스 ㉒-4, S15P21E201-1889). 긴급 도움 화면에서 들어온다.
+// 근처 병원·약국 — 병원·약국을 골라 지도와 목록으로(UI 캔버스 ㉒-4, S15P21E201-1889).
+// 🔴 경찰은 탭에서 뺐다 — `?kind=police` 로 열면 «근처 경찰서»만 보는 화면이다. 긴급 도움의 「근처 경찰서 찾기」가 그렇게 연다
+//    (S15P21E201-2070, 사용자 결정 2026-10-20).
 //
 // 번호는 긴급 도움 화면에서 바로 걸린다. 여기는 「가까운 곳이 어디냐」 — 다치거나 아플 때 여행자가 먼저 묻는 것.
 // 자료는 서버가 먼저다(S15P21E201-1894) — 건강보험심사평가원 병의원·약국(부산 약국 1,733곳)에 오늘 진료시간까지.
@@ -85,7 +87,10 @@ export default function NearbyHelpScreen() {
   const { accessToken, ready } = useAuth();
   const locationGate = useLocationGate(accessToken);
   const { preview, kind: kindParam } = useLocalSearchParams<{ preview?: string; kind?: string }>();
-  const [kind, setKind] = useState<HelpKind>(HELP_KINDS.includes(kindParam as HelpKind) ? (kindParam as HelpKind) : 'hospital');
+  const policeOnly = kindParam === 'police';
+  // 병원·약국 화면의 탭 — 경찰 빼고 둘
+  const tabs: readonly HelpKind[] = policeOnly ? [] : HELP_KINDS.filter((each) => each !== 'police');
+  const [kind, setKind] = useState<HelpKind>(policeOnly ? 'police' : kindParam === 'pharmacy' ? 'pharmacy' : 'hospital');
   const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [locationState, setLocationState] = useState<LocationState>('detecting');
   const [canAskAgain, setCanAskAgain] = useState(true);
@@ -171,17 +176,18 @@ export default function NearbyHelpScreen() {
       <BrandLogoLink imageStyle={styles.logo} />
       <View style={styles.spacer} />
     </View>
-    <Text variant="display" weight="bold">{tx('가까운 도움', 'Help nearby')}</Text>
-    <Text color={color.text.body} style={styles.lead}>{tx('고르면 가까운 곳을 지도와 목록으로 보여 드려요.', 'Pick one and we show the places near you on a map and in a list.')}</Text>
+    <Text variant="display" weight="bold">{policeOnly ? tx('근처 경찰서', 'Police nearby') : tx('근처 병원·약국', 'Hospitals & pharmacies nearby')}</Text>
+    <Text color={color.text.body} style={styles.lead}>{policeOnly ? tx('가까운 경찰서·지구대·파출소를 지도와 목록으로 보여 드려요.', 'We show the nearest police stations and police boxes on a map and in a list.') : tx('고르면 가까운 곳을 지도와 목록으로 보여 드려요.', 'Pick one and we show the places near you on a map and in a list.')}</Text>
 
     {/* 위급하면 찾지 말고 바로 — 이 화면에 온 사람이 가장 먼저 봐야 할 한 줄 */}
-    <Pressable testID="nearby-call-119" accessibilityRole="button" accessibilityLabel={tx('119에 전화하기', 'Call 119')} onPress={() => void Linking.openURL('tel:119')} style={({ pressed }) => [styles.urgent, pressed && styles.pressed]}>
-      <Text variant="body" weight="bold" color={color.state.danger} style={styles.grow}>{tx('위급하면 찾지 말고 119', 'In an emergency, call 119 now')}</Text>
+    {/* 경찰서 화면은 112 — 범죄·사고는 119 가 아니라 112 다 */}
+    <Pressable testID={policeOnly ? 'nearby-call-112' : 'nearby-call-119'} accessibilityRole="button" accessibilityLabel={policeOnly ? tx('112에 전화하기', 'Call 112') : tx('119에 전화하기', 'Call 119')} onPress={() => void Linking.openURL(policeOnly ? 'tel:112' : 'tel:119')} style={({ pressed }) => [styles.urgent, pressed && styles.pressed]}>
+      <Text variant="body" weight="bold" color={color.state.danger} style={styles.grow}>{policeOnly ? tx('위급하면 찾지 말고 112', 'In an emergency, call 112 now') : tx('위급하면 찾지 말고 119', 'In an emergency, call 119 now')}</Text>
       <Text variant="caption" weight="bold" color={color.state.danger}>{tx('전화 ›', 'Call ›')}</Text>
     </Pressable>
 
-    <View accessibilityRole="tablist" style={styles.kinds}>
-      {HELP_KINDS.map((each) => {
+    {tabs.length ? <View accessibilityRole="tablist" style={styles.kinds}>
+      {tabs.map((each) => {
         const selected = each === kind;
         return (
           <Pressable key={each} testID={`nearby-kind-${each}`} accessibilityRole="tab" accessibilityState={{ selected }} onPress={() => { setKind(each); setPickedId(''); }} style={[styles.kind, selected && styles.kindOn]}>
@@ -189,7 +195,7 @@ export default function NearbyHelpScreen() {
           </Pressable>
         );
       })}
-    </View>
+    </View> : null}
 
     {/* 🔴 앱 자료로 물러섰을 때만 — 그 자료는 일부만 있다(약국은 부산 70곳). 2km 넘는 곳만 보이면 없는 동네로 읽힌다. */}
     {found?.source === 'local' ? (
