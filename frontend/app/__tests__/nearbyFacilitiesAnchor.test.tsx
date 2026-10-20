@@ -142,12 +142,12 @@ describe('장소 기준으로 열린다', () => {
 });
 
 describe('다른 탭 · 칩 · 넓히기도 그 장소 기준이다', () => {
-  it('약국 탭 — 같은 장소에서, 좌표는 그대로, 체류 시간 없이', async () => {
+  it('환전소 탭 — 같은 장소에서, 좌표는 그대로, 체류 시간 없이', async () => {
     const view = await renderScreen();
 
-    fireEvent.press(view.getByTestId('facility-tab-PHARMACY'));
+    fireEvent.press(view.getByTestId('facility-tab-EXCHANGE'));
 
-    await waitFor(() => expect(getMock).toHaveBeenLastCalledWith('PHARMACY', PLACE, 'token', expect.objectContaining({ exact: true, stayMinutes: undefined })));
+    await waitFor(() => expect(getMock).toHaveBeenLastCalledWith('EXCHANGE', PLACE, 'token', expect.objectContaining({ exact: true, stayMinutes: undefined })));
     expect(readCurrentPosition).not.toHaveBeenCalled();
   });
 

@@ -1,4 +1,4 @@
-// 근처 편의시설 화면의 지도 상자 — S15P21E201-2052. 네 탭(주차장·약국·화장실·짐보관) 모두 목록 바로 위에 가까운 도움과 같은 지도를 둔다.
+// 근처 편의시설 화면의 지도 상자 — S15P21E201-2052. 네 탭(주차장·환전소·화장실·짐보관 — 약국은 S15P21E201-2066 에서 근처 병원·약국으로) 모두 목록 바로 위에 가까운 도움과 같은 지도를 둔다.
 //
 // 🔴 지키는 것:
 //    ① 목록의 곳마다 지도에 번호 점이 있다 — 같은 순서·같은 번호, 목록 «바로 위»에. 불러오는 중에는 자리만, 오류·결과 없음에는 지도가 없다
@@ -76,12 +76,9 @@ const parkingItem = (id: string, name: string, n: number): FacilityItem => ({
     openNow: true, todayHours: { open: '08:00', close: '20:00' }, closesAt: '20:00', allDay: false,
   },
 });
-const pharmacyItem = (id: string, name: string, n: number): FacilityItem => ({
-  id, name, kind: 'PHARMACY', distanceM: 100 * n, address: '부산광역시 부산진구 2', ...at(n),
-  detail: {
-    tel: '051-241-0123', directions: null, note: null, hoursAreReported: true, openNow: true,
-    todayHours: { open: '09:00', close: '18:00' }, closesAt: '18:00', allDay: false, opensSunday: false, opensHoliday: false, lateNight: false,
-  },
+const exchangeItem = (id: string, name: string, n: number): FacilityItem => ({
+  id, name, kind: 'EXCHANGE', distanceM: 100 * n, address: '부산광역시 부산진구 2', ...at(n),
+  detail: { tel: '051-241-0123', placeUrl: null },
 });
 const toiletItem = (id: string, name: string, n: number): FacilityItem => ({
   id, name, kind: 'TOILET', distanceM: 100 * n, address: '부산광역시 부산진구 3', ...at(n),
@@ -94,11 +91,12 @@ const lockerItem = (id: string, name: string, n: number): FacilityItem => ({
 
 const ITEMS: Record<FacilityKind, FacilityItem[]> = {
   PARKING: [parkingItem('p-1', '첫주차장', 1), parkingItem('p-2', '둘째주차장', 2), parkingItem('p-3', '셋째주차장', 3)],
-  PHARMACY: [pharmacyItem('ph-1', '첫약국', 1), pharmacyItem('ph-2', '둘째약국', 2)],
+  PHARMACY: [],
+  EXCHANGE: [exchangeItem('ph-1', '첫환전소', 1), exchangeItem('ph-2', '둘째환전소', 2)],
   TOILET: [toiletItem('t-1', '첫화장실', 1), toiletItem('t-2', '둘째화장실', 2)],
   LOCKER: [lockerItem('l-1', '하단역', 1), lockerItem('l-2', '서면역', 2)],
 };
-const TAB_LABEL: Record<FacilityKind, string> = { PARKING: '주차장', PHARMACY: '약국', TOILET: '화장실', LOCKER: '짐보관' };
+const TAB_LABEL: Record<FacilityKind, string> = { PARKING: '주차장', PHARMACY: '약국', TOILET: '화장실', LOCKER: '짐보관', EXCHANGE: '환전소' };
 
 function response(kind: FacilityKind, items: FacilityItem[]): NearbyFacilities {
   return { kind, radiusM: 700, stayMinutes: kind === 'PARKING' ? 120 : null, total: items.length, limit: 20, items };
@@ -135,7 +133,7 @@ beforeEach(() => {
 afterEach(() => jest.restoreAllMocks());
 
 describe('① 네 탭 모두 — 목록 바로 위의 지도 상자', () => {
-  it.each(['PARKING', 'PHARMACY', 'TOILET', 'LOCKER'] as FacilityKind[])('🔴 %s 탭 — 목록의 곳마다 번호 점(같은 순서·번호), 첫 곳이 골라져 있고, 지도 상자가 목록 위에 있다', async (kind) => {
+  it.each(['PARKING', 'EXCHANGE', 'TOILET', 'LOCKER'] as FacilityKind[])('🔴 %s 탭 — 목록의 곳마다 번호 점(같은 순서·번호), 첫 곳이 골라져 있고, 지도 상자가 목록 위에 있다', async (kind) => {
     const view = await renderScreen();
     if (kind !== 'PARKING') {
       fireEvent.press(view.getByTestId(`facility-tab-${kind}`));
@@ -205,7 +203,7 @@ describe('② 카드와 지도의 선택 연동', () => {
 
   it('🔴 목록이 오는 «바로 그 렌더»에서 첫 곳이 이미 골라져 있다 — 늦게 고르면 지도가 «고른 곳 바뀜»으로 알고 1번으로 확대한다', async () => {
     const view = await renderScreen();
-    fireEvent.press(view.getByTestId('facility-tab-PHARMACY'));
+    fireEvent.press(view.getByTestId('facility-tab-EXCHANGE'));
     await waitFor(() => expect(lastMap().stops).toHaveLength(2));
     fireEvent.press(view.getByTestId('facility-tab-TOILET'));
     await waitFor(() => expect(lastMap().stops.map((stop) => stop.id)).toEqual(['t-1', 't-2']));
@@ -220,7 +218,7 @@ describe('② 카드와 지도의 선택 연동', () => {
     fireEvent.press(view.getByTestId('facility-open-p-3'));
     await waitFor(() => expect(lastMap().selectedId).toBe('p-3'));
 
-    fireEvent.press(view.getByTestId('facility-tab-PHARMACY'));
+    fireEvent.press(view.getByTestId('facility-tab-EXCHANGE'));
     await waitFor(() => expect(lastMap().stops.map((stop) => stop.id)).toEqual(['ph-1', 'ph-2']));
     expect(lastMap().selectedId).toBe('ph-1');
 

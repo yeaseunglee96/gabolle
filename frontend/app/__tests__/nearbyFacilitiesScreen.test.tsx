@@ -87,6 +87,11 @@ const PHARMACY_ITEM: FacilityItem = {
   },
 };
 
+const EXCHANGE_ITEM: FacilityItem = {
+  ...itemBase, id: 'ex-1', name: '시험환전', kind: 'EXCHANGE', distanceM: 403,
+  detail: { tel: '051-245-0000', placeUrl: 'http://place.map.kakao.com/1' },
+};
+
 const TOILET_ITEM: FacilityItem = {
   ...itemBase, id: 't-1', name: '시험화장실', kind: 'TOILET', distanceM: 150,
   detail: { type: 'PUBLIC', openHours: '09:00~18:00', alwaysOpen: false, accessible: true, diaper: true, diaperPlace: 'WOMEN', emergencyBell: false, cctv: false, tel: null },
@@ -311,32 +316,29 @@ describe('가는 법 — 내 위치를 알 때', () => {
 });
 
 describe('네 탭', () => {
-  it('탭은 주차장 · 약국 · 화장실 · 짐보관 — 이모지와 함께, 첫 탭이 선택돼 있다', async () => {
+  it('탭은 주차장 · 환전소 · 화장실 · 짐보관 — 이모지와 함께, 첫 탭이 선택돼 있다. 약국 탭은 없다(근처 병원·약국으로)', async () => {
     const view = await renderScreen();
 
     expect(view.getByTestId('facility-tab-PARKING').props.accessibilityState.selected).toBe(true);
-    for (const [kind, label] of [['PARKING', '주차장'], ['PHARMACY', '약국'], ['TOILET', '화장실'], ['LOCKER', '짐보관']]) {
+    for (const [kind, label] of [['PARKING', '주차장'], ['EXCHANGE', '환전소'], ['TOILET', '화장실'], ['LOCKER', '짐보관']]) {
       expect(view.getByTestId(`facility-tab-${kind}`).props.accessibilityLabel).toBe(label);
     }
-    for (const emoji of ['🅿️', '💊', '🚻', '🧳']) expect(view.getByText(emoji)).toBeTruthy();
+    for (const emoji of ['🅿️', '💱', '🚻', '🧳']) expect(view.getByText(emoji)).toBeTruthy();
+    expect(view.queryByTestId('facility-tab-PHARMACY')).toBeNull();
   });
 
-  it('약국 탭 — 서버에 PHARMACY 를 묻고(체류 시간 없이), 「운영시간은 약국이 신고한 정보예요」를 목록 위에 적는다. 전화 걸기', async () => {
-    getMock.mockImplementation(async (kind: FacilityKind) => response(kind, kind === 'PHARMACY' ? [PHARMACY_ITEM] : PARKING_ITEMS));
+  it('환전소 탭 — 서버에 EXCHANGE 를 묻고(체류 시간 없이), 「가기 전에 전화로 확인」을 목록 위에 적는다. 전화 걸기', async () => {
+    getMock.mockImplementation(async (kind: FacilityKind) => response(kind, kind === 'EXCHANGE' ? [EXCHANGE_ITEM] : PARKING_ITEMS));
     const view = await renderScreen();
 
-    fireEvent.press(view.getByTestId('facility-tab-PHARMACY'));
+    fireEvent.press(view.getByTestId('facility-tab-EXCHANGE'));
 
-    await waitFor(() => expect(view.getByTestId('facility-card-ph-1')).toBeTruthy());
-    expect(getMock).toHaveBeenLastCalledWith('PHARMACY', MY_POSITION, 'token', expect.objectContaining({ stayMinutes: undefined, accessible: false, diaper: false }));
-    expect(view.getByText('운영시간은 약국이 신고한 정보예요. 방문 전 전화로 확인해 주세요.')).toBeTruthy();
-    expect(view.getByText('지금 영업 중 · 18:00까지')).toBeTruthy();
-    expect(view.getByText('일요일 영업')).toBeTruthy();
-    expect(view.getByText('지금 문 연 곳이 먼저예요.')).toBeTruthy();
-    fireEvent.press(view.getByTestId('facility-call-ph-1'));
-    // telOf 는 숫자와 +만 남긴다(nearbyHelp.ts) — 하이픈 없이 걸린다
-    expect(Linking.openURL).toHaveBeenCalledWith('tel:0512410123');
-    // 몇 시간 머물러요? 는 주차장 탭에만 있다
+    await waitFor(() => expect(view.getByTestId('facility-card-ex-1')).toBeTruthy());
+    expect(getMock).toHaveBeenLastCalledWith('EXCHANGE', MY_POSITION, 'token', expect.objectContaining({ stayMinutes: undefined, accessible: false, diaper: false }));
+    expect(view.getByText('영업시간과 환율은 곳마다 달라요. 가기 전에 전화로 확인해 주세요. 은행에서도 환전할 수 있어요.')).toBeTruthy();
+    expect(view.getByText('가까운 순이에요.')).toBeTruthy();
+    fireEvent.press(view.getByTestId('facility-call-ex-1'));
+    expect(Linking.openURL).toHaveBeenCalledWith('tel:0512450000');
     expect(view.queryByText('몇 시간 머물러요?')).toBeNull();
   });
 
@@ -376,17 +378,17 @@ describe('네 탭', () => {
     expect(view.getByText('가까운 순이에요.')).toBeTruthy();
   });
 
-  it('?kind=pharmacy 로 열면 약국 탭에서 시작한다. 모르는 값은 첫 탭', async () => {
-    mockParams = { kind: 'pharmacy' };
-    getMock.mockImplementation(async (kind: FacilityKind) => response(kind, kind === 'PHARMACY' ? [PHARMACY_ITEM] : []));
+  it('?kind=exchange 로 열면 환전소 탭에서 시작한다. 모르는 값(빠진 약국 포함)은 첫 탭', async () => {
+    mockParams = { kind: 'exchange' };
+    getMock.mockImplementation(async (kind: FacilityKind) => response(kind, kind === 'EXCHANGE' ? [EXCHANGE_ITEM] : []));
     const view = await renderScreen();
 
-    expect(getMock).toHaveBeenCalledWith('PHARMACY', MY_POSITION, 'token', expect.anything());
-    expect(view.getByTestId('facility-tab-PHARMACY').props.accessibilityState.selected).toBe(true);
+    expect(getMock).toHaveBeenCalledWith('EXCHANGE', MY_POSITION, 'token', expect.anything());
+    expect(view.getByTestId('facility-tab-EXCHANGE').props.accessibilityState.selected).toBe(true);
 
     view.unmount();
     getMock.mockClear();
-    mockParams = { kind: 'nonsense' };
+    mockParams = { kind: 'pharmacy' };
     const other = await renderScreen();
     expect(other.getByTestId('facility-tab-PARKING').props.accessibilityState.selected).toBe(true);
   });
@@ -466,7 +468,7 @@ describe('영어 화면', () => {
     const view = await renderScreen();
 
     expect(view.getByText('Nearby facilities')).toBeTruthy();
-    expect(view.getByText('Find nearby parking, pharmacies, restrooms and luggage lockers.')).toBeTruthy();
+    expect(view.getByText('Find nearby parking, currency exchanges, restrooms and luggage lockers.')).toBeTruthy();
     expect(view.getByTestId('facility-tab-PARKING').props.accessibilityLabel).toBe('Parking');
     expect(view.getByTestId('facility-tab-TOILET').props.accessibilityLabel).toBe('Restrooms');
     expect(view.getByTestId('facility-tab-LOCKER').props.accessibilityLabel).toBe('Lockers');
