@@ -16,6 +16,8 @@ import { getPlacesByFacetPage } from '@/discovery/places';
 import { OnboardingPreferencesProvider } from '@/onboarding/OnboardingPreferences';
 import { syncLocationConsent } from '@/personalization/locationConsent';
 
+// 지도 보기(S15P21E201-2068)의 지도는 웹뷰를 불러온다 — 이 시험은 목록만 본다.
+jest.mock('@/map/RouteMap', () => ({ RouteMap: () => null }));
 jest.mock('expo-router', () => ({
   useRouter: () => ({ push: jest.fn(), replace: jest.fn(), back: jest.fn(), canGoBack: () => true }),
   useLocalSearchParams: () => ({}),
