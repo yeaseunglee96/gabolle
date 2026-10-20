@@ -2,7 +2,7 @@
 // (축제·야시장·전통시장·액티비티·산책·자연·야경·기념품샵) 중 하나를 고르며, 내 근처와 부산 전체를 전환해 본다.
 // 서버에 자료가 있으면 맨 뒤에 「맛집」과 「카페」가 더해진다(S15P21E201-2051 · S15P21E201-2059) — 현지인이 추천했거나 공공기관이 인증·소개한 곳만이고,
 // 범위 대신 구 → 동을 고른다. 내 위치를 읽었으면 가장 가까운 곳의 구를 미리 골라 그 구의 전체 목록을 바로 보여 준다.
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { AppImage } from '@/components/AppImage';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -36,6 +36,8 @@ import { SuggestPlaceLink } from '@/discovery/SuggestPlaceLink';
 import { localKindOf, placeCafeAfterRestaurant, type RestaurantItem } from '@/discovery/localRestaurants';
 import { LOCAL_PICK_ORDER } from '@/home/homeCuration';
 import { RestaurantBrowser, RestaurantSourceBadges } from '@/discovery/RestaurantBrowser';
+import { RouteMap, type MapRouteLayer } from '@/map/RouteMap';
+import type { MapStop } from '@/map/types';
 
 // 여덟 갈래의 실제 값(jaehyeon 님 확인) — 서버가 이 여덟을 항상 함께 돌려주므로, 응답에서
 // 이 값과 일치하는 항목만 골라 순서는 서버가 준 그대로 둔다. 화면 쪽에서 새로 만들지 않는다.
@@ -464,10 +466,29 @@ function PlaceRows({ items, showDistance = false, cardWidth }: {
   const open = (placeId: string) => router.push(`/place/${placeId}`);
   const label = (item: PlaceSearchItem | RestaurantItem | import('@/discovery/localExplore').NearbyPlaceItem) =>
     txf(tx, '%s 상세 보기', 'View details for %s', localPlaceName(item, language));
+  // 지도 보기 — 지금 목록의 장소를 핀으로. 핀을 누르면 장소 상세로 간다(S15P21E201-2068, 사용자 요청 2026-10-20).
+  //    목록과 같은 items 를 쓰므로 「더 보기」로 늘어난 곳도 그대로 핀이 된다.
+  const [showMap, setShowMap] = useState(false);
+  const { width } = useLayout();
+  const stops: MapStop[] = useMemo(() => items
+    .filter((item) => Number.isFinite(item.lat) && Number.isFinite(item.lng))
+    .map((item, index) => ({ id: item.placeId, number: index + 1, name: localPlaceName(item, language), latitude: item.lat, longitude: item.lng })), [items, language]);
 
   // 폰이든 데스크톱이든 같은 격자다. 열 수만 폭이 정한다 (시안 05·06).
   // 두 벌로 만들면 한쪽만 고쳐지고, 그 차이는 두 폭을 나란히 열어 봐야만 보인다.
-  return <View style={styles.cardGrid}>{items.map((item) => (
+  const mapToggle = stops.length ? (
+    <View style={styles.mapToggleRow}>
+      <Button testID="explore-map-toggle" label={showMap ? tx('목록 보기', 'Show list') : tx('지도 보기', 'Show map')} variant="tertiary" compact onPress={() => setShowMap((value) => !value)} />
+    </View>
+  ) : null;
+  if (showMap) {
+    return <View style={styles.mapBlock}>
+      {mapToggle}
+      <RouteMap stops={stops} selectedId="" onSelect={open} routes={NO_MAP_ROUTES} height={isAtLeast(width, 'md') ? 560 : 420} />
+      <Text variant="caption" color={color.text.muted}>{tx('핀을 누르면 장소 상세로 가요.', 'Tap a pin to open the place.')}</Text>
+    </View>;
+  }
+  return <>{mapToggle}<View style={styles.cardGrid}>{items.map((item) => (
     <Pressable
       key={item.placeId}
       accessibilityRole="link"
@@ -495,8 +516,11 @@ function PlaceRows({ items, showDistance = false, cardWidth }: {
         {showDistance && 'distanceM' in item ? <Text variant="caption" weight="bold" color={color.text.accent}>{item.distanceM.toLocaleString()}m</Text> : null}
       </View>
     </Pressable>
-  ))}</View>;
+  ))}</View></>;
 }
+
+/** 지도 보기에서는 장소를 선으로 잇지 않는다 — 순서가 있는 코스가 아니라 흩어진 곳들이다. */
+const NO_MAP_ROUTES: MapRouteLayer[] = [];
 
 const styles = StyleSheet.create({
   suggest: { marginBottom: spacing[4] },
@@ -539,6 +563,8 @@ const styles = StyleSheet.create({
   // 넓으면 칩과 토글이 한 행에 선다. 좁으면 칩 레일 아래에 토글이 온다.
   filterBarWide: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[4] },
   scopeWide: { width: 232 },
+  mapToggleRow: { flexDirection: 'row', justifyContent: 'flex-end', marginBottom: spacing[3] },
+  mapBlock: { gap: spacing[2] },
 
   // 결과 머리 — 제목과 안내 한 줄.
   // 🔴 안내 한 줄은 제목 «아래». 오른쪽에 붙이면 폰에서 제목 밑줄과 어긋난 채 두 줄로 꺾여 떠 보였다.
