@@ -1,5 +1,6 @@
 package com.gabolle.backend.route.transit;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -11,8 +12,8 @@ import java.util.Optional;
  * 기다리는 시간이 거리와 무관하게 붙는 것이 직선 어림값과 다른 점이다. 상수항이 없으면
  * 짧은 거리에서 "219m 를 버스로 1분" 같은 값이 나온다.
  *
- * 한 번 타는 길만 본다 — 환승은 정류장 이웃 계산이 먼저 필요하다. 못 찾으면 빈 값이고
- * 부르는 쪽이 어림값으로 간다.
+ * {@link #plan} 은 한 번 타는 길, {@link #planWithOneTransfer} 는 한 번 갈아타는 길이다(S15P21E201-2067 — 갈아타야 하는
+ * 명지→삼광사가 직선 어림으로 떨어졌다). 못 찾으면 빈 값이고 부르는 쪽이 어림값으로 간다.
  *
  * 돌려주는 Journey 의 시각은 0분부터 세는 상대 시각이다. "몇 시 몇 분 차" 가 아니다.
  */
@@ -81,6 +82,107 @@ public final class HeadwayJourneyPlanner {
 			}
 		}
 		return Optional.ofNullable(best);
+	}
+
+	/**
+	 * 한 번 갈아타는 길 중 가장 빠른 것 (S15P21E201-2067). 같은 정류장에서, 또는 노선망의 걸어서 갈아타기
+	 * ({@link TransitNetwork#transfersFrom})로 옆 정류장·역에서 갈아탄다. 기다림은 두 노선 모두 배차/2.
+	 *
+	 * <p>도착 쪽을 먼저 접는다 — 「이 정류장에서 타면 도착까지 몇 분」을 정류장마다 최솟값으로 두고, 출발 쪽 노선을 따라가며
+	 * 내리는 곳마다 그 표를 찾는다. 노선 쌍을 다 맞대 보지 않아 부산 노선망에서도 빠르다.
+	 */
+	public Optional<RaptorPlanner.Journey> planWithOneTransfer(TransitNetwork network,
+			Map<String, Integer> originAccessMin, Map<String, Integer> destinationAccessMin,
+			int referenceMinuteOfDay) {
+
+		record Tail(String routeId, String boardStopId, String alightStopId, int waitMin, int rideMin, int egressMin) {
+			int total() {
+				return this.waitMin + this.rideMin + this.egressMin;
+			}
+		}
+		Map<String, Tail> tailFrom = new HashMap<>();
+		for (Map.Entry<String, Integer> destination : destinationAccessMin.entrySet()) {
+			String toStopId = destination.getKey();
+			for (String routeId : network.routesAt(toStopId)) {
+				TransitNetwork.Route route = network.route(routeId);
+				if (route == null || !route.runsAt(referenceMinuteOfDay)) {
+					continue;
+				}
+				int toIndex = network.sequenceOf(routeId, toStopId);
+				int waitMin = Math.max(1, (int) Math.round(route.headwayMin() / 2.0));
+				for (int i = 0; i < toIndex; i++) {
+					String boardStopId = route.stopIds().get(i);
+					Tail tail = new Tail(routeId, boardStopId, toStopId, waitMin, rideMinutes(network, route, i, toIndex),
+							destination.getValue());
+					Tail known = tailFrom.get(boardStopId);
+					if (known == null || tail.total() < known.total()) {
+						tailFrom.put(boardStopId, tail);
+					}
+				}
+			}
+		}
+		if (tailFrom.isEmpty()) {
+			return Optional.empty();
+		}
+
+		RaptorPlanner.Journey best = null;
+		for (Map.Entry<String, Integer> origin : originAccessMin.entrySet()) {
+			String fromStopId = origin.getKey();
+			int accessMin = origin.getValue();
+			for (String routeId : network.routesAt(fromStopId)) {
+				TransitNetwork.Route route = network.route(routeId);
+				if (route == null || !route.runsAt(referenceMinuteOfDay)) {
+					continue;
+				}
+				int fromIndex = network.sequenceOf(routeId, fromStopId);
+				if (fromIndex < 0) {
+					continue;
+				}
+				int waitMin = Math.max(1, (int) Math.round(route.headwayMin() / 2.0));
+				for (int j = fromIndex + 1; j < route.stopIds().size(); j++) {
+					String alightStopId = route.stopIds().get(j);
+					int headMin = accessMin + waitMin + rideMinutes(network, route, fromIndex, j);
+					if (best != null && headMin >= best.durationMin()) {
+						break;
+					}
+					// 같은 정류장에서 갈아타기 + 걸어서 옆 정류장으로
+					Tail same = tailFrom.get(alightStopId);
+					if (same != null && !same.routeId().equals(routeId)) {
+						best = better(best, routeId, fromStopId, alightStopId, accessMin, waitMin, headMin, null, 0, same.routeId(),
+								same.boardStopId(), same.alightStopId(), same.waitMin(), same.rideMin(), same.egressMin());
+					}
+					for (TransitNetwork.Transfer transfer : network.transfersFrom(alightStopId)) {
+						Tail next = tailFrom.get(transfer.toStopId());
+						if (next == null || next.routeId().equals(routeId)) {
+							continue;
+						}
+						best = better(best, routeId, fromStopId, alightStopId, accessMin, waitMin, headMin, transfer.toStopId(),
+								transfer.walkMin(), next.routeId(), next.boardStopId(), next.alightStopId(), next.waitMin(),
+								next.rideMin(), next.egressMin());
+					}
+				}
+			}
+		}
+		return Optional.ofNullable(best);
+	}
+
+	/** 지금까지의 최선과 견줘 더 빠르면 새 여정을 만든다. 걸어서 갈아타면 그 구간을 걷기(노선 없음)로 넣는다. */
+	private static RaptorPlanner.Journey better(RaptorPlanner.Journey best, String firstRouteId, String fromStopId,
+			String alightStopId, int accessMin, int firstWaitMin, int headMin, String walkToStopId, int walkMin,
+			String secondRouteId, String boardStopId, String toStopId, int secondWaitMin, int secondRideMin, int egressMin) {
+		int boardSecondAt = headMin + walkMin;
+		int arriveAt = boardSecondAt + secondWaitMin + secondRideMin;
+		int total = arriveAt + egressMin;
+		if (best != null && total >= best.durationMin()) {
+			return best;
+		}
+		List<RaptorPlanner.Ride> rides = new java.util.ArrayList<>();
+		rides.add(new RaptorPlanner.Ride(firstRouteId, fromStopId, alightStopId, accessMin, headMin));
+		if (walkToStopId != null) {
+			rides.add(new RaptorPlanner.Ride(null, alightStopId, walkToStopId, headMin, boardSecondAt));
+		}
+		rides.add(new RaptorPlanner.Ride(secondRouteId, boardStopId, toStopId, boardSecondAt, arriveAt));
+		return new RaptorPlanner.Journey(rides, 0, total, 1);
 	}
 
 	/**
