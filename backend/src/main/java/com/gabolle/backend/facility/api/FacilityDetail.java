@@ -78,4 +78,13 @@ public sealed interface FacilityDetail {
 	record Locker(String station, String stationEn, String line, String location, int small, int medium, int large,
 			int xlarge, String feeText, String operator) implements FacilityDetail {
 	}
+
+	/**
+	 * 환전소 (S15P21E201-2066) — 카카오 로컬이 준 값 그대로. 영업시간·환율은 카카오가 주지 않아 없다 — 화면이 「가기 전에 확인」을 적는다.
+	 *
+	 * @param tel 전화. 모르면 null
+	 * @param placeUrl 카카오맵 장소 주소. 모르면 null
+	 */
+	record Exchange(String tel, String placeUrl) implements FacilityDetail {
+	}
 }

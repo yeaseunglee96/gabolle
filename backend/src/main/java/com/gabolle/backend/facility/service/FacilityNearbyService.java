@@ -11,6 +11,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Limit;
 import org.springframework.stereotype.Service;
@@ -70,9 +71,18 @@ public class FacilityNearbyService {
 
 	private final Clock clock;
 
+	/** 환전소 — 우리 표가 아니라 바깥에 묻는다. 없으면(시험) 환전소는 늘 빈 목록이다. */
+	private final ExchangeSearch exchangeSearch;
+
 	public FacilityNearbyService(FacilityRepository repository, Clock clock) {
+		this(repository, clock, null);
+	}
+
+	@Autowired
+	public FacilityNearbyService(FacilityRepository repository, Clock clock, ExchangeSearch exchangeSearch) {
 		this.repository = repository;
 		this.clock = clock;
+		this.exchangeSearch = exchangeSearch;
 	}
 
 	/**
@@ -89,6 +99,9 @@ public class FacilityNearbyService {
 	/** @throws FacilityRequestException 값이 범위 밖이거나 종류를 모를 때 */
 	public FacilityNearbyResponse nearby(Query query) {
 		Validated request = validate(query);
+		if (request.kind() == FacilityKind.EXCHANGE) {
+			return exchangeNearby(request);
+		}
 		GeoDistance.BoundingBox box = GeoDistance.boundingBox(request.lat(), request.lng(), request.radiusM());
 		List<Facility> found = this.repository.findInBox(request.kind(), box.minLat(), box.maxLat(), box.minLng(),
 				box.maxLng(), Limit.of(SCAN_LIMIT));
@@ -119,6 +132,37 @@ public class FacilityNearbyService {
 		return new FacilityNearbyResponse(request.kind().name(), request.lat(), request.lng(), request.radiusM(),
 				request.kind() == FacilityKind.PARKING ? request.stayMinutes() : null, ranked.size(), request.limit(),
 				now.toOffsetDateTime().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME), items);
+	}
+
+	/**
+	 * 환전소 — 카카오 로컬이 가까운 순으로 준 것을 그대로. 바깥 호출이 실패하면 빈 목록으로 답한다 — 이 화면의 다른 탭까지 깨지 않게.
+	 * 거리는 우리 하버사인으로 다시 잰다(다른 종류와 같은 잣대).
+	 */
+	private FacilityNearbyResponse exchangeNearby(Validated request) {
+		ZonedDateTime now = ZonedDateTime.now(this.clock).withZoneSameInstant(SEOUL);
+		List<ExchangeSearch.Spot> spots = List.of();
+		if (this.exchangeSearch != null) {
+			try {
+				spots = this.exchangeSearch.search(request.lat(), request.lng(), request.radiusM(), request.limit());
+			} catch (IllegalStateException exception) {
+				spots = List.of();
+			}
+		}
+		List<FacilityNearbyResponse.Item> items = new ArrayList<>();
+		for (ExchangeSearch.Spot spot : spots) {
+			double meters = GeoDistance.meters(request.lat(), request.lng(), spot.lat(), spot.lng());
+			if (meters > request.radiusM()) {
+				continue;
+			}
+			items.add(new FacilityNearbyResponse.Item("kakao:" + spot.id(), FacilityKind.EXCHANGE.name(), spot.name(),
+					spot.address(), spot.lat(), spot.lng(), (int) Math.round(meters),
+					new FacilityDetail.Exchange(spot.tel(), spot.placeUrl())));
+		}
+		items.sort(Comparator.comparingInt(FacilityNearbyResponse.Item::distanceM));
+		List<FacilityNearbyResponse.Item> limited = items.stream().limit(request.limit()).toList();
+		return new FacilityNearbyResponse(FacilityKind.EXCHANGE.name(), request.lat(), request.lng(), request.radiusM(),
+				null, items.size(), request.limit(), now.toOffsetDateTime().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME),
+				limited);
 	}
 
 	// ── 요청 검사 ───────────────────────────────────────────────────────────
@@ -178,7 +222,7 @@ public class FacilityNearbyService {
 					.thenComparingInt(each -> estimatedWon(each) == null ? 0 : estimatedWon(each));
 			// 지금 연 곳이 먼저.
 			case PHARMACY -> Comparator.comparingInt(each -> Boolean.TRUE.equals(openNow(each)) ? 0 : 1);
-			case TOILET, LOCKER -> (left, right) -> 0;
+			case TOILET, LOCKER, EXCHANGE -> (left, right) -> 0;
 		};
 		// 같으면 가까운 순, 그래도 같으면 이름·번호로 못 박아 늘 같은 순서가 나오게 한다.
 		return primary.thenComparing(byDistance).thenComparing(each -> each.facility().getName())
@@ -202,6 +246,8 @@ public class FacilityNearbyService {
 			case PHARMACY -> pharmacyOf(stored, now, holiday);
 			case TOILET -> toiletOf(stored);
 			case LOCKER -> lockerOf(stored);
+			// 표에 환전소 행은 없다(바깥에 묻는다) — 혹시 있어도 저장된 칸만으로 그린다.
+			case EXCHANGE -> new FacilityDetail.Exchange(text(stored, "tel"), text(stored, "placeUrl"));
 		};
 	}
 
