@@ -131,9 +131,9 @@ export default function Chat() {
       {/* 두 줄까지 — 일본어 「釜山なまり ひとこと」「ヘルプ・お問い合わせ」가 한 줄이면 「…」로 잘렸다(5개 언어 점검 2026-09-29). */}<View style={styles.toolBody}><Text variant="body" weight="bold" numberOfLines={2}>{tx(tool.labelKo, tool.labelEn)}</Text><Text variant="caption" color={color.text.body} numberOfLines={2}>{tx(tool.hintKo, tool.hintEn)}</Text></View>
     </Pressable>)}</View>
     {/* 근처 편의시설 — 격자 바로 아래 한 줄 카드(위 주석 2052). AI 를 거치지 않고 화면으로 간다. */}
-    <Pressable testID="chat-nearby-facilities" accessibilityRole="link" accessibilityLabel={tx('근처 편의시설, 주차장 · 약국 · 화장실 · 짐보관', 'Nearby facilities, parking · pharmacies · restrooms · lockers')} onPress={() => router.push('/field/nearby')} style={({ pressed }) => [styles.nearby, pressed && styles.quickToolPressed]}>
+    <Pressable testID="chat-nearby-facilities" accessibilityRole="link" accessibilityLabel={tx('근처 편의시설, 주차장 · 환전소 · 화장실 · 짐보관', 'Nearby facilities, parking · currency exchange · restrooms · lockers')} onPress={() => router.push('/field/nearby')} style={({ pressed }) => [styles.nearby, pressed && styles.quickToolPressed]}>
       <View style={styles.toolIconBox}><Text variant="title">📍</Text></View>
-      <View style={styles.toolBody}><Text variant="body" weight="bold" numberOfLines={2}>{tx('근처 편의시설', 'Nearby facilities')}</Text><Text variant="caption" color={color.text.body} numberOfLines={2}>{tx('주차장 · 약국 · 화장실 · 짐보관', 'Parking · pharmacies · restrooms · lockers')}</Text></View>
+      <View style={styles.toolBody}><Text variant="body" weight="bold" numberOfLines={2}>{tx('근처 편의시설', 'Nearby facilities')}</Text><Text variant="caption" color={color.text.body} numberOfLines={2}>{tx('주차장 · 환전소 · 화장실 · 짐보관', 'Parking · currency exchange · restrooms · lockers')}</Text></View>
       <Text variant="title" color={color.text.muted}>›</Text>
     </Pressable>
     <Pressable accessibilityRole="link" accessibilityLabel={tx('현장 도구 전부 보기', 'See all on-the-go tools')} onPress={() => router.push('/field/translate')} style={({ pressed }) => [styles.toolMore, pressed && styles.quickToolPressed]}><Text variant="caption" weight="bold" color={desktop ? color.text.onAction : color.action.secondary}>{tx('현장 도구 전부 보기 ›', 'See all on-the-go tools ›')}</Text></Pressable>

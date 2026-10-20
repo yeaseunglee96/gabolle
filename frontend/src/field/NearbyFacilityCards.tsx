@@ -227,6 +227,20 @@ export function PharmacyCard({ item, actions, link, onCall }: CardProps<'PHARMAC
   );
 }
 
+// ── 환전소 ─────────────────────────────────────────────────────────────────
+
+export function ExchangeCard({ item, actions, link, onCall }: CardProps<'EXCHANGE'> & { onCall: ((tel: string) => void) | null }) {
+  const { tx, language } = useI18n();
+  const detail = item.detail;
+  const { title, sub } = nameParts(item.name, language);
+  const call = detail.tel && onCall ? { label: txf(tx, '%s에 전화하기', 'Call %s', title), onPress: () => onCall(detail.tel as string) } : null;
+  return (
+    <Frame item={item} title={title} sub={sub} actions={actions} link={link} callAction={call}>
+      {detail.tel ? <Text variant="caption" color={color.text.body}>{detail.tel}</Text> : null}
+    </Frame>
+  );
+}
+
 // ── 공중화장실 ─────────────────────────────────────────────────────────────
 
 const TOILET_TYPE_LABEL: Record<string, readonly [string, string]> = {

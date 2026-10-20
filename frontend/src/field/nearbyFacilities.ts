@@ -11,8 +11,9 @@
 import { apiRequest } from '@/api/client';
 import { coarseCoordinate } from '@/personalization/locationConsent';
 
-export type FacilityKind = 'PARKING' | 'PHARMACY' | 'TOILET' | 'LOCKER';
-export const FACILITY_KINDS: readonly FacilityKind[] = ['PARKING', 'PHARMACY', 'TOILET', 'LOCKER'];
+// 🔴 약국은 탭에서 뺐다 — 「근처 병원·약국」 한 곳에만 둔다(S15P21E201-2066). 그 자리에 환전소. 타입에는 PHARMACY 를 남긴다(서버는 아직 답한다).
+export type FacilityKind = 'PARKING' | 'PHARMACY' | 'TOILET' | 'LOCKER' | 'EXCHANGE';
+export const FACILITY_KINDS: readonly FacilityKind[] = ['PARKING', 'EXCHANGE', 'TOILET', 'LOCKER'];
 
 export type LatLng = { latitude: number; longitude: number };
 
@@ -58,6 +59,13 @@ export type PharmacyDetail = {
   lateNight: boolean;
 };
 
+/** 환전소 — 카카오 로컬이 준 값뿐이다. 영업시간·환율은 없다(S15P21E201-2066). */
+export type ExchangeDetail = {
+  tel: string | null;
+  /** 카카오맵 장소 주소 — 영업시간·후기는 거기 있다 */
+  placeUrl: string | null;
+};
+
 export type ToiletDetail = {
   /** OPEN(개방) · PUBLIC(공중) · SIMPLE(간이) · MOBILE(이동) */
   type: string | null;
@@ -90,6 +98,7 @@ type ItemBase = { id: string; name: string; address: string | null; lat: number;
 export type FacilityItem =
   | (ItemBase & { kind: 'PARKING'; detail: ParkingDetail })
   | (ItemBase & { kind: 'PHARMACY'; detail: PharmacyDetail })
+  | (ItemBase & { kind: 'EXCHANGE'; detail: ExchangeDetail })
   | (ItemBase & { kind: 'TOILET'; detail: ToiletDetail })
   | (ItemBase & { kind: 'LOCKER'; detail: LockerDetail });
 

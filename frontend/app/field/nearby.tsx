@@ -40,7 +40,7 @@ import {
   type LatLng,
   type NearbyFacilities,
 } from '@/field/nearbyFacilities';
-import { LockerCard, ParkingCard, PharmacyCard, ToiletCard, type FacilityActions, type ListLink } from '@/field/NearbyFacilityCards';
+import { ExchangeCard, LockerCard, ParkingCard, PharmacyCard, ToiletCard, type FacilityActions, type ListLink } from '@/field/NearbyFacilityCards';
 import { distanceText } from '@/field/subwayStations';
 import { useI18n } from '@/i18n';
 import { enPlural, txf } from '@/i18n/format';
@@ -67,7 +67,7 @@ type Load = { status: 'loading' } | { status: 'error' } | { status: 'ready'; dat
 /** 장소 상세에서 «이 장소 근처»로 열렸을 때의 기준점. */
 type Anchor = LatLng & { name: string | null };
 
-const TAB_EMOJI: Record<FacilityKind, string> = { PARKING: '🅿️', PHARMACY: '💊', TOILET: '🚻', LOCKER: '🧳' };
+const TAB_EMOJI: Record<FacilityKind, string> = { PARKING: '🅿️', PHARMACY: '💊', TOILET: '🚻', LOCKER: '🧳', EXCHANGE: '💱' };
 
 function firstParam(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
@@ -262,6 +262,7 @@ export default function NearbyFacilitiesScreen() {
     switch (item.kind) {
       case 'PARKING': return <ParkingCard key={item.id} item={item} actions={actions} link={link} stayHours={stayHours} />;
       case 'PHARMACY': return <PharmacyCard key={item.id} item={item} actions={actions} link={link} onCall={call} />;
+      case 'EXCHANGE': return <ExchangeCard key={item.id} item={item} actions={actions} link={link} onCall={call} />;
       case 'TOILET': return <ToiletCard key={item.id} item={item} actions={actions} link={link} />;
       case 'LOCKER': return <LockerCard key={item.id} item={item} actions={actions} link={link} />;
     }
@@ -273,6 +274,7 @@ export default function NearbyFacilitiesScreen() {
     switch (each) {
       case 'PARKING': return tx('주차장', 'Parking');
       case 'PHARMACY': return tx('약국', 'Pharmacy');
+      case 'EXCHANGE': return tx('환전소', 'Currency exchange');
       case 'TOILET': return tx('화장실', 'Restrooms');
       case 'LOCKER': return tx('짐보관', 'Lockers');
     }
@@ -295,7 +297,7 @@ export default function NearbyFacilitiesScreen() {
         <View style={styles.spacer} />
       </View>
       <Text variant="display" weight="bold">{tx('근처 편의시설', 'Nearby facilities')}</Text>
-      <Text color={color.text.body} style={styles.lead}>{tx('가까운 주차장 · 약국 · 화장실 · 짐보관함을 찾아 드려요.', 'Find nearby parking, pharmacies, restrooms and luggage lockers.')}</Text>
+      <Text color={color.text.body} style={styles.lead}>{tx('가까운 주차장 · 환전소 · 화장실 · 짐보관함을 찾아 드려요.', 'Find nearby parking, currency exchanges, restrooms and luggage lockers.')}</Text>
 
       <View accessibilityRole="tablist" accessibilityLabel={tx('편의시설 종류', 'Facility type')} style={styles.tabs}>
         {FACILITY_KINDS.map((each) => {
@@ -344,6 +346,11 @@ export default function NearbyFacilitiesScreen() {
               );
             })}
           </View>
+        </View>
+      ) : null}
+      {kind === 'EXCHANGE' ? (
+        <View testID="facility-exchange-notice" style={styles.warn}>
+          <Text variant="caption" weight="bold" color={color.state.warning}>{tx('영업시간과 환율은 곳마다 달라요. 가기 전에 전화로 확인해 주세요. 은행에서도 환전할 수 있어요.', 'Hours and rates differ by shop. Please call before you go. Banks also exchange currency.')}</Text>
         </View>
       ) : null}
       {kind === 'PHARMACY' ? (
