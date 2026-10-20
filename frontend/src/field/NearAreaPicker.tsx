@@ -26,13 +26,15 @@ export const POPULAR_AREAS: ReadonlyArray<NearArea & { nameEn: string }> = [
 const MIN_QUERY = 2;
 const DEBOUNCE_MS = 300;
 
-export function NearAreaPicker({ accessToken, onPick, testID = 'near-area', title, style }: {
+export function NearAreaPicker({ accessToken, onPick, testID = 'near-area', title, style, embedded = false }: {
   accessToken: string | null;
   onPick: (area: NearArea) => void;
   testID?: string;
   /** 위에 적는 물음. 없으면 「어디 근처를 볼까요?」 */
   title?: string;
   style?: StyleProp<ViewStyle>;
+  /** 다른 상자 안에 들어갈 때 — 자기 상자(배경·여백)를 그리지 않는다. 결과 없음 상자 안의 「또는」 아래가 그렇다. */
+  embedded?: boolean;
 }) {
   const { tx, language } = useI18n();
   const [query, setQuery] = useState('');
@@ -57,7 +59,7 @@ export function NearAreaPicker({ accessToken, onPick, testID = 'near-area', titl
   const pick = (area: NearArea) => { setQuery(''); setResults(null); onPick(area); };
 
   return (
-    <View testID={testID} style={[styles.box, style]}>
+    <View testID={testID} style={[embedded ? styles.embedded : styles.box, style]}>
       <Text variant="body" weight="bold">{title ?? tx('어디 근처를 볼까요?', 'Where should we look?')}</Text>
       <TextInput
         testID={`${testID}-input`}
@@ -102,6 +104,7 @@ export function NearAreaPicker({ accessToken, onPick, testID = 'near-area', titl
 
 const styles = StyleSheet.create({
   box: { gap: spacing[2], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
+  embedded: { gap: spacing[2] },
   input: { minHeight: 44, paddingHorizontal: spacing[3], borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.soft, color: color.text.heading, fontSize: 16 },
   results: { gap: spacing[1] },
   result: { paddingVertical: spacing[2], paddingHorizontal: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.soft },

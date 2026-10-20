@@ -403,11 +403,24 @@ export default function NearbyFacilitiesScreen() {
           <Button testID="facility-retry" label={tx('다시 시도', 'Try again')} variant="tertiary" compact onPress={() => setReloadKey((value) => value + 1)} />
         </View>
       ) : load.data.items.length === 0 ? (
+        // 🔴 결과가 없으면 한 상자 — 「넓혀 찾기」(할 일 하나만 진하게) → 「또는」 → 다른 곳 고르기(사용자 결정 2026-10-20).
+        //    전에는 이 상자와 목록 아래 「다른 곳 근처 보기」가 따로 떨어져 서로 관련 없어 보였다. 2km 까지 넓혀도 없으면 고르기만 남는다.
         <View testID="facility-empty" style={styles.state}>
-          <Text variant="body" weight="bold">{txf(tx, '반경 %s 안에는 아직 없어요.', 'Nothing within %s yet.', distanceText(load.data.radiusM))}</Text>
-          {radiusM < WIDE_RADIUS_M
-            ? <Button testID="facility-widen" label={tx('2km까지 넓혀 찾기', 'Search up to 2 km')} variant="tertiary" compact onPress={() => setRadiusM(WIDE_RADIUS_M)} />
-            : <Text variant="caption" color={color.text.body}>{tx('아래 「다른 곳 근처 보기」에서 다른 곳을 골라 보세요.', 'Pick another place in “Look around somewhere else” below.')}</Text>}
+          <View style={styles.emptyHead}>
+            <Text variant="body" weight="bold">{txf(tx, '반경 %s 안에는 아직 없어요', 'Nothing within %s yet', distanceText(load.data.radiusM))}</Text>
+            <Text variant="caption" color={color.text.body}>{radiusM < WIDE_RADIUS_M ? tx('더 넓게 찾거나 다른 곳을 골라 보세요.', 'Search wider or pick another place.') : tx('다른 곳을 골라 보세요.', 'Pick another place.')}</Text>
+          </View>
+          {radiusM < WIDE_RADIUS_M ? (
+            <>
+              <Button testID="facility-widen" label={tx('2km까지 넓혀 찾기', 'Search up to 2 km')} variant="secondary" onPress={() => setRadiusM(WIDE_RADIUS_M)} />
+              <View style={styles.orRow}>
+                <View style={styles.orLine} />
+                <Text variant="caption" color={color.text.muted}>{tx('또는', 'or')}</Text>
+                <View style={styles.orLine} />
+              </View>
+            </>
+          ) : null}
+          <NearAreaPicker testID="facility-area" accessToken={accessToken} onPick={pickArea} title={tx('다른 곳 근처 보기', 'Look around somewhere else')} embedded />
         </View>
       ) : (
         <>
@@ -419,7 +432,7 @@ export default function NearbyFacilitiesScreen() {
         </>
       )}
 
-      {usingFallback ? null : (
+      {usingFallback || (load.status === 'ready' && load.data.items.length === 0) ? null : (
         <NearAreaPicker testID="facility-area" accessToken={accessToken} onPick={pickArea} title={tx('다른 곳 근처 보기', 'Look around somewhere else')} style={styles.pickerBottom} />
       )}
       <Text variant="caption" color={color.text.muted} style={styles.foot}>{tx('거리는 직선이에요. 공공 자료를 바탕으로 해서 현장과 다를 수 있어요.', 'Distances are straight-line. Based on public data, so details may differ on site.')}</Text>
@@ -449,5 +462,8 @@ const styles = StyleSheet.create({
   list: { gap: spacing[2], marginTop: spacing[2], marginBottom: spacing[3] },
   foot: { marginTop: spacing[4], marginBottom: spacing[8] },
   pickerTop: { marginBottom: spacing[4] },
+  emptyHead: { gap: spacing[1] },
+  orRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], marginVertical: spacing[1] },
+  orLine: { flex: 1, height: StyleSheet.hairlineWidth, backgroundColor: color.surface.field },
   pickerBottom: { marginTop: spacing[4] },
 });
