@@ -53,6 +53,9 @@ public class TransitRouteAdapter implements RouteProviderPort {
 	 */
 	static final int TYPICAL_DAYTIME_MINUTE = 13 * 60;
 
+	/** 배차간격 길 셋 중 고를 때 갈아타기 한 번에 얹는 분 — 시간이 비슷하면 덜 갈아타는 길. */
+	static final int TRANSFER_PENALTY_MIN = 5;
+
 	private static final ZoneId KST = ZoneId.of("Asia/Seoul");
 
 	private static final double EARTH_RADIUS_M = 6_371_000;
@@ -118,17 +121,15 @@ public class TransitRouteAdapter implements RouteProviderPort {
 		// 못 간다" 인데, 평균값으로 덮으면 없는 차를 타라고 말하는 것이 된다.
 		if (!exact) {
 			HeadwayJourneyPlanner headway = new HeadwayJourneyPlanner(this.properties.getRideSpeedKmh());
-			Optional<RaptorPlanner.Journey> byHeadway = headway.plan(network, origins, destinations, TYPICAL_DAYTIME_MINUTE);
-			// 한 번에 가는 노선이 없으면 한 번 갈아타는 길 — S15P21E201-2067. 전에는 여기서 바로 직선 어림으로 떨어져
-			// 갈아타야 하는 길(명지→삼광사)이 전부 「경로 서비스가 답하지 않아 직선거리로 어림」이었다.
-			if (byHeadway.isEmpty()) {
-				byHeadway = headway.planWithOneTransfer(network, origins, destinations, TYPICAL_DAYTIME_MINUTE);
-			}
-			// 한 번 갈아타서도 안 되면 노선망 설정의 최대 탑승 횟수까지 — 명지→삼광사(버스→지하철→버스)가 그랬다.
-			if (byHeadway.isEmpty()) {
-				byHeadway = headway.planWithTransfers(network, origins, destinations, TYPICAL_DAYTIME_MINUTE,
-						this.properties.getMaxRides());
-			}
+			// 🔴 셋 다 재고 가장 빠른 것을 고른다(S15P21E201-2067). 전에는 한 번에 가는 길이 있으면 거기서 멈춰, 갈아타면
+			//    훨씬 빠른데도 느린 직행 버스를 골랐다. 갈아탈 때마다 5분을 얹어 비교한다 — 비슷하면 덜 갈아타는 쪽.
+			Optional<RaptorPlanner.Journey> byHeadway = java.util.stream.Stream.of(
+					headway.plan(network, origins, destinations, TYPICAL_DAYTIME_MINUTE),
+					headway.planWithOneTransfer(network, origins, destinations, TYPICAL_DAYTIME_MINUTE),
+					headway.planWithTransfers(network, origins, destinations, TYPICAL_DAYTIME_MINUTE,
+							this.properties.getMaxRides()))
+				.flatMap(Optional::stream)
+				.min(Comparator.comparingInt(each -> each.durationMin() + TRANSFER_PENALTY_MIN * each.transferCount()));
 			if (byHeadway.isPresent()) {
 				return Optional.of(toLeg(network, query, byHeadway.get(), REASON_HEADWAY_ESTIMATE));
 			}
@@ -196,7 +197,10 @@ public class TransitRouteAdapter implements RouteProviderPort {
 			String guidance;
 			if (ride.isWalk()) {
 				name = "도보";
-				guidance = from.name() + "에서 " + to.name() + "까지 걸어서 갈아탑니다.";
+				// 이름이 같으면(버스 정류장 「하단역」 → 지하철 하단역) 「하단역에서 하단역까지」가 되어 무슨 말인지 모른다.
+				guidance = from.name().equals(to.name())
+						? from.name() + (to.kind() == TransitNetwork.Kind.SUBWAY ? " 정류장에서 지하철역으로" : (from.kind() == TransitNetwork.Kind.SUBWAY ? " 지하철역에서 버스 정류장으로" : " 정류장에서 건너편 정류장으로")) + " 걸어서 갈아탑니다."
+						: from.name() + "에서 " + to.name() + "까지 걸어서 갈아탑니다.";
 			}
 			else {
 				TransitNetwork.Route route = network.route(ride.routeId());
