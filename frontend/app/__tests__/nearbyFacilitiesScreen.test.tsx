@@ -185,21 +185,35 @@ describe('주차장 탭 — 내 위치에서', () => {
   });
 });
 
-describe('위치를 못 쓸 때 — 서면 기준', () => {
+// 🔴 S15P21E201-2069 — 위치를 못 쓰면 서면으로 넘어가지 않고 «어디 근처를 볼까요?»를 묻는다(사용자 결정 2026-10-20).
+describe('위치를 못 쓸 때 — 어디 근처를 볼지 고른다', () => {
   beforeEach(() => denyLocation());
 
-  it('🔴 서면에서 찾고 «서면 기준»이라고 밝힌다. 위치를 읽는 동안에는 묻지 않았다', async () => {
+  it('🔴 서면에서 찾지 않는다 — 서버에 묻지 않고 «어디 근처를 볼까요?»와 자주 가는 곳을 보여 준다', async () => {
     const view = await renderScreen();
 
-    expect(getMock).toHaveBeenCalledTimes(1);
-    expect(getMock).toHaveBeenCalledWith('PARKING', SEOMYEON, 'token', expect.anything());
+    expect(getMock).not.toHaveBeenCalled();
     expect(view.getByTestId('facility-fallback-notice')).toBeTruthy();
-    expect(view.getByText('내 위치를 몰라 부산 중심(서면)에서 찾았어요. 거리도 그 기준이에요.')).toBeTruthy();
+    expect(view.getByText('내 위치를 쓸 수 없어요. 아래에서 어디 근처를 볼지 골라 주세요.')).toBeTruthy();
+    expect(view.getByTestId('facility-pick')).toBeTruthy();
+    expect(view.getByTestId('facility-area-chip-김해공항')).toBeTruthy();
     expect(view.getByTestId('facility-ask-location')).toBeTruthy();
   });
 
-  it('🔴 서면에서 찾은 곳에는 «길 안내»가 없다 — 지도 앱 단추만, 그 단추를 눌러야 지도 앱이 열린다(카드를 누르면 지도에서 그 점이 골라질 뿐)', async () => {
+  it('자주 가는 곳을 누르면 그 자리에서 찾고 «그 장소 근처» 안내가 뜬다', async () => {
     const view = await renderScreen();
+
+    await act(async () => { fireEvent.press(view.getByTestId('facility-area-chip-김해공항')); });
+
+    await waitFor(() => expect(getMock).toHaveBeenLastCalledWith('PARKING', { latitude: 35.1732, longitude: 128.9466 }, 'token', expect.objectContaining({ exact: true })));
+    expect(view.getByText('「김해공항」 근처에서 찾았어요. 거리도 그 장소에서 잰 거예요.')).toBeTruthy();
+    expect(view.queryByTestId('facility-fallback-notice')).toBeNull();
+  });
+
+  it('🔴 고른 자리에서 찾은 곳에는 «길 안내»가 없다 — 지도 앱 단추만, 그 단추를 눌러야 지도 앱이 열린다(카드를 누르면 지도에서 그 점이 골라질 뿐)', async () => {
+    const view = await renderScreen();
+    await act(async () => { fireEvent.press(view.getByTestId('facility-area-chip-서면')); });
+    await waitFor(() => expect(view.getByTestId('facility-map-p-paid')).toBeTruthy());
 
     expect(view.queryByTestId('facility-route-p-paid')).toBeNull();
     expect(view.getByTestId('facility-map-p-paid')).toBeTruthy();
@@ -226,7 +240,7 @@ describe('위치를 못 쓸 때 — 서면 기준', () => {
     expect(view.getByTestId('facility-route-p-paid')).toBeTruthy();
   });
 
-  it('동의를 거절하면 서면 기준이 그대로다', async () => {
+  it('동의를 거절하면 고르라는 안내가 그대로다', async () => {
     const view = await renderScreen();
     mockRequest.mockResolvedValue(false);
 
@@ -247,14 +261,14 @@ describe('위치를 못 쓸 때 — 서면 기준', () => {
     expect(Linking.openSettings).toHaveBeenCalled();
   });
 
-  it('위치를 읽다 실패해도(8초 안에 못 읽음 등) 서면 기준으로 보여 준다', async () => {
+  it('위치를 읽다 실패해도(8초 안에 못 읽음 등) 서면으로 가지 않고 고르라고 한다', async () => {
     (Location.getForegroundPermissionsAsync as jest.Mock).mockResolvedValue({ granted: true, canAskAgain: true });
     (syncLocationConsent as jest.Mock).mockResolvedValue(true);
     (readCurrentPosition as jest.Mock).mockRejectedValue(new Error('position timeout'));
 
     const view = await renderScreen();
 
-    expect(getMock).toHaveBeenCalledWith('PARKING', SEOMYEON, 'token', expect.anything());
+    expect(getMock).not.toHaveBeenCalled();
     expect(view.getByTestId('facility-fallback-notice')).toBeTruthy();
   });
 });
@@ -475,7 +489,11 @@ describe('영어 화면', () => {
     expect(view.getByText('How long will you stay?')).toBeTruthy();
     expect(view.getByText('2 hours')).toBeTruthy();
     expect(view.getByText('1 hour')).toBeTruthy();
-    expect(view.getByText('We could not get your location, so we searched from central Busan (Seomyeon). Distances use that point.')).toBeTruthy();
+    expect(view.getByText('We cannot use your location. Choose where to look below.')).toBeTruthy();
+    expect(view.getByText('Where should we look?')).toBeTruthy();
+    // 위치를 못 쓰면 목록은 자리를 고른 뒤에 온다(S15P21E201-2069)
+    await act(async () => { fireEvent.press(view.getByTestId('facility-area-chip-서면')); });
+    await waitFor(() => expect(getMock).toHaveBeenCalled());
     expect(view.getByText('Cheapest first. Lots with unknown fees come last.')).toBeTruthy();
     expect(view.getByText('No fee information')).toBeTruthy();
   });
