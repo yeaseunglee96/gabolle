@@ -31,6 +31,9 @@ import { NearbyParkingLine } from '@/place/NearbyParkingLine';
 import { PlaceDetailExtras } from '@/place/PlaceDetailExtras';
 import { PlaceRoutesSection } from '@/routepost/PlaceRoutesSection';
 import { takeScreenGuide } from '@/onboarding/firstRun';
+import * as Location from 'expo-location';
+import { readCurrentPosition } from '@/location/currentPosition';
+import { useLocationGate } from '@/personalization/useLocationGate';
 
 // 데모 3곳·저장 키는 src/discovery/savedPlaces.ts 로 옮겼다 — (tabs)/saved.tsx 도 같은 값을 쓴다.
 const PLACES = DEMO_PLACES;
@@ -86,6 +89,29 @@ export default function Place() {
     ? photoLabels({ photoSource: currentPhoto.source, photoLicense: currentPhoto.license, photoSubject: photoIndex === 0 ? resolved.apiPlace.photoSubject : null }, tx)
     : null;
   const taxiPlaceId = resolved?.apiPlace?.placeId ?? null;
+  const locationGate = useLocationGate(accessToken);
+  const [locating, setLocating] = useState(false);
+  // 길 안내 — 내 위치를 한 번 읽어 길 안내 화면으로. 위치를 못 쓰면 무엇이 필요한지 말한다(눌러도 아무 일 없는 단추를 만들지 않는다).
+  const openDirections = async () => {
+    const dest = resolved?.apiPlace;
+    if (!dest) return;
+    setLocating(true);
+    try {
+      const needLocation = tx('길 안내는 내 위치가 있어야 해요. 위치 사용에 동의해 주세요.', 'Directions need your location. Please allow location use.');
+      if (!(await locationGate.request())) { setFeedback(needLocation); return; }
+      const permission = await Location.requestForegroundPermissionsAsync();
+      if (!permission.granted) { setFeedback(needLocation); return; }
+      const position = await readCurrentPosition();
+      router.push({ pathname: '/route-detail', params: {
+        originLat: String(position.coords.latitude), originLng: String(position.coords.longitude), originName: tx('내 위치', 'My location'),
+        destLat: String(dest.lat), destLng: String(dest.lng), destName: resolved?.title ?? '', destPlaceId: dest.placeId, mode: 'TRANSIT',
+      } });
+    } catch {
+      setFeedback(tx('지금 위치를 찾지 못했어요. 잠시 뒤 다시 눌러 주세요.', 'Could not find your location. Try again in a moment.'));
+    } finally {
+      setLocating(false);
+    }
+  };
   // 택시 카드 첫 안내(UI 캔버스 ㉔-1, S15P21E201-1885) — 택시 단추가 있는 장소에서 처음 한 번.
   const [taxiGuide, setTaxiGuide] = useState(false);
   useEffect(() => {
@@ -365,12 +391,14 @@ export default function Place() {
             <GuideCallout
               pointDown
               title={tx('말이 안 통해도 택시를 탈 수 있어요', 'Take a taxi even without Korean')}
-              body={tx('「기사님께 보여주기」를 누르면 한국어 주소가 크게 떠요. 그 화면을 보여 주면 돼요.', 'Tap “Show to driver” and the Korean address appears in large type. Just show that screen.')}
+              body={tx('「길 안내」에서 「택시·자동차」를 고르고 「택시 기사에게 주소 카드 보여주기」를 누르면 한국어 주소가 크게 떠요.', 'In “Directions”, pick “Taxi · car” and tap “Show the address card to a taxi driver” — the Korean address appears in large type.')}
               onDone={() => setTaxiGuide(false)}
               style={styles.actionFull}
             />
           ) : null}
-          {taxiPlaceId ? <Button label={tx('기사님께 보여주기', 'Show to driver')} variant="tertiary" onPress={() => router.push(`/taxi-card/${taxiPlaceId}`)} containerStyle={styles.actionHalf} /> : null}
+          {/* 🔴 「기사님께 보여주기」 대신 길 안내 — 내 위치에서 대중교통·택시·자동차·도보를 비교하는 화면으로 간다(S15P21E201-2065).
+              택시 주소 카드는 그 화면의 택시·자동차 탭에 있다. */}
+          {taxiPlaceId && resolved.apiPlace ? <Button label={tx('길 안내', 'Directions')} variant="tertiary" disabled={locating} onPress={() => void openDirections()} containerStyle={styles.actionHalf} /> : null}
           <Button label={tx('한국어로 말하기', 'Speak Korean')} variant="tertiary" onPress={() => setPhraseModalOpen(true)} containerStyle={styles.actionHalf} />
           {taxiPlaceId ? (
             <Pressable accessibilityRole="link" onPress={() => router.push(`/place-reviews/${taxiPlaceId}`)} hitSlop={8} style={({ pressed }) => [styles.reviewLink, pressed && styles.pressed]}>
@@ -384,6 +412,7 @@ export default function Place() {
         </View>
       </> : null}
 
+      {locationGate.sheet}
       <PlacePhraseModal visible={phraseModalOpen} onClose={() => setPhraseModalOpen(false)} category={resolved?.apiPlace?.category} />
 
       {notFound ? <View style={styles.notice} accessibilityRole="alert">
