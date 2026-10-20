@@ -37,8 +37,8 @@ type QuickTool = { key: string; labelKo: string; labelEn: string; hintKo: string
 const QUICK_TOOLS: QuickTool[] = [
   // 🔴 메뉴판 번역·통역은 여기 없다(S15P21E201-1422) — 홈 동백이 단추가 「메뉴판 번역 · 통역 · AI 챗봇」이라, 챗봇에 들어와서
   //    같은 둘을 또 보면 「이미 봤는데?」가 된다. 동백이 메뉴에 없는 넷만 둔다.
-  { key: 'exchange', labelKo: '환율 계산', labelEn: 'Currency', hintKo: '가격표를 내 돈으로', hintEn: 'Convert a price tag', href: '/field/exchange-rate', icon: '₩' },
   { key: 'bus', labelKo: '주변 버스', labelEn: 'Buses nearby', hintKo: '몇 분 뒤에 오는지', hintEn: 'Minutes until arrival', href: '/field/transit', icon: 'bus' },
+  { key: 'exchange', labelKo: '환율 계산', labelEn: 'Currency', hintKo: '가격표를 내 돈으로', hintEn: 'Convert a price tag', href: '/field/exchange-rate', icon: '₩' },
   { key: 'dialect', labelKo: '부산 사투리 한마디', labelEn: 'Busan dialect', hintKo: '진짜 부산 억양으로 듣기', hintEn: 'Hear a real Busan accent', href: '/field/dialect', icon: dialectIcon },
   { key: 'help', labelKo: '도움말·문의', labelEn: 'Help & support', hintKo: '앱 소개 · 자주 묻는 질문', hintEn: 'App tour · FAQ', href: '/help', icon: '?' },
 ];
@@ -120,22 +120,28 @@ export default function Chat() {
   // 긴급 도움 입구 — 도구 맨 위(UI 캔버스 ㉒, S15P21E201-1879). AI 를 거치지 않고 공식 번호 화면으로 간다.
   const emergency = <Pressable testID="chat-emergency" accessibilityRole="link" accessibilityLabel={tx('긴급 도움, 119 구급 · 112 경찰 · 1330 통역', 'Emergency help, 119 ambulance · 112 police · 1330 interpreter')} onPress={() => router.push('/emergency')} style={({ pressed }) => [styles.emergency, pressed && styles.quickToolPressed]}>
     <View style={styles.emergencyBadge}><Text variant="body" weight="bold" color={color.state.danger}>SOS</Text></View>
-    <View style={styles.toolBody}><Text variant="body" weight="bold">{tx('긴급 도움', 'Emergency help')}</Text><Text variant="caption" color={color.text.body} numberOfLines={2}>{tx('119 구급 · 112 경찰 · 1330 통역 — 한국어를 몰라도 돼요', '119 ambulance · 112 police · 1330 interpreter — no Korean needed')}</Text></View>
+    <View style={styles.toolBody}><Text variant="body" weight="bold">{tx('긴급 도움', 'Emergency help')}</Text><Text variant="caption" color={color.text.body} numberOfLines={2}>{tx('119 · 112 · 1330 통역, 한국어 몰라도 돼요', '119 · 112 · 1330 interpreter, no Korean needed')}</Text></View>
     <Text variant="title" color={color.text.muted}>›</Text>
   </Pressable>;
-  const tools = <View accessibilityLabel={tx('여행 도구 바로가기', 'Trip tool shortcuts')} style={[styles.toolSection, desktop && styles.toolSectionDesktop]}>
-    {emergency}
-    {!desktop ? <View style={styles.sectionHeading}><Text variant="body" weight="bold">{tx('대화 없이 바로 실행', 'Run these without chatting')}</Text><Text variant="caption" color={color.text.body}>{tx('메뉴판 번역·통역은 홈 화면 오른쪽 아래 동백이 버튼에 있어요.', 'Menu translation and the interpreter are on the Dongbaek button at the bottom right of the home screen.')}</Text></View> : null}
-    <View style={[styles.quickTools, desktop && styles.quickToolsDesktop]}>{QUICK_TOOLS.map((tool) => <Pressable key={tool.key} accessibilityRole="button" accessibilityLabel={`${tx(tool.labelKo, tool.labelEn)}, ${tx(tool.hintKo, tool.hintEn)}`} onPress={() => router.push(tool.href)} style={({ pressed }) => [styles.quickTool, desktop && styles.quickToolDesktop, pressed && styles.quickToolPressed]}>
-      <View style={styles.toolIconBox}>{toolIcon(tool.icon)}</View>
-      {/* 두 줄까지 — 일본어 「釜山なまり ひとこと」「ヘルプ・お問い合わせ」가 한 줄이면 「…」로 잘렸다(5개 언어 점검 2026-09-29). */}<View style={styles.toolBody}><Text variant="body" weight="bold" numberOfLines={2}>{tx(tool.labelKo, tool.labelEn)}</Text><Text variant="caption" color={color.text.body} numberOfLines={2}>{tx(tool.hintKo, tool.hintEn)}</Text></View>
-    </Pressable>)}</View>
-    {/* 근처 편의시설 — 격자 바로 아래 한 줄 카드(위 주석 2052). AI 를 거치지 않고 화면으로 간다. */}
-    <Pressable testID="chat-nearby-facilities" accessibilityRole="link" accessibilityLabel={tx('근처 편의시설, 주차장 · 환전소 · 화장실 · 짐보관', 'Nearby facilities, parking · currency exchange · restrooms · lockers')} onPress={() => router.push('/field/nearby')} style={({ pressed }) => [styles.nearby, pressed && styles.quickToolPressed]}>
+  // 근처 편의시설 — 한 줄 카드. AI 를 거치지 않고 화면으로 간다.
+  const nearbyCard = <Pressable testID="chat-nearby-facilities" accessibilityRole="link" accessibilityLabel={tx('근처 편의시설, 주차장 · 환전소 · 화장실 · 짐보관', 'Nearby facilities, parking · currency exchange · restrooms · lockers')} onPress={() => router.push('/field/nearby')} style={({ pressed }) => [styles.nearby, pressed && styles.quickToolPressed]}>
       <View style={styles.toolIconBox}><Text variant="title">📍</Text></View>
       <View style={styles.toolBody}><Text variant="body" weight="bold" numberOfLines={2}>{tx('근처 편의시설', 'Nearby facilities')}</Text><Text variant="caption" color={color.text.body} numberOfLines={2}>{tx('주차장 · 환전소 · 화장실 · 짐보관', 'Parking · currency exchange · restrooms · lockers')}</Text></View>
       <Text variant="title" color={color.text.muted}>›</Text>
-    </Pressable>
+    </Pressable>;
+  // 🔴 순서는 «여행 중 급하고 자주 쓰는 것» — 긴급 → 버스 → 근처 편의시설 → 환율 → 사투리 → 도움말(사용자 결정 2026-10-20).
+  //    넓은 화면(세로 한 줄)은 그 순서 그대로, 폰은 2×2 격자 균형(2052) 때문에 근처 편의시설을 격자 바로 위 한 줄로 올린다.
+  const toolRow = (tool: QuickTool) => <Pressable key={tool.key} accessibilityRole="button" accessibilityLabel={`${tx(tool.labelKo, tool.labelEn)}, ${tx(tool.hintKo, tool.hintEn)}`} onPress={() => router.push(tool.href)} style={({ pressed }) => [styles.quickTool, desktop && styles.quickToolDesktop, pressed && styles.quickToolPressed]}>
+      <View style={styles.toolIconBox}>{toolIcon(tool.icon)}</View>
+      {/* 두 줄까지 — 일본어 「釜山なまり ひとこと」「ヘルプ・お問い合わせ」가 한 줄이면 「…」로 잘렸다(5개 언어 점검 2026-09-29). */}<View style={styles.toolBody}><Text variant="body" weight="bold" numberOfLines={2}>{tx(tool.labelKo, tool.labelEn)}</Text><Text variant="caption" color={color.text.body} numberOfLines={2}>{tx(tool.hintKo, tool.hintEn)}</Text></View>
+      {/* 다른 화면으로 넘어가는 줄은 모두 « › » — 긴급·근처 편의시설에만 있어 제각각이었다 */}{desktop ? <Text variant="title" color={color.text.muted}>›</Text> : null}
+    </Pressable>;
+  const tools = <View accessibilityLabel={tx('여행 도구 바로가기', 'Trip tool shortcuts')} style={[styles.toolSection, desktop && styles.toolSectionDesktop]}>
+    {emergency}
+    {!desktop ? <View style={styles.sectionHeading}><Text variant="body" weight="bold">{tx('대화 없이 바로 실행', 'Run these without chatting')}</Text><Text variant="caption" color={color.text.body}>{tx('메뉴판 번역·통역은 홈 화면 오른쪽 아래 동백이 버튼에 있어요.', 'Menu translation and the interpreter are on the Dongbaek button at the bottom right of the home screen.')}</Text></View> : null}
+    {desktop
+      ? <View style={[styles.quickTools, styles.quickToolsDesktop]}>{toolRow(QUICK_TOOLS[0])}{nearbyCard}{QUICK_TOOLS.slice(1).map(toolRow)}</View>
+      : <>{nearbyCard}<View style={styles.quickTools}>{QUICK_TOOLS.map(toolRow)}</View></>}
     <Pressable accessibilityRole="link" accessibilityLabel={tx('현장 도구 전부 보기', 'See all on-the-go tools')} onPress={() => router.push('/field/translate')} style={({ pressed }) => [styles.toolMore, pressed && styles.quickToolPressed]}><Text variant="caption" weight="bold" color={desktop ? color.text.onAction : color.action.secondary}>{tx('현장 도구 전부 보기 ›', 'See all on-the-go tools ›')}</Text></Pressable>
   </View>;
 
