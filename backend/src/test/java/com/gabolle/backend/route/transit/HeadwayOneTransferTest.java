@@ -72,4 +72,28 @@ class HeadwayOneTransferTest {
 
 		assertThat(this.planner.planWithOneTransfer(network, Map.of("a1", 1), Map.of("x2", 1), 13 * 60)).isEmpty();
 	}
+
+	@Test
+	void 두_번_갈아타는_길은_여러_번_환승_탐색이_찾는다() {
+		// A: a1─a2 (버스) · 걸어서 a2→s1 · S: s1─s2 (지하철) · B: s2─b2 (버스)
+		TransitNetwork network = TransitNetwork.of(
+				List.of(stop("a1", 129.00, BUS), stop("a2", 129.01, BUS), stop("s1", 129.011, BUS), stop("s2", 129.03, BUS),
+						stop("b2", 129.04, BUS)),
+				List.of(new TransitNetwork.Route("A", "A", BUS, List.of("a1", "a2"), 10),
+						new TransitNetwork.Route("S", "S", BUS, List.of("s1", "s2"), 6),
+						new TransitNetwork.Route("B", "B", BUS, List.of("s2", "b2"), 12)),
+				List.of(), List.of(new TransitNetwork.Transfer("a2", "s1", 3)));
+		Map<String, Integer> from = Map.of("a1", 1);
+		Map<String, Integer> to = Map.of("b2", 2);
+
+		assertThat(this.planner.planWithOneTransfer(network, from, to, 13 * 60)).isEmpty();
+		RaptorPlanner.Journey journey = this.planner.planWithTransfers(network, from, to, 13 * 60, 3).orElseThrow();
+
+		assertThat(journey.rides()).extracting(RaptorPlanner.Ride::routeId).containsExactly("A", null, "S", "B");
+		assertThat(journey.transferCount()).isEqualTo(2);
+		assertThat(journey.rides().get(0).fromStopId()).isEqualTo("a1");
+		assertThat(journey.rides().get(3).toStopId()).isEqualTo("b2");
+		// 두 번까지만 타게 하면 못 간다
+		assertThat(this.planner.planWithTransfers(network, from, to, 13 * 60, 2)).isEmpty();
+	}
 }
