@@ -60,6 +60,12 @@ public class BusanTransitNetworkPort implements TransitNetworkPort {
 	static final String SUBWAY_RESOURCE_PATH = "transit/busan-subway-network.json";
 
 	/**
+	 * 부산김해경전철·동해선 (S15P21E201-2072). 김해공항에서 경전철을 못 타 공항버스만 나왔다. 역간 소요시간은 운영사 전체
+	 * 소요시간을 거리 비율로 나눈 어림이다 — 파일의 note 에 적었다.
+	 */
+	static final String RAIL_EXTRA_RESOURCE_PATH = "transit/busan-rail-extra-network.json";
+
+	/**
 	 * 지하철에서 올릴 요일. 원천의 글자 그대로다({@code "평일"}·{@code "토요일"}·
 	 * {@code "일요일·공휴일"}) — 대응표를 두면 원천이 말을 바꿨을 때 아무것도 안 걸리고 노선이
 	 * 0개가 된다. 여기서는 0개가 되면 기동 로그가 말한다.
@@ -85,6 +91,7 @@ public class BusanTransitNetworkPort implements TransitNetworkPort {
 
 		readInto(objectMapper, BUS_RESOURCE_PATH, TransitNetwork.Kind.BUS, null, stops, routes);
 		readInto(objectMapper, SUBWAY_RESOURCE_PATH, TransitNetwork.Kind.SUBWAY, SUBWAY_DAY_TYPE, stops, routes);
+		readInto(objectMapper, RAIL_EXTRA_RESOURCE_PATH, TransitNetwork.Kind.SUBWAY, SUBWAY_DAY_TYPE, stops, routes);
 
 		warnOnDuplicateIds(stops, routes);
 

@@ -150,7 +150,17 @@ public class TransitRouteAdapter implements RouteProviderPort {
 	 * 직선 어림값으로 떨어졌다.
 	 */
 	private Map<String, Integer> nearestStops(TransitNetwork network, double lat, double lng) {
-		int radius = this.properties.getAccessRadiusM();
+		Map<String, Integer> near = nearestStops(network, lat, lng, this.properties.getAccessRadiusM());
+		// 🔴 걸어갈 만한 거리(800m) 안에 정류장이 하나도 없으면 1.5km 까지 넓힌다(S15P21E201-2072, 사용자 결정 2026-10-20).
+		//    태종대처럼 정류장이 조금 먼 곳이 대중교통을 못 찾고 직선 어림으로 떨어졌다. 안에 하나라도 있으면 넓히지 않는다 —
+		//    그러면 «걸어서 20분 + 지하철» 이 가까운 버스를 이긴다.
+		return near.isEmpty() ? nearestStops(network, lat, lng, WIDE_ACCESS_RADIUS_M) : near;
+	}
+
+	/** 가까운 정류장이 없을 때 넓혀 보는 반경(m). */
+	static final int WIDE_ACCESS_RADIUS_M = 1500;
+
+	private Map<String, Integer> nearestStops(TransitNetwork network, double lat, double lng, int radius) {
 		record Candidate(String stopId, double distanceM) {
 		}
 		List<Candidate> near = new ArrayList<>();
@@ -199,7 +209,7 @@ public class TransitRouteAdapter implements RouteProviderPort {
 				name = "도보";
 				// 이름이 같으면(버스 정류장 「하단역」 → 지하철 하단역) 「하단역에서 하단역까지」가 되어 무슨 말인지 모른다.
 				guidance = from.name().equals(to.name())
-						? from.name() + (to.kind() == TransitNetwork.Kind.SUBWAY ? " 정류장에서 지하철역으로" : (from.kind() == TransitNetwork.Kind.SUBWAY ? " 지하철역에서 버스 정류장으로" : " 정류장에서 건너편 정류장으로")) + " 걸어서 갈아탑니다."
+						? from.name() + (from.kind() == TransitNetwork.Kind.SUBWAY && to.kind() == TransitNetwork.Kind.SUBWAY ? "에서 다른 노선으로" : to.kind() == TransitNetwork.Kind.SUBWAY ? " 정류장에서 지하철역으로" : (from.kind() == TransitNetwork.Kind.SUBWAY ? " 지하철역에서 버스 정류장으로" : " 정류장에서 건너편 정류장으로")) + " 걸어서 갈아탑니다."
 						: from.name() + "에서 " + to.name() + "까지 걸어서 갈아탑니다.";
 			}
 			else {
