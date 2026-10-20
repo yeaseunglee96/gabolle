@@ -2133,6 +2133,7 @@ export const TRANSLATIONS: Record<string, Translation> = {
   '반경 %s 안에는 아직 없어요': { ja: '半径%s以内にはまだありません', zhHans: '半径%s内暂时没有', zhHant: '半徑%s內暫時沒有', vi: 'Chưa có trong bán kính %s' },
   '더 넓게 찾거나 다른 곳을 골라 보세요.': { ja: 'もっと広く探すか、別の場所を選んでください。', zhHans: '请扩大范围或选择其他地点。', zhHant: '請擴大範圍或選擇其他地點。', vi: 'Hãy tìm rộng hơn hoặc chọn nơi khác.' },
   '다른 곳을 골라 보세요.': { ja: '別の場所を選んでください。', zhHans: '请选择其他地点。', zhHant: '請選擇其他地點。', vi: 'Hãy chọn nơi khác.' },
+  '119 · 112 · 1330 통역, 한국어 몰라도 돼요': { ja: '119 · 112 · 1330 通訳、韓国語ができなくても大丈夫', zhHans: '119 · 112 · 1330 口译，不会韩语也没关系', zhHant: '119 · 112 · 1330 口譯，不會韓語也沒關係', vi: '119 · 112 · 1330 phiên dịch, không cần biết tiếng Hàn' },
   '택시 기사에게 보여주기': { ja: 'タクシー運転手に見せる', zhHans: '展示给出租车司机', zhHant: '展示給計程車司機', vi: 'Đưa cho tài xế taxi' },
   '기사님께 보여주기': { ja: '運転手に見せる', zhHans: '出示给司机', zhHant: '出示給司機', vi: 'Đưa cho tài xế' },
   '장소를 찾을 수 없어요': { ja: '場所が見つかりません', zhHans: '找不到该地点', zhHant: '找不到該地點', vi: 'Không tìm thấy địa điểm' },
