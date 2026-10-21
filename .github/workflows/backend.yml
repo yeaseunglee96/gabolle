@@ -1,0 +1,99 @@
+# 서버 빌드·시험과 배포 — GitHub Actions 판 (S15P21E201-2075, 2026-10-21)
+#
+# SSAFY GitLab 의 backend:build · deploy:server 를 GitHub 비공개 저장소(gabolle-private)로 옮길 때를 위해 둔다.
+# GitLab 은 .github/ 를 읽지 않으므로 GitLab 쪽 흐름에는 영향이 없다.
+#
+# 🔴 배포는 저장소 변수 DEPLOY_ENABLED 가 'true' 일 때만 돈다(Settings → Variables). 옮기는 날 켠다.
+#    서버의 deploy.sh 가 배포 전에 DB 를 백업하고(~/m/predeploy), 같은 때 두 번 돌지 않게 잠근다(flock).
+name: backend
+
+on:
+  push:
+    branches: [back/dev]
+  pull_request:
+    branches: [back/dev]
+  workflow_dispatch:
+
+concurrency:
+  group: backend-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: gabolle_test
+          POSTGRES_USER: gabolle
+          POSTGRES_PASSWORD: gabolle_ci
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U gabolle" --health-interval 5s --health-timeout 5s --health-retries 20
+      kafka:
+        image: apache/kafka:3.8.0
+        env:
+          KAFKA_NODE_ID: '1'
+          KAFKA_PROCESS_ROLES: broker,controller
+          KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+          KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+          KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+          KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+          KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: '1'
+          KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: '1'
+          KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: '1'
+        ports: ['9092:9092']
+    env:
+      GABOLLE_TEST_DB_URL: jdbc:postgresql://localhost:5432/gabolle_test
+      GABOLLE_TEST_DB_USERNAME: gabolle
+      GABOLLE_TEST_DB_PASSWORD: gabolle_ci
+      GABOLLE_TEST_MINIO_ENDPOINT: http://localhost:9000
+      GABOLLE_TEST_MINIO_ACCESS_KEY: gabolle
+      GABOLLE_TEST_MINIO_SECRET_KEY: gabolle_ci_minio
+      GABOLLE_TEST_KAFKA_BOOTSTRAP: localhost:9092
+      GABOLLE_ROUTE_OPTIMIZER_PYTHON: /opt/route-optimizer-venv/bin/python3
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      # MinIO 는 서비스 칸으로는 실행 명령(server /data)을 줄 수 없어 직접 띄운다
+      - name: MinIO
+        working-directory: .
+        run: |
+          docker run -d --name minio -p 9000:9000 -e MINIO_ROOT_USER=gabolle -e MINIO_ROOT_PASSWORD=gabolle_ci_minio \
+            quay.io/minio/minio:RELEASE.2024-10-13T13-34-11Z server /data
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: gradle
+      - uses: astral-sh/setup-uv@v6
+      - name: 경로 최적화 파이썬 환경
+        run: |
+          sudo mkdir -p /opt && sudo chown "$USER" /opt
+          uv python install 3.13
+          uv venv --python 3.13 /opt/route-optimizer-venv
+          uv pip install --python /opt/route-optimizer-venv/bin/python3 -r solver/requirements-optimizer.txt
+      - run: chmod +x gradlew && ./gradlew build --no-daemon
+
+  deploy:
+    needs: [build]
+    if: github.event_name == 'push' && vars.DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: production-server
+      cancel-in-progress: false
+    steps:
+      - name: 서버에 백엔드 배포 (deploy-gh back)
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy && chmod 600 ~/.ssh/deploy
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          ssh -i ~/.ssh/deploy -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o ServerAliveInterval=30 ubuntu@3.34.84.167 "deploy-gh back"
