@@ -187,6 +187,41 @@ class WeatherServiceTest {
 		assertThat(this.vendor.callCount).isZero();
 	}
 
+	// 익명 길(캐시만) — S15P21E201-2060. 새 발표 회차는 10분 뒤에 열리는데 미리받기는 매시 5분이라, 그 사이 이번 회차가 비어 있다.
+	// 10:00 KST 의 이번 회차는 08:00 이고(NOW), 바로 앞 회차는 05:00 이다.
+
+	@Test
+	@DisplayName("🔴 익명 — 이번 회차가 아직 비어 있으면 받아 둔 이전 회차로 답한다 (전에는 404 WEATHER_NOT_PREPARED)")
+	void anonymousFallsBackToTheEarlierRoundWhileTheCurrentRoundIsNotPrefetchedYet() {
+		this.cacheRepository.store.put("98_76_202609100500", entry(json("20260910", "22")));
+
+		WeatherForecastResult result = this.service.getForecastFromCache(new WeatherQuery(35.1796, 129.0756, REQUEST_DATE));
+
+		assertThat(result.forecast().maxTemperature()).as("이전 회차의 오늘 값이 안 나온다").isEqualTo(22.0);
+		assertThat(result.cached()).isTrue();
+		assertThat(this.vendor.callCount).as("익명 길이 기상청을 불렀다 — 호출 한도 경계가 깨졌다").isZero();
+		assertThat(this.cacheRepository.store).as("익명 길이 캐시에 새로 썼다").hasSize(1);
+	}
+
+	@Test
+	@DisplayName("익명 — 이번 회차가 채워져 있으면 이전 회차로 거슬러 가지 않는다")
+	void anonymousPrefersTheCurrentRoundWhenItIsPrefetched() {
+		this.cacheRepository.store.put("98_76_202609100800", entry(json("20260910", "25")));
+		this.cacheRepository.store.put("98_76_202609100500", entry(json("20260910", "11")));
+
+		WeatherForecastResult result = this.service.getForecastFromCache(new WeatherQuery(35.1796, 129.0756, REQUEST_DATE));
+
+		assertThat(result.forecast().maxTemperature()).as("이전 회차 값이 이번 회차를 덮었다").isEqualTo(25.0);
+	}
+
+	@Test
+	@DisplayName("🔴 익명 — 이전 회차에도 없으면 여전히 «준비 안 됨»이고 기상청은 안 부른다")
+	void anonymousStillRefusesWhenNoRoundIsCached() {
+		assertThatThrownBy(() -> this.service.getForecastFromCache(new WeatherQuery(35.1796, 129.0756, REQUEST_DATE)))
+				.isInstanceOf(WeatherService.ForecastNotPreparedException.class);
+		assertThat(this.vendor.callCount).isZero();
+	}
+
 	private WeatherService serviceAt(Instant instant) {
 		return new WeatherService(this.vendor, this.cacheRepository, new WeatherProperties(),
 			Clock.fixed(instant, ZoneOffset.UTC), new ObjectMapper());

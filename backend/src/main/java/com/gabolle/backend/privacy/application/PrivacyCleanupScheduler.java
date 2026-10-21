@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.ClientHttpRequestFactory;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
+import com.gabolle.backend.auth.service.AnonymousSessionCleanupService;
 import com.gabolle.backend.privacy.domain.PrivacyCleanupResult;
 import com.gabolle.backend.privacy.domain.PrivacyCleanupRun;
 import com.gabolle.backend.privacy.repository.PrivacyCleanupRunRepository;
@@ -46,8 +48,13 @@ public class PrivacyCleanupScheduler {
 	private final Clock clock;
 	private final RestClient restClient;
 
+	/** 익명 세션 정리. 인증 빈을 안 올리는 시험 슬라이스에서는 없다 — 그때는 건너뛴다. */
+	private final ObjectProvider<AnonymousSessionCleanupService> anonymousCleanup;
+
 	public PrivacyCleanupScheduler(PrivacyCleanupService cleanupService, PrivacyCleanupRunRepository runRepository,
-			PrivacyCleanupProperties properties, Clock clock, RestClient.Builder restClientBuilder) {
+			PrivacyCleanupProperties properties, Clock clock, RestClient.Builder restClientBuilder,
+			ObjectProvider<AnonymousSessionCleanupService> anonymousCleanup) {
+		this.anonymousCleanup = anonymousCleanup;
 		this.cleanupService = cleanupService;
 		this.runRepository = runRepository;
 		this.properties = properties;
@@ -106,6 +113,17 @@ public class PrivacyCleanupScheduler {
 					+ "eventsDeleted={} storyViewsDeleted={} storyLinkCopiesDeleted={}",
 					result.sessionsDeleted(), result.refreshTokensDeleted(), result.eventsDeleted(),
 					result.storyViewsDeleted(), result.storyLinkCopiesDeleted());
+
+			// 익명 세션은 자기 트랜잭션에서 따로 지운다. 실행 기록 표에는 칸이 없어 로그로만 남긴다 — 칸을 더하려면
+			// privacy_cleanup_run 마이그레이션이 필요한데, 건수는 로그로 충분하다.
+			AnonymousSessionCleanupService anonymous = this.anonymousCleanup.getIfAvailable();
+			if (anonymous != null) {
+				int anonymousSessionsDeleted = anonymous.cleanup(this.properties.getAnonymousIdleDays(),
+						this.properties.getAnonymousTripGraceDays(), this.properties.getAnonymousMaxAgeDays(),
+						this.properties.getAnonymousBatchSize());
+				log.info("event=PRIVACY_CLEANUP_ANONYMOUS_SUCCEEDED anonymousSessionsDeleted={} batchSize={}",
+						anonymousSessionsDeleted, this.properties.getAnonymousBatchSize());
+			}
 		}
 		catch (RuntimeException exception) {
 			cleanupRun.fail(this.clock.instant(), summarize(exception));

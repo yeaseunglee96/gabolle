@@ -92,7 +92,7 @@ public class AssistantChatService {
 	 * 콤마로 잘라 첫 언어 태그만 본다. 헤더 전체를 contains 로 보면 우선순위가 낮은 뒤쪽
 	 * 태그가 앞쪽 태그의 판정을 덮어쓴다.
 	 */
-	private String normalizeLanguage(String language) {
+	static String normalizeLanguage(String language) {
 		if (language == null || language.isBlank()) {
 			return "ko";
 		}
@@ -102,6 +102,9 @@ public class AssistantChatService {
 		}
 		if (primary.startsWith("ja")) {
 			return "ja";
+		}
+		if (primary.startsWith("vi")) {
+			return "vi";
 		}
 		if (primary.startsWith("zh")) {
 			return (primary.contains("hant") || primary.contains("-tw") || primary.contains("-hk")

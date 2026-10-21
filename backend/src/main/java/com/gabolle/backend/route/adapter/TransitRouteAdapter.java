@@ -53,6 +53,9 @@ public class TransitRouteAdapter implements RouteProviderPort {
 	 */
 	static final int TYPICAL_DAYTIME_MINUTE = 13 * 60;
 
+	/** 배차간격 길 셋 중 고를 때 갈아타기 한 번에 얹는 분 — 시간이 비슷하면 덜 갈아타는 길. */
+	static final int TRANSFER_PENALTY_MIN = 5;
+
 	private static final ZoneId KST = ZoneId.of("Asia/Seoul");
 
 	private static final double EARTH_RADIUS_M = 6_371_000;
@@ -117,9 +120,16 @@ public class TransitRouteAdapter implements RouteProviderPort {
 		// 출발 시각을 아는 요청에는 이 길을 쓰지 않는다. 그때 위가 빈 값이면 답은 "그 시각에는
 		// 못 간다" 인데, 평균값으로 덮으면 없는 차를 타라고 말하는 것이 된다.
 		if (!exact) {
-			Optional<RaptorPlanner.Journey> byHeadway =
-					new HeadwayJourneyPlanner(this.properties.getRideSpeedKmh())
-							.plan(network, origins, destinations, TYPICAL_DAYTIME_MINUTE);
+			HeadwayJourneyPlanner headway = new HeadwayJourneyPlanner(this.properties.getRideSpeedKmh());
+			// 🔴 셋 다 재고 가장 빠른 것을 고른다(S15P21E201-2067). 전에는 한 번에 가는 길이 있으면 거기서 멈춰, 갈아타면
+			//    훨씬 빠른데도 느린 직행 버스를 골랐다. 갈아탈 때마다 5분을 얹어 비교한다 — 비슷하면 덜 갈아타는 쪽.
+			Optional<RaptorPlanner.Journey> byHeadway = java.util.stream.Stream.of(
+					headway.plan(network, origins, destinations, TYPICAL_DAYTIME_MINUTE),
+					headway.planWithOneTransfer(network, origins, destinations, TYPICAL_DAYTIME_MINUTE),
+					headway.planWithTransfers(network, origins, destinations, TYPICAL_DAYTIME_MINUTE,
+							this.properties.getMaxRides()))
+				.flatMap(Optional::stream)
+				.min(Comparator.comparingInt(each -> each.durationMin() + TRANSFER_PENALTY_MIN * each.transferCount()));
 			if (byHeadway.isPresent()) {
 				return Optional.of(toLeg(network, query, byHeadway.get(), REASON_HEADWAY_ESTIMATE));
 			}
@@ -140,7 +150,17 @@ public class TransitRouteAdapter implements RouteProviderPort {
 	 * 직선 어림값으로 떨어졌다.
 	 */
 	private Map<String, Integer> nearestStops(TransitNetwork network, double lat, double lng) {
-		int radius = this.properties.getAccessRadiusM();
+		Map<String, Integer> near = nearestStops(network, lat, lng, this.properties.getAccessRadiusM());
+		// 🔴 걸어갈 만한 거리(800m) 안에 정류장이 하나도 없으면 1.5km 까지 넓힌다(S15P21E201-2072, 사용자 결정 2026-10-20).
+		//    태종대처럼 정류장이 조금 먼 곳이 대중교통을 못 찾고 직선 어림으로 떨어졌다. 안에 하나라도 있으면 넓히지 않는다 —
+		//    그러면 «걸어서 20분 + 지하철» 이 가까운 버스를 이긴다.
+		return near.isEmpty() ? nearestStops(network, lat, lng, WIDE_ACCESS_RADIUS_M) : near;
+	}
+
+	/** 가까운 정류장이 없을 때 넓혀 보는 반경(m). */
+	static final int WIDE_ACCESS_RADIUS_M = 1500;
+
+	private Map<String, Integer> nearestStops(TransitNetwork network, double lat, double lng, int radius) {
 		record Candidate(String stopId, double distanceM) {
 		}
 		List<Candidate> near = new ArrayList<>();
@@ -187,14 +207,19 @@ public class TransitRouteAdapter implements RouteProviderPort {
 			String guidance;
 			if (ride.isWalk()) {
 				name = "도보";
-				guidance = from.name() + "에서 " + to.name() + "까지 걸어서 갈아탑니다.";
+				// 이름이 같으면(버스 정류장 「하단역」 → 지하철 하단역) 「하단역에서 하단역까지」가 되어 무슨 말인지 모른다.
+				guidance = from.name().equals(to.name())
+						? from.name() + (from.kind() == TransitNetwork.Kind.SUBWAY && to.kind() == TransitNetwork.Kind.SUBWAY ? "에서 다른 노선으로" : to.kind() == TransitNetwork.Kind.SUBWAY ? " 정류장에서 지하철역으로" : (from.kind() == TransitNetwork.Kind.SUBWAY ? " 지하철역에서 버스 정류장으로" : " 정류장에서 건너편 정류장으로")) + " 걸어서 갈아탑니다."
+						: from.name() + "에서 " + to.name() + "까지 걸어서 갈아탑니다.";
 			}
 			else {
 				TransitNetwork.Route route = network.route(ride.routeId());
 				name = route.name();
 				guidance = from.name() + "에서 " + route.name() + "을(를) 타고 " + to.name() + "에서 내립니다.";
 			}
-			steps.add(new RouteLeg.Step(name, guidance, segmentM, ride.durationMin()));
+			// 걷는 환승은 지나는 정류장이 없다 — 대중교통을 탄 단계만 싣는다(S15P21E201-1836).
+			List<RouteLeg.StopPoint> stops = ride.isWalk() ? List.of() : stopPointsOf(network, ride);
+			steps.add(new RouteLeg.Step(name, guidance, segmentM, ride.durationMin(), stops));
 		}
 
 		// 요금은 구간별 합이 아니라 여정 전체다 — 환승 할인·차액이 그 안에서 끝나기 때문이다.
@@ -217,16 +242,7 @@ public class TransitRouteAdapter implements RouteProviderPort {
 		List<double[]> path = new ArrayList<>();
 		path.add(new double[] { query.originLng(), query.originLat() });
 		for (RaptorPlanner.Ride ride : journey.rides()) {
-			List<String> stopIds = List.of(ride.fromStopId(), ride.toStopId());
-			if (!ride.isWalk()) {
-				TransitNetwork.Route route = network.route(ride.routeId());
-				int from = network.sequenceOf(ride.routeId(), ride.fromStopId());
-				int to = network.sequenceOf(ride.routeId(), ride.toStopId());
-				if (route != null && from >= 0 && to > from) {
-					stopIds = route.stopIds().subList(from, to + 1);
-				}
-			}
-			for (String stopId : stopIds) {
+			for (String stopId : stopIdsOf(network, ride)) {
 				TransitNetwork.Stop stop = network.stop(stopId);
 				if (stop != null) {
 					path.add(new double[] { stop.lng(), stop.lat() });
@@ -235,6 +251,34 @@ public class TransitRouteAdapter implements RouteProviderPort {
 		}
 		path.add(new double[] { query.destLng(), query.destLat() });
 		return List.copyOf(path);
+	}
+
+	/**
+	 * 한 번 탄 구간에서 지나는 정류장 id — 타는 곳부터 내리는 곳까지 노선 순서대로(둘 다 포함). 걷는 환승이거나 노선에서
+	 * 순서를 못 찾으면 두 끝만. 경로선({@link #pathOf})과 단계의 정류장 목록({@link #stopPointsOf})이 같은 목록을 쓴다.
+	 */
+	private static List<String> stopIdsOf(TransitNetwork network, RaptorPlanner.Ride ride) {
+		if (!ride.isWalk()) {
+			TransitNetwork.Route route = network.route(ride.routeId());
+			int from = network.sequenceOf(ride.routeId(), ride.fromStopId());
+			int to = network.sequenceOf(ride.routeId(), ride.toStopId());
+			if (route != null && from >= 0 && to > from) {
+				return route.stopIds().subList(from, to + 1);
+			}
+		}
+		return List.of(ride.fromStopId(), ride.toStopId());
+	}
+
+	/** 단계에 싣는 정류장 목록 — 이름과 좌표. 노선망에 없는 id 는 건너뛴다(경로선과 같은 규칙). */
+	private static List<RouteLeg.StopPoint> stopPointsOf(TransitNetwork network, RaptorPlanner.Ride ride) {
+		List<RouteLeg.StopPoint> points = new ArrayList<>();
+		for (String stopId : stopIdsOf(network, ride)) {
+			TransitNetwork.Stop stop = network.stop(stopId);
+			if (stop != null) {
+				points.add(new RouteLeg.StopPoint(stop.name(), stop.lat(), stop.lng()));
+			}
+		}
+		return List.copyOf(points);
 	}
 
 	/**

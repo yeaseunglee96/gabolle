@@ -98,7 +98,7 @@ class TagoTransitVendorAdapterTest {
 		MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
 		TagoTransitVendorAdapter adapter = newAdapter(builder, "test-service-key");
 
-		server.expect(ExpectedCount.once(), MockRestRequestMatchers.anything())
+		server.expect(ExpectedCount.twice(), MockRestRequestMatchers.anything())
 				.andRespond(withServerError());
 
 		assertThatThrownBy(() -> adapter.fetchNearbyStopsJson(35.1796, 129.0756))
@@ -188,5 +188,34 @@ class TagoTransitVendorAdapterTest {
 		finally {
 			server.stop(0);
 		}
+	}
+
+	@Test
+	@DisplayName("🔴 업체가 한 번 500 을 주고 바로 정상으로 답하면 사용자에게는 정상으로 보인다 — S15P21E201-1927")
+	void retriesOnceOnFastServerError() {
+		RestClient.Builder builder = RestClient.builder();
+		MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+		TagoTransitVendorAdapter adapter = newAdapter(builder, "test-service-key");
+
+		String body = "{\"response\":{\"header\":{\"resultCode\":\"00\"}}}";
+		server.expect(ExpectedCount.once(), MockRestRequestMatchers.anything()).andRespond(withServerError());
+		server.expect(ExpectedCount.once(), MockRestRequestMatchers.anything()).andRespond(withSuccess(body, MediaType.APPLICATION_JSON));
+
+		assertThat(adapter.fetchNearbyStopsJson(35.1796, 129.0756)).isEqualTo(body);
+		server.verify();
+	}
+
+	@Test
+	@DisplayName("키 거절(403)은 다시 부르지 않는다 — 몇 번을 불러도 같다")
+	void doesNotRetryRejectedKey() {
+		RestClient.Builder builder = RestClient.builder();
+		MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+		TagoTransitVendorAdapter adapter = newAdapter(builder, "test-service-key");
+
+		server.expect(ExpectedCount.once(), MockRestRequestMatchers.anything())
+				.andRespond(withStatus(HttpStatus.FORBIDDEN).body("SERVICE_KEY_IS_NOT_REGISTERED_ERROR"));
+
+		assertThatThrownBy(() -> adapter.fetchNearbyStopsJson(35.1796, 129.0756)).isInstanceOf(TransitVendorException.class);
+		server.verify();
 	}
 }

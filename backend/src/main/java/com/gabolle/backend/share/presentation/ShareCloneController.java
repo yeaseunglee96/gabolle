@@ -18,6 +18,7 @@ import com.gabolle.backend.common.security.AuthenticatedUsers;
 import com.gabolle.backend.share.application.ShareCloneService;
 import com.gabolle.backend.share.presentation.dto.CloneTripResponse;
 import com.gabolle.backend.trip.application.TripQueryService;
+import com.gabolle.backend.trip.domain.Trip;
 import com.gabolle.backend.trip.presentation.dto.CreateTripRequest;
 import com.gabolle.backend.trip.presentation.dto.CreateTripRequestMapper;
 
@@ -49,9 +50,11 @@ public class ShareCloneController {
 			@RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
 			Authentication authentication) {
 
-		String requester = AuthenticatedUsers.requireId(authentication).toString();
+		// 복제는 새 여행을 만드는 자리라 POST /trips 와 같이 익명 세션도 주인이 된다.
+		AuthenticatedUsers.Owner owner = AuthenticatedUsers.requireOwner(authentication);
+		Trip.OwnerType ownerType = owner.anonymous() ? Trip.OwnerType.ANONYMOUS : Trip.OwnerType.USER;
 		ShareCloneService.Result result = this.cloneService.clone(token,
-				CreateTripRequestMapper.toCommand(request, requester), idempotencyKey);
+				CreateTripRequestMapper.toCommand(request, owner.id().toString(), ownerType), idempotencyKey);
 
 		String jobId = result.job() == null ? null : result.job().getJobId().toString();
 		CloneTripResponse body = new CloneTripResponse(

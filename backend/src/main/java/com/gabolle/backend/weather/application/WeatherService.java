@@ -65,7 +65,8 @@ public class WeatherService {
 	/**
 	 * 캐시에 이미 있는 것만 답한다 — 기상청을 부르지 않는다. 로그인하지 않은 사람이 오는
 	 * 길이라, 여기서 벤더를 부르면 좌표를 바꿔가며 우리 키의 호출 한도를 태울 수 있다.
-	 * 안 받아 둔 격자·회차면 ForecastNotPreparedException.
+	 * 이번 회차가 아직 비어 있으면 받아 둔 이전 회차로 답하고(S15P21E201-2060), 이전 회차에도
+	 * 없는 격자면 ForecastNotPreparedException.
 	 */
 	public WeatherForecastResult getForecastFromCache(WeatherQuery query) {
 		return forecast(query, false);
@@ -105,7 +106,12 @@ public class WeatherService {
 			rawJson = cached.get();
 		}
 		else if (!mayCallVendor) {
-			throw new ForecastNotPreparedException(grid);
+			// 익명은 기상청을 못 부른다. 새 발표 회차는 발표 10분 뒤에 열리는데 미리받기는 매시 5분에 한 번이라, 그 사이
+			// 최대 55분은 «이번 회차»가 비어 있다 — 2026-10-16 09:03 KST 운영에서 익명 날씨가 404 였다가 09:06 에 200 이 됐다
+			// (S15P21E201-2060). 이미 받아 둔 이전 회차가 있으면 그것으로 답한다. 몇 시간 묵은 예보지만 «없음»보다 낫고,
+			// 기상청을 부르지 않으니 호출 한도 경계도 그대로다. 이전 회차도 없을 때만 «준비 안 됨».
+			return fromEarlierRound(grid, baseTime, query, now)
+					.orElseThrow(() -> new ForecastNotPreparedException(grid));
 		}
 		else {
 			// 실패하면 여기서 던진 WeatherVendorException 이 그대로 위로 올라간다.
@@ -168,8 +174,8 @@ public class WeatherService {
 	}
 
 	/**
-	 * 미리 받아 둔 것이 없다. 부산 밖 좌표이거나 미리 받기가 아직 그 회차를 못 채웠을 때다.
-	 * 로그인한 사람에게는 나지 않는다 — 그 길은 기상청을 부른다.
+	 * 미리 받아 둔 것이 이전 회차까지 합쳐 하나도 없다. 부산 밖 좌표이거나 미리 받기가 아직 그 격자를 한 번도 못 채웠을
+	 * 때다. 로그인한 사람에게는 나지 않는다 — 그 길은 기상청을 부른다.
 	 */
 	public static class ForecastNotPreparedException extends RuntimeException {
 

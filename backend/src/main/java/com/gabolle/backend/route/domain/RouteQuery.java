@@ -10,9 +10,13 @@ import java.time.OffsetDateTime;
  * 정도 걸린다" 로 답하고 estimated=true 를 싣는다.
  * 이 값은 캐시 열쇠의 일부라 초 단위로 다 다르면 캐시가 거의 안 맞는다 — 부르는 쪽이
  * 분 단위로 맞춰 넘기는 편이 낫다.
+ *
+ * stepFree 는 「계단과 급경사를 피하는 길」을 달라는 뜻이다 — 휠체어·유모차를 쓰거나 계단을 피하겠다고 답한
+ * 사람의 걷는 구간. 지금은 우리 보행 그래프({@code WalkGraph})만 이 값을 읽고, 자동차·대중교통 업체와 직선
+ * 어림은 무시한다(돌아갈 길을 모른다). 캐시 열쇠에 들어간다 — 안 넣으면 계단 길 답이 휠체어 사용자에게 나간다.
  */
 public record RouteQuery(double originLat, double originLng, double destLat, double destLng, TravelMode mode,
-		OffsetDateTime departureAt) {
+		OffsetDateTime departureAt, boolean stepFree) {
 
 	public RouteQuery {
 		requireLat(originLat, "originLat");
@@ -26,7 +30,13 @@ public record RouteQuery(double originLat, double originLng, double destLat, dou
 
 	/** 출발 시각 없이 묻는다. 대중교통이면 "보통 이 정도" 로 답한다. */
 	public RouteQuery(double originLat, double originLng, double destLat, double destLng, TravelMode mode) {
-		this(originLat, originLng, destLat, destLng, mode, null);
+		this(originLat, originLng, destLat, destLng, mode, null, false);
+	}
+
+	/** 계단을 가리지 않는 보통 길을 묻는다 — stepFree 가 생기기 전의 모양 그대로다. */
+	public RouteQuery(double originLat, double originLng, double destLat, double destLng, TravelMode mode,
+			OffsetDateTime departureAt) {
+		this(originLat, originLng, destLat, destLng, mode, departureAt, false);
 	}
 
 	/** 출발 시각을 알고 묻는가. 대중교통 탐색기가 시각표를 쓸지 말지를 이것으로 가른다. */

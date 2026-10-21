@@ -35,8 +35,8 @@ class ItineraryLegPlannerLodgingTest {
 
 	private static final double ORIGIN_LAT = 35.1152;   // 부산역
 	private static final double ORIGIN_LNG = 129.0422;
-	private static final double LODGING_LAT = 35.1587;  // 해운대
-	private static final double LODGING_LNG = 129.1604;
+	private static final double LODGING_LAT = 35.163672;  // 해운대역 (동네 숙소 해운대의 기준점, S15P21E201-2046)
+	private static final double LODGING_LNG = 129.158908;
 
 	private final PlaceRepository places = mock(PlaceRepository.class);
 
@@ -80,6 +80,25 @@ class ItineraryLegPlannerLodgingTest {
 		assertThat(this.planner.dayStart(trip(this.lodgingId.toString()), 1, this.planner.lodgingOf(trip(this.lodgingId.toString()))))
 				.containsExactly(ORIGIN_LAT, ORIGIN_LNG);
 		assertThat(this.planner.lodgingOf(trip("not-a-uuid"))).isNull();
+	}
+
+	@Test
+	@DisplayName("🔴 동네 숙소는 그 동네의 지하철역에 선다 — 동네 중심은 길이 없는 점이라 앱이 곧은 점선으로 그렸다 (S15P21E201-2046)")
+	void 동네_숙소는_가까운_지하철역() {
+		// 좌표는 부산교통공사 역 자료(transit/busan-subway-network.json)의 값 그대로다
+		assertThat(stationOf("HAEUNDAE")).containsExactly(35.163672, 129.158908);   // 해운대역 2호선
+		assertThat(stationOf("GWANGALLI")).containsExactly(35.157916, 129.113168);  // 광안역 2호선
+		assertThat(stationOf("SEOMYEON")).containsExactly(35.158282, 129.059556);   // 서면역 1호선
+		assertThat(stationOf("NAMPO")).containsExactly(35.097953, 129.034869);      // 남포역 1호선
+		// 역을 정하지 않은 동네는 전처럼 중심
+		assertThat(stationOf("YEONGDO")).containsExactly(35.0911, 129.0682);
+		// 이름은 동네 그대로 — 앱이 이 이름으로 다섯 언어 칩 이름을 찾는다
+		assertThat(this.planner.lodgingOf(tripWithArea(null, "NAMPO")).label()).isEqualTo("남포동");
+	}
+
+	private double[] stationOf(String area) {
+		ItineraryLegPlanner.Anchor a = this.planner.lodgingOf(tripWithArea(null, area));
+		return new double[] { a.lat(), a.lng() };
 	}
 
 	@Test

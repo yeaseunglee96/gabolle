@@ -243,8 +243,13 @@ public class TripCreationService {
         // 답하지 않은 차원까지 "고른 것" 이 된다. 실제로 만들어졌을 때만 한다 — 같은 키로 다시 온
         // 요청은 여행을 안 만들었으므로 취향도 새로 정한 것이 아니다.
         if (outcome.created()) {
-            preferenceDefaults.carryOver(command.userId(), storedPreferences);
-            saveMustVisitPlaces(outcome.trip().tripId(), command.mustVisitPlaceIds(), now);
+            // 계정 기본값은 계정이 있어야 담는다. 익명 세션으로 넘기면 계정 단위 스냅샷이 세션
+            // ID 로 쌓이고, 뒤따르는 취향 벡터 접기가 app_user 외래키에 걸려 매번 경고만 남긴다.
+            if (command.ownerType() != Trip.OwnerType.ANONYMOUS) {
+                preferenceDefaults.carryOver(command.userId(), storedPreferences);
+            }
+            saveMustVisitPlaces(outcome.trip().tripId(), command.mustVisitPlaceIds(),
+                    TripConditionRules.mustVisitLimit(command.startDate(), command.finishDate()), now);
             saveTravelAreas(outcome.trip().tripId(), command.travelAreas());
             recordExplicitInputs(outcome.trip(), command, storedPreferences, constraints);
         }
@@ -256,17 +261,22 @@ public class TripCreationService {
      * 꼭 가고 싶은 장소를 {@code trip_seed_place} 에 씨앗으로 적는다. 새로 만든 여행일 때만
      * 부른다 — 재시도로 돌려준 여행에는 씨앗이 이미 있어 다시 적으면 기본키에 걸린다. 같은
      * 이유로 중복 장소는 앞의 것만 남긴다. 저장소가 없으면 조용히 건너뛴다.
+     * {@code limit} 이 0 이상이면 서로 다른 장소를 앞에서부터 그만큼만 적는다(S15P21E201-1971, {@link TripConditionRules#mustVisitLimit}).
      */
-    private void saveMustVisitPlaces(String tripId, List<String> placeIds, Instant now) {
+    private void saveMustVisitPlaces(String tripId, List<String> placeIds, long limit, Instant now) {
         if (this.seedPlaces.isEmpty() || placeIds.isEmpty()) {
             return;
         }
         List<TripSeedPlace> seeds = new ArrayList<>();
         Set<String> seen = new LinkedHashSet<>();
         for (String placeId : placeIds) {
-            if (placeId == null || placeId.isBlank() || !seen.add(placeId)) {
+            if (placeId == null || placeId.isBlank() || seen.contains(placeId)) {
                 continue;
             }
+            if (limit >= 0 && seen.size() >= limit) {
+                break;
+            }
+            seen.add(placeId);
             seeds.add(new TripSeedPlace(tripId, placeId, seen.size(), null, null, now));
         }
         if (!seeds.isEmpty()) {

@@ -111,6 +111,59 @@ public class PrivacyCleanupProperties {
 		this.largeDeletionWarningThreshold = largeDeletionWarningThreshold;
 	}
 
+	/**
+	 * 익명 세션(비회원 출입증)과 그 세션이 만든 여행을 언제 지우는가. 세 값이 함께 정한다.
+	 *
+	 * <ul>
+	 * <li>{@code anonymousIdleDays} — 마지막 접속에서 이만큼 지나면 지운다. 출입증은 기기에만 있어서
+	 * 이 기간 동안 아무 요청이 없으면 앱을 지웠거나 저장소를 비웠다고 본다.</li>
+	 * <li>{@code anonymousTripGraceDays} — 다만 끝나지 않은 여행이 있으면 그 종료일에서 이만큼 지날 때까지
+	 * 기다린다. 두 달 뒤 여행을 미리 짜 두고 앱을 안 연 사람이 출발 전에 일정을 잃지 않게.</li>
+	 * <li>{@code anonymousMaxAgeDays} — 발급에서 이만큼 지나면 위 둘과 상관없이 지운다. 종료일을 먼
+	 * 미래로 적어 무기한 남기는 것을 막는 상한이다.</li>
+	 * </ul>
+	 */
+	private int anonymousIdleDays = 30;
+
+	private int anonymousTripGraceDays = 7;
+
+	private int anonymousMaxAgeDays = 180;
+
+	/** 한 번 실행에서 지우는 익명 세션 수. 넘치면 다음 날 이어서 지운다 — 한 트랜잭션을 짧게 둔다. */
+	private int anonymousBatchSize = 500;
+
+	public int getAnonymousIdleDays() {
+		return anonymousIdleDays;
+	}
+
+	public void setAnonymousIdleDays(int anonymousIdleDays) {
+		this.anonymousIdleDays = anonymousIdleDays;
+	}
+
+	public int getAnonymousTripGraceDays() {
+		return anonymousTripGraceDays;
+	}
+
+	public void setAnonymousTripGraceDays(int anonymousTripGraceDays) {
+		this.anonymousTripGraceDays = anonymousTripGraceDays;
+	}
+
+	public int getAnonymousMaxAgeDays() {
+		return anonymousMaxAgeDays;
+	}
+
+	public void setAnonymousMaxAgeDays(int anonymousMaxAgeDays) {
+		this.anonymousMaxAgeDays = anonymousMaxAgeDays;
+	}
+
+	public int getAnonymousBatchSize() {
+		return anonymousBatchSize;
+	}
+
+	public void setAnonymousBatchSize(int anonymousBatchSize) {
+		this.anonymousBatchSize = anonymousBatchSize;
+	}
+
 	public String getAlertWebhookUrl() {
 		return alertWebhookUrl;
 	}

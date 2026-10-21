@@ -127,7 +127,8 @@ public class FestivalQueryService {
 					period.getStartDate(),
 					period.getEndDate(),
 					toPriceLevel(priceLevelByPlace.get(place.getPlaceId())),
-					overlapDates(period, startDate, endDate)));
+					overlapDates(period, startDate, endDate),
+					place.localNames()));
 		}
 
 		return new FestivalResponse(items, items.size(), hasMore);

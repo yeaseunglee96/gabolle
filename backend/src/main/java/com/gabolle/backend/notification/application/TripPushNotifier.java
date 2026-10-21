@@ -1,11 +1,16 @@
 package com.gabolle.backend.notification.application;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
@@ -72,13 +77,23 @@ public class TripPushNotifier {
 
 	private final PushSender pushSender;
 
+	/** 연달아 바꾼 편집을 한 통으로 모은다(S15P21E201-1880). 모으지 않으면 바로 보낸다 — 시험의 기본. */
+	private final EditPushBatcher editBatcher;
+
 	public TripPushNotifier(ItineraryRepository itineraryRepository, TripRepository tripRepository,
 			ActorNames actorNames, PushTokenService pushTokens, PushSender pushSender) {
+		this(itineraryRepository, tripRepository, actorNames, pushTokens, pushSender, EditPushBatcher.immediate());
+	}
+
+	@Autowired
+	public TripPushNotifier(ItineraryRepository itineraryRepository, TripRepository tripRepository,
+			ActorNames actorNames, PushTokenService pushTokens, PushSender pushSender, EditPushBatcher editBatcher) {
 		this.itineraryRepository = itineraryRepository;
 		this.tripRepository = tripRepository;
 		this.actorNames = actorNames;
 		this.pushTokens = pushTokens;
 		this.pushSender = pushSender;
+		this.editBatcher = editBatcher;
 	}
 
 	/**
@@ -87,42 +102,63 @@ public class TripPushNotifier {
 	 * <p>🔴 <b>만든 사람에게 보낼 것인가가 {@code CREATE} 에서만 뒤집힌다.</b> 순서를 바꾼 사람은
 	 * 방금 자기 손으로 눌렀고 화면을 보고 있다 — 거기에 알림을 띄우면 그냥 방해다. 그런데 일정
 	 * 생성은 <b>오래 걸려서 사람이 앱을 닫는다.</b> 기다리던 본인이야말로 받아야 할 사람이다.
+	 *
+	 * <p>🔴 <b>편집은 모아서 보낸다(S15P21E201-1880).</b> 같은 사람이 같은 일정을 연달아 고치면 한 통으로 —
+	 * {@link EditPushBatcher}. 일정 생성은 모으지 않는다 — 기다리던 사람에게 바로 가야 한다.
 	 */
 	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
 	public void onItineraryChanged(ItineraryChangedByMember event) {
 		try {
-			Itinerary itinerary = this.itineraryRepository.findById(event.itineraryId()).orElse(null);
-			if (itinerary == null) {
-				log.warn("알림을 보낼 일정이 없습니다. itineraryId={}", event.itineraryId());
+			if (event.operation() == ItineraryVersion.Operation.CREATE) {
+				sendEdits(event.itineraryId(), event.actorUserId(), List.of(event.operation()));
 				return;
 			}
-			Trip trip = this.tripRepository.findById(itinerary.tripId()).orElse(null);
-			if (trip == null) {
-				log.warn("알림을 보낼 여행이 없습니다. tripId={}", itinerary.tripId());
-				return;
-			}
-
-			boolean toActorToo = event.operation() == ItineraryVersion.Operation.CREATE;
-			List<String> recipients = this.tripRepository.findMembers(trip.tripId()).stream()
-					.map(TripMember::userId)
-					.filter((userId) -> toActorToo || !Objects.equals(userId, event.actorUserId()))
-					.toList();
-
-			// CREATE 문구에는 「누가」가 없다. 그래서 만든 본인에게도 같은 한 통을 보낼 수 있다 —
-			// 다른 갈래는 위에서 본인을 이미 뺐으므로 이름이 늘 남의 이름이다.
-			String actorName = this.actorNames.resolve(Collections.singletonList(event.actorUserId()))
-					.get(event.actorUserId());
-
-			String href = "/trips/" + event.itineraryId() + "/itinerary";
-			push(recipients, new PushMessage(
-					title(event.operation()),
-					itineraryBody(trip.displayTitle(), event.operation(), actorName),
-					href, event.itineraryId()));
+			this.editBatcher.add(new EditPushBatcher.Key(event.itineraryId(), event.actorUserId()), event.operation(),
+					(key, operations) -> sendEdits(key.itineraryId(), key.actorUserId(), operations));
 		}
 		catch (RuntimeException exception) {
 			log.error("일정 변경 알림을 보내지 못했습니다. 편집 자체는 이미 끝났으므로 되돌리지 않습니다. itineraryId={}",
 					event.itineraryId(), exception);
 		}
+	}
+
+	/** 편집(들)을 한 통으로 보낸다. 한 건이면 예전 문구, 여러 건이면 「수민님이 일정을 5번 바꿨어요」. */
+	private void sendEdits(String itineraryId, String actorUserId, List<ItineraryVersion.Operation> operations) {
+		Itinerary itinerary = this.itineraryRepository.findById(itineraryId).orElse(null);
+		if (itinerary == null) {
+			log.warn("알림을 보낼 일정이 없습니다. itineraryId={}", itineraryId);
+			return;
+		}
+		Trip trip = this.tripRepository.findById(itinerary.tripId()).orElse(null);
+		if (trip == null) {
+			log.warn("알림을 보낼 여행이 없습니다. tripId={}", itinerary.tripId());
+			return;
+		}
+
+		boolean created = operations.size() == 1 && operations.get(0) == ItineraryVersion.Operation.CREATE;
+		List<String> recipients = this.tripRepository.findMembers(trip.tripId()).stream()
+				.map(TripMember::userId)
+				.filter((userId) -> created || !Objects.equals(userId, actorUserId))
+				.toList();
+
+		// CREATE 문구에는 「누가」가 없다. 그래서 만든 본인에게도 같은 한 통을 보낼 수 있다 —
+		// 다른 갈래는 위에서 본인을 이미 뺐으므로 이름이 늘 남의 이름이다.
+		String actorName = this.actorNames.resolve(Collections.singletonList(actorUserId)).get(actorUserId);
+
+		String href = "/trips/" + itineraryId + "/itinerary";
+		// 받는 사람마다 그 사람 앱 언어로(S15P21E201-1864). 문구는 PushCopy 한 곳에 있다.
+		pushByLanguage(recipients, (lang) -> {
+			String label = PushCopy.tripLabel(trip, lang);
+			if (created) {
+				return new PushMessage(PushCopy.createdTitle(lang), PushCopy.createdBody(label, lang), href, itineraryId);
+			}
+			if (operations.size() == 1) {
+				return new PushMessage(PushCopy.editTitle(operations.get(0), actorName, lang), PushCopy.editBody(label, lang),
+						href, itineraryId);
+			}
+			return new PushMessage(PushCopy.groupedEditTitle(actorName, operations.size(), lang),
+					PushCopy.groupedEditBody(label, operations, lang), href, itineraryId);
+		});
 	}
 
 	/** 동행이 들어왔다 — 들어온 본인 말고 원래 있던 사람들에게. */
@@ -140,9 +176,8 @@ public class TripPushNotifier {
 					.toList();
 
 			String joinedName = this.actorNames.resolve(List.of(event.joinedUserId())).get(event.joinedUserId());
-			push(recipients, new PushMessage("동행이 합류했어요",
-					personBody(trip.displayTitle(), joinedName, "함께하기로 했어요."),
-					collaborateHref(event.tripId()), null));
+			pushByLanguage(recipients, (lang) -> new PushMessage(PushCopy.joinedTitle(joinedName, lang),
+					PushCopy.tripLabel(trip, lang), collaborateHref(event.tripId()), null));
 		}
 		catch (RuntimeException exception) {
 			log.error("동행 합류 알림을 보내지 못했습니다. tripId={}", event.tripId(), exception);
@@ -166,12 +201,9 @@ public class TripPushNotifier {
 			String actorName = this.actorNames.resolve(Collections.singletonList(event.actorUserId()))
 					.get(event.actorUserId());
 
-			String title = (event.newRole() == TripMember.Role.EDITOR)
-					? "이제 일정을 함께 고칠 수 있어요"
-					: "이제 일정을 보기만 할 수 있어요";
-			push(List.of(event.targetUserId()), new PushMessage(title,
-					personBody(trip.displayTitle(), actorName, "역할을 바꿨어요."),
-					collaborateHref(event.tripId()), null));
+			boolean canEdit = event.newRole() == TripMember.Role.EDITOR;
+			pushByLanguage(List.of(event.targetUserId()), (lang) -> new PushMessage(PushCopy.roleTitle(canEdit, lang),
+					PushCopy.roleBody(PushCopy.tripLabel(trip, lang), actorName, lang), collaborateHref(event.tripId()), null));
 		}
 		catch (RuntimeException exception) {
 			log.error("역할 변경 알림을 보내지 못했습니다. tripId={}", event.tripId(), exception);
@@ -187,6 +219,21 @@ public class TripPushNotifier {
 		return "/" + tripId + "/collaborate";
 	}
 
+	/** 받는 사람을 앱 언어별로 나눠 언어마다 한 번씩 보낸다. 언어를 모르면 한국어다. */
+	private void pushByLanguage(List<String> recipientUserIds, Function<PushCopy.Lang, PushMessage> messageFor) {
+		if (recipientUserIds.isEmpty()) {
+			return;
+		}
+		Map<String, String> languages = this.actorNames.languagesOf(recipientUserIds);
+		Map<PushCopy.Lang, List<String>> byLang = new EnumMap<>(PushCopy.Lang.class);
+		// 같은 사람이 목록에 두 번 있어도 한 번만 보낸다(AI 리뷰, !1897).
+		for (String userId : new java.util.LinkedHashSet<>(recipientUserIds)) {
+			byLang.computeIfAbsent(PushCopy.lang(languages == null ? null : languages.get(userId)), (key) -> new ArrayList<>())
+					.add(userId);
+		}
+		byLang.forEach((lang, users) -> push(users, messageFor.apply(lang)));
+	}
+
 	private void push(List<String> recipientUserIds, PushMessage message) {
 		if (recipientUserIds.isEmpty()) {
 			return;
@@ -198,63 +245,5 @@ public class TripPushNotifier {
 		}
 		List<String> gone = this.pushSender.send(tokens, message);
 		this.pushTokens.forget(gone);
-	}
-
-	/**
-	 * 「무엇이」 — 앱 알림 목록의 제목과 같은 말
-	 * ({@code activityFeed.ts} 의 {@code noticeCopy}).
-	 *
-	 * <p>{@code default} 를 두지 않는다. 판 종류가 늘면 <b>여기가 컴파일 오류로 막힌다</b> —
-	 * 두면 새 종류가 조용히 「일정이 바뀌었어요」로 뭉개지고, 아무도 못 알아챈다.
-	 */
-	static String title(ItineraryVersion.Operation operation) {
-		return switch (operation) {
-			case CREATE -> "일정이 만들어졌어요";
-			case REGENERATE, REGENERATE_DAY, REPLAN_DAY -> "남은 일정을 다시 계획했어요";
-			case REVERT -> "변경을 되돌렸어요";
-			case REORDER -> "일정 순서가 바뀌었어요";
-			case LOCK_ITEM -> "장소가 고정됐어요";
-			case REMOVE_ITEM -> "장소가 빠졌어요";
-			case ADD_ITEM, REPLACE_ITEM -> "장소가 더해졌어요";
-		};
-	}
-
-	/** 「누가」 뒤에 붙는 말. {@code CREATE} 만 사람이 아니라 부탁하는 말이다. */
-	static String phrase(ItineraryVersion.Operation operation) {
-		return switch (operation) {
-			case CREATE -> "확인하고 저장해 주세요.";
-			case REGENERATE, REGENERATE_DAY, REPLAN_DAY -> "다시 계획했어요.";
-			case REVERT -> "되돌렸어요.";
-			case REORDER -> "순서를 바꿨어요.";
-			case LOCK_ITEM -> "장소를 고정했어요.";
-			case REMOVE_ITEM -> "장소를 뺐어요.";
-			case ADD_ITEM, REPLACE_ITEM -> "장소를 더했어요.";
-		};
-	}
-
-	/**
-	 * 「「부산 바다 2박 3일」 — 수민님이 순서를 바꿨어요.」
-	 *
-	 * <p>이름이 없으면(탈퇴해서 사람 행이 없다) 여행 이름만 남긴다. 앱의 {@code noticeCopy} 가
-	 * {@code who} 가 없을 때 하는 것과 같다 — 서버가 「누군가」 같은 말을 지어내지 않는다.
-	 *
-	 * <p>{@code CREATE} 만 예외다. 「확인하고 저장해 주세요」는 <b>사람이 없어도 뜻이 통하는 말</b>이라
-	 * 이름과 무관하게 붙는다. 실제로 CREATE 는 만든 본인에게도 가므로 이름을 넣으면 자기 이름이 뜬다.
-	 */
-	static String itineraryBody(String tripTitle, ItineraryVersion.Operation operation, String actorName) {
-		String head = "「" + tripTitle + "」";
-		if (operation == ItineraryVersion.Operation.CREATE) {
-			return head + " — " + phrase(operation);
-		}
-		return personBody(tripTitle, actorName, phrase(operation));
-	}
-
-	/** 「「부산 바다 2박 3일」 — 수민님이 함께하기로 했어요.」 이름이 없으면 여행 이름만. */
-	static String personBody(String tripTitle, String actorName, String phrase) {
-		String head = "「" + tripTitle + "」";
-		if (actorName == null || actorName.isBlank()) {
-			return head;
-		}
-		return head + " — " + actorName + "님이 " + phrase;
 	}
 }

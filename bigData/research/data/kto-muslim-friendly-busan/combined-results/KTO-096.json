@@ -1,0 +1,68 @@
+{
+  "id": "KTO-096",
+  "name": "원조할매복국",
+  "cat": "복 요리 전문",
+  "attempts": 1,
+  "geminiTokens": 49142,
+  "researchedAt": "2026-09-30T00:25:58.154Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "관광객 및 현지인",
+    "generations": 1,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "복지리",
+      "복매운탕",
+      "복수육"
+    ],
+    "yearsClaimed": 1986
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "07:00 ~ 21:30 (브레이크타임 15:00 ~ 17:00, 라스트오더 14:00, 20:30, 월요일 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "해운대 미포 복국 거리에 위치하여 관광객 및 현지인 모두 방문하는 향토 음식점"
+  },
+  "menuDiversity": {
+    "dishCount": 4,
+    "found": true
+  },
+  "notes": "상호는 '할매복국'으로 등록되어 있으며 1986년 개업한 미포 복요리 전문 노포 식당임",
+  "photoUrls": [],
+  "price": {
+    "found": false
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "1986년에 개업한 복요리 전문점으로, '복국촌'으로 유명한 미포 지역에 위치해 있습니다. 맑은 국물의 복국(복지리)이 대표 메뉴이며, 복껍질로 만든 묵 등도 별미로 알려져 있습니다. 운영 시간: 07:00 ~ 21:30 (브레이크 타임: 15:00 ~ 17:00) 휴무일: 월요일",
+      "url": "https://www.visitbusan.net"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "1986년부터 미포에서 이어온 오랜 역사의 맑은 복국(복지리) 전문 노포",
+      "sources": [
+        0
+      ],
+      "type": "오랜 역사"
+    },
+    {
+      "note": "맑고 시원한 복국과 복수육, 복껍질 요리 등 고유의 복요리 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

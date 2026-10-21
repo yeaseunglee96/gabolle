@@ -5,6 +5,8 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Profile;
@@ -14,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.gabolle.backend.event.application.EventIngestService;
 import com.gabolle.backend.event.domain.EventType;
+import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.place.domain.SavedPlace;
 import com.gabolle.backend.place.repository.PlaceRepository;
 import com.gabolle.backend.place.repository.SavedPlaceRepository;
@@ -60,7 +63,13 @@ public class SavedPlaceService {
 				.findByUserIdOrderByCreatedAtDesc(userId, PageRequest.of(0, MAX_ITEMS + 1));
 
 		boolean hasMore = found.size() > MAX_ITEMS;
-		return new Page(hasMore ? found.subList(0, MAX_ITEMS) : found, hasMore);
+		List<SavedPlace> items = hasMore ? found.subList(0, MAX_ITEMS) : found;
+		// 장소 요약은 한 번에 모아 읽는다(S15P21E201-1971) — 저장마다 따로 읽으면 화면에서 없앤 N+1 이 서버 안으로 옮겨 올 뿐이다.
+		// 장소 행이 사라진 저장은 지도에 없을 뿐 목록에서 빼지 않는다 — 화면이 번호로 상세를 불러 404 를 보고 정리한다.
+		Map<UUID, Place> places = items.isEmpty() ? Map.of()
+				: this.placeRepository.findAllById(items.stream().map(SavedPlace::getPlaceId).toList()).stream()
+						.collect(Collectors.toMap(Place::getPlaceId, Function.identity(), (a, b) -> a));
+		return new Page(items, hasMore, places);
 	}
 
 	/**
@@ -147,7 +156,12 @@ public class SavedPlaceService {
 	/**
 	 * @param hasMore 상한에 걸려 더 있는데 안 보냈다. 이 칸이 없으면 부르는 쪽이 상한에 걸린
 	 *     것과 이게 전부인 것을 구분할 수 없다
+	 * @param places 저장한 장소의 행. 장소 번호로 찾는다 — 행이 사라진 저장은 여기에 없다
 	 */
-	public record Page(List<SavedPlace> items, boolean hasMore) {
+	public record Page(List<SavedPlace> items, boolean hasMore, Map<UUID, Place> places) {
+
+		public Page(List<SavedPlace> items, boolean hasMore) {
+			this(items, hasMore, Map.of());
+		}
 	}
 }

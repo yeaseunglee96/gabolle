@@ -302,7 +302,7 @@ public class JpaTripRepository implements TripRepository {
 		}
 
 		Object[] row = (Object[]) entityManager.createNativeQuery(
-				"SELECT request_fingerprint, trip_id FROM trip_idempotency "
+				"SELECT request_fingerprint, trip_id, created_at FROM trip_idempotency "
 						+ "WHERE user_id = ?1 AND idempotency_key = ?2")
 				.setParameter(1, UUID.fromString(userId))
 				.setParameter(2, idempotencyKey)
@@ -324,7 +324,11 @@ public class JpaTripRepository implements TripRepository {
 		//
 		//    갈아 묶기는 「아직 그 지운 여행에 묶여 있을 때만」({@code trip_id = ?5}) 바꾼다. 같은 키로 동시에 온 요청 둘이
 		//    모두 지운 여행을 보았을 때 한쪽만 이기게 하는 장치다(한 행에 대한 갱신은 한 번에 하나만 통과한다).
-		if (existingTrip.isDeleted()) {
+		// 🔴 S15P21E201-1995 — 재시도 보호는 몇 초~몇 분 사이의 중복 요청을 막는 것이다. 앱(iOS 1.0.1 포함)은 여행 조건을
+		//    해시해 키를 만들어서, 같은 조건으로 다음 날 새로 만들어도 같은 키가 되고 옛 여행(옛 이름·옛 코스)이 다시 열렸다
+		//    (10/5 녹화). 키가 묶인 지 {@link #IDEMPOTENCY_WINDOW} 가 지났으면 지운 여행과 같이 새 여행으로 갈아 묶는다.
+		boolean staleKey = isStale(row.length > 2 ? row[2] : null, trip.createdAt());
+		if (existingTrip.isDeleted() || staleKey) {
 			int rebound = entityManager.createNativeQuery(
 					"UPDATE trip_idempotency SET trip_id = ?3, created_at = ?4 "
 							+ "WHERE user_id = ?1 AND idempotency_key = ?2 AND trip_id = ?5")
@@ -354,6 +358,26 @@ public class JpaTripRepository implements TripRepository {
 		return new SaveOutcome(existingTrip, existingSnapshot, false);
 	}
 
+	/** 같은 키를 재시도로 보는 시간. 이보다 오래전에 묶인 키로 다시 오면 사용자가 새로 만든 여행이다. */
+	static final java.time.Duration IDEMPOTENCY_WINDOW = java.time.Duration.ofMinutes(10);
+
+	static boolean isStale(Object boundAt, java.time.Instant now) {
+		java.time.Instant bound = null;
+		if (boundAt instanceof java.time.OffsetDateTime odt) {
+			bound = odt.toInstant();
+		}
+		else if (boundAt instanceof java.time.Instant instant) {
+			bound = instant;
+		}
+		else if (boundAt instanceof java.sql.Timestamp ts) {
+			bound = ts.toInstant();
+		}
+		if (bound == null || now == null) {
+			return false;
+		}
+		return bound.plus(IDEMPOTENCY_WINDOW).isBefore(now);
+	}
+
 	/**
 	 * 네이티브 SQL 로만 옮긴다. {@code trip.owner_user_id}·{@code trip_member.user_id} 는 둘 다
 	 * {@code updatable = false} 라, 엔티티를 고쳐 저장하는 평소 경로로는 조용히 안 바뀐다.
@@ -361,6 +385,9 @@ public class JpaTripRepository implements TripRepository {
 	 * <p>여행마다 trip → trip_member(OWNER 행) → preference_snapshot → constraint_snapshot 순으로
 	 * 옮긴다. 뒤의 두 스냅샷 표는 도메인에 없는 인프라 칸이라 여기서 빠뜨리면 승계된 여행의
 	 * 취향·제약이 사라진 익명 세션 UUID 를 계속 가리킨다.
+	 *
+	 * <p>비회원도 일정을 만들고 고치므로 일정 판·제외 목록·추천 판단·추천 작업의 요청자 칸도 함께
+	 * 옮긴다. 비회원에게 새 자리를 열면서 그 자리가 세션 ID 를 적는 표가 생기면 여기에 더한다.
 	 */
 	@Override
 	@Transactional
@@ -396,7 +423,47 @@ public class JpaTripRepository implements TripRepository {
 					"UPDATE constraint_snapshot SET user_id = ?1 WHERE trip_id = ?2 AND user_id = ?3")
 					.setParameter(1, newOwner).setParameter(2, tripId).setParameter(3, session)
 					.executeUpdate();
+
+			// 아래 셋은 일정·추천 쪽 표다. 여행이 그 표를 모르게 두는 것이 원칙이지만, 승계는 한
+			// 트랜잭션에서 끝나야 해서 여기 모은다. 안 옮기면 일정 이력의 「내가 고친 것」과 추천
+			// 판단의 「누가 정했나」가 사라진 세션 ID 를 가리킨다.
+			entityManager.createNativeQuery("""
+					UPDATE itinerary_versions SET created_by = ?1
+					WHERE created_by = ?3 AND itinerary_id IN (SELECT itinerary_id FROM itineraries WHERE trip_id = ?2)
+					""")
+					.setParameter(1, newOwner).setParameter(2, tripId).setParameter(3, session)
+					.executeUpdate();
+
+			entityManager.createNativeQuery("""
+					UPDATE itinerary_excluded_place SET excluded_by = ?1
+					WHERE excluded_by = ?3 AND itinerary_version_id IN (
+						SELECT v.itinerary_version_id FROM itinerary_versions v
+						JOIN itineraries i ON i.itinerary_id = v.itinerary_id WHERE i.trip_id = ?2)
+					""")
+					.setParameter(1, newOwner).setParameter(2, tripId).setParameter(3, session)
+					.executeUpdate();
+
+			entityManager.createNativeQuery(
+					"UPDATE recommendation_place_action SET decided_by_user_id = ?1 WHERE trip_id = ?2 AND decided_by_user_id = ?3")
+					.setParameter(1, newOwner).setParameter(2, tripId).setParameter(3, session)
+					.executeUpdate();
 		}
+
+		// 추천 작업의 주인. 작업 조회·진행률·결과가 이 칸으로 주인을 가리므로(RecommendationJobController#isOwner)
+		// 안 옮기면 로그인한 순간 자기 일정 생성 화면이 404 가 된다. 아직 도는 작업도 같이 옮겨진다 —
+		// 작업기는 끝날 때 이 칸을 다시 쓰지 않는다.
+		entityManager.createNativeQuery("UPDATE recommendation_job SET user_id = ?1 WHERE user_id = ?2")
+				.setParameter(1, newOwner).setParameter(2, session)
+				.executeUpdate();
+
+		// 재시도 키는 옮기지 않고 지운다. (사람, 키) 가 기본키라 옮기면 회원 쪽 키와 부딪칠 수 있고,
+		// 로그인한 뒤의 재시도는 새 신원으로 오므로 세션의 키가 다시 쓰일 일이 없다.
+		entityManager.createNativeQuery("DELETE FROM trip_idempotency WHERE user_id = ?1")
+				.setParameter(1, session)
+				.executeUpdate();
+		entityManager.createNativeQuery("DELETE FROM recommendation_job_idempotency WHERE user_id = ?1")
+				.setParameter(1, session)
+				.executeUpdate();
 
 		return anonymousTrips.size();
 	}

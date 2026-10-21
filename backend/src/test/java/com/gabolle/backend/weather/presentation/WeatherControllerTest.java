@@ -59,7 +59,7 @@ class WeatherControllerTest {
 		WeatherService service = new WeatherService(this.vendor, cacheRepository, properties, clock,
 				new ObjectMapper());
 
-		this.mockMvc = MockMvcBuilders.standaloneSetup(new WeatherController(service))
+		this.mockMvc = MockMvcBuilders.standaloneSetup(new WeatherController(service, clock))
 				.setControllerAdvice(new WeatherExceptionHandler())
 				.build();
 	}
@@ -177,7 +177,8 @@ class WeatherControllerTest {
 
 		JsonNode data = new ObjectMapper().readTree(body).path("data");
 		// 칸을 더하기만 했다 — 앞의 칸 이름이 그대로이고 hourly 하나만 늘었다.
-		assertThat(fieldNames(data)).containsExactlyInAnyOrder("nx", "ny", "cached", "forecast", "hourly");
+		assertThat(fieldNames(data)).containsExactlyInAnyOrder("nx", "ny", "cached", "forecast", "hourly",
+				"currentTemperature", "currentTime");
 		assertThat(fieldNames(data.path("forecast"))).containsExactlyInAnyOrder("date", "minTemperature", "maxTemperature",
 				"precipitationProbability", "skyCondition");
 
@@ -189,6 +190,63 @@ class WeatherControllerTest {
 		assertThat(noon.get("skyCondition").isNull()).isTrue();
 		assertThat(noon.get("precipitationProbability").isNull()).isTrue();
 		assertThat(noon.get("precipitationType").isNull()).isTrue();
+	}
+
+	// 지금 기온 — S15P21E201-1979. 머리말 「부산 지금」이 하루 최고기온을 보여 주던 것.
+	// 시계는 2026-09-10 10:00 KST 다(NOW = 01:00Z).
+
+	@Test
+	@DisplayName("🔴 오늘을 물으면 지금 시각에 가장 가까운 시간별 기온을 currentTemperature 로 준다 — 최고기온이 아니다")
+	void todayGivesTemperatureNearestToNow() throws Exception {
+		this.vendor.body = HOURLY_JSON;
+
+		this.mockMvc.perform(get("/api/v1/weather")
+						.param("lat", "35.1796")
+						.param("lon", "129.0756")
+						.param("date", "2026-09-10")
+						.principal(asUser()))
+				.andExpect(status().isOk())
+				// 10시 칸에는 기온이 없다 → 한 시간 앞의 09시 21도. 12시(두 시간 뒤)보다 가깝다.
+				.andExpect(jsonPath("$.data.currentTemperature").value(21.0))
+				.andExpect(jsonPath("$.data.currentTime").value("09:00"))
+				// 하루 최고기온은 그대로 따로 있다.
+				.andExpect(jsonPath("$.data.forecast.maxTemperature").value(27.0));
+	}
+
+	@Test
+	@DisplayName("오늘이 아닌 날짜에는 지금 기온이 없다(null) — 내일의 같은 시각 값을 「지금」이라 하지 않는다")
+	void otherDayHasNoCurrentTemperature() throws Exception {
+		this.vendor.body = HOURLY_JSON;
+
+		String body = this.mockMvc.perform(get("/api/v1/weather")
+						.param("lat", "35.1796")
+						.param("lon", "129.0756")
+						.param("date", "2026-09-11")
+						.principal(asUser()))
+				.andExpect(status().isOk())
+				.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+		JsonNode data = new ObjectMapper().readTree(body).path("data");
+		assertThat(data.has("currentTemperature")).isTrue();
+		assertThat(data.get("currentTemperature").isNull()).isTrue();
+		assertThat(data.get("currentTime").isNull()).isTrue();
+	}
+
+	@Test
+	@DisplayName("가까운 칸이 90분 넘게 떨어져 있으면 지어내지 않고 null 이다")
+	void farSlotIsNotCalledCurrent() throws Exception {
+		// SAMPLE_JSON 은 12시 한 칸뿐 — 지금(10시)에서 두 시간 떨어져 있다.
+		this.vendor.body = SAMPLE_JSON;
+
+		String body = this.mockMvc.perform(get("/api/v1/weather")
+						.param("lat", "35.1796")
+						.param("lon", "129.0756")
+						.param("date", "2026-09-10")
+						.principal(asUser()))
+				.andExpect(status().isOk())
+				.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+		assertThat(new ObjectMapper().readTree(body).path("data").get("currentTemperature").isNull()).isTrue();
 	}
 
 	private static List<String> fieldNames(JsonNode node) {

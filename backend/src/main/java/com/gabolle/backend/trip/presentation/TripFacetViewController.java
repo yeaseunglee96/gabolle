@@ -54,7 +54,7 @@ public class TripFacetViewController {
 			@PathVariable String facetKey,
 			Authentication authentication) {
 
-		String requester = AuthenticatedUsers.requireId(authentication).toString();
+		String requester = AuthenticatedUsers.requireTripActor(authentication);
 		this.queryService.get(tripId, requester);
 
 		this.facetViewService.record(facetKey, UUID.fromString(tripId));

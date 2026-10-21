@@ -1,6 +1,9 @@
 package com.gabolle.backend.itinerary.presentation.dto;
 
 import java.util.List;
+import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import com.gabolle.backend.recommendation.domain.FallbackMode;
 
@@ -48,7 +51,114 @@ public record ItineraryDetailResponse(
 		 * ({@code BudgetAllowance}). 합계가 예산을 넘었어도 이 값 안이면 앱이 경고 대신 부드럽게 알린다
 		 * (S15P21E201-1743, 사용자 결정 2026-09-26). 예산을 안 정한 여행이면 {@code null}.
 		 */
-		Integer budgetCapKrw) {
+		Integer budgetCapKrw,
+
+		/**
+		 * 이 여행의 걷는 길을 계단·급경사를 피해 찾았나 — 이동 조건에 휠체어·유아차·계단 피하기 가운데 하나를
+		 * 「골랐다」면 {@code true}. 일정 구간을 잴 때({@code ItineraryLegPlanner.needsStepFree})와 같은 규칙 한 곳에서
+		 * 센다. 앱이 한 구간의 길을 다시 물을 때 이 값을 {@code /routes?stepFree=} 에 그대로 실으면 일정과 같은 길이
+		 * 나온다.
+		 */
+		boolean stepFree,
+
+		/**
+		 * 사용자가 추천 단계에서 「경사를 피하고 싶어요」를 <b>골랐나</b>(S15P21E201-1895). 지도가 이 값이 {@code true} 일
+		 * 때만 경로 선을 경사대로 칠한다 — 안 골랐는데 칠하면 조건과 무관한 색이 된다. 안 골랐거나 「상관없어요」거나 답을
+		 * 못 읽으면 {@code false}. 여행의 가장 최신 선호 판({@code PreferenceSnapshot})에서 읽는다.
+		 */
+		boolean slopeAvoid,
+
+		/**
+		 * 사용자가 「그늘길 우선」을 <b>골랐나</b>(S15P21E201-1895). {@code slopeAvoid} 와 같은 규칙이다. 둘 다
+		 * {@code true} 면 지도가 경사와 그늘을 합친 점수로 칠한다.
+		 */
+		boolean shadePrefer,
+
+		/**
+		 * 이 일정이 어디서 왔나 — {@code SELF}(「AI 없이 직접 짜기」로 만든 빈 일정에서 시작, S15P21E201-2018) 또는
+		 * {@code RECOMMENDATION}(추천이 만든 일정). 첫 판의 {@code request_id} 로 정하므로 고친 뒤에도 바뀌지 않는다.
+		 * 화면은 {@code SELF} 일 때 「코스 A 확정」·코스 바꾸기를 안 그린다 — 고른 추천 코스가 없다.
+		 * 저장 전 미리보기(2안·3안)는 추천이므로 {@code RECOMMENDATION}.
+		 */
+		String origin,
+
+		/**
+		 * 이 여행이 고른 이동수단 — {@code trip.travel_modes} 그대로({@code WALK} · {@code BUS} · {@code SUBWAY} ·
+		 * {@code TAXI} · {@code PRIVATE_CAR} · …). 화면이 구간 줄에 「대중교통」을 붙일지, 길 안내를 어느 수단 탭으로 열지,
+		 * 자동차 여행에 주차장 안내를 보일지를 이것으로 정한다(S15P21E201-2061).
+		 *
+		 * <p>🔴 <b>빈 배열은 「안 골랐다·모른다」다.</b> 이동수단을 안 고른 옛 여행이 그렇다 — 화면은 이때 수단 이름을 지어
+		 * 붙이지 않는다. 구간의 {@code travelFareKrw} 만으로는 수단을 가를 수 없다: 요금은 대중교통(교통카드 요금)에도,
+		 * 자동차(택시비 + 통행료)에도 채워지는데, 화면이 요금만 보고 「대중교통」이라 적어 자동차 여행의 구간이 전부
+		 * 「대중교통 · 이동 5분 · 4,800원」으로 보였다.
+		 */
+		List<String> travelModes) {
+
+	/** 수단을 모르면 {@code null} 이 아니라 빈 배열이다 — 화면이 두 갈래를 따로 검사하지 않게. */
+	public ItineraryDetailResponse {
+		travelModes = (travelModes == null) ? List.of() : List.copyOf(travelModes);
+	}
+
+	/** 이동수단 칸 이전의 생성자 — 수단을 모른다(빈 배열)고 본다. */
+	public ItineraryDetailResponse(String id, String title, int version, List<Day> days,
+			Integer totalEstimatedCostKrw, Integer totalWalkingMeters, FallbackMode fallbackMode, String myRole,
+			boolean canEdit, List<String> warningCodes, String tripId, int accessibilityUnverifiedCount,
+			int partySize, Integer budgetCapKrw, boolean stepFree, boolean slopeAvoid, boolean shadePrefer,
+			String origin) {
+		this(id, title, version, days, totalEstimatedCostKrw, totalWalkingMeters, fallbackMode, myRole, canEdit,
+				warningCodes, tripId, accessibilityUnverifiedCount, partySize, budgetCapKrw, stepFree, slopeAvoid,
+				shadePrefer, origin, List.of());
+	}
+
+	/** 직접 짜기 칸 이전의 생성자 — 추천이 만든 일정으로 본다. */
+	public ItineraryDetailResponse(String id, String title, int version, List<Day> days,
+			Integer totalEstimatedCostKrw, Integer totalWalkingMeters, FallbackMode fallbackMode, String myRole,
+			boolean canEdit, List<String> warningCodes, String tripId, int accessibilityUnverifiedCount,
+			int partySize, Integer budgetCapKrw, boolean stepFree, boolean slopeAvoid, boolean shadePrefer) {
+		this(id, title, version, days, totalEstimatedCostKrw, totalWalkingMeters, fallbackMode, myRole, canEdit,
+				warningCodes, tripId, accessibilityUnverifiedCount, partySize, budgetCapKrw, stepFree, slopeAvoid,
+				shadePrefer, ORIGIN_RECOMMENDATION);
+	}
+
+	/** {@link #origin} 값 — 직접 짜기. */
+	public static final String ORIGIN_SELF = "SELF";
+
+	/** {@link #origin} 값 — 추천. */
+	public static final String ORIGIN_RECOMMENDATION = "RECOMMENDATION";
+
+	/** 경사·그늘 선택 칸 이전의 생성자 — 조건을 안 골랐다고 본다. */
+	public ItineraryDetailResponse(String id, String title, int version, List<Day> days,
+			Integer totalEstimatedCostKrw, Integer totalWalkingMeters, FallbackMode fallbackMode, String myRole,
+			boolean canEdit, List<String> warningCodes, String tripId, int accessibilityUnverifiedCount,
+			int partySize, Integer budgetCapKrw, boolean stepFree) {
+		this(id, title, version, days, totalEstimatedCostKrw, totalWalkingMeters, fallbackMode, myRole, canEdit,
+				warningCodes, tripId, accessibilityUnverifiedCount, partySize, budgetCapKrw, stepFree, false, false);
+	}
+
+	/** 계단 피하기 칸 이전의 생성자 — 보통 길로 잰 일정이다. */
+	public ItineraryDetailResponse(String id, String title, int version, List<Day> days,
+			Integer totalEstimatedCostKrw, Integer totalWalkingMeters, FallbackMode fallbackMode, String myRole,
+			boolean canEdit, List<String> warningCodes, String tripId, int accessibilityUnverifiedCount,
+			int partySize, Integer budgetCapKrw) {
+		this(id, title, version, days, totalEstimatedCostKrw, totalWalkingMeters, fallbackMode, myRole, canEdit,
+				warningCodes, tripId, accessibilityUnverifiedCount, partySize, budgetCapKrw, false, false, false);
+	}
+
+	/**
+	 * 길 조각 하나 — 경로 API({@code /routes})의 {@code pieces} 와 같은 모양이다.
+	 * {@code travelPath[from]..travelPath[to]}(둘 다 포함)의 경사(%, 방향 없음 · 모르면 {@code null} — 0(평지)과
+	 * 다르다)와 계단 여부, 그늘.
+	 *
+	 * @param shade 그늘(0~1, 1 이 하루 종일 그늘, 0.1 단위 — 건물 그림자 하루 평균). 모르면 {@code null} — 0(볕)과
+	 *        다르다. 그늘 값을 재 둔 여섯 지역 밖·다리·터널·이 칸이 생기기 전(2026-09-30)에 만든 판이 그렇다
+	 */
+	public record Piece(int from, int to, Double slopePercent, boolean stairs, Double shade) {
+
+		/** 그늘 칸이 생기기 전의 모양 — 그늘을 모르는 조각이다. */
+		public Piece(int from, int to, Double slopePercent, boolean stairs) {
+			this(from, to, slopePercent, stairs, null);
+		}
+	}
 
 	/**
 	 * 여행 기간의 날짜 하나 — 항목이 0개인 날도 포함된다(빈 {@code items}).
@@ -159,6 +269,14 @@ public record ItineraryDetailResponse(
 			List<double[]> travelPath,
 
 			/**
+			 * {@code travelPath} 를 경사·계단이 같은 조각으로 나눈 것 — {@code [{from, to, slopePercent, stairs}, …]}.
+			 * 번호는 {@code travelPath} 의 자리다. 🔴 {@code travelPath} 가 있을 때만 있고, 그중에서도 우리 보행 그래프가
+			 * 찾은 걷기만 조각이 있다(자동차·대중교통·어림 구간은 {@code null}). 이 칸이 생기기 전(2026-09-29)에 만든 판도
+			 * {@code null} 이다. 빈 배열은 나가지 않는다.
+			 */
+			List<Piece> travelPieces,
+
+			/**
 			 * 이 항목에 붙은 경고. {@code itinerary_item.warning_codes} 를 그대로 옮긴다. 경고가
 			 * 없으면 빈 배열이지 {@code null} 이 아니다 — 판 수준 {@code warningCodes} 와 같다.
 			 * 프런트는 {@code src/plan/warningLabels.ts} 에 짝이 없는 코드를 그리지 않으므로,
@@ -189,6 +307,52 @@ public record ItineraryDetailResponse(
 			 * 기니만 바다 한가운데이고 지도에 실제로 점이 찍힌다.
 			 */
 			Double lat,
-			Double lng) {
+			Double lng,
+
+			/**
+			 * 장소의 영어 이름 — 장소 상세 응답의 {@code nameEn} 과 같다. 없으면 {@code null}. {@code title} 은 늘 한국어다
+			 * (S15P21E201-1937). 화면이 다른 언어에서 이 이름을 고른다.
+			 */
+			String nameEn,
+			/** 일본어·중국어 이름 — 장소 상세의 {@code localNames} 와 같은 키(ja·zh-Hans·zh-Hant). 비면 칸째 빠진다. */
+			@JsonInclude(JsonInclude.Include.NON_EMPTY) Map<String, String> localNames,
+
+			/**
+			 * 고정 방식 — {@code "ORDER"}(순서 고정) · {@code "TIME"}(시각 고정). 고정이 아니면 {@code null}(S15P21E201-2017).
+			 * 이 칸 이전의 고정은 {@code "ORDER"} 로 나간다. 옛 앱은 이 칸을 모르고 {@code locked} 만 본다.
+			 */
+			String lockMode,
+
+			/**
+			 * 장소 한 줄 소개 — 언어 열쇠(ko·en·ja·zh-Hans·zh-Hant·vi)별(S15P21E201-2029). 코스 카드가 이름 밑에 그린다.
+			 * 없는 언어는 빠지고, 다 없으면 칸째 빠진다. 화면은 사용자 언어 → 영어 → 한국어 순으로 고른다.
+			 */
+			@JsonInclude(JsonInclude.Include.NON_EMPTY) Map<String, String> oneLine) {
+
+		/** 한 줄 소개 없이 만들던 자리 — 시험·옛 호출부. */
+		public Item(String id, String startsAt, String endsAt, String title, String description,
+				Integer estimatedCostKrw, Integer walkingMeters, boolean locked, String dataStatus,
+				String actualArrivedAt, String actualDepartedAt, String placeId, Integer travelDurationMin,
+				String travelDataStatus, Integer travelFareKrw, List<double[]> travelPath, List<Piece> travelPieces,
+				List<String> warningCodes, List<String> reasonCodes, String requestId, Double lat, Double lng,
+				String nameEn, Map<String, String> localNames, String lockMode) {
+			this(id, startsAt, endsAt, title, description, estimatedCostKrw, walkingMeters, locked, dataStatus,
+					actualArrivedAt, actualDepartedAt, placeId, travelDurationMin, travelDataStatus, travelFareKrw,
+					travelPath, travelPieces, warningCodes, reasonCodes, requestId, lat, lng, nameEn, localNames,
+					lockMode, Map.of());
+		}
+
+		/** 고정 방식 없이 만들던 자리 — 시험·옛 호출부. 고정이면 순서 고정이다. */
+		public Item(String id, String startsAt, String endsAt, String title, String description,
+				Integer estimatedCostKrw, Integer walkingMeters, boolean locked, String dataStatus,
+				String actualArrivedAt, String actualDepartedAt, String placeId, Integer travelDurationMin,
+				String travelDataStatus, Integer travelFareKrw, List<double[]> travelPath, List<Piece> travelPieces,
+				List<String> warningCodes, List<String> reasonCodes, String requestId, Double lat, Double lng,
+				String nameEn, Map<String, String> localNames) {
+			this(id, startsAt, endsAt, title, description, estimatedCostKrw, walkingMeters, locked, dataStatus,
+					actualArrivedAt, actualDepartedAt, placeId, travelDurationMin, travelDataStatus, travelFareKrw,
+					travelPath, travelPieces, warningCodes, reasonCodes, requestId, lat, lng, nameEn, localNames,
+					locked ? "ORDER" : null);
+		}
 	}
 }

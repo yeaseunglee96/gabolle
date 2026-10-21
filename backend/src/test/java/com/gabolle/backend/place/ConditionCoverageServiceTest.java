@@ -100,19 +100,53 @@ class ConditionCoverageServiceTest {
 		List<UserPlaceCodeMap> rows = List.of(
 				codeMap(UserInputKind.CONSTRAINT, "MOBILITY", "ACCESSIBILITY_TAG"),
 				codeMap(UserInputKind.CONSTRAINT, "MOBILITY", "STAIRS_PRESENT"));
-		List<PlaceFeatureRepository.FeatureTypePlaceCount> counts = List.of(count("ACCESSIBILITY_TAG", 102L));
+		List<PlaceFeatureRepository.FeatureTypePlaceCount> counts = List.of(count("ACCESSIBILITY_TAG", 102L),
+				count("SLOPE_PERCENT", 2682L));
 		when(this.codeMapRepository.findAll()).thenReturn(rows);
 		when(this.featureRepository.countPlacesByFeatureType(any())).thenReturn(counts);
 
 		ConditionCoverageResponse response = this.service.describe();
 
 		assertThat(response.conditions()).as("같은 문항은 한 줄로 묶는다").hasSize(1);
+		// 경사(SLOPE_PERCENT)는 대조표에 없지만 채점기가 이동 조건 판정에 쓰므로 맨 뒤에 따로 실린다 — 아래 시험.
 		assertThat(conditionOf(response, "MOBILITY").features())
 				.extracting(ConditionCoverageResponse.Feature::featureType,
 						ConditionCoverageResponse.Feature::placeCount)
 				.containsExactly(
 						org.assertj.core.groups.Tuple.tuple("ACCESSIBILITY_TAG", 102L),
-						org.assertj.core.groups.Tuple.tuple("STAIRS_PRESENT", 0L));
+						org.assertj.core.groups.Tuple.tuple("STAIRS_PRESENT", 0L),
+						org.assertj.core.groups.Tuple.tuple("SLOPE_PERCENT", 2682L));
+	}
+
+	@Test
+	@DisplayName("🔴 이동 조건에는 채점기가 실제로 쓰는 경사도 센다 — 대조표만 세면 「판정할 자료가 거의 없다」로 보인다")
+	void mobilityCoverageIncludesSlopeTheScorerUses() {
+		List<UserPlaceCodeMap> rows = List.of(
+				codeMap(UserInputKind.CONSTRAINT, "MOBILITY", "ACCESSIBILITY_TAG"),
+				codeMap(UserInputKind.CONSTRAINT, "ALLERGY", "ALLERGEN_TAG"));
+		List<PlaceFeatureRepository.FeatureTypePlaceCount> counts = List.of(count("SLOPE_PERCENT", 6500L));
+		when(this.codeMapRepository.findAll()).thenReturn(rows);
+		when(this.featureRepository.countPlacesByFeatureType(any())).thenReturn(counts);
+
+		ConditionCoverageResponse response = this.service.describe();
+
+		assertThat(conditionOf(response, "MOBILITY").features())
+				.extracting(ConditionCoverageResponse.Feature::featureType)
+				.containsExactly("ACCESSIBILITY_TAG", "SLOPE_PERCENT");
+		assertThat(conditionOf(response, "MOBILITY").features().get(1).placeCount()).isEqualTo(6500L);
+		assertThat(conditionOf(response, "ALLERGY").features()).as("다른 문항에는 안 붙는다").singleElement()
+				.satisfies(f -> assertThat(f.featureType()).isEqualTo("ALLERGEN_TAG"));
+	}
+
+	@Test
+	@DisplayName("대조표에 이동 조건이 없으면 경사만으로 문항을 지어내지 않는다")
+	void slopeDoesNotInventAMobilityCondition() {
+		List<UserPlaceCodeMap> rows = List.of(codeMap(UserInputKind.CONSTRAINT, "ALLERGY", "ALLERGEN_TAG"));
+		when(this.codeMapRepository.findAll()).thenReturn(rows);
+		when(this.featureRepository.countPlacesByFeatureType(any())).thenReturn(List.of());
+
+		assertThat(this.service.describe().conditions()).extracting(ConditionCoverageResponse.Condition::code)
+				.containsExactly("ALLERGY");
 	}
 
 	@Test

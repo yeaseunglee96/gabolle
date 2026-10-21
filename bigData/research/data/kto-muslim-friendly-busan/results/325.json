@@ -1,0 +1,58 @@
+{
+  "no": "325",
+  "nameEn": "Sangole",
+  "nameKo": "산골애",
+  "roadAddrKo": "부산 강서구 명지오션시티1로 173",
+  "addressMatchesPdf": true,
+  "operating": "unknown",
+  "operatingEvidence": [
+    {
+      "url": "https://www.diningcode.com/profile.php?rid=FrUEpP9nGh13",
+      "date": null,
+      "note": "현재 영업시간·휴무(월) 게재, 후기 날짜 미확인"
+    }
+  ],
+  "newAddress": null,
+  "queries": [
+    "\"051-292-5599\" (검색 제한으로 실패)",
+    "상오리 명지 오션시티 오리 강서구 부산",
+    "상오리 명지 오리 로스구이 백숙 명지오션시티1로 173"
+  ],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=FrUEpP9nGh13"
+  ],
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "한약재 10여 가지를 24시간 우린 육수의 누룽지 오리백숙",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "룸, 무료 주차, 예약 권장",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "무료",
+    "audience": "local",
+    "signatureDishes": [
+      "누룽지 오리백숙",
+      "오리불고기",
+      "오리 소금구이"
+    ],
+    "priceBand": "expensive"
+  },
+  "photoCandidates": [],
+  "notes": "PDF 영문명 Sangole 을 산골애로 판단(주소 일치). 전화는 출처마다 다르게 표기."
+}

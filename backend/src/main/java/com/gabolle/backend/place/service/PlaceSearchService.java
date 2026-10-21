@@ -60,6 +60,20 @@ public class PlaceSearchService {
 	 */
 	private static final int MAX_OFFSET = 10_000;
 
+	/**
+	 * 갈래 목록의 커서 offset 상한. 갈래 목록은 이름 검색과 달리 정렬을 DB 가 하므로 «앞에서 offset+limit+1 행»을
+	 * 읽어 자른다 — offset 이 커질수록 읽는 행이 늘어난다. 그래서 이름 검색보다 훨씬 낮게 잡는다. 지금 탐색 갈래 중
+	 * 가장 큰 것이 76곳이라 1,000이면 넉넉하다.
+	 */
+	private static final int MAX_FACET_OFFSET = 1_000;
+
+	/**
+	 * 갈래 목록에서 한 요청이 DB 에서 읽는 행의 상한. {@link #MAX_FACET_OFFSET} 에 한 쪽({@link #MAX_LIMIT})과
+	 * 「다음 쪽이 있나」 한 행을 더하고도 남는다. 이 안에서 확인된 장소를 못 채우면
+	 * {@link PlacePageResponse#rankTruncated()} 로 알린다.
+	 */
+	private static final int MAX_FACET_SCAN = 1_200;
+
 	private final PlaceRepository placeRepository;
 
 	private final PlaceFeatureRepository placeFeatureRepository;
@@ -88,7 +102,11 @@ public class PlaceSearchService {
 		List<Place> rankable = rankTruncated ? candidates.subList(0, MAX_RANKED) : candidates;
 
 		List<RankedPlace> ranked = rank(rankable, trimmedQuery);
+		String landmarkQuery = compact(trimmedQuery).toLowerCase(Locale.ROOT);
 		ranked.sort(Comparator.comparingInt(RankedPlace::tier)
+				// S15P21E201-1995 — 같은 등급(예: 「광안리」 접두일치 38곳) 안에서는 대표 관광지를 먼저.
+				// 전에는 이름 가나다순이라 「광안리해수욕장」이 16번째였다(택시 카드 첫 화면에 없음).
+				.thenComparingInt(rankedPlace -> landmarkRank(rankedPlace.place(), landmarkQuery))
 				.thenComparing(rankedPlace -> rankedPlace.place().getNameKo(),
 						Comparator.nullsLast(Comparator.naturalOrder()))
 				.thenComparing(rankedPlace -> rankedPlace.place().getPlaceId()));
@@ -96,29 +114,63 @@ public class PlaceSearchService {
 		return toPage(ranked, offset, effectiveLimit, fingerprint, rankTruncated);
 	}
 
+	/** 갈래 필터 목록의 첫 쪽 — 커서 없이 부르는 곳을 위한 짧은 형태. */
+	public PlacePageResponse searchByFacet(String featureType, String featureKey, Integer limit) {
+		return searchByFacet(featureType, featureKey, limit, null);
+	}
+
 	/**
 	 * 갈래 필터 목록. {@link PlaceRepository#findHavingFeature} 가 이름·placeId 순으로 이미
-	 * 정렬해 주므로 다시 정렬하지 않는다. 커서를 받지 않고 limit+1 로 다음 페이지 유무만 본다.
+	 * 정렬해 주므로 다시 정렬하지 않는다.
+	 *
+	 * <p>🔴 이어받기 커서를 지원한다(S15P21E201-2060). 전에는 커서를 안 받아서 {@code hasNext} 가 참인데
+	 * {@code nextCursor} 는 {@code null} 이었고, 한 쪽이 최대 50개라 축제처럼 76곳인 갈래는 앞 20곳 뒤로 아무도 못
+	 * 넘어갔다. 커서는 이름 검색과 같은 모양({@link SearchCursor})이고 지문에 갈래 종류·열쇠·한 쪽 크기가 들어
+	 * 있다. {@link PlaceRepository#findHavingFeature} 는 오프셋을 모르는 {@link Limit} 뿐이라 «앞에서
+	 * offset+limit+1 행»을 읽어 {@code [offset, offset+limit)} 를 자른다 — 첫 쪽은 전과 같은 질의다.
 	 *
 	 * <p>{@code findHavingFeature} 는 {@code evidenceStatus} 까지만 걸러서 확인된 부재(값이
 	 * {@code false} 인 행)를 가진 장소도 돌려준다. 그래서 피처를
 	 * {@link PlaceFeatureRepository#findByPlaceIdIn} 한 번으로 마저 읽어
-	 * {@link PlaceFeature#indicatesPresence()} 가 참인 장소만 남긴다 — 질의는 둘이고 장소 수에
-	 * 비례해 늘지 않는다.
+	 * {@link PlaceFeature#indicatesPresence()} 가 참인 장소만 남긴다. 걸러져 쪽을 못 채우면 읽는 행을 두 배로
+	 * 늘려 다시 읽는다(상한 {@link #MAX_FACET_SCAN}) — 걸러진 줄이 쪽 경계를 밀지 않게 하려는 것이다.
+	 * 상한까지 읽고도 모자라면 {@code rankTruncated} 가 참이다.
 	 */
-	public PlacePageResponse searchByFacet(String featureType, String featureKey, Integer limit) {
+	public PlacePageResponse searchByFacet(String featureType, String featureKey, Integer limit, String cursor) {
 		String normalizedFeatureType = requireFeatureType(featureType);
 		String normalizedFeatureKey = (featureKey == null || featureKey.isBlank()) ? null : featureKey;
 		int effectiveLimit = requireLimit(limit);
+		// 다른 갈래·다른 한 쪽 크기로 이어받는 실수를 거른다 — 이름 검색의 커서도 여기서는 지문이 달라 거절된다.
+		String fingerprint = SearchCursor.fingerprint(
+				"facet|" + normalizedFeatureType + "|" + (normalizedFeatureKey == null ? "" : normalizedFeatureKey),
+				null, effectiveLimit);
+		int offset = resolveOffset(cursor, fingerprint, MAX_FACET_OFFSET);
 
-		List<Place> found = this.placeRepository.findHavingFeature(normalizedFeatureType, normalizedFeatureKey,
-				Limit.of(effectiveLimit + 1));
-		List<Place> confirmedPresent = filterConfirmedPresence(found, normalizedFeatureType, normalizedFeatureKey);
+		// 다음 쪽이 있는지 보려고 한 행을 더 읽는다.
+		int wanted = offset + effectiveLimit + 1;
+		int fetch = wanted;
+		List<Place> confirmedPresent;
+		boolean exhausted;
+		while (true) {
+			List<Place> found = this.placeRepository.findHavingFeature(normalizedFeatureType, normalizedFeatureKey,
+					Limit.of(fetch));
+			confirmedPresent = filterConfirmedPresence(found, normalizedFeatureType, normalizedFeatureKey);
+			exhausted = found.size() < fetch;
+			if (confirmedPresent.size() >= wanted || exhausted || fetch >= MAX_FACET_SCAN) {
+				break;
+			}
+			fetch = Math.min(fetch * 2, MAX_FACET_SCAN);
+		}
+		// 상한까지 읽었는데 DB 에 더 있고 확인된 장소가 모자라다 — 그 뒤는 보이지 않는다.
+		boolean scanCapped = !exhausted && confirmedPresent.size() < wanted;
 
-		boolean hasNext = confirmedPresent.size() > effectiveLimit;
-		List<Place> page = hasNext ? confirmedPresent.subList(0, effectiveLimit) : confirmedPresent;
-		List<PlaceSummaryResponse> items = page.stream().map(PlaceSummaryResponse::ofFacetMatch).toList();
-		return new PlacePageResponse(items, effectiveLimit, null, hasNext, false);
+		int fromIndex = Math.min(offset, confirmedPresent.size());
+		int toIndex = Math.min(offset + effectiveLimit, confirmedPresent.size());
+		boolean hasNext = confirmedPresent.size() > offset + effectiveLimit;
+		List<PlaceSummaryResponse> items = confirmedPresent.subList(fromIndex, toIndex).stream()
+				.map(PlaceSummaryResponse::ofFacetMatch).toList();
+		String nextCursor = hasNext ? SearchCursor.of(fingerprint, offset + effectiveLimit).encode() : null;
+		return new PlacePageResponse(items, effectiveLimit, nextCursor, hasNext, scanCapped);
 	}
 
 	/**
@@ -170,11 +222,16 @@ public class PlaceSearchService {
 		return new PlacePageResponse(items, limit, nextCursor, hasNext, rankTruncated);
 	}
 
+	/** 이름 검색의 이어받기 — offset 상한은 {@link #MAX_OFFSET}. */
+	private int resolveOffset(String cursor, String fingerprint) {
+		return resolveOffset(cursor, fingerprint, MAX_OFFSET);
+	}
+
 	/**
-	 * fingerprint 가 맞아도 offset 이 {@link #MAX_OFFSET} 을 넘으면 거부한다. 여기서 범위를 좁혀
+	 * fingerprint 가 맞아도 offset 이 {@code maxOffset} 을 넘으면 거부한다. 여기서 범위를 좁혀
 	 * 두므로 뒤의 {@code offset + limit} 덧셈에 {@code Math.addExact} 가 필요 없다.
 	 */
-	private int resolveOffset(String cursor, String fingerprint) {
+	private int resolveOffset(String cursor, String fingerprint, int maxOffset) {
 		if (cursor == null || cursor.isBlank()) {
 			return 0;
 		}
@@ -183,7 +240,7 @@ public class PlaceSearchService {
 			// 조건이 바뀐 채로 이어받으면 offset 이 다른 질의의 결과를 가리킨다.
 			throw new PlaceRequestException("INVALID_CURSOR", "검색 조건이 바뀌어 이어받을 수 없습니다.", List.of("cursor"));
 		}
-		if (decoded.offset() > MAX_OFFSET) {
+		if (decoded.offset() > maxOffset) {
 			// fingerprint 는 위조를 막지 않는다 — 검색 조건만 알면 누구나 유효한 fingerprint 로
 			// 임의의 offset 을 만들 수 있다.
 			throw new PlaceRequestException("INVALID_CURSOR", "커서 위치가 너무 커서 이어받을 수 없습니다.", List.of("cursor"));
@@ -197,18 +254,27 @@ public class PlaceSearchService {
 		for (Place place : candidates) {
 			int koTier = tier(place.getNameKo(), queryLower);
 			int enTier = place.getNameEn() == null ? Integer.MAX_VALUE : tier(place.getNameEn(), queryLower);
-			// 한국어 이름이 걸리면 우선한다 — 같은 등급이면(<=) 한국어를 택한다.
-			if (koTier <= enTier) {
+			int localTier = place.localNames().values().stream()
+					.mapToInt(name -> tier(name, queryLower)).min().orElse(Integer.MAX_VALUE);
+			// 한국어 → 영어 → 현지 이름 순으로 우선한다 — 같은 등급이면(<=) 앞의 것을 택한다.
+			if (koTier <= enTier && koTier <= localTier) {
 				ranked.add(new RankedPlace(place, koTier, MatchedField.NAME_KO));
 			}
-			else {
+			else if (enTier <= localTier) {
 				ranked.add(new RankedPlace(place, enTier, MatchedField.NAME_EN));
+			}
+			else {
+				ranked.add(new RankedPlace(place, localTier, MatchedField.NAME_LOCAL));
 			}
 		}
 		return ranked;
 	}
 
-	/** 0=정확일치, 1=접두일치, 2=포함. 후보는 이미 LIKE 로 걸러졌으니 포함까지는 항상 걸린다. */
+	/**
+	 * 0=정확일치, 1=접두일치, 2=포함, 안 걸림={@link Integer#MAX_VALUE}. 후보는 LIKE 로 걸러졌지만 그건 이름 칸
+	 * 중 <b>하나</b>가 걸렸다는 뜻이라, 칸마다 정말 들어 있는지를 여기서 다시 본다 — 안 보면 안 걸린 칸이
+	 * 「포함」으로 쳐져 어느 칸이 걸렸는지({@code matchedField})가 틀린다(S15P21E201-1875).
+	 */
 	private int tier(String name, String queryLower) {
 		String nameLower = compact(name).toLowerCase(Locale.ROOT);
 		if (nameLower.equals(queryLower)) {
@@ -217,7 +283,7 @@ public class PlaceSearchService {
 		if (nameLower.startsWith(queryLower)) {
 			return 1;
 		}
-		return 2;
+		return nameLower.contains(queryLower) ? 2 : Integer.MAX_VALUE;
 	}
 
 	/** 공백을 전부 뗀다. 「해운대 해수욕장」과 「해운대해수욕장」을 같은 이름으로 본다. */
@@ -262,6 +328,37 @@ public class PlaceSearchService {
 	}
 
 	/** 후보 하나에 매긴 등급과, 어느 이름 칸이 그 등급을 만들었는가. */
+	/** 검색어 뒤에 이것이 붙은 이름은 그 지명의 대표 장소다(「광안리」+「해수욕장」). */
+	private static final List<String> LANDMARK_SUFFIXES = List.of(
+			"해수욕장", "해변", "문화마을", "전통시장", "시장", "공원", "해상케이블카", "케이블카", "역", "beach");
+
+	/** 사람들이 「거기 가자」고 할 때 떠올리는 갈래가 앞이다. 식당·숙소·갈래 없음은 뒤. */
+	private static final List<String> LANDMARK_CATEGORIES = List.of(
+			"SEA_BEACH", "NATURE_WALK", "CULTURE_TEMPLE", "CITY", "MARKET", "FESTIVAL_EVENT");
+
+	/**
+	 * 같은 등급 안의 순서. 작을수록 앞이다.
+	 * 0~ : 이름이 「검색어+대표 꼬리말」이면 꼬리말 순번(가장 앞)
+	 * 20~: 그 밖은 갈래 순번(관광 갈래가 앞), 영어 이름이 있으면(공공 관광 자료로 정리된 곳) 한 칸 더 앞
+	 */
+	private static int landmarkRank(Place place, String queryLower) {
+		for (String name : new String[] { place.getNameKo(), place.getNameEn() }) {
+			if (name == null) {
+				continue;
+			}
+			String n = compact(name).toLowerCase(Locale.ROOT);
+			for (int i = 0; i < LANDMARK_SUFFIXES.size(); i++) {
+				if (n.equals(queryLower + LANDMARK_SUFFIXES.get(i))) {
+					return i;
+				}
+			}
+		}
+		int category = place.getCategory() == null ? -1 : LANDMARK_CATEGORIES.indexOf(place.getCategory());
+		int base = 20 + (category < 0 ? LANDMARK_CATEGORIES.size() : category) * 2;
+		boolean curated = place.getNameEn() != null && !place.getNameEn().isBlank();
+		return curated ? base : base + 1;
+	}
+
 	private record RankedPlace(Place place, int tier, MatchedField matchedField) {
 	}
 }

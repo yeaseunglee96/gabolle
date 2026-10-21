@@ -32,19 +32,43 @@ public record RouteDirectionsResponse(
 		 * 경사 조각 — S15P21E201-1630. 우리 보행 그래프가 찾은 걷기({@code provider=OSM_WALK_GRAPH})에만 있고 나머지는
 		 * 빈 목록이다. 조각마다 {@code path[from]..path[to]}(둘 다 포함)의 경사(%, 방향 없음 · 모르면 null)와 계단 여부.
 		 */
-		List<Piece> pieces) {
+		List<Piece> pieces,
 
-	/** 경사 조각 하나. {@code slopePercent} 가 {@code null} 이면 모른다 — 0(평지)과 다르다. */
-	public record Piece(int from, int to, Double slopePercent, boolean stairs) {
+		/**
+		 * 계단 피하기({@code stepFree=true})를 들어준 걷기인가. {@code false} 면 계단 없는 길을 못 찾아 가장 짧은 길로
+		 * 대신 답한 것이라 계단이 섞였을 수 있다 — {@code pieces} 의 {@code stairs} 가 어디인지 알려 준다. 부탁이 없었거나
+		 * 보행 그래프가 찾은 걷기가 아니면 {@code null}.
+		 */
+		Boolean stepFreeHonored) {
+
+	/**
+	 * 경사 조각 하나. {@code slopePercent} 가 {@code null} 이면 모른다 — 0(평지)과 다르다.
+	 * {@code shade} 는 그늘(0~1, 1 이 하루 종일 그늘, 0.1 단위)이고 {@code null} 이면 모른다 — 0(볕)과 다르다
+	 * (S15P21E201-1895). 지도가 경사·그늘을 합쳐 선을 칠하는 데 쓴다.
+	 */
+	public record Piece(int from, int to, Double slopePercent, boolean stairs, Double shade) {
+
+		/** 그늘 칸이 생기기 전의 모양 — 그늘을 모르는 조각이다. */
+		public Piece(int from, int to, Double slopePercent, boolean stairs) {
+			this(from, to, slopePercent, stairs, null);
+		}
 	}
 
-	/** 안내 한 줄 — 예: {@code name="해운대해수욕장삼거리"}, {@code guidance="송정 방면으로 우회전"}. */
-	public record Step(String name, String guidance, int distanceM, int durationMin) {
+	/**
+	 * 안내 한 줄 — 예: {@code name="해운대해수욕장삼거리"}, {@code guidance="송정 방면으로 우회전"}.
+	 * {@code stops} 는 대중교통 단계에서 지나는 정류장·역(타는 곳~내리는 곳, 노선 순서). 그 밖의 단계는 빈 목록 — S15P21E201-1836.
+	 */
+	public record Step(String name, String guidance, int distanceM, int durationMin, List<Stop> stops) {
+	}
+
+	/** 지나는 정류장·역 하나. */
+	public record Stop(String name, double lat, double lng) {
 	}
 
 	public static RouteDirectionsResponse from(RouteLeg leg) {
 		List<Step> steps = leg.steps().stream()
-				.map(step -> new Step(step.name(), step.guidance(), step.distanceM(), step.durationMin()))
+				.map(step -> new Step(step.name(), step.guidance(), step.distanceM(), step.durationMin(),
+						step.stops().stream().map(stop -> new Stop(stop.name(), stop.lat(), stop.lng())).toList()))
 				.toList();
 		return new RouteDirectionsResponse(
 				leg.mode().name(),
@@ -60,7 +84,9 @@ public record RouteDirectionsResponse(
 				steps,
 				leg.transitFareKrw(),
 				leg.pieces().stream()
-						.map(piece -> new Piece(piece.from(), piece.to(), piece.slopePercent(), piece.stairs()))
-						.toList());
+						.map(piece -> new Piece(piece.from(), piece.to(), piece.slopePercent(), piece.stairs(),
+								piece.shade()))
+						.toList(),
+				leg.stepFreeHonored());
 	}
 }

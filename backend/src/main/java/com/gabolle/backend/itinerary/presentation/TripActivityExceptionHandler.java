@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.gabolle.backend.common.api.ApiError;
 import com.gabolle.backend.common.api.ApiResponse;
+import com.gabolle.backend.itinerary.application.SelfPlanItineraryService;
 import com.gabolle.backend.itinerary.application.TripCourseService;
 import com.gabolle.backend.trip.application.TripQueryService;
 
@@ -21,7 +22,7 @@ import com.gabolle.backend.trip.application.TripQueryService;
  * advice 를 따로 두면 한쪽만 고쳐지는 날이 온다.
  */
 @RestControllerAdvice(assignableTypes = { TripActivityController.class, TripItineraryController.class,
-		TripCourseController.class })
+		TripCourseController.class, SelfPlanController.class })
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class TripActivityExceptionHandler {
 
@@ -36,6 +37,13 @@ public class TripActivityExceptionHandler {
 	public ResponseEntity<ApiResponse<Void>> handleCourseNotFound(TripCourseService.CourseNotFoundException e) {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND)
 				.body(ApiResponse.failure(new ApiError("COURSE_NOT_FOUND", "그 코스를 찾지 못했어요."), requestId()));
+	}
+
+	/** 보기만 하는 회원이 직접 짜기 일정을 만들려 했다 (S15P21E201-2018). */
+	@ExceptionHandler(SelfPlanItineraryService.NotEditableException.class)
+	public ResponseEntity<ApiResponse<Void>> handleNotEditable(SelfPlanItineraryService.NotEditableException e) {
+		return ResponseEntity.status(HttpStatus.FORBIDDEN)
+				.body(ApiResponse.failure(new ApiError("TRIP_NOT_EDITABLE", "이 여행을 고칠 권한이 없어요."), requestId()));
 	}
 
 	/** {@code limit} 범위 밖. */

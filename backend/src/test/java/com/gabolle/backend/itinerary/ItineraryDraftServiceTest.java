@@ -278,6 +278,43 @@ class ItineraryDraftServiceTest {
 	}
 
 	/**
+	 * 사용자가 「꼭」 고른 곳이 하루 자리에 다 못 들어가면 조용히 빠지지 않고 판 경고로 남는다(S15P21E201-1971).
+	 * 어느 곳이 빠졌는지는 판의 항목과 고른 목록을 견주면 화면이 안다 — 서버는 「빠진 것이 있다」를 낸다.
+	 */
+	@Test
+	@DisplayName("🔴 꼭 가는 곳이 일정에 다 못 들어가면 판에 MUST_VISIT_NOT_PLACED 를 남긴다")
+	void mustVisitPlacesThatDoNotFitAreReported() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+		List<ItineraryDraftCommand.PlannedPlace> places = new ArrayList<>(plannedPlaces(8));
+		UUID lateMustVisit = UUID.randomUUID();
+		places.add(new ItineraryDraftCommand.PlannedPlace(lateMustVisit, 9,
+				List.of(com.gabolle.backend.recommendation.adapter.SeedBoost.REASON_CODE_MUST_VISIT), List.of(), null));
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", places));
+
+		assertThat(draft.items()).extracting(ItineraryDraft.DraftItem::placeId).doesNotContain(lateMustVisit);
+		assertThat(draft.warningCodes()).contains(ItineraryWarningCodes.MUST_VISIT_NOT_PLACED);
+	}
+
+	@Test
+	@DisplayName("꼭 가는 곳이 다 들어가면 MUST_VISIT_NOT_PLACED 가 없다")
+	void mustVisitPlacesThatFitAreNotReported() {
+		Trip trip = tripOf(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 10));
+		when(this.tripRepository.findById("trip_1")).thenReturn(Optional.of(trip));
+		List<ItineraryDraftCommand.PlannedPlace> places = new ArrayList<>();
+		UUID mustVisit = UUID.randomUUID();
+		places.add(new ItineraryDraftCommand.PlannedPlace(mustVisit, 1,
+				List.of(com.gabolle.backend.recommendation.adapter.SeedBoost.REASON_CODE_MUST_VISIT), List.of(), null));
+		places.addAll(plannedPlaces(3));
+
+		ItineraryDraft draft = this.service.assemble(commandOf("trip_1", places));
+
+		assertThat(draft.items()).extracting(ItineraryDraft.DraftItem::placeId).contains(mustVisit);
+		assertThat(draft.warningCodes()).doesNotContain(ItineraryWarningCodes.MUST_VISIT_NOT_PLACED);
+	}
+
+	/**
 	 * 운영 일정 201개 중 4개가 같은 체인의 다른 지점을 두 번 넣었다 (S15P21E201-1616). 이름은 운영에 실린 모양 그대로
 	 * — 붙여 쓴 「배스킨라빈스광안역점」, 영어 「Starbucks」 — 이다. 띄어쓰기로 가르면 이 둘을 놓친다.
 	 */

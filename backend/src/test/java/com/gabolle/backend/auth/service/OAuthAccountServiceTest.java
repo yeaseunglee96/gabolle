@@ -26,6 +26,9 @@ import org.slf4j.LoggerFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -128,6 +131,55 @@ class OAuthAccountServiceTest {
 		assertThat(signup.emailProvided()).isFalse();
 		// 이메일이 없으면 로컬 계정과 겹칠지 볼 수가 없다 — 그 질의를 하지 않는다.
 		verify(credentialRepository, never()).findByEmail(anyString());
+	}
+
+	/**
+	 * 소셜 가입 마무리 화면에서 고른 언어(S15P21E201-2053)가 저장되는 값을 재는 검사. 티켓의 provider 언어를 일부러
+	 * 다른 값(EN)으로 둬서, 화면에서 고른 값이 앞서는지 — 못 알아본 값이 티켓 값이나 한국어로 새지 않는지 본다.
+	 */
+	@ParameterizedTest(name = "소셜 가입에서 {0} 를 고르면 {1} 로 저장된다")
+	@CsvSource({
+			"KO,      KO",
+			"EN,      EN",
+			"JA,      JA",
+			"VI,      VI",
+			"ZH_HANS, ZH-HANS",
+			"ZH_HANT, ZH-HANT",
+			"ZH-HANS, ZH-HANS",
+			"ZH-HANT, ZH-HANT",
+	})
+	void 소셜_가입에서_고른_언어는_정규화해_저장한다(String requested, String stored) {
+		when(ticketService.consume("raw-ticket", OAuthSignupTicket.Kind.SIGNUP)).thenReturn(signupTicket("EN"));
+		when(userRepository.save(any(AppUser.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+		service.completeSignup("raw-ticket", "여행자", requested, consentsOk(), false, "device-1");
+
+		ArgumentCaptor<AppUser> saved = ArgumentCaptor.forClass(AppUser.class);
+		verify(userRepository).save(saved.capture());
+		assertThat(saved.getValue().getLanguage()).isEqualTo(stored);
+	}
+
+	@Test
+	@DisplayName("소셜 가입에서 언어를 비우면 티켓에 담긴 provider 언어로 저장된다")
+	void 소셜_가입에서_언어를_비우면_티켓_언어를_쓴다() {
+		when(ticketService.consume("raw-ticket", OAuthSignupTicket.Kind.SIGNUP)).thenReturn(signupTicket("ZH-HANT"));
+		when(userRepository.save(any(AppUser.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+		service.completeSignup("raw-ticket", "여행자", null, consentsOk(), false, "device-1");
+
+		ArgumentCaptor<AppUser> saved = ArgumentCaptor.forClass(AppUser.class);
+		verify(userRepository).save(saved.capture());
+		assertThat(saved.getValue().getLanguage()).isEqualTo("ZH-HANT");
+	}
+
+	/** 이메일 없는 카카오 가입 티켓 — 이메일이 없으면 기존 계정과 겹칠지 보는 질의가 없어 mock 이 적게 든다. */
+	private static OAuthSignupTicket signupTicket(String providerLanguage) {
+		return OAuthSignupTicket.forSignup("ticket-hash", AuthProvider.KAKAO, "kakao-subject", null, "카카오 사용자",
+				providerLanguage, "device-1", NOW, NOW.plusSeconds(600));
+	}
+
+	private static Map<String, Boolean> consentsOk() {
+		return Map.of("TERMS_OF_SERVICE", true, "PRIVACY_POLICY", true);
 	}
 
 	@AfterEach

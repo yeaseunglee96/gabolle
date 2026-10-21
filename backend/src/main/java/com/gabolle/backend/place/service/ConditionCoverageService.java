@@ -37,6 +37,21 @@ import com.gabolle.backend.place.repository.UserPlaceCodeMapRepository;
 @Profile({ "db", "dev" })
 public class ConditionCoverageService {
 
+	/**
+	 * 대조표에 없는데 채점기가 실제로 판정에 쓰는 표식 — 문항 키({@code 종류/코드})마다.
+	 *
+	 * <p>🔴 왜 따로 있나. 이동 조건(휠체어·유아차·큰 짐)은 접근성 표식이 없는 곳을 장소 경사({@code SLOPE_PERCENT})로
+	 * 가른다({@code BaselineCandidateScorer.evaluateSlope} — 상한을 넘으면 「반드시」는 빼고 「되도록」은 경고). 그런데
+	 * 채점기는 그 표식을 대조표를 거치지 않고 이름으로 읽어서, 대조표만 세던 이 응답에는 이동 조건의 판정 자료가
+	 * 접근성(몇 곳)·계단(0곳)뿐으로 보였다. 실제로는 거의 모든 장소의 경사로 가르고 있는데 화면은 「판정할 자료가
+	 * 거의 없다」고 말하게 된다.
+	 *
+	 * <p>대조표에 줄을 더하지 않은 것은, 대조표를 읽는 채점기의 갈래(HARD_FILTER·FLAG_COMPARE)가 새 줄을 다른 뜻으로
+	 * 읽을 수 있어서다 — 세는 쪽을 맞추려고 판정을 건드리지 않는다. 채점기가 경사를 안 읽게 되면 여기서도 뺀다.
+	 */
+	private static final Map<String, List<String>> SCORER_ONLY_FEATURES =
+			Map.of("CONSTRAINT/MOBILITY", List.of("SLOPE_PERCENT"));
+
 	private final UserPlaceCodeMapRepository codeMapRepository;
 
 	private final PlaceFeatureRepository featureRepository;
@@ -70,6 +85,7 @@ public class ConditionCoverageService {
 		for (UserPlaceCodeMap row : rows) {
 			featureTypes.add(row.getPlaceFeatureType());
 		}
+		SCORER_ONLY_FEATURES.values().forEach(featureTypes::addAll);
 
 		Map<String, Long> countByFeatureType = new LinkedHashMap<>();
 		for (PlaceFeatureRepository.FeatureTypePlaceCount count
@@ -92,6 +108,21 @@ public class ConditionCoverageService {
 			builder.features.add(new ConditionCoverageResponse.Feature(
 					row.getPlaceFeatureType(), placeCount, totalPlaces));
 		}
+
+		// 채점기만 아는 표식을 그 문항 뒤에 붙인다. 대조표에 그 문항이 없으면 붙이지 않는다 — 없는 문항을 지어내지 않는다.
+		SCORER_ONLY_FEATURES.forEach((key, extraTypes) -> {
+			ConditionBuilder builder = byCode.get(key);
+			if (builder == null) {
+				return;
+			}
+			for (String featureType : extraTypes) {
+				boolean already = builder.features.stream().anyMatch(f -> f.featureType().equals(featureType));
+				if (!already) {
+					builder.features.add(new ConditionCoverageResponse.Feature(featureType,
+							countByFeatureType.getOrDefault(featureType, 0L), totalPlaces));
+				}
+			}
+		});
 
 		List<ConditionCoverageResponse.Condition> conditions = new ArrayList<>(byCode.size());
 		for (ConditionBuilder builder : byCode.values()) {

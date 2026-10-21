@@ -24,7 +24,12 @@ public class AppUser {
 	@Column(name = "display_name", nullable = false, length = 50)
 	private String displayName;
 
-	@Column(nullable = false, length = 2)
+	/**
+	 * 앱 언어 — {@code KO·EN·JA·VI·ZH-HANS·ZH-HANT}(LanguageNormalizer 의 출력). 실제 열은
+	 * {@code VARCHAR(10)} 이다(V20260917300000). 여기 {@code length} 가 2 로 남아 있으면 이 엔티티로 표를
+	 * 새로 만들 때(테스트·로컬) {@code ZH-HANS} 가 열 너비 위반으로 들어가지 않는다.
+	 */
+	@Column(nullable = false, length = 10)
 	private String language;
 
 	@Column(name = "age_verified_at")

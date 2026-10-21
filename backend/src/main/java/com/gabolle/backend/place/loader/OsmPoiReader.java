@@ -134,7 +134,8 @@ public final class OsmPoiReader {
 	}
 
 	/**
-	 * 이 장소의 이름. {@code name} 을 먼저 보고, 없으면 {@code name:ko} 를 본다.
+	 * 이 장소의 이름. {@code name} 을 먼저 보고, 없으면 {@code name:ko} 를 본다 — 단 {@code name} 에 한글이 없고
+	 * {@code name:ko} 에 한글이 있으면 {@code name:ko}(S15P21E201-1882).
 	 *
 	 * <p>🔴 <b>한국어 이름만 있다고 버리지 않는다.</b> OSM 은 {@code name} 에 현지 표기를 넣는
 	 * 것이 관례지만 기여자에 따라 {@code name:ko} 에만 넣기도 한다. 부산 여행 서비스에서
@@ -147,14 +148,25 @@ public final class OsmPoiReader {
 	 * <p>{@code name:en} 은 안 본다. 영어 이름만 있는 곳을 한국어 화면에 영어로 띄우는 것은
 	 * 다른 결정이고, 지금 그런 곳이 있는지도 확인하지 않았다.
 	 */
-	private static String nameOf(Map<String, String> tags) {
+	public static String nameOf(Map<String, String> tags) {
 		String name = tags.get("name");
-		if (name != null && !name.isBlank()) {
+		String korean = tags.get("name:ko");
+		boolean hasName = name != null && !name.isBlank();
+		boolean hasKorean = korean != null && !korean.isBlank();
+		// 🔴 기본 이름에 한글이 없고 한국어 이름에 한글이 있으면 한국어 이름이다(S15P21E201-1882). OSM 은 기본 이름에
+		//    «현지 표기»를 넣는 게 관례인데, 외국 가게·교회는 그 나라 글자로 넣기도 한다 — 문화 갈래에 러시아어
+		//    「Храм святой Богородицы」(name:ko 「정교회」)가, 식당에 「巨人炸雞」(name:ko 「거인통닭」)가 떴다.
+		//    부산 자료에 이런 곳이 116곳이었다. 기본 이름이 한글이면 그대로 둔다 — 사람이 붙인 가게 이름이 먼저다.
+		if (hasName && hasKorean && !HANGUL.matcher(name).find() && HANGUL.matcher(korean).find()) {
+			return korean.strip();
+		}
+		if (hasName) {
 			return name.strip();
 		}
-		String korean = tags.get("name:ko");
-		return (korean == null || korean.isBlank()) ? null : korean.strip();
+		return hasKorean ? korean.strip() : null;
 	}
+
+	private static final java.util.regex.Pattern HANGUL = java.util.regex.Pattern.compile("[가-힣]");
 
 	/**
 	 * 두 가게가 한 점에 합쳐진 것인가 — S15P21E201-1637. 이름이 세미콜론으로 둘이고, 가게 표시({@code shop})와 명소·시설

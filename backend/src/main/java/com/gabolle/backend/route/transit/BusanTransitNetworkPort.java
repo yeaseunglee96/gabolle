@@ -60,6 +60,12 @@ public class BusanTransitNetworkPort implements TransitNetworkPort {
 	static final String SUBWAY_RESOURCE_PATH = "transit/busan-subway-network.json";
 
 	/**
+	 * 부산김해경전철·동해선 (S15P21E201-2072). 김해공항에서 경전철을 못 타 공항버스만 나왔다. 역간 소요시간은 운영사 전체
+	 * 소요시간을 거리 비율로 나눈 어림이다 — 파일의 note 에 적었다.
+	 */
+	static final String RAIL_EXTRA_RESOURCE_PATH = "transit/busan-rail-extra-network.json";
+
+	/**
 	 * 지하철에서 올릴 요일. 원천의 글자 그대로다({@code "평일"}·{@code "토요일"}·
 	 * {@code "일요일·공휴일"}) — 대응표를 두면 원천이 말을 바꿨을 때 아무것도 안 걸리고 노선이
 	 * 0개가 된다. 여기서는 0개가 되면 기동 로그가 말한다.
@@ -85,14 +91,83 @@ public class BusanTransitNetworkPort implements TransitNetworkPort {
 
 		readInto(objectMapper, BUS_RESOURCE_PATH, TransitNetwork.Kind.BUS, null, stops, routes);
 		readInto(objectMapper, SUBWAY_RESOURCE_PATH, TransitNetwork.Kind.SUBWAY, SUBWAY_DAY_TYPE, stops, routes);
+		readInto(objectMapper, RAIL_EXTRA_RESOURCE_PATH, TransitNetwork.Kind.SUBWAY, SUBWAY_DAY_TYPE, stops, routes);
 
 		warnOnDuplicateIds(stops, routes);
 
-		// 운행도 환승도 비운다. 운행은 지어내지 않기 때문이고, 걸어서 갈아타는 통로는 아직
-		// 아무도 재지 않았다.
-		TransitNetwork built = TransitNetwork.of(stops, routes, List.of(), List.of());
-		log.info("대중교통 노선망을 올렸다 — 정류장·역 {}곳 · 노선 갈래 {}개", stops.size(), routes.size());
+		// 운행은 비운다 — 지어내지 않는다. 🔴 걸어서 갈아타기는 좌표로 만든다(S15P21E201-2067). 전에는 이것도 비워서
+		//    갈아타기가 «정류장 번호가 같은 곳»뿐이었다 — 지하철역과 그 앞 버스 정류장은 번호가 달라 버스↔지하철 환승이
+		//    하나도 없었고, 명지→삼광사가 버스만 세 번 갈아타는 3시간 길로 나왔다(1호선+버스면 1시간 남짓).
+		List<TransitNetwork.Transfer> transfers = walkTransfers(stops);
+		TransitNetwork built = TransitNetwork.of(stops, routes, List.of(), transfers);
+		log.info("대중교통 노선망을 올렸다 — 정류장·역 {}곳 · 노선 갈래 {}개 · 걸어서 갈아타기 {}개", stops.size(), routes.size(),
+				transfers.size());
 		return built;
+	}
+
+	/** 걸어서 갈아탈 수 있다고 보는 직선 거리(m). 길 건너 맞은편 정류장, 역 출구 앞 정류장이 들어온다. */
+	static final double WALK_TRANSFER_RADIUS_M = 300;
+
+	/** 직선 거리를 실제 걷는 길로 늘리는 계수 — 횡단보도·출구를 돌아간다. */
+	private static final double WALK_DETOUR = 1.3;
+
+	/** 걷는 속도(m/분) — 4km/h. 노선망의 정류장까지 걷기({@code accessWalkSpeedKmh})와 같은 값. */
+	private static final double WALK_M_PER_MIN = 4000.0 / 60.0;
+
+	/**
+	 * 서로 다른 정류장·역 사이 걸어서 갈아타기 — {@link #WALK_TRANSFER_RADIUS_M} 안이면 양방향으로 잇는다.
+	 * 지하철역이 끼면 2분을 더한다(계단·개찰구). 좌표 격자로 이웃만 보아 정류장 수만 개에서도 빠르다.
+	 */
+	static List<TransitNetwork.Transfer> walkTransfers(List<TransitNetwork.Stop> stops) {
+		double cellDeg = 0.003; // 약 300m
+		Map<Long, List<TransitNetwork.Stop>> grid = new java.util.HashMap<>();
+		for (TransitNetwork.Stop stop : stops) {
+			grid.computeIfAbsent(cellOf(stop.lat(), stop.lng(), cellDeg), key -> new ArrayList<>()).add(stop);
+		}
+		List<TransitNetwork.Transfer> transfers = new ArrayList<>();
+		java.util.Set<String> seen = new java.util.HashSet<>();
+		for (TransitNetwork.Stop from : stops) {
+			if (!seen.add(from.id())) {
+				continue; // 같은 id 가 두 번 올라온 경우(warnOnDuplicateIds 가 알린다)
+			}
+			long latCell = (long) Math.floor(from.lat() / cellDeg);
+			long lngCell = (long) Math.floor(from.lng() / cellDeg);
+			for (long dLat = -1; dLat <= 1; dLat++) {
+				for (long dLng = -1; dLng <= 1; dLng++) {
+					for (TransitNetwork.Stop to : grid.getOrDefault(key(latCell + dLat, lngCell + dLng), List.of())) {
+						if (to.id().equals(from.id())) {
+							continue;
+						}
+						double meters = haversineM(from.lat(), from.lng(), to.lat(), to.lng());
+						if (meters > WALK_TRANSFER_RADIUS_M) {
+							continue;
+						}
+						int minutes = (int) Math.ceil(meters * WALK_DETOUR / WALK_M_PER_MIN);
+						if (from.kind() == TransitNetwork.Kind.SUBWAY || to.kind() == TransitNetwork.Kind.SUBWAY) {
+							minutes += 2;
+						}
+						transfers.add(new TransitNetwork.Transfer(from.id(), to.id(), Math.max(1, minutes)));
+					}
+				}
+			}
+		}
+		return transfers;
+	}
+
+	private static long cellOf(double lat, double lng, double cellDeg) {
+		return key((long) Math.floor(lat / cellDeg), (long) Math.floor(lng / cellDeg));
+	}
+
+	private static long key(long latCell, long lngCell) {
+		return latCell * 1_000_003L + lngCell;
+	}
+
+	private static double haversineM(double lat1, double lng1, double lat2, double lng2) {
+		double dLat = Math.toRadians(lat2 - lat1);
+		double dLng = Math.toRadians(lng2 - lng1);
+		double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(Math.toRadians(lat1))
+				* Math.cos(Math.toRadians(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+		return 6_371_000 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 	}
 
 	/**

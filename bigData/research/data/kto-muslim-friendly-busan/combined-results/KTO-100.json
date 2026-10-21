@@ -1,0 +1,80 @@
+{
+  "id": "KTO-100",
+  "name": "뉴리틀인디아 부산역점",
+  "cat": "인도음식",
+  "attempts": 1,
+  "geminiTokens": 53013,
+  "researchedAt": "2026-09-30T00:26:00.539Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 대기 시간에 대한 구체적 언급 없음"
+  },
+  "descriptors": {
+    "audience": "혼밥객, 외국인 관광객, 인근 직장인",
+    "generations": 0,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "탄두리 치킨",
+      "인도 커리",
+      "난",
+      "라씨",
+      "사모사"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 10:00 ~ 22:00"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산역 바로 앞이라 여행객 및 외국인 방문객, 혼밥 손님 방문 언급 확인"
+  },
+  "menuDiversity": {
+    "dishCount": 7,
+    "found": true
+  },
+  "notes": "부산역 7번 출구 앞 지하 1층에 위치한 인도 현지인 조리 정통 인도요리 전문점. 혼밥 런치세트 및 탄두리, 커리, 난 등 제공. 전용 주차장 없음.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": "런치 세트, 탄두리 치킨, 커리, 난",
+    "priceWon": 0
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "남포동의 전통 인도 레스토랑이 부산역 인근에 오픈한 매장입니다. 인도에서 공수한 재료를 사용하여 베테랑 인도 요리사가 직접 조리합니다. 사모사, 탄두리 치킨, 각종 인도 카레와 난 등 다양한 인도 요리를 맛볼 수 있으며, 세트 메뉴 및 혼밥하기 좋은 1인 런치 세트 등이 준비되어 있습니다. 깔끔한 인테리어와 인도 분위기가 물씬 나는 장식이 특징입니다.",
+      "url": "https://www.siksinhot.com"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "인도 현지인 베테랑 요리사가 직접 조리하는 정통 인도 음식 맛",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "부산역 7번 출구 바로 앞 지하 1층에 위치해 대중교통 접근성이 편리함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "혼밥하기 좋은 1인 런치 세트 구성 마련",
+      "sources": [
+        0
+      ],
+      "type": "가격·가성비"
+    }
+  ]
+}

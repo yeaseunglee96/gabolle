@@ -1,0 +1,75 @@
+{
+  "id": "KTO-322",
+  "name": "흙시루",
+  "cat": "한식",
+  "attempts": 1,
+  "geminiTokens": 401130,
+  "researchedAt": "2026-09-30T00:29:24.482Z",
+  "confidence": "high",
+  "crowding": {
+    "found": true,
+    "note": "주말 및 식사 시간대에는 가족 단위 방문객이 많아 대기하거나 예약 후 방문하는 편이다."
+  },
+  "descriptors": {
+    "audience": "가족 단위, 부모님 동반 외식, 모임",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": true,
+    "signatureDishes": [
+      "단호박 오리구이",
+      "녹두오리탕",
+      "소갈비찜",
+      "갈비탕"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "화요일~일요일 11:00 ~ 21:00 (월요일 정기휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "부산시 지정 관광식당 및 고즈넉한 전통 한옥 정원 분위기로 현지인 가족 외식 및 외지 관광객 모두에게 잘 알려진 곳이다."
+  },
+  "menuDiversity": {
+    "dishCount": 8,
+    "found": true
+  },
+  "notFound": null,
+  "notes": "부산 기장읍 차성로451번길 28에 위치한 전통 한옥 스타일의 대형 한식당으로, 단호박 오리구이와 녹두오리탕, 갈비찜 등이 대표 메뉴이며 넓은 전용 주차장과 전통 정원을 갖추고 있습니다.",
+  "photoUrls": [],
+  "sourceExcerpts": [
+    {
+      "excerpt": "부산광역시 기장군 기장읍 차성로451번길 28. 황토벽과 초가지붕 등 전통 가옥을 재현한 인테리어로 고즈넉한 분위기를 자랑하며, 정원이 잘 조성되어 있어 가족 외식이나 데이트 장소로 유명합니다. 주요 메뉴로는 단호박 오리구이, 흙시루 정식, 갈비탕, 오리불고기 등이 있습니다. 넓은 전용 주차장을 갖추고 있어 주차가 편리합니다. 영업시간: 11:00 ~ 21:00.",
+      "url": "https://www.siksinhot.com/P/350614"
+    },
+    {
+      "excerpt": "부산광역시 기장군 기장읍 차성로451번길 28 (교리 47번지). 부산시 지정 관광식당으로, 옛 시골집을 개조한 전통적인 분위기에서 한정식과 오리 요리를 즐길 수 있는 곳입니다. 민속품과 야생화 등으로 꾸며진 넓은 공간을 갖추고 있습니다. 대표 메뉴: 단호박친환경오리+버섯회, 녹두전복오리탕, 친환경오리훈제+들깨수제비 등. 영업 시간: 화~일 11:00 ~ 21:00 (월요일 휴무). 문의: 051-722-1377.",
+      "url": "https://www.menupan.com/restaurant/onepage.asp?acode=H601449"
+    }
+  ],
+  "sources": [
+    "https://www.siksinhot.com/P/350614",
+    "https://www.menupan.com/restaurant/onepage.asp?acode=H601449"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "황토벽과 초가지붕 등 전통 한옥 가옥과 야생화 정원이 어우러진 고즈넉한 공간 분위기",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "단호박 오리구이, 녹두오리탕 등 특색 있는 보양 한식 요리",
+      "sources": [
+        0,
+        1
+      ],
+      "type": "맛 자체"
+    }
+  ]
+}

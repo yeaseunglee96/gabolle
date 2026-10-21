@@ -1,0 +1,176 @@
+{
+ "rule": "전화가 같고 영업시간이 올라와 있거나 2026년 후기가 있는 곳만 open. 지도 화면은 확인에만 쓰고 응답은 저장하지 않았다",
+ "items": [
+  {
+   "no": "015",
+   "verdict": "already_in_place",
+   "placeNameKo": "카파도키아"
+  },
+  {
+   "no": "092",
+   "verdict": "already_in_place",
+   "placeNameKo": "사마르칸트"
+  },
+  {
+   "no": "095",
+   "verdict": "open",
+   "checkedAt": "2026-09-30",
+   "note": "카카오맵에 같은 전화로 올라 있고 영업시간 표시. 중앙대로680번길로 옮김",
+   "coordinate": "corrected"
+  },
+  {
+   "no": "096",
+   "verdict": "open",
+   "checkedAt": "2026-09-30",
+   "note": "카카오맵 같은 주소(달맞이길62번길 1)에 영업시간 표시. 전화 끝자리가 목록과 1 다름",
+   "coordinate": "brochure"
+  },
+  {
+   "no": "097",
+   "verdict": "already_in_place",
+   "placeNameKo": "펀자브인도요리"
+  },
+  {
+   "no": "098",
+   "verdict": "already_in_place",
+   "placeNameKo": "헬로인디아알와하"
+  },
+  {
+   "no": "099",
+   "verdict": "open",
+   "checkedAt": "2026-09-30",
+   "note": "카카오맵에 같은 전화로 올라 있고 영업시간 표시. 목록 좌표가 해운대점 것",
+   "coordinate": "corrected"
+  },
+  {
+   "no": "100",
+   "verdict": "open",
+   "checkedAt": "2026-09-30",
+   "note": "카카오맵 같은 주소에 영업시간 표시. 전화는 목록과 다름",
+   "coordinate": "brochure"
+  },
+  {
+   "no": "102",
+   "verdict": "open",
+   "checkedAt": "2026-09-30",
+   "note": "카카오맵에 같은 전화로 올라 있고 영업시간 표시",
+   "coordinate": "corrected"
+  },
+  {
+   "no": "103",
+   "verdict": "already_in_place",
+   "placeNameKo": "발리우드"
+  },
+  {
+   "no": "104",
+   "verdict": "already_in_place",
+   "placeNameKo": "고마대구탕"
+  },
+  {
+   "no": "105",
+   "verdict": "already_in_place",
+   "placeNameKo": "옥미아구찜"
+  },
+  {
+   "no": "106",
+   "verdict": "excluded",
+   "checkedAt": "2026-09-30",
+   "note": "카카오맵에 같은 전화로 올라 있으나 2026-08-02~09-30 휴무 공지만 있음"
+  },
+  {
+   "no": "107",
+   "verdict": "open",
+   "checkedAt": "2026-09-30",
+   "note": "카카오맵에 같은 전화, 광복로 83. 2026-05 후기",
+   "coordinate": "corrected"
+  },
+  {
+   "no": "108",
+   "verdict": "already_in_place",
+   "placeNameKo": "New Little India"
+  },
+  {
+   "no": "109",
+   "verdict": "open",
+   "checkedAt": "2026-09-30",
+   "note": "카카오맵에 같은 전화로 올라 있고 영업시간 표시",
+   "coordinate": "brochure"
+  },
+  {
+   "no": "110",
+   "verdict": "excluded",
+   "checkedAt": "2026-09-30",
+   "note": "카카오맵에서 같은 가게를 찾지 못함(웹 검색은 2025-08 후기)"
+  },
+  {
+   "no": "111",
+   "verdict": "open",
+   "checkedAt": "2026-09-30",
+   "note": "카카오맵에 같은 전화로 올라 있고 영업시간 표시",
+   "coordinate": "brochure"
+  },
+  {
+   "no": "112",
+   "verdict": "already_in_place",
+   "placeNameKo": "Namaste"
+  },
+  {
+   "no": "113",
+   "verdict": "already_in_place",
+   "placeNameKo": "베지나랑 부산광안리점"
+  },
+  {
+   "no": "246",
+   "verdict": "excluded",
+   "checkedAt": "2026-09-30",
+   "note": "영업시간 표시 없음, 마지막 후기 2024-02"
+  },
+  {
+   "no": "289",
+   "verdict": "open",
+   "checkedAt": "2026-09-30",
+   "note": "카카오맵에 같은 전화로 올라 있고 영업시간 표시",
+   "coordinate": "brochure"
+  },
+  {
+   "no": "322",
+   "verdict": "open",
+   "checkedAt": "2026-09-30",
+   "note": "카카오맵에 같은 전화로 올라 있고 영업시간 표시",
+   "coordinate": "brochure"
+  },
+  {
+   "no": "323",
+   "verdict": "open",
+   "checkedAt": "2026-09-30",
+   "note": "카카오맵에 같은 전화로 올라 있고 영업시간 표시",
+   "coordinate": "brochure"
+  },
+  {
+   "no": "324",
+   "verdict": "open",
+   "checkedAt": "2026-09-30",
+   "note": "카카오맵에 같은 전화로 올라 있고 영업시간 표시",
+   "coordinate": "brochure"
+  },
+  {
+   "no": "325",
+   "verdict": "open",
+   "checkedAt": "2026-09-30",
+   "note": "카카오맵에 같은 전화로 올라 있고 영업시간 표시",
+   "coordinate": "brochure"
+  },
+  {
+   "no": "326",
+   "verdict": "open",
+   "checkedAt": "2026-09-30",
+   "note": "카카오맵에 같은 전화로 올라 있고 영업시간 표시",
+   "coordinate": "brochure"
+  },
+  {
+   "no": "327",
+   "verdict": "already_in_place",
+   "placeNameKo": "옹기촌"
+  }
+ ]
+}

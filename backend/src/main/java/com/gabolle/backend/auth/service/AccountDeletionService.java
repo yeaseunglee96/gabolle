@@ -227,7 +227,11 @@ public class AccountDeletionService {
 			//    이 서비스는 app_user 행을 «지우지 않고 익명화» 하므로 그 규칙은 한 번도 안 돈다.
 			//    남기면 탈퇴한 사람의 폰으로 그 여행 알림이 계속 간다 — 동행자가 일정을 고칠
 			//    때마다, 계정이 없어진 뒤에도.
-			new OwnedRows("PushTokenJpaEntity", "userId"));
+			new OwnedRows("PushTokenJpaEntity", "userId"),
+			// 여행 별점 (S15P21E201-1908). 남의 여행에 매긴 별점은 여행이 남으므로 CASCADE 로 안 지워진다.
+			new OwnedRows("TripRatingJpaEntity", "id.userId"),
+			// 여행 돈 (S15P21E201-1935) — 이 사람이 «적은» 줄. 남이 적은 줄의 낸 사람 칸은 남는다(동행의 장부가 통째로 비면 안 된다).
+			new OwnedRows("TripExpenseJpaEntity", "createdBy"));
 
 	/**
 	 * 지울 표 하나 — 엔티티 이름과 그 사람을 가리키는 칸.
@@ -347,6 +351,23 @@ public class AccountDeletionService {
 	}
 
 	/** 이 사람이 소유한 여행. 동행자로만 참여한 여행은 여기 없다 — 그건 남의 여행이다. */
+	/**
+	 * 익명 세션이 만든 여행과 그 일정·추천·스냅샷을 지운다 — {@link AnonymousSessionCleanupService} 전용.
+	 *
+	 * <p>탈퇴의 삭제 사슬에서 여행에 매달린 세 칸만 같은 순서로 돈다. 익명 세션에는 취향 벡터·피드·
+	 * 업로드처럼 사람에게 붙는 것이 없다 — 그 표들은 app_user 외래키가 있어 세션 ID 로는 애초에 못
+	 * 들어간다. 순서를 여기서 다시 쓰지 않고 빌려 쓰는 것은, 일정 쪽 표가 늘 때 탈퇴만 고쳐지고 이쪽이
+	 * 남는 일을 막으려는 것이다.
+	 *
+	 * <p>트랜잭션은 부르는 쪽 것이다.
+	 */
+	void deleteAnonymousOwnerData(UUID sessionId) {
+		List<UUID> tripIds = ownedTripIds(sessionId);
+		deleteItineraryAndRecommendations(sessionId, tripIds);
+		deleteSnapshots(sessionId);
+		deleteTripsAndMemberships(sessionId, tripIds);
+	}
+
 	private List<UUID> ownedTripIds(UUID userId) {
 		return this.entityManager
 				.createQuery("SELECT t.tripId FROM TripJpaEntity t WHERE t.ownerUserId = :userId", UUID.class)
@@ -541,6 +562,12 @@ public class AccountDeletionService {
 		// app_user 에 ON DELETE CASCADE 로 묶여 있지만 계정 행을 익명화만 하므로 그 CASCADE 가
 		// 돌지 않아 여기서 직접 지운다.
 		execute("DELETE FROM PaceFactorJpaEntity p WHERE p.userId = :userId", "userId", userId);
+
+		// 코스 평가(S15P21E201-2020) — 한마디(자유 글)가 들어 있어 남기지 않는다. ON DELETE CASCADE 는 계정 행을
+		// 익명화만 하므로 안 돈다. 엔티티가 없어 네이티브다.
+		this.entityManager.createNativeQuery("DELETE FROM course_feedback WHERE user_id = :userId")
+			.setParameter("userId", userId)
+			.executeUpdate();
 	}
 
 	/**

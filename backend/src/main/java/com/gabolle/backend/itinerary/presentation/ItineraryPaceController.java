@@ -49,7 +49,7 @@ public class ItineraryPaceController {
     public ApiResponse<ItineraryPaceResponse> pace(@PathVariable String itineraryId, @PathVariable int dayIndex,
             Authentication authentication) {
 
-        String requester = AuthenticatedUsers.requireId(authentication).toString();
+        String requester = AuthenticatedUsers.requireTripActor(authentication);
         ItineraryPaceResponse response = this.paceService.pace(itineraryId, dayIndex, requester);
         return ApiResponse.success(response, "req_" + UUID.randomUUID());
     }
@@ -59,7 +59,7 @@ public class ItineraryPaceController {
     public ApiResponse<ItineraryRhythmResponse> rhythm(@PathVariable String itineraryId,
             Authentication authentication) {
 
-        String requester = AuthenticatedUsers.requireId(authentication).toString();
+        String requester = AuthenticatedUsers.requireTripActor(authentication);
         ItineraryRhythmResponse response = this.rhythmService.rhythm(itineraryId, requester);
         return ApiResponse.success(response, "req_" + UUID.randomUUID());
     }

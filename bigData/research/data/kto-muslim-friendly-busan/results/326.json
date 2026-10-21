@@ -1,0 +1,66 @@
+{
+  "no": "326",
+  "nameEn": "Jangsusam",
+  "nameKo": "장수삼",
+  "roadAddrKo": "부산 수영구 수영성로3번길 7",
+  "addressMatchesPdf": true,
+  "operating": "unknown",
+  "operatingEvidence": [
+    {
+      "url": "https://www.diningcode.com/profile.php?rid=SAPSDAO745CH",
+      "date": null,
+      "note": "영업시간 11-20시, 화 휴무 게재, 후기 날짜 없음"
+    }
+  ],
+  "newAddress": null,
+  "queries": [
+    "\"051-746-7923\"",
+    "장수삼 수영 삼계탕 후기 수영성로3번길"
+  ],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=SAPSDAO745CH",
+    "https://triple.guide/restaurants/ca056e24-23a1-47d1-9b37-f1bbf26b1c9f"
+  ],
+  "whyPeopleGo": [
+    {
+      "type": "플랫폼 순위·평점",
+      "note": "트립어드바이저 부산 상위권 표기",
+      "sources": [
+        0,
+        1
+      ]
+    },
+    {
+      "type": "곁들임·차림",
+      "note": "인삼주 무료 제공, 정갈한 반찬",
+      "sources": [
+        0,
+        1
+      ]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "깔끔하고 담백",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": "식사 시간 대기 가능",
+    "parking": "전용 없음, 뒤편 공영주차장",
+    "audience": "mixed",
+    "signatureDishes": [
+      "삼계탕",
+      "녹두삼계탕"
+    ],
+    "priceBand": "cheap"
+  },
+  "photoCandidates": [],
+  "notes": "가격이 출처마다 12,000~18,000원. 영업 중 근거 날짜 미확보."
+}

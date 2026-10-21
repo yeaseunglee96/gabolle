@@ -1,0 +1,61 @@
+{
+  "newAddress": null,
+  "found": true,
+  "newTypes": [],
+  "photoCandidates": [],
+  "no": "107",
+  "nameEn": "Bombay Brau (BIFC Branch)",
+  "nameKo": "봄베이브로이 광복점",
+  "roadAddrKo": "부산광역시 중구 광복로 75",
+  "addressMatchesPdf": true,
+  "operating": "open",
+  "operatingEvidence": [
+    {
+      "url": "https://www.tripadvisor.com/Restaurant_Review-g297884-d10412273-Reviews-Bombay_Brau_Gwangbok-Busan.html",
+      "date": "2025-07",
+      "note": "트립어드바이저 광복점 최근 리뷰 2025년 7월, 주소 광복로 75, 전화 051-256-7828 일치, 폐업 표기 없음"
+    }
+  ],
+  "queries": [
+    "\"051-256-7828\"",
+    "봄베이브라우 부산 BIFC 광복로 인도음식 후기",
+    "봄베이브로이 BIFC 광복로 75 폐업 OR 이전 OR 영업",
+    "봄베이브로이 광복점 OR 광복로 인도음식 부산 중구 탄두리"
+  ],
+  "confidence": "medium",
+  "sources": [
+    "https://www.tripadvisor.com/Restaurant_Review-g297884-d10412273-Reviews-Bombay_Brau_Gwangbok-Busan.html",
+    "https://www.siksinhot.com/P/780233",
+    "https://www.tabling.co.kr/place/68351da8a71996ff43b4a67d"
+  ],
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "버터치킨·난·탄두리치킨을 꼽는 후기",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "난이 쫄깃하고 커리가 신선하다는 평",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [
+      "탄두리 치킨",
+      "버터치킨",
+      "난"
+    ],
+    "priceBand": null
+  },
+  "notes": "PDF 영문명은 BIFC Branch이나 주소·전화·좌표는 중구 광복로 75(광복점)다. 별개로 남구 문현금융로 40 BIFC몰점(전화 0507-1324-7828)이 있어 이름이 혼동된다. 이 파일은 광복로 75 기준. 사진 후보 없음."
+}

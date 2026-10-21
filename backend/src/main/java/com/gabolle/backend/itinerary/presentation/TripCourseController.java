@@ -44,14 +44,14 @@ public class TripCourseController {
 
 	@GetMapping("/recommendations")
 	public ApiResponse<TripCoursesResponse> courses(@PathVariable String tripId, Authentication authentication) {
-		String requester = AuthenticatedUsers.requireId(authentication).toString();
+		String requester = AuthenticatedUsers.requireTripActor(authentication);
 		return ApiResponse.success(this.courseService.list(tripId, requester), "req_" + UUID.randomUUID());
 	}
 
 	@PostMapping("/course")
 	public ApiResponse<TripCoursesResponse.Chosen> choose(@PathVariable String tripId,
 			@RequestBody TripCoursesResponse.ChooseRequest request, Authentication authentication) {
-		String requester = AuthenticatedUsers.requireId(authentication).toString();
+		String requester = AuthenticatedUsers.requireTripActor(authentication);
 		String itineraryId = this.courseService.choose(tripId, request.courseId(), requester);
 		return ApiResponse.success(new TripCoursesResponse.Chosen(itineraryId), "req_" + UUID.randomUUID());
 	}

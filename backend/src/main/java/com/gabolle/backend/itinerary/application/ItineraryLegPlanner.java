@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.OptionalDouble;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.beans.factory.ObjectProvider;
@@ -23,6 +24,8 @@ import com.gabolle.backend.place.service.GeoDistance;
 import com.gabolle.backend.recommendation.application.port.ItineraryDraft;
 import com.gabolle.backend.trip.domain.TravelArea;
 import com.gabolle.backend.trip.domain.Trip;
+import com.gabolle.backend.trip.domain.TripConstraint;
+import com.gabolle.backend.trip.domain.TripRepository;
 
 /**
  * 일정의 구간(leg)을 계산한다.
@@ -59,6 +62,25 @@ public class ItineraryLegPlanner {
     }
 
     /**
+     * 계단·급경사를 피하는 길로 물을 이동 조건. 이 가운데 하나라도 「골랐다」면 그 여행의 모든 구간을 계단 없는 길로
+     * 묻는다 — 휠체어·유모차는 계단을 못 지나고, 계단을 피하겠다는 사람에게 계단 지름길을 내면 답을 무시한 것이다.
+     * 「반드시」·「되도록」을 가르지 않는다. 되도록이어도 돌아갈 길이 있으면 돌아가는 편이 맞고, 없으면 보행 그래프가
+     * 계단 길이라도 낸다({@code WalkGraph.STAIRS_COST_FACTOR}).
+     */
+    static final Set<String> STEP_FREE_KEYS = Set.of("WHEELCHAIR", "STROLLER", "STAIRS_AVOIDANCE");
+
+    /**
+     * 여행의 이동 조건을 읽는 곳. 필수로 두지 않는다 — 이 클래스는 여행 저장소가 없는 슬라이스 컨텍스트에서도
+     * 만들어지고, 없으면 전처럼 보통 길로 묻는다.
+     */
+    private TripRepository tripRepository;
+
+    @Autowired(required = false)
+    public void setTripRepository(TripRepository tripRepository) {
+        this.tripRepository = tripRepository;
+    }
+
+    /**
      * 날짜별 구간 — 연속한 두 항목 사이. 각 날의 첫 구간은 {@link #dayStart} 에서 출발한다 —
      * 첫날은 여행 출발지, 둘째 날부터는 숙소(있으면).
      */
@@ -71,6 +93,7 @@ public class ItineraryLegPlanner {
 
         Map<UUID, Place> placesById = lookupPlaces(placeIdsByDay);
         Anchor lodging = lodgingOf(trip);
+        boolean stepFree = needsStepFree(trip);
 
         List<ItineraryDraft.DraftLeg> legs = new ArrayList<>();
         for (int dayIndex = 0; dayIndex < placeIdsByDay.size(); dayIndex++) {
@@ -99,7 +122,7 @@ public class ItineraryLegPlanner {
 
                 // 실제 경로를 물어본다. 못 받으면 그쪽이 직선거리로 어림잡아 돌려주고 그 사실을
                 //    함께 알려 준다. 여기서 예외를 잡을 일이 없다 — 그 문은 실패를 예외로 알리지 않는다.
-                TravelTime measured = measure(fromLat, fromLng, toLat, toLng, travelMode);
+                TravelTime measured = measure(fromLat, fromLng, toLat, toLng, travelMode, stepFree);
 
                 Integer distanceM = measured.distanceM();
                 if (distanceM == null && fromLat != null && fromLng != null && toLat != null && toLng != null) {
@@ -115,7 +138,9 @@ public class ItineraryLegPlanner {
                         walkingMeters, measured.dataStatus(), measured.fareKrw(),
                         // 선형은 실제 길찾기 응답을 받았을 때만 들어온다. 위에서 직선거리로
                         // 메운 경우에는 null 이고, 그 구분이 지도에서 실선과 점선을 가른다.
-                        measured.path(), estimated));
+                        measured.path(), estimated,
+                        // 경사·계단 조각도 선형과 같이 온다 — 선형이 없으면 조각도 없다.
+                        measured.pieces()));
             }
         }
         return legs;
@@ -161,7 +186,7 @@ public class ItineraryLegPlanner {
                 leg.fromPlaceId() != null ? leg.fromPlaceId().toString() : null,
                 leg.toPlaceId().toString(), leg.travelMode(), leg.distanceM(),
                 leg.durationMin(), leg.walkingMeters(), null, null,
-                leg.dataStatus(), leg.fareKrw(), leg.path(), leg.uncalibratedDurationMin(), now);
+                leg.dataStatus(), leg.fareKrw(), leg.path(), leg.pieces(), leg.uncalibratedDurationMin(), now);
     }
 
     /**
@@ -179,12 +204,52 @@ public class ItineraryLegPlanner {
         return multiplier.isPresent() ? (int) Math.round(estimated * multiplier.getAsDouble()) : estimated;
     }
 
-    private TravelTime measure(Double fromLat, Double fromLng, Double toLat, Double toLng, String travelMode) {
+    private TravelTime measure(Double fromLat, Double fromLng, Double toLat, Double toLng, String travelMode,
+            boolean stepFree) {
         TravelTimePort port = this.travelTime.getIfAvailable();
         if (port == null) {
             return TravelTime.unknown();
         }
-        return port.between(fromLat, fromLng, toLat, toLng, travelMode);
+        return port.between(fromLat, fromLng, toLat, toLng, travelMode, stepFree);
+    }
+
+    /**
+     * 이 여행의 구간을 계단 없는 길로 물을까 — 이동 조건 가운데 {@link #STEP_FREE_KEYS} 하나라도 「골랐다」(SELECTED).
+     *
+     * <p>「없다고 답했다」·「안 물어봤다」는 고른 것이 아니다. 추천 채점기({@code BaselineCandidateScorer
+     * .evaluateConstraints})가 이동 조건을 읽는 규칙과 같다 — 추천은 휠체어로 들어갈 수 있는 곳을 골라 놓고 가는 길은
+     * 계단으로 내면 안 된다. 제약은 추천 작업과 같게 가장 최신 판을 읽는다({@code RecommendationJobRunner}).
+     */
+    public boolean needsStepFree(Trip trip) {
+        if (this.tripRepository == null || trip == null || trip.tripId() == null) {
+            return false;
+        }
+        List<TripConstraint> constraints = this.tripRepository.findLatestConstraintSnapshotId(trip.tripId())
+                .map(this.tripRepository::findConstraintsBySnapshotId)
+                .orElse(List.of());
+        for (TripConstraint constraint : constraints) {
+            if (constraint.answerStatus() == TripConstraint.AnswerStatus.SELECTED
+                    && "MOBILITY".equalsIgnoreCase(constraint.type())
+                    && STEP_FREE_KEYS.contains(constraint.constraintKey())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 사용자가 추천 단계에서 고른 경사·그늘 조건 — 코스 지도가 경로 선을 무엇으로 칠할지 정하는 데 쓴다
+     * (S15P21E201-1895).
+     *
+     * <p>{@link #needsStepFree} 는 이동 <b>제약</b>(휠체어 등)을 읽고 이것은 취향 <b>선호</b>(경사·그늘)를 읽는다 —
+     * 저장된 표가 다르다. 선호도 제약처럼 <b>가장 최신 판</b>을 읽는다: 추천 작업이 읽는 판과 같아야 지도가 추천과 같은
+     * 조건으로 칠한다. 여행 저장소가 없는 슬라이스 컨텍스트에서는 아무것도 안 골랐다고 본다.
+     */
+    public RoutePaintConditions routePaintConditions(Trip trip) {
+        if (this.tripRepository == null || trip == null || trip.tripId() == null) {
+            return RoutePaintConditions.NONE;
+        }
+        return RoutePaintConditions.from(this.tripRepository.findLatestSnapshot(trip.tripId()).orElse(null));
     }
 
     /**
@@ -278,7 +343,8 @@ public class ItineraryLegPlanner {
         }
         String[] modes = trip.travelModes();
         String travelMode = (modes == null || modes.length == 0) ? "WALK" : modes[0];
-        TravelTime measured = measure(last.getLat(), last.getLng(), end.lat(), end.lng(), travelMode);
+        TravelTime measured = measure(last.getLat(), last.getLng(), end.lat(), end.lng(), travelMode,
+                needsStepFree(trip));
         return new DayReturn(end, measured);
     }
 
@@ -292,7 +358,8 @@ public class ItineraryLegPlanner {
      *
      * <p>🔴 <b>동네도 숙소다</b> (S15P21E201-1565). 앱은 홈에서 「해운대」처럼 동네를 숙소로 고르게 하고, 서버는
      * 그 값을 {@code accommodation_area} 에 저장만 하고 아무도 안 읽었다 — 운영의 최근 여행 20개 중 숙소가
-     * 쓰인 여행이 0개였다. 동네 중심 좌표는 {@link TravelArea} 가 가진 것을 그대로 쓴다(여행 범위와 같은 점).
+     * 쓰인 여행이 0개였다. 동네는 중심이 아니라 그 동네의 지하철역에 선다({@link TravelArea#lodgingLat}, S15P21E201-2046) —
+     * 중심은 앱이 «어림»으로 보고 곧은 점선을 그리던 자리다. 읽을 때마다 여기서 정하므로 이미 만든 여행에도 적용된다.
      */
     public Anchor lodgingOf(Trip trip) {
         String id = trip.accommodationPlaceId();
@@ -308,7 +375,7 @@ public class ItineraryLegPlanner {
             }
         }
         return TravelArea.of(trip.accommodationArea())
-                .map(area -> new Anchor(area.lat(), area.lng(), Anchor.LODGING, area.koreanName()))
+                .map(area -> new Anchor(area.lodgingLat(), area.lodgingLng(), Anchor.LODGING, area.koreanName()))
                 .orElse(null);
     }
 

@@ -1,0 +1,69 @@
+{
+  "newAddress": null,
+  "found": true,
+  "newTypes": [],
+  "photoCandidates": [],
+  "no": "111",
+  "nameEn": "Yongjangeo Restaurant",
+  "nameKo": "용장어요리전문점",
+  "roadAddrKo": "부산광역시 강서구 낙동남로682번길 94",
+  "addressMatchesPdf": true,
+  "operating": "unknown",
+  "operatingEvidence": [
+    {
+      "url": "https://www.visitbusan.net/index.do?menuCd=DOM_000000201001001000&uc_seq=2618&lang_cd=ko",
+      "date": null,
+      "note": "부산관광공사 소개 페이지, 날짜 미확인"
+    },
+    {
+      "url": "https://www.daangn.com/kr/local-profile/%EC%9A%A9%EC%9E%A5%EC%96%B4%EC%9A%94%EB%A6%AC-peinveougk8i/",
+      "date": null,
+      "note": "당근 동네업체 프로필, 날짜 미확인"
+    }
+  ],
+  "queries": [
+    "\"051-941-5030\"(검색 한도 초과로 결과 없음)",
+    "용장어 강서구 낙동남로682번길 94 장어구이",
+    "용장어요리전문점 녹산 후기 2025"
+  ],
+  "confidence": "medium",
+  "sources": [
+    "https://www.visitbusan.net/index.do?menuCd=DOM_000000201001001000&uc_seq=2618&lang_cd=ko",
+    "https://www.siksinhot.com/P/796175",
+    "https://www.114.co.kr/search/detail?comp_id=530234&comp_tp_cd=INT&upjong_cd=852520"
+  ],
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "일본식 민물장어·바다장어 양념구이와 장어덮밥",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "운영·접근 편의",
+      "note": "대형 주차장에 가족 외식용 넓은 매장",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "미디어 노출",
+      "note": "생생정보통 방영 게시글이 있음, 방영일 미확인",
+      "sources": []
+    }
+  ],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "대형",
+    "audience": "local",
+    "signatureDishes": [
+      "장어덮밥",
+      "장어 양념구이"
+    ],
+    "priceBand": "moderate"
+  },
+  "notes": "진해물산이 운영. 등록 전화는 051-941-5031로 PDF(5030)와 1 차이. 2025~2026 날짜 근거는 못 찾아 unknown. 사진 후보 없음."
+}
