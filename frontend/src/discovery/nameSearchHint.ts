@@ -7,6 +7,10 @@
 //   감천문화마을  1건 · Gamcheon       1건 · 甘川文化村       0건
 //   광안리        3건 · Gwangalli      2건 · 広安里           0건 · 广安里 0건
 //
+// 🔴 2026-09-30 정정 — 서버가 관광공사 일본어·중국어 공식 이름도 대조한다(백엔드 S15P21E201-1875). 그래서 한자·가나로
+//    쳐도 관광공사가 번역해 둔 곳(언어마다 130~160곳)은 찾힌다. 안내는 「한국어·영어로만」이 아니라 «번역된 곳만 찾히니
+//    한국어·영어로도 찾아보라» 로 바꿨다(S15P21E201-1878). 결과가 비었을 때만 뜨는 것은 그대로다.
+//
 // 여기까지는 서버·데이터의 한계다. 앱의 잘못은 그다음이었다 — 빈 결과를 「없어요」·「다르게
 // 적어 보세요」로만 말해서, 일본어·중국어로 친 사람은 「그 장소가 없다」로 읽거나 어떻게 다르게
 // 적어야 하는지 끝내 몰랐다. 택시 카드는 외국인 여행자가 쓰라고 있는 도구다.
@@ -21,8 +25,8 @@
  *    넘어갔다(2026-09-23 실측).
  */
 export const KOREAN_OR_ENGLISH_HINT = {
-  ko: '장소 이름은 한국어나 영어로 찾을 수 있어요.\n예: 해운대해수욕장, Haeundae Beach',
-  en: 'Place names can be searched in Korean or English.\ne.g. Haeundae Beach',
+  ko: '일본어·중국어 이름은 관광공사가 번역해 둔 곳만 찾을 수 있어요.\n한국어나 영어로 찾아보세요. 예: 해운대해수욕장, Haeundae Beach',
+  en: 'Japanese and Chinese names only work for places the Korea Tourism Organization has translated.\nTry Korean or English, e.g. Haeundae Beach',
 };
 
 /** 한자(통합·확장 A·호환) · 히라가나 · 가타카나(반각 포함). */

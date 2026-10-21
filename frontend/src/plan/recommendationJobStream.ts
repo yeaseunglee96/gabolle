@@ -1,5 +1,5 @@
 import { Platform } from 'react-native';
-import { API_BASE_URL, getApiLanguage } from '@/api/client';
+import { API_BASE_URL, getAnonymousSessionToken, getApiLanguage } from '@/api/client';
 
 /** `GET /api/v1/jobs/{jobId}/progress` (SSE) 를 읽는다 — S15P21E201-69. */
 export type JobStreamStatus = 'PENDING' | 'RUNNING' | 'SUCCEEDED' | 'FAILED' | 'CANCELLED' | 'EXPIRED';
@@ -42,10 +42,13 @@ export function openJobProgressStream(
   (async () => {
     let response: Response;
     try {
+      // 비회원의 작업은 출입증으로 주인을 가린다. apiRequest 를 안 거치므로 여기서 직접 싣는다 — 없으면 늘 404 라 폴링으로만 돌았다.
+      const sessionToken = accessToken ? null : await getAnonymousSessionToken();
       response = await fetch(`${API_BASE_URL}/api/v1/jobs/${encodeURIComponent(jobId)}/progress`, {
         headers: {
           Accept: 'text/event-stream',
           'Accept-Language': getApiLanguage(),
+          ...(sessionToken ? { 'X-Session-Token': sessionToken } : {}),
           ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
         },
         signal: controller.signal,

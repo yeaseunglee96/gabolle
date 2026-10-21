@@ -17,8 +17,10 @@
 //   안드로이드  그런 스위치가 리액트 네이티브에 없다. 대신 한글 음절 사이에 **낱말 이음표**
 //             (U+2060 WORD JOINER — 보이지 않고 폭도 없지만 「여기서 끊지 마라」는 뜻의 글자)를
 //             넣어 낱말을 통째로 붙인다. 안드로이드에서만 하므로 시험(jest 는 iOS 로 돈다)과
-//             글자 비교에는 영향이 없다. textBreakStrategy="balanced" 는 여러 줄을 고르게 나눠
-//             외톨이 낱말을 줄인다
+//             글자 비교에는 영향이 없다.
+//             🔴 textBreakStrategy 는 "simple" 이다(S15P21E201-1972). "balanced" 는 여러 줄을 고르게 나눴지만,
+//             삼성 기기에서 글 폭을 잰 뒤 그 폭에 다시 그릴 때 마지막 낱말을 다음 줄로 넘겨 잘라 먹었다 —
+//             갤럭시 탭에서 「Trip money」 단추가 「Trip」, 일본어 제목 「旅行のお金」이 「旅行の」로 보였다(자리는 다 차지)
 import { useMemo } from 'react';
 import { Platform, Text as RNText, type TextProps as RNTextProps } from 'react-native';
 
@@ -75,14 +77,63 @@ const WORD_JOINER = String.fromCharCode(0x2060); // 보이지 않는 글자라 �
  *  (뒤돌아보기(lookbehind) 없이 쓴다 — 헤르메스(안드로이드 JS 엔진) 판에 따라 없을 수 있다.) */
 const HANGUL_THEN_HANGUL = /([가-힣ㄱ-ㆎ])(?=[가-힣ㄱ-ㆎ])/g;
 
-/** 한글 낱말 안의 음절을 낱말 이음표로 붙인다. 문자열이 아닌 자식(다른 Text 등)은 그대로 둔다. */
+/** 선택 표시 「✓」 바로 뒤의 일반 공백. */
+const CHECK_THEN_SPACE = /✓ /g;
+
+/** 한글 낱말 안의 음절을 낱말 이음표로 붙인다. 문자열이 아닌 자식(다른 Text 등)은 그대로 둔다.
+ *  🔴 「✓ 」의 공백은 줄바꿈 없는 공백(U+00A0)으로 바꾼다(S15P21E201-2057). 일반 공백이면 「✓ 日本語」가 공백에서 꺾여
+ *     둘째 줄이 칩 밖으로 밀리고, 갤럭시 S22 의 선택 칩에 「✓」만 남았다. 표시는 언제나 뒤 글자와 한 덩어리다. */
 export function joinHangulSyllables(text: string): string {
-  return text.replace(HANGUL_THEN_HANGUL, `$1${WORD_JOINER}`);
+  return text.replace(CHECK_THEN_SPACE, '✓ ').replace(HANGUL_THEN_HANGUL, `$1${WORD_JOINER}`);
+}
+
+/** 가나·한자(CJK 통합 한자·호환 한자)·전각 문장부호. 한글은 뺀다 — 한글은 Pretendard 에 있다. */
+const KANA_OR_HAN = /[\u3000-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff00-\uff60]/;
+
+function textOf(children: React.ReactNode): string {
+  if (typeof children === 'string') return children;
+  if (typeof children === 'number') return String(children);
+  if (Array.isArray(children)) return children.map(textOf).join('');
+  return '';
+}
+
+/**
+ * 🔴 폰 앱에서 가나·한자가 든 글은 Pretendard 를 강요하지 않는다(S15P21E201-1942).
+ * Pretendard 에는 가나·한자가 없어 폰이 다른 글꼴로 대신 그려야 하는데, 굵기별 글꼴 이름(Pretendard-Bold)과
+ * 굵기(700)를 함께 박으면 일부 안드로이드(삼성 One UI 등)에서 대신 그릴 글꼴을 못 찾아 글자가 통째로 빈칸이 됐다 —
+ * 「마이페이지에서 일본어·중국어를 고르면 글자가 사라진다」(사용자 신고 2026-10-02). 그런 글은 기기 글꼴에 굵기만 준다.
+ * 웹은 그대로다 — CSS 대체 글꼴 목록(fontFamilyStack)이 이미 있다.
+ */
+export function nativeFontFamily(family: string, children: React.ReactNode): string | undefined {
+  if (Platform.OS === 'web') return family;
+  return KANA_OR_HAN.test(textOf(children)) ? undefined : family;
+}
+
+const HANGUL = /[가-힣ㄱ-ㆎ]/;
+
+/**
+ * 웹에서 한글만 든 글(가나·한자 없이)은 lang="ko" 를 단다 — S15P21E201-1950.
+ * 일본어·중국어 화면은 글자 사이에서 끊도록 keep-all 을 푸는데(webGlobalStyles 의 CJK_LINE_BREAK), 그 규칙이
+ * 한글 장소 이름에도 걸려 「해운대 블루라 / 인 해변열차」처럼 낱말 중간에서 꺾였다(2026-10-02 전체 점검, 344 중국어).
+ * 이 표시가 있는 글은 그 규칙을 건너뛰고 한국어처럼 띄어쓰기에서만 끊긴다. 일본어·중국어 문장 안에 한글이 섞이면
+ * 달지 않는다 — 그 문장은 그 나라 규칙으로 끊겨야 한다.
+ */
+export function webHangulLang(children: React.ReactNode): 'ko' | undefined {
+  if (Platform.OS !== 'web') return undefined;
+  const text = textOf(children);
+  return HANGUL.test(text) && !KANA_OR_HAN.test(text) ? 'ko' : undefined;
 }
 
 function joinHangulChildren(children: React.ReactNode): React.ReactNode {
   if (typeof children === 'string') return joinHangulSyllables(children);
-  if (Array.isArray(children)) return children.map((child) => (typeof child === 'string' ? joinHangulSyllables(child) : child));
+  if (Array.isArray(children)) {
+    // 🔴 글자 조각만 있으면 한 문자열로 합친다(S15P21E201-1966). {'✓ '}{'日本語'} 처럼 조각이 둘이면 안드로이드에서
+    //    둘째 조각(가나·한자)이 자리만 차지하고 안 보였다 — 갤럭시 탭의 고른 언어 칩. 한 문자열은 보였다.
+    if (children.every((child) => typeof child === 'string' || typeof child === 'number' || child == null || typeof child === 'boolean')) {
+      return joinHangulSyllables(children.filter((child) => typeof child === 'string' || typeof child === 'number').join(''));
+    }
+    return children.map((child) => (typeof child === 'string' ? joinHangulSyllables(child) : child));
+  }
   return children;
 }
 
@@ -94,10 +145,17 @@ const WEB_LINE_BREAK = { wordBreak: 'keep-all', overflowWrap: 'anywhere', textWr
 //    넣는 white-space: nowrap 을 뒤에 온 text-wrap: pretty 가 도로 풀어 버린다. 그래서 한 줄로
 //    잘라야 할 제목이 네 줄로 늘어졌다(2026-09-21 홈 카드 실측). 줄 수를 정한 글은 감싸기 힌트 없이 간다.
 const WEB_LINE_BREAK_CLAMPED = { wordBreak: 'keep-all', overflowWrap: 'anywhere' } as unknown as RNTextProps['style'];
+// 작은 안내 글(캡션·마이크로·눈썹)은 줄을 고르게 나눈다 — text-wrap: balance. 두 문장짜리 안내가
+// 「…「내 여행」에서 / 볼 수 있어요」처럼 끝 낱말 두셋만 다음 줄로 넘어가던 것(2026-09-30 전 화면 점검).
+// pretty 는 낱말 «하나»만 피해서 두세 낱말 꼬리는 그대로 남았다. 본문·제목은 pretty 그대로 —
+// 긴 글을 고르게 나누면 오른쪽이 비어 보인다. 브라우저는 여섯 줄이 넘으면 balance 를 안 건다.
+const WEB_LINE_BREAK_BALANCED = { wordBreak: 'keep-all', overflowWrap: 'anywhere', textWrap: 'balance' } as unknown as RNTextProps['style'];
+const BALANCED: ReadonlySet<Variant> = new Set<Variant>(['caption', 'micro', 'eyebrow']);
 /** 웹에서만 감싸기 힌트를 준다. 줄 수가 정해진 글은 text-wrap 없이. */
-export function webLineBreakStyle(numberOfLines: number | undefined): RNTextProps['style'] {
+export function webLineBreakStyle(numberOfLines: number | undefined, variant?: Variant): RNTextProps['style'] {
   if (Platform.OS !== 'web') return null;
-  return numberOfLines ? WEB_LINE_BREAK_CLAMPED : WEB_LINE_BREAK;
+  if (numberOfLines) return WEB_LINE_BREAK_CLAMPED;
+  return variant && BALANCED.has(variant) ? WEB_LINE_BREAK_BALANCED : WEB_LINE_BREAK;
 }
 
 export function Text({ variant = 'body', color: colorOverride, weight = 'regular', style, children, ...rest }: TextProps) {
@@ -107,18 +165,19 @@ export function Text({ variant = 'body', color: colorOverride, weight = 'regular
   return (
     <RNText
       lineBreakStrategyIOS="hangul-word"
-      textBreakStrategy="balanced"
+      textBreakStrategy="simple"
+      {...({ lang: webHangulLang(children) } as object)}
       {...rest}
       style={[
         {
-          fontFamily: FONT_FAMILY[weight],
+          fontFamily: nativeFontFamily(FONT_FAMILY[weight], children),
           fontSize: size,
           lineHeight,
           letterSpacing,
           fontWeight: FONT_WEIGHT[weight],
           color: colorOverride ?? DEFAULT_COLOR[variant],
         },
-        webLineBreakStyle(rest.numberOfLines),
+        webLineBreakStyle(rest.numberOfLines, variant),
         style,
       ]}
     >

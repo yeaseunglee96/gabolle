@@ -1,5 +1,6 @@
 // 주변 버스 도착 — S15P21E201-1138.
-import { useCallback, useEffect, useState } from 'react';
+// 지도·가까운 지하철역·거리 — S15P21E201-1830. 목록만으로는 「그 정류장이 어디 있는지」를 몰랐다.
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Linking, Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Location from 'expo-location';
@@ -11,9 +12,11 @@ import { useLocationGate } from '@/personalization/useLocationGate';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
+import { FieldBackButton } from '@/components/FieldBackButton';
 import { color, radius, spacing } from '@/design/tokens';
 import {
   arrivalLabel,
+  catchVerdict,
   loadNearbyBusArrivals,
   sortStops,
   type BusBlockedReason,
@@ -21,18 +24,34 @@ import {
 } from '@/field/busArrivals';
 import { vendorNotReadyMessage } from '@/api/vendorReady';
 import { useI18n } from '@/i18n';
+import { romanizeKorean } from '@/discovery/romanize';
 import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { txf } from '@/i18n/format';
+import { RouteMap, type MapPointLayer, type MapRouteLayer } from '@/map/RouteMap';
+import type { MapStop } from '@/map/types';
+import { distanceText, nearbyStations, straightDistanceM, walkMinutes, stationEnglishTitle } from '@/field/subwayStations';
+import { DestinationPicker } from '@/field/DestinationPicker';
 
 /** 위치를 모를 때 기준으로 삼는 부산 중심 — explore.tsx 와 같은 자리. */
 const BUSAN_CENTER = { latitude: 35.1796, longitude: 129.0756 };
+/**
+ * 이 지도는 경로가 아니다 — 정류장·역을 번호 순으로 잇지 않는다. routes 를 안 넘기면 RouteMap 이 번호 점을 선으로 잇고
+ * 「옅은 선은 어림한 길…」까지 붙였다(배포본 2026-09-29, S15P21E201-1830). 컴포넌트 밖에 한 번만 만든다 — 매번 새 배열이면
+ * 지도 효과가 다시 돈다(RouteMap 의 NO_POINT_LAYERS 와 같은 이유).
+ */
+const NO_ROUTES: MapRouteLayer[] = [];
+/** preview=ui 의 기준점 — 해운대해수욕장 앞. */
+const PREVIEW_ORIGIN = { latitude: 35.15870, longitude: 129.16040 };
 
 type LocationState = 'detecting' | 'granted' | 'denied';
 
 export default function Bus() {
   const router = useRouter();
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
+  // 역 이름 — 한국어가 아닌 화면은 부산교통공사 공식 영문 역명(「City Hall Station」, S15P21E201-1874). 역 안내판·안내방송이
+  // 그 이름이라서다. 공식 이름이 없는 역만 읽는 법으로 적는다. 안내판에서 찾을 수 있게 한글 역 이름을 옆에 같이 둔다(1867).
+  const stationTitle = (name: string) => (language === 'ko' ? `${name}역` : stationEnglishTitle(name) ?? txf(tx, '%s역', '%s Station', romanizeKorean(name) ?? name));
   const { preview } = useLocalSearchParams<{ preview?: string }>();
   const { accessToken, ready } = useAuth();
   const locationGate = useLocationGate(accessToken);
@@ -46,25 +65,32 @@ export default function Bus() {
   const [reason, setReason] = useState<BusBlockedReason | null>(null);
   const [stops, setStops] = useState<BusStop[]>([]);
   const [checkedAt, setCheckedAt] = useState<Date | null>(null);
+  const [selectedId, setSelectedId] = useState('');
+  // 목적지로 가는 버스 번호들 — 아래 도착 목록에서 강조한다(S15P21E201-1834).
+  const [lines, setLines] = useState<Set<string>>(() => new Set());
 
   // 화면 상태를 눈으로 확인하기 위한 자리 — exchange.tsx 의 preview=ui 와 같은 방식이다.
   // 버스 도착은 로그인해야 받을 수 있어서, 로그인 없이 "시간이 찍힌 화면" 을 볼 길이 달리
   // 없다. __DEV__ 에서만 산다 — 배포본에는 이 가지가 아예 안 들어간다.
   const previewStops: BusStop[] = [
-    { nodeId: 'p1', nodeName: '해운대해수욕장', lat: 0, lng: 0, arrivals: [
+    // 「어디로 가세요?」의 실시간 도착 맞물림을 보려고 운영 실측 정류장 이름을 쓴다(해운대→자갈치 = 1003번, 이 정류장에서 탄다).
+    { nodeId: 'p1', nodeName: '해운대해수욕장입구', lat: 35.15976, lng: 129.16098, arrivals: [
+      { routeNo: '1003', arrivalSeconds: 485, remainingStops: 4, vehicleType: null },
       { routeNo: '139', arrivalSeconds: 95, remainingStops: 1, vehicleType: null },
       { routeNo: '1001', arrivalSeconds: 420, remainingStops: 4, vehicleType: null },
       { routeNo: '307', arrivalSeconds: null, remainingStops: null, vehicleType: null },
     ] },
-    { nodeId: 'p2', nodeName: '해운대시장', lat: 0, lng: 0, arrivals: [
+    { nodeId: 'p2', nodeName: '해운대시장', lat: 35.16195, lng: 129.16042, arrivals: [
       { routeNo: '40', arrivalSeconds: 30, remainingStops: 0, vehicleType: null },
       { routeNo: '100', arrivalSeconds: 1260, remainingStops: 11, vehicleType: null },
     ] },
-    { nodeId: 'p3', nodeName: '중동역', lat: 0, lng: 0, arrivals: [] },
+    { nodeId: 'p3', nodeName: '중동역', lat: 35.16614, lng: 129.16816, arrivals: [] },
   ];
 
   const load = useCallback(async (at: { latitude: number; longitude: number }) => {
     if (__DEV__ && preview === 'ui') {
+      // 지도와 거리를 보려면 기준점도 있어야 한다 — 해운대해수욕장 앞.
+      setCoords(PREVIEW_ORIGIN); setLocationState('granted');
       setStops(sortStops(previewStops)); setCheckedAt(new Date()); setState('ready');
       return;
     }
@@ -133,10 +159,11 @@ export default function Bus() {
   useEffect(() => {
     if (!ready) return;
     void (async () => {
+      if (__DEV__ && preview === 'ui') { void load(PREVIEW_ORIGIN); return; }
       const granted = await restoreGrantedLocation();
       void load(granted ?? BUSAN_CENTER);
     })();
-  }, [ready, restoreGrantedLocation, load]);
+  }, [ready, restoreGrantedLocation, load, preview]);
 
   function blockedText(r: BusBlockedReason): { title: string; body: string } {
     if (r === 'signed-out') return {
@@ -169,16 +196,83 @@ export default function Bus() {
     return tx(`${label.minutes}분`, `${label.minutes} min`);
   }
 
+  // 걸어가서 탈 수 있나 — 내 위치를 알 때만 판정한다(모르면 걷는 시간을 모른다).
+  function verdictChip(verdict: ReturnType<typeof catchVerdict>) {
+    if (!verdict) return null;
+    const text = verdict === 'catch' ? tx('✓ 걸어가면 타요', '✓ You can make it') : verdict === 'tight' ? tx('놓칠 수 있어요', 'Tight') : tx('놓쳐요', 'Too soon');
+    return <View style={[styles.verdict, verdict === 'catch' && styles.verdictCatch]}><Text variant="micro" weight="bold" color={verdict === 'catch' ? color.state.success : color.text.muted} numberOfLines={1}>{text}</Text></View>;
+  }
+
+  // 🔴 거리는 내 위치를 알 때만 적는다. 부산 중심에서 잰 「350m」는 걸어갈 사람에게 거짓말이다.
+  const located = locationState === 'granted';
+  const stations = useMemo(() => nearbyStations(coords), [coords]);
+  // 🔴 내 위치를 알면 가까운 정류장부터. 「가장 빨리 오는 버스」 순이면 걸어서 7분 걸리는 정류장의 「곧 도착」(못 타는 버스)이
+  //    맨 위에 왔다. 지도 번호도 이 순서를 따른다 — 목록의 「1」과 지도의 「1」이 같은 곳이어야 한다.
+  const orderedStops = useMemo(() => (located && coords
+    ? [...stops].sort((a, b) => straightDistanceM(coords, { latitude: a.lat, longitude: a.lng }) - straightDistanceM(coords, { latitude: b.lat, longitude: b.lng }))
+    : stops), [located, coords, stops]);
+  const busStops = state === 'ready' ? orderedStops : [];
+  // 버스 정류장은 목록과 같은 번호로 찍는다 — 지도에서 본 「2」를 목록에서 바로 찾게.
+  // 🔴 지하철역은 「지하철」 표시로 따로 찍는데, 버스 정류장이 하나도 없을 때(로그인 전·정보 없음)는 역을 번호로 찍는다.
+  //    폰 지도(RouteMap.native)는 번호 장소가 없으면 빈 칸만 그려서, 역만 있는 지도가 아예 안 떴다.
+  const stationsNumbered = busStops.length === 0;
+  const mapStops: MapStop[] = useMemo(() => (stationsNumbered
+    ? stations.map((station, index) => ({ id: `subway-${station.name}`, number: index + 1, name: `${station.name}역`, latitude: station.latitude, longitude: station.longitude }))
+    : busStops.map((stop, index) => ({ id: stop.nodeId, number: index + 1, name: stop.nodeName, latitude: stop.lat, longitude: stop.lng }))),
+  [stationsNumbered, stations, busStops]);
+  const mapPoints: MapPointLayer[] = useMemo(() => (stationsNumbered || stations.length === 0 ? [] : [{
+    id: 'subway',
+    label: tx('지하철', 'Metro'),
+    color: color.state.warning,
+    stops: stations.map((station, index) => ({ id: `subway-${station.name}`, number: index + 1, name: `${station.name}역`, latitude: station.latitude, longitude: station.longitude })),
+  }]), [stationsNumbered, stations, tx]);
+  const showMap = mapStops.length > 0;
+
+  function howFar(lat: number, lng: number) {
+    const meters = straightDistanceM(coords, { latitude: lat, longitude: lng });
+    return txf(tx, '%s · 걸어서 약 %s분', '%s · about %s min walk', distanceText(meters), walkMinutes(meters));
+  }
+
+  // 넓은 화면은 왼쪽 목록·오른쪽 지도 — 지도를 가로로 길게 깔면 목록이 한참 아래로 밀린다(S15P21E201-1830).
+  const mapView = showMap ? (
+    <View style={wide ? styles.mapColumn : styles.mapWrap}>
+      <RouteMap
+        stops={mapStops}
+        points={mapPoints}
+        routes={NO_ROUTES}
+        selectedId={selectedId}
+        onSelect={setSelectedId}
+        // 목록의 정류장·역이나 지도의 점을 누르면 그곳으로 지도를 옮긴다(S15P21E201-1834) — 전에는 강조만 바뀌었다.
+        focusSelected
+        currentLocation={located ? coords : null}
+        // 폰은 낮게 — 지도가 260 이면 도착 정보가 첫 화면 밖으로 밀렸다(UI 캔버스 ⑬). 크게 보려면 지도를 누른다.
+        height={wide ? 520 : 180}
+      />
+    </View>
+  ) : null;
+
   const timeOnly = checkedAt
     ? `${String(checkedAt.getHours()).padStart(2, '0')}:${String(checkedAt.getMinutes()).padStart(2, '0')}`
     : '';
 
   return (
     <Screen scroll wide>
+      <FieldBackButton />
       <Text variant="display" weight="bold">{tx('주변 버스', 'Buses nearby')}</Text>
       <Text variant="caption" color={color.text.body} style={styles.subtitle}>
-        {tx('기다릴지 택시를 탈지, 남은 시간을 보고 정하세요.', 'See how long the wait is, then decide: bus or taxi.')}
+        {tx('어디로 가는지 알려주면 탈 버스와 기다릴 시간을 알려드려요.', 'Tell us where you are going and we will show which bus to take and how long to wait.')}
       </Text>
+
+      {/* 🔴 버스는 목적지가 있어야 탄다 — 「어디로 가세요?」가 먼저다(S15P21E201-1834). */}
+      <DestinationPicker
+        origin={located ? coords : null}
+        stops={stops}
+        accessToken={accessToken}
+        tx={tx}
+        onLinesChange={setLines}
+        onAskLocation={() => void askForLocation()}
+        askLabel={canAskAgain ? tx('내 위치로 찾기', 'Use my location') : tx('설정 열기', 'Open settings')}
+      />
 
       {/* 어느 좌표를 기준으로 찾았는지 숨기지 않는다 — 내 위치가 아니면 그렇게 말한다. */}
       <View style={styles.originRow}>
@@ -188,7 +282,7 @@ export default function Bus() {
         <Text variant="caption" color={color.text.muted} style={styles.originText}>
           {locationState === 'granted'
             ? tx('내 위치 기준', 'From your location')
-            : tx('부산 중심 기준 · 내 위치를 켜면 더 정확해요', 'From central Busan · turn on location for accuracy')}
+            : tx('부산 중심 기준 · 내 위치를 켜면 걸어서 몇 분인지 알려드려요', 'From central Busan · turn on location to see walking times')}
         </Text>
         {locationState !== 'granted' ? (
           <Pressable
@@ -204,71 +298,123 @@ export default function Bus() {
         ) : null}
       </View>
 
-      {state === 'loading' ? (
-        <View style={styles.card}><Text color={color.text.muted}>{tx('도착 정보를 확인하고 있어요…', 'Checking arrivals…')}</Text></View>
-      ) : null}
-
-      {state === 'blocked' && reason ? (
-        <View accessibilityLiveRegion="polite" style={styles.card}>
-          <Text variant="title" weight="bold">{blockedText(reason).title}</Text>
-          <Text color={color.text.body} style={styles.blockedBody}>{blockedText(reason).body}</Text>
-          {/* — 준비되지 않은 기능에는 「다시 시도」를 안 보여준다.
-              눌러도 달라지지 않는 단추는 없는 것보다 나쁘다 — 사람을 거기 묶어 둔다.
-          */}
-          {reason === 'signed-out'
-            ? <Button label={tx('로그인하기', 'Sign in')} containerStyle={styles.cta} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/field/transit' } })} />
-            : reason === 'not-ready'
-              ? null
-              : <Button label={tx('다시 시도', 'Try again')} variant="tertiary" containerStyle={styles.cta} onPress={() => void load(coords)} />}
-        </View>
-      ) : null}
-
-      {state === 'ready' && stops.length === 0 ? (
-        <View style={styles.card}>
-          <Text variant="title" weight="bold">{tx('근처에 정류소가 없어요', 'No stops nearby')}</Text>
-          <Text color={color.text.body} style={styles.blockedBody}>
-            {tx('조금 움직인 뒤 다시 찾아보세요.', 'Move a little and search again.')}
-          </Text>
-          <Button label={tx('다시 찾기', 'Search again')} variant="tertiary" containerStyle={styles.cta} onPress={() => void load(coords)} />
-        </View>
-      ) : null}
-
-      {state === 'ready' && stops.length > 0 ? (
-        <>
-          <View style={[styles.list, wide && styles.listWide]}>
-            {stops.map((stop) => (
-              <View key={stop.nodeId} style={[styles.card, wide && styles.cardWide]}>
-                <Text variant="body" weight="bold">{stop.nodeName}</Text>
-                {stop.arrivals.length === 0 ? (
-                  <Text variant="caption" color={color.text.muted}>{tx('지금 오는 버스가 없어요', 'No buses coming right now')}</Text>
-                ) : (
-                  stop.arrivals.map((arrival, index) => (
-                    <View key={`${stop.nodeId}-${arrival.routeNo}-${index}`} style={styles.arrivalRow}>
-                      <View style={styles.routeBadge}>
-                        <Text variant="caption" weight="bold" color={color.text.onAction}>{arrival.routeNo}</Text>
-                      </View>
-                      <Text variant="title" weight="bold" style={styles.arrivalTime}>{arrivalText(arrival.arrivalSeconds)}</Text>
-                      {/* 몇 정류장 전인지도 없을 수 있다 — 없으면 아예 안 적는다.
-                          0은 안 적는다. 「0정류장 전」은 사람이 쓰는 말이 아니고
-                          그 경우는 옆의 「곧 도착」이 이미 같은 것을 말하고 있다.
-                      */}
-                      {arrival.remainingStops != null && arrival.remainingStops > 0 ? (
-                        <Text variant="caption" color={color.text.muted}>{tx(`${arrival.remainingStops}정류장 전`, `${arrival.remainingStops} stops away`)}</Text>
-                      ) : null}
-                    </View>
-                  ))
-                )}
-              </View>
-            ))}
-          </View>
-          <Button label={tx('다시 불러오기', 'Refresh')} variant="tertiary" containerStyle={styles.refresh} onPress={() => void load(coords)} />
-          {checkedAt ? (
-            <Text variant="caption" color={color.text.muted} style={styles.checkedAt}>
-              {txf(tx, '%s 기준이에요', 'As of %s', timeOnly)}
-            </Text>
+      {!wide ? mapView : null}
+      <View style={wide && showMap ? styles.columns : undefined}>
+        <View style={wide && showMap ? styles.listColumn : undefined}>
+          {/* 🔴 「주변 버스」 화면이라 버스가 먼저다 — 전에는 지하철역 목록이 위에 있어 도착 정보가 첫 화면 밖이었다.
+              이 목록은 목적지와 상관없이 «이 근처»에 오는 버스다 — 위 「어디로 가세요?」의 답과 헷갈리지 않게 제목으로 밝힌다. */}
+          <Text variant="body" weight="bold" style={styles.sectionTitle}>{tx('이 근처에서 곧 오는 버스', 'Buses arriving nearby')}</Text>
+          {state === 'loading' ? (
+            <View style={styles.card}><Text color={color.text.muted}>{tx('도착 정보를 확인하고 있어요…', 'Checking arrivals…')}</Text></View>
           ) : null}
-        </>
-      ) : null}
+
+          {state === 'blocked' && reason ? (
+            <View accessibilityLiveRegion="polite" style={styles.card}>
+              <Text variant="title" weight="bold">{blockedText(reason).title}</Text>
+              <Text color={color.text.body} style={styles.blockedBody}>{blockedText(reason).body}</Text>
+              {/* — 준비되지 않은 기능에는 「다시 시도」를 안 보여준다.
+                  눌러도 달라지지 않는 단추는 없는 것보다 나쁘다 — 사람을 거기 묶어 둔다.
+              */}
+              {reason === 'signed-out'
+                ? <Button label={tx('로그인하기', 'Sign in')} containerStyle={styles.cta} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/field/transit' } })} />
+                : reason === 'not-ready'
+                  ? null
+                  : <Button label={tx('다시 시도', 'Try again')} variant="tertiary" containerStyle={styles.cta} onPress={() => void load(coords)} />}
+            </View>
+          ) : null}
+
+          {state === 'ready' && stops.length === 0 ? (
+            <View style={styles.card}>
+              <Text variant="title" weight="bold">{tx('근처에 정류소가 없어요', 'No stops nearby')}</Text>
+              <Text color={color.text.body} style={styles.blockedBody}>
+                {tx('조금 움직인 뒤 다시 찾아보세요.', 'Move a little and search again.')}
+              </Text>
+              <Button label={tx('다시 찾기', 'Search again')} variant="tertiary" containerStyle={styles.cta} onPress={() => void load(coords)} />
+            </View>
+          ) : null}
+
+          {state === 'ready' && stops.length > 0 ? (
+            <>
+              <View style={[styles.list, wide && !showMap && styles.listWide]}>
+                {orderedStops.map((stop, stopIndex) => (
+                  <Pressable
+                    key={stop.nodeId}
+                    accessibilityRole="button"
+                    accessibilityLabel={txf(tx, '%s 지도에서 보기', 'Show %s on the map', stop.nodeName)}
+                    onPress={() => setSelectedId(stop.nodeId)}
+                    style={[styles.card, wide && !showMap && styles.cardWide, selectedId === stop.nodeId && styles.selectedCard]}
+                  >
+                    <View style={styles.stopHead}>
+                      <View style={styles.numberBadge}><Text variant="micro" weight="bold" color={color.text.onAction}>{stopIndex + 1}</Text></View>
+                      <View style={styles.grow}>
+                        <Text variant="body" weight="bold">{stop.nodeName}</Text>
+                        {located ? <Text variant="caption" color={color.text.muted}>{howFar(stop.lat, stop.lng)}</Text> : null}
+                      </View>
+                    </View>
+                    {stop.arrivals.length === 0 ? (
+                      <Text variant="caption" color={color.text.muted}>{tx('지금 오는 버스가 없어요', 'No buses coming right now')}</Text>
+                    ) : (
+                      stop.arrivals.map((arrival, index) => (
+                        <View key={`${stop.nodeId}-${arrival.routeNo}-${index}`} style={styles.arrivalRow}>
+                          <View style={[styles.routeBadge, lines.has(arrival.routeNo) && styles.routeBadgeMatch]}>
+                            <Text variant="caption" weight="bold" color={color.text.onAction}>{arrival.routeNo}</Text>
+                          </View>
+                          <Text variant="title" weight="bold" numberOfLines={1} style={styles.arrivalTime}>{arrivalText(arrival.arrivalSeconds)}</Text>
+                          {/* 몇 정류장 전인지도 없을 수 있다 — 없으면 아예 안 적는다.
+                              0은 안 적는다. 「0정류장 전」은 사람이 쓰는 말이 아니고
+                              그 경우는 옆의 「곧 도착」이 이미 같은 것을 말하고 있다.
+                          */}
+                          {arrival.remainingStops != null && arrival.remainingStops > 0 ? (
+                            <Text variant="caption" color={color.text.muted} style={styles.stopsAway}>{tx(`${arrival.remainingStops}정류장 전`, `${arrival.remainingStops} stops away`)}</Text>
+                          ) : null}
+                          {located ? verdictChip(catchVerdict(arrival.arrivalSeconds, walkMinutes(straightDistanceM(coords, { latitude: stop.lat, longitude: stop.lng })))) : null}
+                        </View>
+                      ))
+                    )}
+                  </Pressable>
+                ))}
+              </View>
+              <Button label={tx('다시 불러오기', 'Refresh')} variant="tertiary" containerStyle={styles.refresh} onPress={() => void load(coords)} />
+              {checkedAt ? (
+                <Text variant="caption" color={color.text.muted} style={styles.checkedAt}>
+                  {txf(tx, '%s 기준이에요', 'As of %s', timeOnly)}
+                </Text>
+              ) : null}
+            </>
+          ) : null}
+
+          {stations.length > 0 ? (
+            <View style={[styles.card, styles.stationCard, styles.stationCardAfter]}>
+              <Text variant="body" weight="bold">{tx('가까운 지하철역', 'Nearby metro stations')}</Text>
+              {stations.map((station, index) => {
+                const id = `subway-${station.name}`;
+                return (
+                  <Pressable
+                    key={id}
+                    accessibilityRole="button"
+                    accessibilityLabel={txf(tx, '%s 지도에서 보기', 'Show %s on the map', stationTitle(station.name))}
+                    onPress={() => setSelectedId(id)}
+                    style={[styles.stationRow, selectedId === id && styles.selectedRow]}
+                  >
+                    {stationsNumbered ? <View style={styles.numberBadge}><Text variant="micro" weight="bold" color={color.text.onAction}>{index + 1}</Text></View> : null}
+                    <View style={styles.grow}>
+                      <Text weight="bold">{stationTitle(station.name)}{language === 'ko' ? null : <Text variant="caption" color={color.text.muted}>{`  ${station.name}역`}</Text>}</Text>
+                      {located ? <Text variant="caption" color={color.text.muted}>{howFar(station.latitude, station.longitude)}</Text> : null}
+                    </View>
+                    <View style={styles.lineChips}>
+                      {station.lines.map((line) => (
+                        <View key={line} style={styles.lineChip}><Text variant="micro" weight="bold" color={color.state.warning}>{txf(tx, '%s호선', 'Line %s', line)}</Text></View>
+                      ))}
+                    </View>
+                  </Pressable>
+                );
+              })}
+            </View>
+          ) : null}
+
+        </View>
+        {wide ? mapView : null}
+      </View>
       {locationGate.sheet}
     </Screen>
   );
@@ -281,12 +427,33 @@ const styles = StyleSheet.create({
   checkedAt: { marginTop: spacing[2], textAlign: 'center' },
   smallButton: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.tint },
   list: { gap: spacing[3] },
+  mapWrap: { marginBottom: spacing[4] },
+  columns: { flexDirection: 'row', gap: spacing[6], alignItems: 'flex-start' },
+  listColumn: { flex: 1, minWidth: 0 },
+  mapColumn: { flex: 1 },
+  stationCard: { marginBottom: spacing[4], gap: spacing[2] },
+  stationCardAfter: { marginTop: spacing[4] },
+  sectionTitle: { marginBottom: spacing[3] },
+  verdict: { paddingHorizontal: spacing[2], paddingVertical: 2, borderRadius: radius.full, backgroundColor: color.surface.tint },
+  verdictCatch: { backgroundColor: color.state.successBg },
+  stationRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], minHeight: 44, paddingVertical: spacing[1], paddingHorizontal: spacing[2], marginHorizontal: -spacing[2], borderRadius: radius.md },
+  selectedRow: { backgroundColor: color.surface.tint },
+  selectedCard: { backgroundColor: color.surface.tint },
+  stopHead: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
+  numberBadge: { width: 24, height: 24, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
+  lineChips: { flexDirection: 'row', gap: spacing[1] },
+  lineChip: { paddingHorizontal: spacing[2], paddingVertical: 2, borderRadius: radius.full, borderWidth: 1, borderColor: color.state.warning },
+  grow: { flex: 1 },
   listWide: { flexDirection: 'row', flexWrap: 'wrap' },
   card: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
   cardWide: { flexGrow: 1, flexBasis: 320, maxWidth: 480 },
   arrivalRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
+  // 목적지로 가는 버스 — 경로 상세의 버스 칩과 같은 색(S15P21E201-1834).
+  routeBadgeMatch: { backgroundColor: color.state.info },
   routeBadge: { minWidth: 56, minHeight: 32, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[2], borderRadius: radius.sm, backgroundColor: color.brand.navy },
-  arrivalTime: { flex: 1 },
+  // 🔴 좁은 두 칸 화면(폴드)에서 「13분」이 「13 / 분」으로 꺾였다(S15P21E201-1984) — 도착 시각은 줄지 않고, 옆 글이 줄어든다.
+  arrivalTime: { flexGrow: 1, flexShrink: 0 },
+  stopsAway: { flexShrink: 1 },
   blockedBody: { lineHeight: 22 },
   cta: { marginTop: spacing[2] },
   refresh: { marginTop: spacing[4] },

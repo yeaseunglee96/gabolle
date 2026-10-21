@@ -103,6 +103,19 @@ describe('통화 고르기', () => {
     expect(pickRate([usd, jpy], 'EUR')?.currencyCode).toBe('USD');
   });
 
+  // 🔴 S15P21E201-1920 — 서버(수출입은행)는 알파벳순(AED 가 맨 앞)이고, 위안은 CNH 로만 오며 TWD 는 없다.
+  //    중국어 화면이 디르함(AED)으로 시작했다(실기기 2026-10-02).
+  const aed: ExchangeRate = { currencyCode: 'AED', currencyName: '아랍에미리트 디르함', baseRate: 369, buyingRate: 365, sellingRate: 373 };
+  const cnh: ExchangeRate = { currencyCode: 'CNH', currencyName: '위안화', baseRate: 190, buyingRate: 188, sellingRate: 192 };
+
+  it('🔴 CNY 를 찾으면 CNH(역외 위안)를 준다', () => {
+    expect(pickRate([aed, cnh, usd], 'CNY')?.currencyCode).toBe('CNH');
+  });
+
+  it('🔴 없는 통화(TWD)는 목록 첫 통화가 아니라 USD 로 떨어진다', () => {
+    expect(pickRate([aed, cnh, usd], 'TWD')?.currencyCode).toBe('USD');
+  });
+
   it('목록이 비면 null 이다', () => {
     expect(pickRate([], 'USD')).toBeNull();
   });

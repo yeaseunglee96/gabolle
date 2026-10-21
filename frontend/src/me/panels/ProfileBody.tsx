@@ -4,7 +4,7 @@
 // 「나」에 해당하는 것만 떼어 왔다 — 사진 · 닉네임 · 이메일 · 언어 · 회원 탈퇴.
 import { deviceAvatarKey, loadProfileAvatar } from '@/me/profileAvatar';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Modal, Pressable, Share, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Image, Modal, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -13,6 +13,7 @@ import { ApiClientError, APP_WEB_BASE_URL } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
 import { getAccountDeletionPreview, type AccountDeletionPreview } from '@/auth/authApi';
 import { uploadStoryImage } from '@/social/stories';
+import { resizeForUpload } from '@/social/imageResize';
 import { Button } from '@/components/Button';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
@@ -20,6 +21,7 @@ import { useI18n } from '@/i18n';
 import { useLayout } from '@/layout/useLayout';
 import { usePlan } from '@/plan/PlanProvider';
 import { txf } from '@/i18n/format';
+import { shareLink, type ShareOutcome } from '@/utils/shareLink';
 
 // 박재현 님 계약 — 서버가 대소문자·앞뒤 공백까지 정확히 이 값과 비교한다.
 const DELETE_CONFIRMATION_PHRASE = 'DELETE';
@@ -36,22 +38,31 @@ export function ProfileBody({ startDeletion = false }: { startDeletion?: boolean
   const router = useRouter();
   // 데스크톱 판인가 — 폭만이 아니라 폴드 펼침 가로까지, 판정은 useLayout 한 곳(S15P21E201-1563).
   const desktop = useLayout().desktop;
+  const [shareNotice, setShareNotice] = useState('');
 
 
   async function shareProfile() {
     if (!user?.userId) return;
     const url = `${APP_WEB_BASE_URL}/user/${user.userId}`;
-    try {
-      await Share.share({ title: tx('가볼래 프로필 공유', 'Share GABOLLE profile'), message: txf(tx, '제 가볼래 프로필을 확인해 보세요.\n%s', 'Check out my GABOLLE profile.\n%s', url), url });
-    } catch {
-      // 사용자가 공유 시트를 닫은 것도 실패로 취급하지 않는다 — 별도 안내가 필요 없다.
-    }
+    // 사용자가 공유 시트를 닫은 것은 실패로 취급하지 않는다. 웹에서 공유를 못 하는 브라우저는 링크를 복사한다(S15P21E201-1958).
+    let outcome: ShareOutcome;
+    try { outcome = await shareLink({ title: tx('가볼래 프로필 공유', 'Share GABOLLE profile'), message: txf(tx, '제 가볼래 프로필을 확인해 보세요.\n%s', 'Check out my GABOLLE profile.\n%s', url), url }); } catch { outcome = 'dismissed'; }
+    setShareNotice(outcome === 'copied' ? tx('링크를 복사했어요. 붙여넣어 공유하세요.', 'Link copied. Paste it to share.') : outcome === 'failed' ? url : '');
   }
 
   const visualPreview = __DEV__ && preview === 'ui';
   const profileOwner = user?.userId ?? (visualPreview ? 'preview' : null);
   const [displayName, setDisplayName] = useState(user?.displayName ?? (visualPreview ? '진미리' : ''));
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
+  // 🔴 고른 사진은 「저장」을 누를 때 올린다(S15P21E201-1906) — 전에는 고르는 즉시 계정에 붙어, 이름은 저장해야 바뀌는데
+  //    사진만 저장 전에 바뀌었다(팀원 보고: 「저장 안 눌렀는데 내리니 바뀌어 있음」). 그때까지는 미리보기만 한다.
+  type PendingPhoto = { uri: string; fileName?: string | null; mimeType?: string | null };
+  const [pendingAvatar, setPendingAvatar] = useState<PendingPhoto | null>(null);
+  const [pendingCover, setPendingCover] = useState<PendingPhoto | null>(null);
+  // 「기본으로」도 저장할 때 적용한다 — 전에는 누르는 즉시 계정에서 사진을 뗐다. 같은 화면의 다른 것은 「저장」을 눌러야
+  // 바뀌는데 이것만 바로 바뀌어서 「저장 안 눌렀는데 바뀌어 있다」였다(사용자 지적 2026-10-02).
+  const [avatarReset, setAvatarReset] = useState(false);
+  const [coverReset, setCoverReset] = useState(false);
   const [pickingAvatar, setPickingAvatar] = useState(false);
   const [pickingCover, setPickingCover] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -76,7 +87,7 @@ export function ProfileBody({ startDeletion = false }: { startDeletion?: boolean
 
   const trimmed = displayName.trim();
   const nameValid = trimmed.length >= 1 && trimmed.length <= NAME_MAX;
-  const unchanged = trimmed === (user?.displayName ?? '');
+  const unchanged = trimmed === (user?.displayName ?? '') && !pendingAvatar && !pendingCover && !avatarReset && !coverReset;
 
   async function chooseAvatar() {
     if (!profileOwner || pickingAvatar) return;
@@ -89,18 +100,13 @@ export function ProfileBody({ startDeletion = false }: { startDeletion?: boolean
       const nextUri = asset.base64 ? `data:${asset.mimeType ?? 'image/jpeg'};base64,${asset.base64}` : asset.uri;
       // 고른 것을 먼저 보여준다 — 올리는 동안 빈 자리로 두면 안 고른 것처럼 보인다.
       setAvatarUri(nextUri);
+      setAvatarReset(false);
       // — 계정에 붙인다. 파일은 기존 업로드 자리로 올리고 그 주소만
       // 계정에 붙인다(인증 경로가 파일을 직접 받지 않는다). 로그인 안 한 상태(미리보기)면
       // 지금까지처럼 이 기기에만 둔다.
       if (accessToken && !visualPreview) {
-        const uploaded = await uploadStoryImage({ uri: asset.uri, fileName: asset.fileName, mimeType: asset.mimeType }, accessToken);
-        if (uploaded.state !== 'success') {
-          setFeedback({ danger: true, text: uploaded.message });
-          return;
-        }
-        await updateProfile({ avatarUrl: uploaded.imageUrl });
-        setAvatarUri(uploaded.imageUrl);
-        setFeedback({ danger: false, text: tx('프로필 사진을 계정에 저장했어요. 다른 기기에서도 보여요.', 'Saved to your account — it shows on your other devices too.') });
+        setPendingAvatar({ uri: asset.uri, fileName: asset.fileName, mimeType: asset.mimeType });
+        setFeedback({ danger: false, text: tx('「저장」을 누르면 프로필 사진이 바뀌어요.', 'Press Save to apply the new profile photo.') });
         return;
       }
       await AsyncStorage.setItem(deviceAvatarKey(profileOwner), nextUri);
@@ -115,16 +121,15 @@ export function ProfileBody({ startDeletion = false }: { startDeletion?: boolean
     if (!profileOwner) return;
     // 기기에 남은 옛 사진과 계정에 붙은 사진을 둘 다 뗀다 — 한쪽만 떼면 화면을 다시 열 때
     // 지운 사진이 되살아난다.
-    await AsyncStorage.removeItem(deviceAvatarKey(profileOwner));
+    setPendingAvatar(null);
     setAvatarUri(null);
     if (accessToken && !visualPreview && user?.avatarUrl) {
-      try {
-        await updateProfile({ avatarUrl: null });
-      } catch {
-        setFeedback({ danger: true, text: tx('계정에서 사진을 떼지 못했어요. 잠시 후 다시 시도해 주세요.', 'Could not remove the photo from your account. Please try again shortly.') });
-        return;
-      }
+      setAvatarReset(true);
+      setFeedback({ danger: false, text: tx('「저장」을 누르면 기본 프로필 사진으로 돌아가요.', 'Press Save to go back to the default profile photo.') });
+      return;
     }
+    // 로그인 전(이 기기에만 둔 사진) — 계정이 없으니 지금 지운다
+    await AsyncStorage.removeItem(deviceAvatarKey(profileOwner));
     setFeedback({ danger: false, text: tx('기본 프로필로 돌아왔어요.', 'Your default profile was restored.') });
   }
   // ── 커버 사진 (S15P21E201-1309) ──────────────────────────────────────────
@@ -141,28 +146,22 @@ export function ProfileBody({ startDeletion = false }: { startDeletion?: boolean
       const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: true, aspect: [3, 1], quality: 0.7 });
       if (result.canceled) return;
       const asset = result.assets[0];
-      const uploaded = await uploadStoryImage({ uri: asset.uri, fileName: asset.fileName, mimeType: asset.mimeType }, accessToken);
-      if (uploaded.state !== 'success') {
-        setFeedback({ danger: true, text: uploaded.message });
-        return;
-      }
-      await updateProfile({ coverUrl: uploaded.imageUrl });
-      setFeedback({ danger: false, text: tx('커버 사진을 바꿨어요.', 'Your cover photo was updated.') });
+      // 🔴 커버만 줄이지 않고 원본 그대로 올려 수 MB 가 됐다 — 기록 사진과 같이 긴 변 1600px 로 줄인다(S15P21E201-1904). 줄이기에 실패하면 원본.
+      const small = await resizeForUpload(asset.uri).catch(() => null);
+      setPendingCover(small ? { uri: small.uri, fileName: 'cover.jpg', mimeType: 'image/jpeg' } : { uri: asset.uri, fileName: asset.fileName, mimeType: asset.mimeType });
+      setCoverReset(false);
+      setFeedback({ danger: false, text: tx('「저장」을 누르면 커버 사진이 바뀌어요.', 'Press Save to apply the new cover photo.') });
     } catch (cause) {
       setFeedback({ danger: true, text: coverErrorText(cause) });
     } finally {
       setPickingCover(false);
     }
   }
-  async function removeCover() {
+  function removeCover() {
     if (!accessToken || !user?.coverUrl) return;
-    setFeedback(null);
-    try {
-      await updateProfile({ coverUrl: null });
-      setFeedback({ danger: false, text: tx('기본 커버로 돌아왔어요.', 'The default cover was restored.') });
-    } catch (cause) {
-      setFeedback({ danger: true, text: coverErrorText(cause) });
-    }
+    setPendingCover(null);
+    setCoverReset(true);
+    setFeedback({ danger: false, text: tx('「저장」을 누르면 기본 커버로 돌아가요.', 'Press Save to go back to the default cover.') });
   }
   /**
    * 🔴 거절 둘을 **다른 말로** 한다. 서버가 일부러 갈라서 보내 준다.
@@ -184,7 +183,26 @@ export function ProfileBody({ startDeletion = false }: { startDeletion?: boolean
     setSaving(true);
     setFeedback(null);
     try {
-      if (user) await updateProfile({ displayName: trimmed });
+      if (user) {
+        const patch: { displayName?: string; avatarUrl?: string | null; coverUrl?: string | null } = {};
+        if (avatarReset) patch.avatarUrl = null;
+        if (coverReset) patch.coverUrl = null;
+        if (trimmed !== (user.displayName ?? '')) patch.displayName = trimmed;
+        for (const [photo, key] of [[pendingAvatar, 'avatarUrl'], [pendingCover, 'coverUrl']] as const) {
+          if (!photo || !accessToken) continue;
+          const uploaded = await uploadStoryImage(photo, accessToken);
+          if (uploaded.state !== 'success') { setFeedback({ danger: true, text: uploaded.message }); return; }
+          patch[key] = uploaded.imageUrl;
+        }
+        if (Object.keys(patch).length) await updateProfile(patch);
+        if (patch.avatarUrl) setAvatarUri(patch.avatarUrl);
+        // 기기에 남은 옛 사진도 뗀다 — 한쪽만 떼면 화면을 다시 열 때 지운 사진이 되살아난다
+        if (avatarReset && profileOwner) await AsyncStorage.removeItem(deviceAvatarKey(profileOwner));
+        setPendingAvatar(null);
+        setPendingCover(null);
+        setAvatarReset(false);
+        setCoverReset(false);
+      }
       setFeedback({ danger: false, text: visualPreview && !user ? tx('미리보기에서 변경 모습을 확인했어요.', 'Preview changes are displayed.') : tx('프로필을 저장했어요.', 'Your profile was saved.') });
     } catch (cause) {
       setFeedback({ danger: true, text: cause instanceof ApiClientError ? cause.message : tx('프로필을 저장하지 못했어요.', 'Could not save your profile.') });
@@ -234,11 +252,6 @@ export function ProfileBody({ startDeletion = false }: { startDeletion?: boolean
     <>
       {/* 🔴 기록·팔로워·팔로잉 타일과 「내 피드 보기」는 뺐다(2026-09-21 실기, S15P21E201-1401) — 마이페이지 프로필 카드가
           같은 숫자·같은 문을 이미 갖고 있어 프로필 편집에 들어오면 한 번 더 보였다. 여기만 있는 「프로필 공유」는 남긴다. */}
-      {user ? (
-        <View style={styles.shareRow}>
-          <Button label={tx('프로필 공유', 'Share profile')} variant="tertiary" compact onPress={() => void shareProfile()} />
-        </View>
-      ) : null}
 
       {/* 🔴 로그인 전에는 아예 안 그린다. 커버는 계정에서만 읽히므로 기기에만 저장하면
           아무 데도 안 나온다 — 「저장했어요」라고 말하고 아무 일도 안 일어나는 것이 제일 나쁘다. */}
@@ -246,11 +259,12 @@ export function ProfileBody({ startDeletion = false }: { startDeletion?: boolean
         <View style={styles.coverCard}>
           <View style={styles.coverPreview}>
             <Image
-              source={user.coverUrl ? { uri: user.coverUrl } : DEFAULT_COVER}
+              source={pendingCover ? { uri: pendingCover.uri } : user.coverUrl && !coverReset ? { uri: user.coverUrl } : DEFAULT_COVER}
               resizeMode="cover"
               accessibilityLabel={user.coverUrl ? tx('현재 커버 사진', 'Current cover photo') : tx('기본 커버 사진', 'Default cover photo')}
               style={styles.coverPhoto}
             />
+            {pendingCover || coverReset ? <View style={styles.unsavedBadge}><Text variant="micro" weight="bold" color={color.text.onAction}>{tx('저장 전', 'Not saved')}</Text></View> : null}
           </View>
           <View style={styles.coverActions}>
             <View style={styles.coverCopy}>
@@ -264,8 +278,8 @@ export function ProfileBody({ startDeletion = false }: { startDeletion?: boolean
             <Pressable accessibilityRole="button" disabled={pickingCover} onPress={() => void chooseCover()} style={({ pressed }) => [styles.photoButton, pressed && styles.pressed]}>
               <Text variant="caption" weight="bold" color={color.brand.navy}>{pickingCover ? tx('올리는 중…', 'Uploading…') : tx('바꾸기', 'Change')}</Text>
             </Pressable>
-            {user.coverUrl ? (
-              <Pressable accessibilityRole="button" onPress={() => void removeCover()} style={({ pressed }) => [styles.photoReset, pressed && styles.pressed]}>
+            {(user.coverUrl && !coverReset) || pendingCover ? (
+              <Pressable accessibilityRole="button" onPress={() => (pendingCover && !user.coverUrl ? setPendingCover(null) : removeCover())} style={({ pressed }) => [styles.photoReset, pressed && styles.pressed]}>
                 <Text variant="caption" weight="medium">{tx('기본으로', 'Use default')}</Text>
               </Pressable>
             ) : null}
@@ -279,6 +293,7 @@ export function ProfileBody({ startDeletion = false }: { startDeletion?: boolean
             {avatarUri
               ? <Image source={{ uri: avatarUri }} resizeMode="cover" accessibilityLabel={tx('현재 프로필 사진', 'Current profile photo')} style={styles.avatarPhoto} />
               : <Text variant="display" weight="bold" color={color.text.onAction}>{initial}</Text>}
+            {pendingAvatar || avatarReset ? <View style={styles.unsavedAvatar}><Text variant="micro" weight="bold" color={color.text.onAction}>{tx('저장 전', 'Not saved')}</Text></View> : null}
           </View>
           <Pressable accessibilityRole="button" disabled={pickingAvatar} onPress={() => void chooseAvatar()} style={({ pressed }) => [styles.photoButton, pressed && styles.pressed]}>
             <Text variant="caption" weight="bold" color={color.brand.navy}>{pickingAvatar ? tx('불러오는 중…', 'Loading…') : tx('사진 바꾸기', 'Change photo')}</Text>
@@ -323,6 +338,18 @@ export function ProfileBody({ startDeletion = false }: { startDeletion?: boolean
         </View>
       </View>
 
+      {/* 「프로필 공유」는 카드 위에 혼자 떠 있었다(S15P21E201-1867) — 무엇을 공유하는지 말하는 한 줄로, 편집 카드 아래에 둔다. */}
+      {user ? (
+        <Pressable accessibilityRole="button" onPress={() => void shareProfile()} style={({ pressed }) => [styles.shareRow, pressed && styles.pressed]}>
+          <View style={styles.shareCopy}>
+            <Text weight="bold">{tx('프로필 공유', 'Share profile')}</Text>
+            <Text variant="caption" color={color.text.muted}>{tx('내 기록을 볼 수 있는 링크를 보내요', 'Send a link to your records')}</Text>
+            {shareNotice ? <Text testID="profile-share-notice" variant="caption" selectable color={color.text.muted}>{shareNotice}</Text> : null}
+          </View>
+          <Text variant="title" color={color.text.muted}>›</Text>
+        </Pressable>
+      ) : null}
+
       <View style={styles.dangerZone}>
         <View style={styles.dangerCopy}>
           <Text weight="bold" color={color.state.danger}>{tx('회원 탈퇴', 'Delete account')}</Text>
@@ -364,10 +391,15 @@ export function ProfileBody({ startDeletion = false }: { startDeletion?: boolean
 }
 
 const styles = StyleSheet.create({
-  shareRow: { alignItems: 'flex-end', marginBottom: spacing[3] },
+  shareRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], minHeight: 64, marginTop: spacing[4], paddingHorizontal: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card },
+  shareCopy: { flex: 1, minWidth: 0, gap: 2 },
   coverCard: { marginBottom: spacing[4], borderRadius: radius.lg, overflow: 'hidden', backgroundColor: color.surface.card },
   coverPreview: { height: 96, backgroundColor: color.surface.soft },
   coverPhoto: { width: '100%', height: '100%' },
+  // 저장 전 표시 — 고른 사진이 미리보기로 보일 뿐 아직 계정에 안 붙었다는 것
+  unsavedBadge: { position: 'absolute', top: spacing[2], left: spacing[2], paddingHorizontal: spacing[2], paddingVertical: 2, borderRadius: radius.full, backgroundColor: color.action.secondary },
+  // 동그란 사진 안이라 아래 가운데에 둔다 — 위 왼쪽이면 둥근 테두리에 잘린다
+  unsavedAvatar: { position: 'absolute', bottom: spacing[2], alignSelf: 'center', paddingHorizontal: spacing[2], paddingVertical: 2, borderRadius: radius.full, backgroundColor: color.action.secondary },
   coverActions: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], padding: spacing[3] },
   coverCopy: { flex: 1, minWidth: 0 },
 

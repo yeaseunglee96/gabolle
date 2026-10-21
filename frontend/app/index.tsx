@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react';
-import { AccessibilityInfo, Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { AccessibilityInfo, Animated, Image, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { Redirect, useIsFocused, useLocalSearchParams, useRouter } from 'expo-router';
 import { PlanStartBar } from '@/home/PlanStartBar';
-import { startBarEditSection, startBarEndDate, startBarFromDraft } from '@/home/startBarValue';
+import { EMPTY_START_BAR, startBarEditSection, startBarEndDate, startBarFromDraft } from '@/home/startBarValue';
 import { ConditionsPromptModal, type ConditionsOutcome } from '@/plan/ConditionsPromptModal';
 import { loadConditionsPrompt, shouldPromptBeforePlan, shouldPromptOnHome, type ConditionsPromptState } from '@/plan/conditionsPromptState';
 import { usePlan } from '@/plan/PlanProvider';
@@ -15,10 +15,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Text } from '@/components/Text';
 import { GabolleMascot } from '@/components/DongbaekMascot';
-import { MyTripCard, PlaceRow, StoryRow } from '@/home/HomeBlocks';
+import { LocalPicksRow, MyTripCard, StoryRow } from '@/home/HomeBlocks';
 import { useHomeData } from '@/home/useHomeData';
 import { AssistantBackdrop, AssistantMenu, assistantSubtitle } from '@/home/AssistantMenu';
 import { useSavedPlaces } from '@/home/useSavedPlaces';
+import { WebFooter } from '@/home/WebFooter';
+import { collapseProgress, searchCollapse, searchHandleNow, setSearchHandle } from '@/home/stickySearchStore';
 import { color, desktopGutter, radius, spacing } from '@/design/tokens';
 import { LANGUAGE_OPTIONS } from '@/i18n/languages';
 import { FLAG_IMAGES, WelcomeLanguageSheet } from '@/onboarding/WelcomeLanguageSheet';
@@ -28,6 +30,8 @@ import { useI18n } from '@/i18n';
 import { useAuth } from '@/auth/AuthProvider';
 import { txf } from '@/i18n/format';
 
+/** 웹 머리의 위 여백 — 따라오는 검색 알약이 검색창 아래 끝을 계산할 때도 쓴다 */
+const HEADER_PADDING_TOP = 56;
 const nightLogo = require('../assets/brand/gabolle-logo-night.png');
 const welcomeImage = require('../assets/images/welcome-busan.png');
 // 첫 화면의 배경 영상 — 바다를 끼고 달리는 부산 전차(assets/video/README.md 에 출처). 소리 없이
@@ -52,6 +56,11 @@ export default function Welcome() {
   const { draft: planDraft, update: updatePlan } = usePlan();
   // 🔴 열 문항 화면이 「날짜 정하기」로 보낸 사람은 고칠 칸을 열어 둔 채로 받는다 — S15P21E201-1350.
   const editSection = startBarEditSection(useLocalSearchParams().edit);
+  // 🔴 시작 바 값은 홈이 든다 — 큰 검색창과, 위쪽 알약을 눌러 펼친 검색창(아래 dropOpen)이 같은 값을 써야 한다.
+  //    한쪽에서 고른 날짜가 다른 쪽에서 비어 보이면 둘이 다른 검색창이다(㉖ 시안 「고른 값은 그대로 남아요」).
+  const [barValue, setBarValue] = useState<StartBarValue>(() => (editSection ? startBarFromDraft(planDraft) : EMPTY_START_BAR));
+  // 위쪽 알약을 누르면 보던 자리에서 위 막대 아래로 검색창이 펼쳐진다 — 전에는 맨 위로 끌어올렸다(㉖ 시안)
+  const [dropOpen, setDropOpen] = useState(false);
   const [promptState, setPromptState] = useState<ConditionsPromptState>('NEVER');
   const [conditions, setConditions] = useState<{ open: boolean; reprompt: boolean; pending: StartBarValue | null }>({ open: false, reprompt: false, pending: null });
   // 데스크톱 판인가 — 폭만이 아니라 폴드 펼침 가로까지, 판정은 useLayout 한 곳(S15P21E201-1563).
@@ -64,6 +73,35 @@ export default function Welcome() {
   // 비회원이 하트를 누르면 로그인으로 보내고 돌아온다 (S15P21E201-1795).
   const saved = useSavedPlaces(accessToken, () => router.push({ pathname: '/sign-in', params: { returnTo: '/' } }));
   const [assistantOpen, setAssistantOpen] = useState(false);
+  // 내리면 따라오는 검색 알약(S15P21E201-1931) — 큰 검색창 머리의 아래 끝을 재 두고, 그보다 내려가면 띄운다
+  const webScrollRef = useRef<ScrollView>(null);
+  // 머리의 위치 + 그 안 검색창의 아래 끝. 머리 전체(아래 빠른 고르기 줄까지)로 재면 검색창이 사라진 뒤에도 한참 안 떴다.
+  const [headerY, setHeaderY] = useState<number | null>(null);
+  const [barBottom, setBarBottom] = useState<number | null>(null);
+  const searchBottom = headerY !== null && barBottom !== null ? headerY + HEADER_PADDING_TOP + barBottom : null;
+  // 스크롤에 맞춰 큰 검색창이 줄어들고 위쪽 메뉴 알약이 커진다 — 둘이 같은 진행도(searchCollapse)를 본다.
+  // 창 크기가 바뀌어 검색창 자리가 다시 재지면 스크롤을 기다리지 않고 다시 판정한다(AI 리뷰 !1980)
+  const [reduceMotion, setReduceMotion] = useState(false);
+  const lastScrollY = useRef(0);
+  const applyCollapse = (scrollY: number) => {
+    const raw = collapseProgress(scrollY, searchBottom);
+    // 동작 줄이기면 중간 없이 — 반을 넘으면 바로 바꾼다
+    const progress = reduceMotion ? (raw >= 0.5 ? 1 : 0) : raw;
+    searchCollapse.setValue(progress);
+    if (progress < 0.5) setDropOpen(false);
+    setSearchHandle({ active: true, collapsed: progress >= 0.5, open: openSearchFromNav });
+  };
+  const openSearchFromNav = useRef(() => setDropOpen(true)).current;
+  useEffect(() => { applyCollapse(lastScrollY.current); }, [searchBottom, reduceMotion]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { setSearchHandle({ ...searchHandleNow(), expanded: dropOpen }); }, [dropOpen]);
+  useEffect(() => {
+    if (!dropOpen || Platform.OS !== 'web' || typeof window === 'undefined') return;
+    const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') setDropOpen(false); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [dropOpen]);
+  // 홈을 떠나면 위쪽 메뉴를 원래대로 — 다른 화면에서 알약이 남지 않게
+  useEffect(() => () => { searchCollapse.setValue(0); setSearchHandle({ active: false, collapsed: false, open: null, expanded: false }); }, []);
   const onToggleLike = (placeId: string) => {
     // 로그인 안 한 사람도 기기에 저장된다 — 로그인으로 밀어내지 않는다.
     saved.toggle(placeId);
@@ -78,7 +116,6 @@ export default function Welcome() {
   };
   const [languageSheetOpen, setLanguageSheetOpen] = useState(false);
   // 동작 줄이기(OS 접근성 설정)가 켜져 있으면 영상을 안 돌린다 — 움직이는 배경이 곧 그 설정이 막으려는 것이다.
-  const [reduceMotion, setReduceMotion] = useState(false);
   useEffect(() => {
     let alive = true;
     void AccessibilityInfo.isReduceMotionEnabled().then((enabled) => { if (alive) setReduceMotion(enabled); }).catch(() => {});
@@ -194,7 +231,7 @@ export default function Welcome() {
     </View>;
   }
 
-  return <View style={styles.webShell}><ScrollView style={styles.webScreen} contentContainerStyle={styles.webContent}>
+  return <View style={styles.webShell}><ScrollView ref={webScrollRef} style={styles.webScreen} contentContainerStyle={styles.webContent} scrollEventThrottle={32} onScroll={(event) => { lastScrollY.current = event.nativeEvent.contentOffset.y; applyCollapse(lastScrollY.current); }}>
     <StatusBar style="dark" />
     {/* 상단 바는 이 파일에 없다. 앱 뼈대(app/_layout.tsx)가 모든 화면에 한 번만 붙인다
          전에는 이 파일 안에 내비가 하나 더 박혀 있어서 내비가 두 벌이었고
@@ -209,16 +246,17 @@ export default function Welcome() {
     {/* 시안 p0 (PlanFlow.dc.html) — 사진 히어로가 없다. 아이보리 바탕에 제목과
         시작 바를 가운데 세우고, 그 아래로 내용 줄을 전폭으로 쌓는다.
     */}
-    <View style={styles.headerSection}>
+    <View style={styles.headerSection} onLayout={(event) => setHeaderY(event.nativeEvent.layout.y)}>
       <View style={styles.headerInner}>
  {/* 색을 반드시 적는다. `hero` 변형의 기본색은 흰색이라(사진 위에 얹던 시절의
             기본값) 아이보리 바탕에서는 글자가 통째로 안 보인다 — 2026-09-18 화면을 띄워
             보고 찾았다. 타입도 시험도 안 잡는다. 프로필 카드에서도 같은 일이 났었다. */}
         <Text variant="hero" weight="bold" color={color.text.heading} style={styles.headerTitle}>{tx('부산의 모든 여행, 가볼래?', 'Every side of Busan, yours to explore.')}</Text>
         <Text variant="body" color={color.text.muted} style={styles.headerSubtitle}>{tx('언제, 누구와, 어떻게 다닐지만 알려주세요. 일정은 가볼래가 짜요.', 'Just tell us when, with whom and how you travel — we build the itinerary.')}</Text>
-        <View style={styles.startBar}>
-          <PlanStartBar wide accessToken={accessToken} onSubmit={startPlanFromBar} initialSection={editSection} initialValue={editSection ? startBarFromDraft(planDraft) : undefined} />
-        </View>
+        {/* 큰 검색창 — 내리면 작아지며 흐려진다. 같은 만큼 위쪽 메뉴 알약이 커지며 나타나 「검색창이 위로 접혀 올라간」 것처럼 보인다 */}
+        <Animated.View style={[styles.startBar, { opacity: searchCollapse.interpolate({ inputRange: [0, 0.85, 1], outputRange: [1, 0.15, 0] }), transform: [{ scale: searchCollapse.interpolate({ inputRange: [0, 1], outputRange: [1, 0.72] }) }, { translateY: searchCollapse.interpolate({ inputRange: [0, 1], outputRange: [0, -24] }) }] }]} onLayout={(event) => setBarBottom(event.nativeEvent.layout.y + event.nativeEvent.layout.height)}>
+          <PlanStartBar wide accessToken={accessToken} onSubmit={startPlanFromBar} onLabelsChange={(labels) => setSearchHandle({ ...searchHandleNow(), labels })} initialSection={editSection} value={barValue} onChange={setBarValue} />
+        </Animated.View>
         {/* 🔴 이 자리에 있던 것 둘이 지금은 없다. 왜 없는지를 남긴다 —
             안 적어 두면 다음 사람이 「빠뜨렸나」 하고 다시 넣는다.
 
@@ -237,9 +275,8 @@ export default function Welcome() {
     */}
     <StoryRow stories={home.stories} width={width} />
 
-    {home.facetRows.map((row) => (
-      <PlaceRow key={row.facetKey} row={row} width={width} likedIds={saved.likedIds} onToggleLike={onToggleLike} />
-    ))}
+    {/* 로컬 탐색 — 축제·로컬 두 줄을 여섯 갈래 한 줄로(S15P21E201-2021). */}
+    <LocalPicksRow picks={home.localPicks} width={width} likedIds={saved.likedIds} onToggleLike={onToggleLike} />
 
     {/* 하트를 누른 결과는 말로 한 번 알린다 — 서버에 못 보냈으면 그것도 사실대로. */}
     {saved.feedback ? (
@@ -255,6 +292,8 @@ export default function Welcome() {
         <MyTripCard trip={home.trip} signedIn loaded={home.tripsLoaded} hasTrips={home.hasTrips} />
       </View>
     ) : null}
+    {/* 맨 아래 안내 — 앱 받기·메뉴·출처(S15P21E201-1930). 전에는 내 여행 카드에서 페이지가 그냥 끝났다. */}
+    <WebFooter />
   </ScrollView>
     {/* 판이 먼저다 — 메뉴와 단추보다 아래에 깔려야 그 둘은 그대로 눌린다. */}
     <AssistantBackdrop open={assistantOpen} onClose={() => setAssistantOpen(false)} />
@@ -269,11 +308,22 @@ export default function Welcome() {
       >
         {/* 부제는 메뉴에 실제로 있는 것을 적는다. 전에는 「일정 · 통역 · 여행 도움」이라고
             적어 두고 챗봇 한 곳으로만 갔다 — 셋을 약속하고 하나만 줬다. */}
-        <View style={styles.webAssistantLabel}><Text variant="body" weight="bold">{tx('AI에게 물어보기', 'Ask AI')}</Text><Text variant="caption" color={color.text.muted}>{assistantSubtitle(tx)}</Text></View>
+        {/* 🔴 좁은 데스크톱 판(세로 탭 768~1099)에서는 꽃만 둔다. 말풍선까지 두면 카드 줄 오른쪽 끝과 줄 화살표를 덮었다
+            (사용자 요청 2026-10-02 — 아이패드 미니·프로·서피스 「가독성」). 이름은 accessibilityLabel 이 읽는다. */}
+        {width < ASSISTANT_LABEL_FROM ? null : <View style={styles.webAssistantLabel}><Text variant="body" weight="bold">{tx('동백이에게 물어보기', 'Ask Dongbaek')}</Text><Text variant="caption" color={color.text.muted}>{assistantSubtitle(tx)}</Text></View>}
         {/* 메뉴가 열린 동안 >.< — 폰과 같은 규칙(S15P21E201-1430). 흔들리지 않는다. */}
         <GabolleMascot state={assistantOpen ? 'thinking' : 'idle'} still style={styles.webAssistantMascot} />
       </Pressable>
     </View>
+    {dropOpen ? (
+      // 위 막대 바로 아래로 펼친 검색창. 뒤는 흐리게 덮고, 덮개를 누르거나 Esc 로 닫는다.
+      <View style={styles.dropLayer}>
+        <Pressable accessibilityRole="button" accessibilityLabel={tx('검색창 닫기', 'Close search')} onPress={() => setDropOpen(false)} style={styles.dropBackdrop} />
+        <View style={styles.dropPanel} accessibilityViewIsModal>
+          <PlanStartBar wide accessToken={accessToken} value={barValue} onChange={setBarValue} onSubmit={(value) => { setDropOpen(false); startPlanFromBar(value); }} />
+        </View>
+      </View>
+    ) : null}
     <ConditionsPromptModal visible={conditions.open} reprompt={conditions.reprompt} onClose={closeConditions} />
   </View>;
 }
@@ -289,8 +339,15 @@ function GlobeIcon() {
 }
 function NavItem({ label, onPress }: { label: string; onPress: () => void }) { return <Pressable accessibilityRole="link" onPress={onPress} style={styles.navItem}><Text variant="caption" weight="medium">{label}</Text></Pressable>; }
 
+/** 이 폭부터 AI 단추에 「동백이에게 물어보기」 말풍선을 붙인다 */
+const ASSISTANT_LABEL_FROM = 1100;
+
 const styles = StyleSheet.create({
   webShell: { flex: 1, backgroundColor: color.canvas },
+  // 펼친 검색창 — 화면(위 막대 아래)을 덮는다. 판은 위에 붙고, 아래 칸 목록(출발지·날짜…)은 판 안에서 펼쳐진다
+  dropLayer: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 30 },
+  dropBackdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(25,25,25,0.32)' },
+  dropPanel: { alignItems: 'center', paddingTop: spacing[4], paddingBottom: spacing[6], paddingHorizontal: desktopGutter, backgroundColor: color.surface.card, borderBottomWidth: 1, borderBottomColor: color.surface.border },
   pressed: { opacity: 0.78 }, logoLink: { borderRadius: radius.sm }, mobileScreen: { flex: 1, width: '100%', height: '100%', overflow: 'hidden', backgroundColor: color.brand.navy }, mobileBackgroundImage: { ...StyleSheet.absoluteFill, width: '100%', height: '100%' },
   mobileSafeArea: { flex: 1 },
   mobileContent: { flexGrow: 1, justifyContent: 'space-between', gap: spacing[8], paddingHorizontal: spacing[6], paddingTop: spacing[8], paddingBottom: spacing[6] },
@@ -318,7 +375,7 @@ const styles = StyleSheet.create({
   // 시안 p0 의 머리 — 아이보리 바탕에 가운데 정렬. 본문 폭은 1200 이다.
   // 시안: 히어로는 그대로 두고 아래에 경계선만 더한다 — 줄 배치가 시작되는 자리를
   // 한 줄로 알린다. 없으면 히어로와 첫 줄이 같은 덩어리로 읽힌다.
-  headerSection: { width: '100%', backgroundColor: color.brand.ivory, paddingTop: 56, paddingBottom: 32, paddingHorizontal: desktopGutter, alignItems: 'center', borderBottomWidth: 1, borderBottomColor: color.surface.border },
+  headerSection: { width: '100%', backgroundColor: color.brand.ivory, paddingTop: HEADER_PADDING_TOP, paddingBottom: 32, paddingHorizontal: desktopGutter, alignItems: 'center', borderBottomWidth: 1, borderBottomColor: color.surface.border },
   headerInner: { width: '100%', maxWidth: 1200, alignItems: 'center' },
   headerTitle: { textAlign: 'center' },
   startBar: { width: '100%', maxWidth: 900, alignItems: 'center' },

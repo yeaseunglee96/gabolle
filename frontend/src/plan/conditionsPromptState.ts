@@ -18,9 +18,14 @@ export async function loadConditionsPrompt(userId: string | null, accessToken: s
   return { state: record.status, conditions: record.conditions };
 }
 
-/** 홈 첫 진입에 띄우나. 한 번도 안 물어본 사람에게만. */
-export function shouldPromptOnHome(state: ConditionsPromptState): boolean {
-  return state === null;
+/**
+ * 홈 첫 진입에 띄우나 — 🔴 이제 안 띄운다(UI 캔버스 ⑨).
+ * 로그인하자마자 창이 홈 전체를 가려, 앱이 무엇을 하는지 보기도 전에 식단·걷는 거리를 물었다. 묻는 자리는
+ * 일정을 만들기 시작할 때(shouldPromptBeforePlan)와 만들기 직전 식단을 모를 때(questions 의 hardUnknown)로 충분하다.
+ * 한 번도 안 물어본 사람(null)도 그 두 자리에서 한 번 묻는다. 부르는 곳(홈·넓은 첫 화면)은 그대로 둔다.
+ */
+export function shouldPromptOnHome(_state: ConditionsPromptState): boolean {
+  return false;
 }
 
 /** 「일정 물어보기」를 누를 때 띄우나. 「나중에」를 고른 사람에게만 다시 묻는다. */

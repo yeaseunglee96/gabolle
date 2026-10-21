@@ -14,7 +14,7 @@
 //    · 타임라인을 내려가는 내 위치 점 — 4단계다. 「지금」 카드의 출발·중지·건너뛰기는 지금도 된다.
 //    · 지도 위 고른 곳의 붉은 맥동 링과 이름표 — 지도 부품(RouteMap)은 고른 표식을 키우기만 한다(1단계와 같다).
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { AccessibilityInfo, Animated, BackHandler, Easing, Image, Platform, Pressable, ScrollView, StyleSheet, View, type ImageSourcePropType } from 'react-native';
+import { AccessibilityInfo, Animated, BackHandler, Easing, Image, PixelRatio, Platform, Pressable, ScrollView, StyleSheet, View, type ImageSourcePropType } from 'react-native';
 import { useRouter } from 'expo-router';
 import Reanimated, { Easing as REasing, Extrapolation, interpolate, interpolateColor, ReduceMotion, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
@@ -28,10 +28,13 @@ import { settleSheetHeight, useSheetDrag } from '@/components/sheetDrag';
 import { MAX_CONTENT_WIDTH } from '@/components/Screen';
 import { StopName } from '@/components/StopName';
 import { BAR_MAX_WIDTH, TAB_BAR_HEIGHT, tabBarBottomMargin } from '@/components/TabBar';
+import { GabolleMascot } from '@/components/DongbaekMascot';
+import { LockToggle } from '@/components/LockToggle';
 import { Text } from '@/components/Text';
+import { TripActionIcon, type TripActionKind } from '@/components/TripActionIcon';
 import { color, radius, spacing } from '@/design/tokens';
 import { PLACE_CATEGORY_LABELS } from '@/discovery/placeCategoryLabels';
-import { stopNameForLanguage } from '@/discovery/romanize';
+import { stopNameForLanguage, stopNameParts } from '@/discovery/romanize';
 import { useI18n } from '@/i18n';
 import { formatClock, formatDayHeading, formatWeekdayShort } from '@/i18n/datetime';
 import { txf } from '@/i18n/format';
@@ -45,10 +48,15 @@ import { useLocationGate } from '@/personalization/useLocationGate';
 import type { ExcludeReason } from '@/components/ExcludeConfirmModal';
 import { ImpressionView, useImpressionTracker } from '@/analytics/impressions';
 import {
-  pollItineraryJob, recordItineraryItemActual, removeItineraryItem, setItineraryItemLocked,
-  type DayStart, type ItineraryItemDto, type ItineraryPaceItemDto,
+  isCarTrip, pollItineraryJob, recordItineraryItemActual, removeItineraryItem, setItineraryItemLocked,
+  type DayStart, type ItineraryItemDto, type ItineraryPaceItemDto, stopClock,
 } from '@/plan/itinerary';
 import { formatTravelLabel, totalTravelMinutes } from '@/plan/itinerarySummary';
+import { LegRow } from '@/trip/page/LegRow';
+import { GuideCallout } from '@/onboarding/GuideCallout';
+import { markScreenGuideUsed, takeScreenGuide } from '@/onboarding/firstRun';
+import { legRouteParams, type LegRouteParams } from '@/trip/page/legRoute';
+import type { LanguageCode } from '@/i18n/languages';
 import { categoryGlyph, type PlacePhoto } from '@/plan/placePhotos';
 import { pickReasonLine } from '@/plan/recommendations';
 import { canConfirmCourse, type TripCourse } from '@/plan/tripCourses';
@@ -61,14 +69,14 @@ import { TripNameSheet } from '@/trip/TripNameSheet';
 import { TripBudgetCard } from './TripBudgetCard';
 import type { TripPageSource } from './tripPageData';
 import { formatManwon, freeTimeMinutes } from './tripPageModel';
+import { CourseFeedbackCard } from '@/features/coursefeedback/CourseFeedbackCard';
 import { useTripPage } from './useTripPage';
 import { useTripProgress } from './useTripProgress';
 import { remainingMeters, stepAway, stepDwell, usableFix, type Away, type Dwell } from './autoArrival';
 import { ActualTimeSheet } from './ActualTimeSheet';
 import { arrivedAtOf, clockOf, isoWithOffset, startOfLocalDay, stayingStopId } from './actualTime';
 import { useLiveLocation } from './useLiveLocation';
-import { MobilityLayerToggle } from '@/map/MobilityLayerToggle';
-import { useMobilityLayer, type MobilityLayerKind } from '@/map/mobilityLayers';
+import { RouteColorLegend } from '@/map/RouteColorLegend';
 import { DayReturnRow } from './DayReturnRow';
 import { DayStartRow } from './DayStartRow';
 import { FreeTimeRow } from './FreeTimeRow';
@@ -77,7 +85,11 @@ import { TripInvitePanel } from '@/trip/TripInvitePanel';
 import { TripReadLinkPanel } from '@/trip/TripReadLinkPanel';
 import { DropdownMenu, useDropdownMenu, type DropdownMenuItem } from '@/components/DropdownMenu';
 import { TripWeatherPanel } from '@/trip/TripWeatherPanel';
+import { weatherDayFor } from '@/trip/weatherDay';
+import { localToday } from '@/plan/tripBasics';
 import { StoryComposeForm } from '@/social/StoryComposeForm';
+import { itemOtherName } from '@/plan/itineraryItemName';
+import { oneLineFor } from '@/plan/placeOneLine';
 
 type Tx = (ko: string, en: string) => string;
 type Panel = 'trip' | 'collapsed';
@@ -90,6 +102,12 @@ const SHEET_BG = Platform.OS === 'web' ? color.surface.sheetGlass : color.surfac
  *    다만 가로로 돌린 폰처럼 화면이 낮으면 창이 너무 작아지므로 높이의 30% 를 넘기지 않는다.
  */
 const MAP_PEEK = 190;
+/**
+ * 지도 위에 뜨는 색 범례가 요약 칩 아래에서 더 가리는 높이 — 지도를 맞출 때 위 여백에 더한다. 전에 이 자리에 있던 «경사/그늘» 칩 줄(32)과 같은 값이다.
+ * 🔴 범례 실제 높이(폰 폭에서 스와치 한 줄 + 규칙 두 줄 남짓, 약 65)를 다 더하지 않는다. 맞추기(fitPadding)가 이미 위에 60 을 따로 두므로
+ *    더하면 경로 띠가 통째로 내려가 열린 창 뒤로 숨는다(창이 열린 폰에서 지도가 보이는 곳은 위 약 190 뿐이다).
+ */
+const LEGEND_COVER = 32;
 /** 접었을 때 탭바 위에 뜨는 정차지 카드 폭(시안 150). */
 const STRIP_CARD = 150;
 // 🔴 카드 줄이 멈추는 한 칸 = 카드 폭 + 카드 사이 간격(stripInner 의 gap) (S15P21E201-1800).
@@ -134,24 +152,25 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   const { tx, locale, language } = useI18n();
   const insets = useSafeAreaInsets();
   const { width, height } = useLayout();
+  // 도구 줄을 세 칸씩 두 줄로 놓을 만큼 좁은가 — 글자 배율까지 셈한다(S15P21E201-1986).
+  const narrowTools = width / PixelRatio.getFontScale() < TOOL_ROW_MIN_WIDTH;
 
   const {
-    page, load, courses, course, courseIndex, setCourseIndex, confirmed, setConfirmed, tripId,
+    page, load, courses, course, courseIndex, setCourseIndex, confirmed, setConfirmed, tripId, selfPlanned,
     itinerary, setItinerary, loaded, reloadItinerary, dayIndex, setDayIndex, items, selectedId, setSelectedId,
-    photos, pace, reloadPace, map, routes, points, budget, atRisk, allEstimated, title, headSub, confirm, confirming,
+    photos, pace, reloadPace, map, routes, routeLegend, points, budget, atRisk, allEstimated, title, headSub, confirm, confirming,
   } = useTripPage(source);
   // 영어(일·중) 화면의 장소 이름 — 「돈반 (Donban)」, 영어 이름이 있으면 영어 먼저(S15P21E201-1735). 한국어는 제목 그대로.
-  const nameOf = (item: ItineraryItemDto) => stopNameForLanguage(item.title, photos[item.placeId]?.nameEn, language);
+  // 일본어·중국어는 관광공사 번역 이름이 먼저(S15P21E201-1860) — 사진 조회에 함께 실려 온다.
+  const nameOf = (item: ItineraryItemDto) => stopNameForLanguage(item.title, itemOtherName(item, photos[item.placeId], language), language);
 
   const [panel, setPanel] = useState<Panel>('trip');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   // ⋯ 메뉴는 공용 DropdownMenu(창)다 — 바깥을 누르거나 Escape 로 닫힌다(S15P21E201-1593). 전에는 본문 사이에 끼어드는 판이라
   //    닫는 길이 「⋯ 다시 누르기」뿐이었고, 연 채로 다른 창을 열면 그대로 남았다.
   const menu = useDropdownMenu();
-  // 지도의 경사·그늘 겹(S15P21E201-1569).
-  const [layerKind, setLayerKind] = useState<MobilityLayerKind | null>(null);
-  const mobility = useMobilityLayer(layerKind, map.stops);
-  const mapRoutes = useMemo(() => [...mobility.lines, ...routes], [mobility.lines, routes]);
+  // 🔴 지도의 경사·그늘 «겹» 칩은 뺐다(S15P21E201-1896) — 경로 선 자체를 고른 조건(경사 피하기·그늘 우선)의 색으로 칠하고,
+  //    그 색의 뜻은 아래 범례(RouteColorLegend)가 알려 준다. 여행 중 GPS 로 따라갈 때도 같은 routes 를 같은 지도가 그린다.
   const [overlay, setOverlay] = useState<TripOverlayKind | null>(null);
   const [naming, setNaming] = useState(askName);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -211,9 +230,11 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   const mapCovered = panel === 'trip'
     ? (resizedHeight !== null ? resizedHeight + bottomMargin : height - sheetTop)
     : bottomMargin + TAB_BAR_HEIGHT + spacing[2] + stripHeight;
-  // 지도 위쪽도 가려져 있다 — 상태바, 그 아래 「장소 N곳」 요약(높이 40 자리)과 「경사/그늘」 칩(32). 지도 칸은 모서리를
-  // 숨기려 radius.lg 만큼 화면 위로 올라가 있어 그것도 더한다(S15P21E201-1754). 칩 아래 풀이 줄은 켰을 때만 떠서 셈하지 않는다.
-  const mapTopCovered = radius.lg + insets.top + spacing[2] + 40 + 32;
+  // 지도 위쪽도 가려져 있다 — 상태바, 그 아래 「장소 N곳」 요약(높이 40 자리)과, 칠한 선이 있을 때 뜨는 색 범례(RouteColorLegend).
+  // 지도 칸은 모서리를 숨기려 radius.lg 만큼 화면 위로 올라가 있어 그것도 더한다(S15P21E201-1754).
+  // 🔴 범례는 «칠한 선이 있을 때만» 떠서 그때만 셈한다. 이 값은 다음에 지도를 맞출 때 읽힌다(RouteMap 의 topInsetRef) — 범례가
+  //    나타난다고 지도가 그 자리에서 다시 맞춰지지는 않는다.
+  const mapTopCovered = radius.lg + insets.top + spacing[2] + 40 + (routeLegend ? LEGEND_COVER : 0);
   // 🔴 «지도 보기»로 접는 순간에만 지도를 다시 맞춘다(S15P21E201-1754). 창이 열린 채 맞춘 큰 아래 여백이 남아 경로가
   //    화면 위 15% 에 몰렸다. 창을 열 때는 null 이라 안 맞춘다 — 여닫을 때마다 튀지 않게(S15P21E201-1607).
   //    카드 줄 높이가 재어지면 한 번 더 맞춘다(접은 직후 한 번뿐이다).
@@ -401,6 +422,10 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   const openClassic = () => {
     if (course?.itineraryId) router.push(`/trips/${course.itineraryId}/itinerary?classic=1`);
   };
+  // 🔴 「순서 수정」은 순서 수정 상태로 연다(S15P21E201-1867). 전에는 편집 화면만 열려서 거기서 「순서 수정」을 한 번 더 눌러야 했다.
+  const openReorder = () => {
+    if (course?.itineraryId) router.push(`/trips/${course.itineraryId}/itinerary?classic=1&reorder=1`);
+  };
   const goBack = () => (router.canGoBack() ? router.back() : router.replace('/trips'));
 
   // ── 「지금」 카드의 글 — itinerary.tsx 와 같은 규칙 ──────────────────────────────
@@ -409,6 +434,23 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   const nowDriftValue = drift(new Date().toISOString(), currentStop?.startsAt ?? null);
   // 지금 머무는 곳 — 「출발」 모드이거나 오늘 일정을 다 돈 뒤(마지막 곳의 출발을 적을 수 있게).
   const stayId = progress.status === 'RUNNING' || progress.status === 'DONE' ? stayingStopId(stopIds, progress.outcomes, departedIds) : null;
+  // 지금 향하는 곳 하나 — 머무는 중이 아니면 「지금」 칸, 머무는 중이거나 아직 출발 전이면 그다음 칸(UI 캔버스 ⑧).
+  // 이동 칸 첫 안내(UI 캔버스 ㉓-4, S15P21E201-1890) — 누를 수 있는 첫 이동 칸 위에 한 번. 좌표를 몰라 누를 수 없는 칸만
+  // 있는 날에는 가리킬 것이 없으니 안 띄운다(표시도 안 쓴다 — 다음 날 누를 수 있는 칸에서 뜬다).
+  const firstLegIndex = items.findIndex((_, index) => legRouteParams(items, index, day?.start, nameOf, tx) !== null);
+  const [legGuide, setLegGuide] = useState(false);
+  const legGuideAsked = useRef(false);
+  useEffect(() => {
+    if (firstLegIndex < 0 || legGuideAsked.current) return;
+    legGuideAsked.current = true;
+    let alive = true;
+    void takeScreenGuide('legs').then((show) => { if (alive && show) setLegGuide(true); });
+    return () => { alive = false; };
+  }, [firstLegIndex]);
+  const aimIndex = (() => {
+    const heading = steps.findIndex((step, index) => step === 'current' && items[index]?.id !== stayId);
+    return heading >= 0 ? heading : steps.findIndex((step) => step === 'next');
+  })();
   const stayItem = stayId ? items.find((item) => item.id === stayId) ?? null : null;
   const stayArrivedAt = stayId ? (arrivalFix?.id === stayId ? arrivalFix.at : arrivedAtOf(progress.outcomes, stayId)) : null;
   const lastDepartureItem = lastDeparture ? items.find((item) => item.id === lastDeparture.id) ?? null : null;
@@ -487,7 +529,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   const nowDetail = progress.status === 'PLANNED'
     ? (items[0] ? formatTravelLabel(items[0], tx, startKind) : null)
     : txf(tx, '%s곳 중 %s곳 다녀옴', '%s stops · %s done', items.length, doneCount)
-      + (progress.status !== 'DONE' && currentStop ? ` · ${txf(tx, '다음 %s', 'next %s', currentStop.startsAt.slice(11, 16))}` : '')
+      + (progress.status !== 'DONE' && stopClock(currentStop?.startsAt) ? ` · ${txf(tx, '다음 %s', 'next %s', stopClock(currentStop?.startsAt) ?? '')}` : '')
       + (leftText ? ` · ${leftText}` : '');
   const nowRatio = items.length && progress.status !== 'PLANNED' ? doneCount / items.length : null;
 
@@ -501,7 +543,8 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
         <View style={styles.headCopy}>
           <Text variant="display" weight="bold" numberOfLines={2}>{ready && loaded ? title : tx('여행', 'Trip')}</Text>
           {headSub ? <Text variant="caption" color={color.text.muted}>{headSub}</Text> : null}
-          {confirmed && course ? (
+          {/* 직접 짠 여행에는 고른 추천 코스가 없다 — 「코스 A 확정」을 안 그린다(S15P21E201-2018). */}
+          {confirmed && course && !selfPlanned ? (
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={tx('코스 바꾸기', 'Change course')}
@@ -511,7 +554,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
             >
               <Text variant="micro" weight="bold" color={color.state.success}>{txf(tx, '✓ 코스 %s 확정', '✓ Course %s confirmed', courseLetter(courseIndex))}</Text>
               {/* 🔴 안이 하나뿐이면 「바꾸기」를 적지 않는다 — 바꿀 곳이 없는데 누르라고 하면 고장으로 읽힌다. */}
-              {courses.length > 1 ? <Text variant="micro" weight="bold" color={color.text.inactiveTab}>{` · ${tx('바꾸기', 'Change')}`}</Text> : null}
+              {courses.length > 1 ? <Text variant="micro" weight="bold" color={color.text.muted}>{` · ${tx('바꾸기', 'Change')}`}</Text> : null}
             </Pressable>
           ) : null}
         </View>
@@ -522,15 +565,19 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
         ) : null}
       </View>
 
-      {/* 알약 — 지도 보기(= 창 접기) · 동행 초대 · 공유 · 기록 남기기 · 날씨. 창은 화면을 옮기지 않고 아래 시트로 연다(S15P21E201-1561).
+      {/* 도구 한 줄 — 지도 보기(= 창 접기) · 동행 초대 · 공유 · 기록 남기기 · 날씨. 알약 다섯이 두 줄로 쌓여 일정을 밀어내던 것을
+          아이콘 한 줄로 줄였다(UI 캔버스 ④). 창은 화면을 옮기지 않고 아래 시트로 연다(S15P21E201-1561).
           「공유」는 읽기 전용 링크만 담은 창, 「기록 남기기」는 이 여행을 단 글쓰기다(S15P21E201-1593) — 넷 다 창 안에서 연다(S15P21E201-1760). */}
       {ready ? (
-        <View style={styles.actions}>
-          <ActionPill label={tx('지도 보기', 'View map')} onPress={() => changePanel('collapsed')} />
-          {tripId ? <ActionPill label={tx('동행 초대', 'Invite')} onPress={() => setOverlay('invite')} /> : null}
-          {tripId ? <ActionPill label={tx('공유', 'Share')} onPress={() => setOverlay('share')} /> : null}
-          {tripId ? <ActionPill label={tx('기록 남기기', 'Write a record')} onPress={() => setOverlay('record')} /> : null}
-          {tripId ? <ActionPill label={tx('날씨', 'Weather')} onPress={() => setOverlay('weather')} /> : null}
+        // 🔴 좁은 화면(폴드 바깥 ~369dp, 글자 크게)은 여섯 칸이 한 줄에 못 들어가 「기록 남기기」가 두 줄로 꺾였다(S15P21E201-1986) — 세 칸씩 두 줄로.
+        <View style={[styles.actions, narrowTools && styles.actionsGrid]}>
+          <ActionTile narrow={narrowTools} icon="map" label={tx('지도 보기', 'View map')} onPress={() => changePanel('collapsed')} />
+          {tripId ? <ActionTile narrow={narrowTools} icon="invite" label={tx('동행 초대', 'Invite')} onPress={() => setOverlay('invite')} /> : null}
+          {tripId ? <ActionTile narrow={narrowTools} icon="share" label={tx('공유', 'Share')} onPress={() => setOverlay('share')} /> : null}
+          {tripId ? <ActionTile narrow={narrowTools} icon="record" label={tx('기록 남기기', 'Write a record')} onPress={() => setOverlay('record')} /> : null}
+          {tripId ? <ActionTile narrow={narrowTools} icon="weather" label={tx('날씨', 'Weather')} onPress={() => setOverlay('weather')} /> : null}
+          {/* 여행 돈 — 쓴 돈·남은 돈·동행 정산(S15P21E201-1935). 적고 고치는 일이 많아 창이 아니라 화면으로 연다 */}
+          {tripId ? <ActionTile narrow={narrowTools} icon="money" label={tx('여행 경비', 'Trip expenses')} onPress={() => router.push(`/${tripId}/money` as never)} /> : null}
         </View>
       ) : null}
 
@@ -546,6 +593,18 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
       ) : null}
 
       {notice ? <View accessibilityRole="alert" style={styles.notice}><Text variant="caption" color={color.text.body}>{localizeMessage(tx, notice)}</Text></View> : null}
+      {/* 일정 고치기 — 편집이 ⋯ 메뉴 안에만 있어 「추천 일정을 못 고친다」로 읽혔다(S15P21E201-2017). 일정 바로 위에 늘 둔다. */}
+      {canEdit && loaded && course?.itineraryId ? (
+        <View testID="trip-edit-entry" style={styles.editEntry}>
+          <View style={styles.grow}>
+            <Text weight="bold">{tx('일정 고치기', 'Edit the plan')}</Text>
+            <Text variant="caption" color={color.text.muted}>{tx('장소 빼기·더하기 · 순서 · 머무는 시간 · 고정', 'Remove or add places · order · time at each place · pin')}</Text>
+          </View>
+          <Pressable testID="trip-edit-open" accessibilityRole="button" accessibilityLabel={tx('일정 고치기', 'Edit the plan')} onPress={openClassic} style={({ pressed }) => [styles.editEntryButton, pressed && styles.pressed]}>
+            <Text variant="caption" weight="bold" color={color.text.onAction}>{tx('고치기', 'Edit')}</Text>
+          </Pressable>
+        </View>
+      ) : null}
       {confirmed && loaded && loaded.canEdit === false ? <View style={styles.notice}><Text variant="caption" weight="bold" color={color.text.muted}>{tx('보기 전용 — 이 일정을 편집할 권한이 없어요.', "View only — you don't have permission to edit this itinerary.")}</Text></View> : null}
 
       {!page ? <SheetSkeleton /> : page.state === 'error' ? (
@@ -583,7 +642,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
           ) : null}
 
           <CourseCardMobile
-            open={!confirmed}
+            open={!confirmed && !selfPlanned}
             courses={courses}
             index={courseIndex}
             full={page.full}
@@ -597,6 +656,10 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
           />
 
           {loaded ? <RiskStrip atRisk={atRisk} known={pace !== null} estimated={paceEstimated} nameOf={nameOf} tx={tx} /> : null}
+          {/* 추천 코스 평가 — 확정한 추천 코스에 한 번, 끝난 여행이면 「다녀온 코스」로 묻는다(S15P21E201-2020). */}
+          {confirmed && !selfPlanned && course?.itineraryId && loaded ? (
+            <CourseFeedbackCard itineraryId={course.itineraryId} courseLabel={courseLetter(courseIndex)} past={(loaded.days[loaded.days.length - 1]?.date ?? '9999') < localDateKey(new Date())} accessToken={accessToken} tx={tx} />
+          ) : null}
 
           {!loaded ? (
             itinerary?.message
@@ -621,6 +684,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
                 <TimelineStop
                   key={item.id}
                   item={item}
+                  car={isCarTrip(itinerary?.value)}
                   startKind={startKind}
                   index={index}
                   last={index === items.length - 1}
@@ -629,6 +693,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
                   photo={photos[item.placeId] ?? null}
                   name={nameOf(item)}
                   step={progressId ? (item.id === stayId ? 'staying' : steps[index]) : undefined}
+                  aim={Boolean(progressId) && item.id !== stayId && index === aimIndex}
                   risky={pace?.atRiskItemIds.includes(item.id) ?? false}
                   pace={paceByItemId.get(item.id)}
                   paceEstimated={paceEstimated}
@@ -641,6 +706,17 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
                   onArrive={canEdit && todayDay && !arrivedAtOf(progress.outcomes, item.id) ? () => void recordArrival(item) : null}
                   onExclude={() => setExcludeTarget(item)}
                   onOpenPlace={() => router.push(`/place/${item.placeId}`)}
+                  legRoute={legRouteParams(items, index, day?.start, nameOf, tx)}
+                  onOpenLeg={(() => {
+                    // 들어오는 구간을 경로 상세로 — 대중교통·택시·도보를 나란히 본다(S15P21E201-1831).
+                    const params = legRouteParams(items, index, day?.start, nameOf, tx);
+                    // 이동 칸을 한 번 눌러 본 사람에게는 첫 안내를 다시 띄우지 않는다(㉔-5 규칙).
+                    return params ? () => { setLegGuide(false); void markScreenGuideUsed('legs'); router.push({ pathname: '/route-detail', params: isCarTrip(itinerary?.value) ? { ...params, mode: 'CAR' } : params }); } : null;
+                  })()}
+                  legGuide={legGuide && index === firstLegIndex}
+                  onLegGuideDone={() => setLegGuide(false)}
+                  accessToken={accessToken}
+                  language={language}
                   tx={tx}
                   locale={locale}
                 />
@@ -653,7 +729,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
 
           {loaded ? <TripBudgetCard budget={budget} style={styles.budget} /> : null}
           {canEdit && items.length > 1 ? (
-            <Pressable accessibilityRole="button" onPress={openClassic} style={({ pressed }) => [styles.reorder, pressed && styles.pressed]}>
+            <Pressable accessibilityRole="button" onPress={openReorder} style={({ pressed }) => [styles.reorder, pressed && styles.pressed]}>
               <Text weight="bold">{tx('순서 수정', 'Reorder')}</Text>
             </Pressable>
           ) : null}
@@ -665,6 +741,8 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
   const menuItems: DropdownMenuItem[] = [
     ...(tripId ? [{ key: 'rename', label: tx('이름 바꾸기', 'Rename'), onPress: () => setNaming(true) }] : []),
     ...(course?.itineraryId ? [{ key: 'edit', label: tx('일정 편집', 'Edit itinerary'), hint: tx('순서·고정·제외·다시 계산', 'Order, pin, remove, recalculate'), onPress: openClassic }] : []),
+    // 루트로 올리기 — 이 코스를 피드 루트로(S15P21E201-2027). 숙소는 서버가 빼고 올린다.
+    ...(course?.itineraryId ? [{ key: 'route-post', label: tx('루트로 올리기', 'Post as a route'), hint: tx('이 코스를 피드에 올려요', 'Share this course on the feed'), onPress: () => router.push(`/route-post/new?itineraryId=${encodeURIComponent(course.itineraryId!)}` as never) }] : []),
   ];
 
   // 🔴 여행이나 일정을 못 불러왔으면 지도와 창을 그리지 않는다(S15P21E201-1660, 사용자 결정). 전에는 같은 겹친 구조 그대로라
@@ -693,8 +771,9 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
       <View style={[styles.mapClip, { height: mapHeight }]}>
         {map.stops.length ? (
           // 🔴 지도 부품은 둥근 테두리 칸으로 그려진다. 바탕으로 쓰려면 모서리를 화면 밖으로 밀어낸다.
+          // 아래로도 radius.lg 만큼 화면 밖이라 그만큼 더 가렸다고 알린다 — 안 그러면 − 단추가 창에 깔린다(S15P21E201-1962).
           <View style={styles.mapBleed}>
-            <RouteMap stops={map.stops} selectedId={selectedId} onSelect={setSelectedId} routes={mapRoutes} points={points} currentLocation={usableFix(live.fix) ? { latitude: live.fix.latitude, longitude: live.fix.longitude } : null} height={mapHeight + radius.lg * 2} focusSelected bottomInset={mapCovered} topInset={mapTopCovered} refitKey={mapRefitKey} />
+            <RouteMap stops={map.stops} selectedId={selectedId} onSelect={setSelectedId} routes={routes} points={points} currentLocation={usableFix(live.fix) ? { latitude: live.fix.latitude, longitude: live.fix.longitude } : null} height={mapHeight + radius.lg * 2} focusSelected bottomInset={mapCovered + radius.lg} topInset={mapTopCovered} refitKey={mapRefitKey} sideBleed={radius.lg} />
           </View>
         ) : loaded ? (
           <View style={[styles.mapEmpty, { paddingTop: insets.top }]}>
@@ -708,7 +787,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
         </View>
       ) : null}
       {loaded && map.stops.length ? (
-        <MobilityLayerToggle value={layerKind} onChange={setLayerKind} basis={mobility.basis} tx={tx} style={[styles.mapLayers, { top: insets.top + spacing[2] + 40 }]} />
+        <RouteColorLegend legend={routeLegend} tx={tx} style={[styles.mapLayers, { top: insets.top + spacing[2] + 40 }]} />
       ) : null}
 
       {/* ── 접었을 때 — 탭바 위 정차지 카드 줄 (시안 4b) ──────────────────────────── */}
@@ -729,9 +808,9 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
             <Pressable key={item.id} accessibilityRole="button" accessibilityState={{ selected: item.id === selectedId }} onPress={() => setSelectedId(item.id)} style={[styles.stripCard, item.id === selectedId && styles.stripCardOn]}>
               <View style={styles.rowCenter}>
                 <View style={styles.numberDot}><Text variant="micro" weight="bold" color={color.text.onAction}>{index + 1}</Text></View>
-                <Text variant="caption" weight="bold" color={color.text.muted}>{item.startsAt.slice(11, 16)}</Text>
+                <Text variant="caption" weight="bold" color={color.text.muted}>{stopClock(item.startsAt) ?? tx('미정', 'TBD')}</Text>
               </View>
-              <StopName weight="bold" title={item.title} nameEn={photos[item.placeId]?.nameEn} />
+              <StopName weight="bold" title={item.title} nameEn={itemOtherName(item, photos[item.placeId], language)} />
               {formatTravelLabel(item, tx, index === 0 && startKind) ? <Text variant="micro" color={color.text.muted} numberOfLines={1}>{formatTravelLabel(item, tx, index === 0 && startKind)}</Text> : null}
             </Pressable>
             </ImpressionView>
@@ -796,7 +875,7 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
                 {overlay === 'invite' ? <TripInvitePanel tripId={tripId} onNavigate={() => setOverlay(null)} /> : null}
                 {overlay === 'share' ? <TripReadLinkPanel tripId={tripId} /> : null}
                 {overlay === 'record' ? <StoryComposeForm variant="panel" tripId={tripId} onClose={() => setOverlay(null)} /> : null}
-                {overlay === 'weather' ? <TripWeatherPanel date={loaded ? (loaded.days[0]?.date ?? null) : undefined} items={loaded?.days[0]?.items} /> : null}
+                {overlay === 'weather' ? <TripWeatherPanel date={loaded ? (weatherDayFor(loaded.days, localToday())?.date ?? null) : undefined} items={loaded ? weatherDayFor(loaded.days, localToday())?.items : undefined} /> : null}
               </ScrollView>
             </View>
           ) : tripContent}
@@ -849,10 +928,15 @@ export function TripPageMobile({ source, askName = false }: { source: TripPageSo
 
 // ── 부품 ────────────────────────────────────────────────────────────────────
 
-function ActionPill({ label, onPress }: { label: string; onPress: () => void }) {
+/** 이 폭(글자 배율로 나눈 dp)보다 좁으면 도구 여섯을 세 칸씩 두 줄로 — 한 칸이 70dp 아래로 줄면 「기록 남기기」가 꺾인다. */
+export const TOOL_ROW_MIN_WIDTH = 420;
+
+function ActionTile({ icon, label, onPress, narrow = false }: { icon: TripActionKind; label: string; onPress: () => void; narrow?: boolean }) {
   return (
-    <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.actionPill, pressed && styles.pressed]}>
-      <Text variant="caption" weight="bold" numberOfLines={1}>{label}</Text>
+    // 🔴 글자를 두 줄까지 둔다 — 일본어 「同行者を招待」처럼 긴 말이 한 줄이면 「同行者を…」로 잘린다.
+    <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={({ pressed }) => [styles.actionTile, narrow && styles.actionTileGrid, pressed && styles.pressed]}>
+      <View style={styles.actionIcon}><TripActionIcon kind={icon} tint={color.text.heading} /></View>
+      <Text variant="micro" weight="bold" color={color.text.body} numberOfLines={narrow ? 1 : 2} style={styles.actionLabel}>{label}</Text>
     </Pressable>
   );
 }
@@ -954,38 +1038,53 @@ function CourseCardMobile({ open, courses, index, full, estimated, items, confir
   );
 }
 
-/** 위험 띠 — 하루를 넘길 곳이 있으면 연분홍에 빨간 글자, 없으면 초록. 🔴 모르면 「모른다」고 적는다. */
+/**
+ * 위험 띠 — 하루를 넘길 곳이 있으면 연분홍에 빨간 글자, 없으면 초록.
+ * 🔴 모르면 띠를 안 그린다(UI 캔버스 ④). 「하루 안에 끝나는지 아직 몰라요」는 할 일이 없는 문장이라
+ *    일정 맨 위를 차지할 이유가 없다. 초록(괜찮다)으로 칠하지 않는 규칙(S15P21E201-1670)은 그대로다.
+ */
 function RiskStrip({ atRisk, known, estimated, nameOf, tx }: { atRisk: ItineraryItemDto[]; known: boolean; estimated: boolean; nameOf: (item: ItineraryItemDto) => string; tx: Tx }) {
   const risky = atRisk.length > 0;
+  if (!risky && !known) return null;
   const text = risky
     ? atRisk.length === 1
       ? txf(tx, `%s${koreanSubject(atRisk[0].title)} 하루를 넘길 수 있어요`, '%s may run past the day', nameOf(atRisk[0]))
       : txf(tx, '%s곳이 하루를 넘길 수 있어요', '%s places may run past the day', atRisk.length)
-    : known ? tx('하루 안에 여유 있게 끝나요', 'The day ends comfortably') : tx('하루 안에 끝나는지 아직 몰라요', 'Not sure yet if the day fits');
-  const tone = risky ? color.state.danger : known ? color.state.success : color.text.muted;
+    : tx('하루 안에 여유 있게 끝나요', 'The day ends comfortably');
+  const tone = risky ? color.state.danger : color.state.success;
   return (
-    <View style={[styles.risk, risky ? styles.riskBad : known ? styles.riskOk : styles.riskUnknown]}>
+    <View style={[styles.risk, risky ? styles.riskBad : styles.riskOk]}>
       <Text variant="caption" weight="bold" color={tone} style={styles.shrink}>{text}</Text>
       {known && estimated ? <Text variant="caption" color={tone}>{`· ${tx('추정값', 'estimate')}`}</Text> : null}
     </View>
   );
 }
 
-function TimelineStop({ item, name, startKind, index, last, freeBefore, date, photo, step, risky, pace, paceEstimated, expanded, canEdit, busy, excluding, onToggle, onLock, onArrive, onExclude, onOpenPlace, tx, locale }: {
-  item: ItineraryItemDto; /** 화면에 적을 장소 이름 — 영어면 로마자가 붙는다(S15P21E201-1735). */ name: string; startKind: DayStart['kind']; index: number; last: boolean; freeBefore: number | null; date: string | null; photo: PlacePhoto | null; step?: StepState; risky: boolean;
+function TimelineStop({ item, car = false, name, startKind, index, last, freeBefore, date, photo, step, aim = false, risky, pace, paceEstimated, expanded, canEdit, busy, excluding, onToggle, onLock, onArrive, onExclude, onOpenPlace, onOpenLeg, legRoute, legGuide = false, onLegGuideDone, accessToken, language, tx, locale }: {
+  item: ItineraryItemDto; /** 화면에 적을 장소 이름 — 영어면 로마자가 붙는다(S15P21E201-1735). */ name: string; startKind: DayStart['kind']; index: number; last: boolean; freeBefore: number | null; date: string | null; photo: PlacePhoto | null; step?: StepState;
+  /** 지금 향하는 곳 — 빨간 고리와 「다음」 표. 한 날에 한 곳뿐이다. */ aim?: boolean; risky: boolean;
   pace?: ItineraryPaceItemDto; paceEstimated: boolean; expanded: boolean; canEdit: boolean; busy: boolean; excluding: boolean;
   /** 오늘 방문지이고 아직 도착이 안 적혔을 때만 — 아니면 null 이고 「도착 찍기」를 안 그린다(S15P21E201-1690). */
-  onToggle: () => void; onLock: () => void; onArrive: (() => void) | null; onExclude: () => void; onOpenPlace: () => void; tx: Tx; locale: string;
+  onToggle: () => void; onLock: () => void; onArrive: (() => void) | null; onExclude: () => void; onOpenPlace: () => void;
+  /** 들어오는 구간을 경로 상세로 연다. 앞 곳이나 이 곳의 좌표를 모르면 null — 누를 수 없는 글자로 둔다(legRoute.ts). */
+  onOpenLeg: (() => void) | null;
+  /** 들어오는 구간의 좌표 — 펼친 이동 칸이 경로를 물을 때 쓴다(LegRow). */ legRoute: LegRouteParams | null;
+  /** 자동차 여행인가(isCarTrip) */ car?: boolean;
+  /** 이 칸 위에 이동 칸 첫 안내를 띄운다(한 날에 한 칸) */ legGuide?: boolean; onLegGuideDone?: () => void;
+  accessToken: string | null; language: LanguageCode; tx: Tx; locale: string;
 }) {
+  // 이름 두 줄(굵은 이름 + 작은 다른 표기) — 아래 제목 줄 주석
+  const nameParts = stopNameParts(item.title, itemOtherName(item, photo, language), language);
   const leg = formatTravelLabel(item, tx, index === 0 && startKind);
   const reason = pickReasonLine(item.reasonCodes);
+  const intro = oneLineFor(item.oneLine, language);
   const done = step === 'done';
   // 지금 머무는 곳(도착만 적혔고 그 뒤 도착이 없는 곳) — 「✓ 다녀옴」 대신 「머무는 중」(S15P21E201-1690, 조율 세션 결정).
   const staying = step === 'staying';
   const label = photo?.category ? PLACE_CATEGORY_LABELS[photo.category] : undefined;
   // 🔴 값이 없는 칸은 만들지 않는다 — 「비용 미정」을 줄마다 적으면 빈 칸이 화면에서 제일 눈에 띈다(itinerary.tsx 와 같은 규칙).
   const meta = [
-    item.startsAt.slice(11, 16),
+    stopClock(item.startsAt),
     label ? tx(label[0], label[1]) : null,
     typeof item.estimatedCostKrw === 'number' ? (item.estimatedCostKrw === 0 ? tx('무료', 'Free') : txf(tx, '%s원', '₩%s', item.estimatedCostKrw.toLocaleString(locale))) : null,
   ].filter(Boolean).join(' · ');
@@ -1005,10 +1104,32 @@ function TimelineStop({ item, name, startKind, index, last, freeBefore, date, ph
         </View>
       ) : null}
       {/* 들어오는 구간 — 카드 사이 32px 줄. 첫 곳은 「출발지에서 …」. */}
-      {index > 0 || leg ? (
-        <View style={styles.legRow}>
+      {/* 구간 줄을 누르면 무엇을 타는지·택시로 얼마인지 본다(S15P21E201-1831) — 전에는 「이동 25분」 글자뿐이었다. */}
+      {legGuide && onOpenLeg ? (
+        <GuideCallout
+          pointDown
+          title={tx('장소 사이 이 칸이 길 안내예요', 'This row between places is your directions')}
+          body={tx('누르면 무엇을 타는지, 어디서 내리는지까지 알려 드려요.', 'Tap it to see what to ride and where to get off.')}
+          onDone={() => onLegGuideDone?.()}
+          style={styles.legGuide}
+        />
+      ) : null}
+      {index > 0 || leg || onOpenLeg ? (
+        <View style={onOpenLeg ? styles.legRowTall : styles.legRow}>
           <View style={styles.legRail}>{index > 0 ? <View style={[styles.railLine, styles.railFull]} /> : null}</View>
-          {leg ? <Text variant="micro" weight="bold" color={color.text.inactiveTab}>{leg}</Text> : null}
+          {/* 이동 칸 — 테두리 있는 누르는 칸, 지금 가는 구간은 걸음마다 펼친다(UI 캔버스 ㉓-2b, S15P21E201-1884). */}
+          <LegRow
+            destName={name}
+            label={leg}
+            transit={typeof item.travelFareKrw === 'number' && item.travelFareKrw > 0}
+            car={car}
+            route={legRoute}
+            now={aim}
+            onOpen={onOpenLeg}
+            accessToken={accessToken}
+            language={language}
+            tx={tx}
+          />
         </View>
       ) : null}
       <View style={styles.stopRow}>
@@ -1027,6 +1148,11 @@ function TimelineStop({ item, name, startKind, index, last, freeBefore, date, ph
             </View>
           ) : done ? (
             <View style={styles.dotDone}><Text variant="micro" weight="bold" color={color.text.onAction}>✓</Text></View>
+          ) : staying ? (
+            // 머무는 곳은 동백이가 서 있다 — 탑승 중 사다리의 「지금 여기」와 같은 표시다.
+            <View style={styles.dotHere}><GabolleMascot state="open" still style={styles.dotMascot} /></View>
+          ) : aim ? (
+            <View style={styles.dotAim} />
           ) : (
             <View style={styles.dot} />
           )}
@@ -1045,28 +1171,24 @@ function TimelineStop({ item, name, startKind, index, last, freeBefore, date, ph
               style={styles.stopCopy}
             >
               <View style={styles.titleLine}>
-                <Text weight="bold" style={styles.shrink}>{name}</Text>
+                {/* 🔴 이름을 한 글로 그리지 않는다 — 좁은 폰에서 「Haesuyokja / ng」처럼 로마자가 낱말 중간에서 꺾여 다섯 줄까지 늘었다.
+                    먼저 읽을 이름을 굵게, 나머지(로마자·한글)는 아래 작게 한 줄(말줄임) — 장소 상세와 같은 순서다 */}
+                <Text weight="bold" style={styles.shrink}>{nameParts.otherFirst ? nameParts.other : nameParts.hangul}</Text>
                 {done ? <View style={styles.chipDone}><Text variant="micro" weight="bold" color={color.state.success}>{tx('✓ 다녀옴', '✓ Visited')}</Text></View> : null}
+                {aim ? <View style={styles.chipAim}><Text variant="micro" weight="bold" color={color.text.heading}>{tx('다음 갈 곳', 'Up next')}</Text></View> : null}
                 {staying ? <View style={styles.chipStaying}><Text variant="micro" weight="bold" color={color.text.body}>{tx('머무는 중', 'Here now')}</Text></View> : null}
               </View>
+              {nameParts.other ? <Text variant="caption" color={color.text.muted} numberOfLines={1}>{nameParts.otherFirst ? nameParts.hangul : nameParts.other}</Text> : null}
+              {/* 어떤 곳인지 한 줄(S15P21E201-2029) — 없으면 줄째 안 그린다. 이름 바로 밑. 폰은 글자 칸이 좁아
+                  한 줄이면 「한옥 감성 인테리어와 …」처럼 잘려 두 줄까지 두고, 그 뒤는 말줄임 */}
+              {intro ? <Text variant="caption" color={color.text.body} numberOfLines={2}>{intro}</Text> : null}
               {meta ? <Text variant="caption" color={color.text.muted}>{meta}</Text> : null}
               {/* 왜 이 곳인지 하나 — 없으면 줄째 안 그린다(S15P21E201-1645). 폰 카드는 글자 칸이 좁아 한 줄이면
                   「다른 곳보다 거리가 돋…」처럼 핵심 말이 잘려서 두 줄까지 둔다. */}
               {reason ? <Text variant="caption" color={color.text.body} numberOfLines={2}>{reason}</Text> : null}
               {risky ? <Text variant="micro" weight="bold" color={color.state.danger}>{tx('하루 넘길 위험', 'May run past the day')}</Text> : null}
             </Pressable>
-            {canEdit ? (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={item.locked ? txf(tx, '%s 고정 해제', 'Unlock %s', item.title) : txf(tx, '%s 고정', 'Lock %s', item.title)}
-                accessibilityState={{ selected: item.locked, busy, disabled: busy }}
-                disabled={busy}
-                onPress={onLock}
-                style={({ pressed }) => [styles.lock, (pressed || busy) && styles.pressed]}
-              >
-                <Text>{busy ? '…' : item.locked ? '🔒' : '🔓'}</Text>
-              </Pressable>
-            ) : item.locked ? <View style={styles.lock}><Text>🔒</Text></View> : null}
+            <LockToggle compact locked={item.locked} mode={item.lockMode} name={item.title} busy={busy} onPress={canEdit ? onLock : undefined} tx={tx} />
           </View>
           {expanded ? (
             <>
@@ -1074,7 +1196,7 @@ function TimelineStop({ item, name, startKind, index, last, freeBefore, date, ph
               <Text variant="caption" weight="bold" color={pace?.atRisk ? color.state.danger : pace?.visited ? color.state.success : color.text.muted} style={styles.grow}>
                 {pace?.visited
                   ? txf(tx, '도착 %s', 'Arrived %s', pace.predictedArrival ? formatClock(pace.predictedArrival, locale) : '--:--')
-                  : txf(tx, '예상 도착 %s%s', 'Est. arrival %s%s', pace?.predictedArrival ? formatClock(pace.predictedArrival, locale) : item.startsAt.slice(11, 16), paceEstimated ? tx(' (추정)', ' (est.)') : '')}
+                  : txf(tx, '예상 도착 %s%s', 'Est. arrival %s%s', pace?.predictedArrival ? formatClock(pace.predictedArrival, locale) : stopClock(item.startsAt) ?? tx('미정', 'TBD'), paceEstimated ? tx(' (추정)', ' (est.)') : '')}
               </Text>
               {canEdit && onArrive && !pace?.visited ? (
                 <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 도착 찍기', 'Mark arrival at %s', item.title)} accessibilityState={{ busy }} disabled={busy} onPress={onArrive} style={({ pressed }) => [styles.detailButton, (pressed || busy) && styles.pressed]}>
@@ -1139,7 +1261,7 @@ const styles = StyleSheet.create({
 
   // ── 지도 ──
   mapClip: { position: 'absolute', left: 0, right: 0, top: 0, overflow: 'hidden' },
-  mapLayers: { position: 'absolute', left: spacing[4] },
+  mapLayers: { position: 'absolute', left: spacing[4], right: spacing[4] },
   mapBleed: { marginTop: -radius.lg, marginHorizontal: -radius.lg },
   mapEmpty: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[6] },
   mapSummary: { position: 'absolute', left: spacing[4], zIndex: 5, paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderRadius: radius.md, backgroundColor: color.surface.card, ...floating },
@@ -1194,7 +1316,12 @@ const styles = StyleSheet.create({
   confirmedChip: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', marginTop: spacing[1], paddingHorizontal: 10, paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.card },
   circle44: { width: 44, height: 44, borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
   // 알약이 다섯이라(S15P21E201-1593) 한 줄이면 「지도 …」처럼 잘린다 — 한 줄에 셋까지, 넘치면 다음 줄로 감긴다.
-  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
+  actions: { flexDirection: 'row', gap: spacing[1] },
+  actionsGrid: { flexWrap: 'wrap', rowGap: spacing[2] },
+  actionTile: { flex: 1, minWidth: 0, minHeight: 44, alignItems: 'center', gap: 4, paddingVertical: spacing[1] },
+  actionIcon: { width: 44, height: 44, borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
+  actionTileGrid: { flex: 0, flexGrow: 1, flexBasis: '30%' },
+  actionLabel: { textAlign: 'center' },
   actionPill: { flexGrow: 1, flexBasis: '30%', minHeight: 44, paddingHorizontal: spacing[2], borderRadius: radius.md, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
   dayRow: { flexDirection: 'row', gap: spacing[2] },
   dayChip: { minHeight: 36, paddingHorizontal: spacing[4], justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.card },
@@ -1207,6 +1334,7 @@ const styles = StyleSheet.create({
   courseCard: { padding: spacing[3], gap: 10, borderRadius: radius.lg, backgroundColor: color.surface.card },
   courseHead: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], paddingHorizontal: spacing[1] },
   coursePad: { paddingHorizontal: spacing[1] },
+  legLink: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 32 },
   chipEstimated: { paddingHorizontal: spacing[2], paddingVertical: 2, borderRadius: radius.full, backgroundColor: color.state.warningBg },
   track: { flexDirection: 'row', padding: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft },
   // 🔴 고른 칸은 먹색이다(tokens 규칙 2 — 선택에 빨강을 쓰지 않는다).
@@ -1222,10 +1350,13 @@ const styles = StyleSheet.create({
   risk: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6, paddingVertical: spacing[3], paddingHorizontal: spacing[4], borderRadius: radius.md },
   riskBad: { backgroundColor: color.state.dangerBg },
   riskOk: { backgroundColor: color.state.successBg },
-  riskUnknown: { backgroundColor: color.surface.tint },
 
   // 카드 타임라인 — 그리드 48 | 1fr, 왼쪽 세로선 2px(가운데)
   legRow: { height: 32, flexDirection: 'row', alignItems: 'center', gap: spacing[2] + spacing[1] },
+  // 누르는 이동 칸이 들어가면 높이를 칸에 맡긴다 — 32px 줄에는 테두리 칸이 안 들어간다.
+  // 이동 칸 첫 안내 — 이동 칸과 같은 줄에서 시작해 꼬리가 칸을 가리킨다(세로선 칸만큼 비킨다).
+  legGuide: { marginLeft: RAIL + spacing[2] + spacing[1], marginTop: spacing[2], marginBottom: spacing[1] },
+  legRowTall: { minHeight: 32, flexDirection: 'row', alignItems: 'stretch', gap: spacing[2] + spacing[1], paddingVertical: spacing[2] },
   legRail: { width: RAIL, alignSelf: 'stretch' },
   railLine: { position: 'absolute', left: RAIL / 2 - 1, width: 2, backgroundColor: color.surface.field },
   railFull: { top: 0, bottom: 0 },
@@ -1245,6 +1376,10 @@ const styles = StyleSheet.create({
   // 점 — 바탕색 4px 고리로 세로선을 끊는다(시안 box-shadow 0 0 0 4px #F5F5F7).
   dot: { width: 18, height: 18, borderRadius: radius.full, borderWidth: 4, borderColor: color.canvas, backgroundColor: color.surface.field },
   dotDone: { width: 26, height: 26, borderRadius: radius.full, borderWidth: 4, borderColor: color.canvas, backgroundColor: color.state.success, alignItems: 'center', justifyContent: 'center' },
+  // 🔴 고리 색은 state.dot — 글자가 아니라 점이라 쓸 수 있다(tokens 규칙). 바탕색 고리로 세로선을 끊는 것은 다른 점과 같다.
+  dotAim: { width: 20, height: 20, borderRadius: radius.full, borderWidth: 4, borderColor: color.state.dot, backgroundColor: color.canvas },
+  dotHere: { width: 32, height: 32, borderRadius: radius.full, backgroundColor: color.canvas, alignItems: 'center', justifyContent: 'center' },
+  dotMascot: { width: 28, height: 28 },
   stopCard: { flex: 1, minWidth: 0, padding: 10, gap: 10, borderRadius: radius.lg, backgroundColor: color.surface.card },
   stopHead: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
   thumb: { width: THUMB, height: THUMB, borderRadius: radius.md, overflow: 'hidden', backgroundColor: color.surface.tint, alignItems: 'center', justifyContent: 'center' },
@@ -1252,8 +1387,8 @@ const styles = StyleSheet.create({
   stopCopy: { flex: 1, minWidth: 0, gap: spacing[1] },
   titleLine: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6 },
   chipDone: { paddingHorizontal: 6, paddingVertical: 1, borderRadius: radius.full, backgroundColor: color.state.successBg },
+  chipAim: { paddingHorizontal: 6, paddingVertical: 1, borderRadius: radius.full, borderWidth: 1, borderColor: color.state.dot },
   chipStaying: { paddingHorizontal: 6, paddingVertical: 1, borderRadius: radius.full, backgroundColor: color.surface.soft },
-  lock: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   stopDetail: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], paddingTop: 10, borderTopWidth: 1, borderTopColor: color.surface.border },
   detailButton: { minHeight: 40, paddingHorizontal: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint, justifyContent: 'center' },
   placeLink: { alignSelf: 'flex-start', marginTop: spacing[2] },
@@ -1263,6 +1398,8 @@ const styles = StyleSheet.create({
 
   budget: { gap: 10, marginTop: spacing[2] },
   reorder: { minHeight: 48, borderRadius: radius.md, backgroundColor: color.surface.soft, alignItems: 'center', justifyContent: 'center' },
+  editEntry: { flexDirection: 'row', alignItems: 'center', gap: spacing[3], marginTop: spacing[3], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.card },
+  editEntryButton: { minHeight: 36, paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.action.secondary, alignItems: 'center', justifyContent: 'center' },
 
   skeleton: { gap: spacing[3] },
   errorCard: { gap: spacing[3], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card },

@@ -2,14 +2,17 @@
 // · 여행 카드의 제목 — TripSummaryDto 에 제목 칸이 없다(날짜·일수·인원·상태뿐)
 // · 장소 카드의 사진 — photoUrl 은 상세의 선택 필드이고 늘 비어 있다. 목록엔 칸도 없다.
 // 채우는 작업이 머지되고 목록 API 에 실리면 그때 넣는다.
+import { storyBodyText } from '@/social/courseLink';
 import { enCount, enPlural, txf } from '@/i18n/format';
 import { useState } from 'react';
-import { Image, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { AppImage } from '@/components/AppImage';
 import { useRouter, type Href } from 'expo-router';
 
 import { GabolleMascot } from '@/components/DongbaekMascot';
 import { PlaceVisual } from '@/components/PlaceVisual';
 import { Text } from '@/components/Text';
+import { HeartIcon } from '@/components/HeartIcon';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { markdownToPlain } from '@/social/markdown';
@@ -17,17 +20,20 @@ import { AuthorAvatar } from '@/social/AuthorAvatar';
 import { useAuth } from '@/auth/AuthProvider';
 import { resolveHomeTripDestination } from './tripNavigation';
 import { HomeRow, homeCardWidth } from './HomeRow';
-import type { HomeCardPlace, HomeFacetRow } from './useHomeData';
-import { relativeStoryTime, type StoryDto } from '@/social/stories';
+import type { HomeLocalPick } from './useHomeData';
+import { LOCAL_PICK_ORDER, localSectionTitle, moreLabel, pickLabel } from './homeCuration';
+import { addressForLanguage } from '@/discovery/localAddress';
+import { otherNameFor } from '@/discovery/localNames';
+import { placeNameForLanguage } from '@/discovery/romanize';
+import { relativeStoryTime, type StoryDto, storyPlaceName } from '@/social/stories';
 import type { TripSummaryDto } from '@/trip/trips';
 import { humanTripTitle, tripDatesLabel, tripNameOrDates } from '@/trip/tripNaming';
 // 🔴 상태 글자는 여행 목록 카드와 같은 함수다 — 날짜가 서버 상태를 이긴다(S15P21E201-1595). 전에는 서버 status 를
 //    그대로 읽는 홈 전용 함수가 따로 있어서, 오늘 진행 중인 여행에도 「준비 완료」가 붙었다.
 import { effectiveTripStatus, tripStatusLabel } from '@/trip/tripStatus';
-import type { DailyForecastDto } from '@/trip/weather';
+import { headerWeather, localTimeText, type CurrentWeather, type DailyForecastDto, type HeaderWeather, type HourlyForecastDto } from '@/trip/weather';
 import { regionText } from '@/social/districtNames';
 
-const heartIcon = require('../../assets/icons/home/heart.png');
 
 type Tx = (ko: string, en: string) => string;
 
@@ -51,28 +57,45 @@ function skyLabel(sky: DailyForecastDto['skyCondition'], tx: Tx) {
  * 그 문구를 만들던 weatherHint 도 쓰는 곳이 없어져 걷어냈다. 되살릴 일이 생기면
  * 이 커밋을 보면 된다.
  */
-export function TopNavWeather({ forecast }: { forecast: DailyForecastDto | null }) {
+/** 머리말 날씨의 이름표 — 값의 뜻을 따른다(S15P21E201-1981). 전에는 최고기온에 「부산 지금」을 붙였다. */
+export function headerWeatherLabel(kind: HeaderWeather['kind'], tx: Tx): string {
+  return kind === 'now' ? tx('지금', 'Now') : kind === 'high' ? tx('오늘 최고', "Today's high") : tx('오늘 최저', "Today's low");
+}
+
+type HeaderForecast = DailyForecastDto & { current?: CurrentWeather; hourly?: HourlyForecastDto[] };
+
+/**
+ * 머리말 날씨 `[ 하늘 지금 N° ]` — 넓은 화면 상단 바와 폰 홈 칩이 같이 쓴다(S15P21E201-1981).
+ * 지금 기온이 없으면 `[ 하늘 오늘 최고 N° ]`. 값이 하나도 없으면 아무것도 안 그린다.
+ * compact 면 하늘과 기온만 — 좁은 상단 바에서 「晴れ · 今の釜山」이 메뉴 「マイ旅行」에 붙어 버렸다(768 세로 탭).
+ */
+export function HeaderWeatherText({ forecast, compact = false, now = new Date() }: { forecast: HeaderForecast | null; compact?: boolean; now?: Date }) {
   const { tx } = useI18n();
   if (!forecast) return null;
-  // 최고기온을 쓰고, 없으면 최저라도 보여준다. 둘 다 없으면 아무것도 안 그린다 —
-  // 「—도」 라고 적으면 값이 있는 것처럼 보인다.
-  const temp = forecast.maxTemperature ?? forecast.minTemperature;
-  if (temp === null) return null;
+  const shown = headerWeather(forecast, localTimeText(now));
+  if (shown === null) return null;
   return (
-    <View style={styles.weatherRow}>
-      <Text variant="title" weight="bold">{`${Math.round(temp)}°`}</Text>
-      <Text variant="caption" color={color.text.body}>{`${skyLabel(forecast.skyCondition, tx)} · ${tx('부산 지금', 'Busan now')}`}</Text>
+    <View style={styles.weatherRow} accessible accessibilityLabel={`${skyLabel(shown.sky, tx)} · ${headerWeatherLabel(shown.kind, tx)} ${Math.round(shown.value)}°`}>
+      {shown.icon ? <Text variant="body" accessibilityElementsHidden importantForAccessibility="no">{shown.icon}</Text> : null}
+      {/* 🔴 좁은 칸·글자 크게에서는 이름표가 줄고 숫자는 늘 보인다(S15P21E201-1986 — 1.3배에서 「… 17° / 24°」로 하늘이 잘렸다). */}
+      {compact ? null : <Text variant="caption" color={color.text.body} numberOfLines={1} style={styles.weatherLabel}>{headerWeatherLabel(shown.kind, tx)}</Text>}
+      <Text testID="header-weather-value" variant="title" weight="bold" numberOfLines={1} style={styles.weatherValue}>{`${Math.round(shown.value)}°`}</Text>
     </View>
   );
+}
+
+/** 상단 바 오른쪽에 서는 날씨. 전에는 히어로 아래 한 줄(WeatherLine)이었다 — 시작 바와 첫 기록 줄 사이를 갈라놓았다. */
+export function TopNavWeather({ forecast, compact = false }: { forecast: HeaderForecast | null; compact?: boolean }) {
+  return <HeaderWeatherText forecast={forecast} compact={compact} />;
 }
 
 // ── 최근 기록 3장 + 갈래 칩 (히어로 오른쪽) ────────────────────────────────────
 
 function StoryCard({ story, cardWidth }: { story: StoryDto; cardWidth: number }) {
   const router = useRouter();
-  const { tx } = useI18n();
-  const where = story.place?.name ?? (story.region ? regionText(story.region, tx) : null) ?? '';
-  const body = markdownToPlain(story.body).trim();
+  const { tx, language } = useI18n();
+  const where = (story.place ? storyPlaceName(story.place, tx, language) : null) ?? (story.region ? regionText(story.region, tx) : null) ?? '';
+  const body = markdownToPlain(storyBodyText(story.body)).trim();
   const hasImage = story.images.length > 0;
   // 🔴 같은 글자를 두 번 그리지 않는다 — S15P21E201-1372. 예전에는 제목이 장소, 부제가
   //    「2일 전 · 장소」라서 장소가 두 줄에 나란히 두 번 나왔다(2026-09-21 배포본 실측).
@@ -90,7 +113,7 @@ function StoryCard({ story, cardWidth }: { story: StoryDto; cardWidth: number })
       style={({ pressed }) => [{ width: cardWidth }, pressed && styles.pressed]}
     >
       {story.images.length
-        ? <Image source={{ uri: story.images[0].url }} resizeMode="cover" accessibilityLabel={tx('여행 기록 사진', 'Trip record photo')} style={[styles.storyImage, square]} />
+        ? <AppImage source={{ uri: story.images[0].url }} resizeMode="cover" accessibilityLabel={tx('여행 기록 사진', 'Trip record photo')} style={[styles.storyImage, square]} />
         // 사진이 없을 때 회색 빈 칸을 두지 않는다 — tint 바탕에 본문을 크게. 빈 회색은
         // 「사진을 못 불러왔다」로 읽힌다. feed.tsx 의 coverEmpty 와 같은 규칙이다.
         : <View style={[styles.storyImage, styles.storyCoverEmpty, square]}>
@@ -144,7 +167,8 @@ export function StoryRow({
         : stories.map((story) => <StoryCard key={story.id} story={story} cardWidth={cardWidth} />)}
 
       {stories !== null && stories.length === 0 ? (
-        <Text variant="caption" color={color.text.body}>
+        // 🔴 가로로 미는 줄 안이라 폭을 주지 않으면 줄을 안 바꾸고 화면 밖으로 나갔다(일본어 실측, S15P21E201-1867). 줄 폭만큼으로 묶는다.
+        <Text variant="caption" color={color.text.body} style={{ width: Math.max(160, width - (gutter ?? 24) * 2) }}>
           {tx('아직 남겨진 기록이 없어요. 첫 기록을 남겨 보세요.', 'No records yet — be the first to share one.')}
         </Text>
       ) : null}
@@ -152,32 +176,42 @@ export function StoryRow({
   );
 }
 
-// ── 로컬 탐색 줄 (축제 · 전통시장) ────────────────────────────────────────────
+// ── 로컬 탐색 (갈래마다 대표 한 곳 — S15P21E201-2021) ─────────────────────────
+//
+// 전에는 「지금 열리는 부산 축제」「부산 로컬 둘러보기」 두 줄에 스무 장이 섰다 — 홈이 어지럽다는 피드백.
+// 이제 한 줄에 여덟 장: 맛집·카페(S15P21E201-2059)·축제·전통시장·액티비티·산책·자연·야경 하나씩, 카드마다 갈래 이름표와 「더 보기」.
+// 어떤 갈래가 어느 순서로 서는지, 갈래마다 어느 장소인지는 homeCuration.ts 한 곳에 있다 — 여기는 그린다.
 
-function PlaceCard({
-  place,
+function LocalPickCard({
+  pick,
   cardWidth,
   liked,
   onToggleLike,
 }: {
-  place: HomeCardPlace;
+  pick: HomeLocalPick;
   cardWidth: number;
   liked: boolean;
   onToggleLike: () => void;
 }) {
   const router = useRouter();
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
+  const place = pick.place;
+  // 🔴 이름·주소가 언어와 상관없이 한국어였다(S15P21E201-1877). 한국어 화면은 그대로 둔다.
+  const placeName = language === 'ko' ? place.nameKo : placeNameForLanguage(place.nameKo, otherNameFor(place.nameEn, place.localNames, language), language);
+  // 축제 칸의 BIFF 처럼 장소(영화의전당)와 보여 줄 이름(영화제)이 다르면 이름은 title, 장소 이름은 둘째 줄로.
+  const title = pick.title?.[language] ?? pick.title?.en ?? null;
+  const shownName = title ?? placeName;
+  const sub = title ? placeName : addressForLanguage(place, language);
+  const category = pickLabel(pick.key, language);
   return (
     <View style={{ width: cardWidth }}>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={txf(tx, '%s 상세 보기', 'View details for %s', place.nameKo)}
+        accessibilityLabel={txf(tx, '%s 상세 보기', 'View details for %s', `${category} · ${shownName}`)}
         onPress={() => router.push(`/place/${place.placeId}`)}
         style={({ pressed }) => [styles.placeCard, pressed && styles.pressed]}
       >
-        {/* PlaceVisual 의 기본 비율은 4:3 이다. style 이 뒤에 붙으므로 여기서 정사각으로 덮는다
-            — 부품을 고치지 않는다. 사진이 없으면 BUSAN 자리표시가 그대로 나온다(회색 판 금지).
-            출처 띠도 PlaceVisual 이 그린다 — 공공누리 표기는 이용 조건이라 빼면 안 된다. */}
+        {/* 출처 띠는 PlaceVisual 이 그린다 — 공공누리 표기는 이용 조건이라 빼면 안 된다. */}
         <PlaceVisual
           name={place.nameKo}
           address={place.address}
@@ -189,30 +223,35 @@ function PlaceCard({
         />
       </Pressable>
 
-      {/* 하트는 색만으로 상태를 말하지 않는다 — 켜지면 흰 배경원과 그림자가 함께 켜진다.
-          사진 밝기가 카드마다 달라서 주황 하트만으로는 꺼짐/켜짐이 안 갈린다. */}
       <Pressable
         accessibilityRole="button"
         accessibilityState={{ selected: liked }}
-        accessibilityLabel={liked
-          ? txf(tx, '%s 저장 해제', 'Unsave %s', place.nameKo)
-          : txf(tx, '%s 저장', 'Save %s', place.nameKo)}
+        accessibilityLabel={liked ? txf(tx, '%s 저장 해제', 'Unsave %s', place.nameKo) : txf(tx, '%s 저장', 'Save %s', place.nameKo)}
         onPress={onToggleLike}
         style={styles.heartButton}
       >
-        <View style={[styles.heartBackdrop, liked && styles.heartBackdropOn]}>
-          <Image source={heartIcon} resizeMode="contain" accessibilityIgnoresInvertColors style={[styles.heartIcon, liked ? styles.heartOn : styles.heartOff]} />
-        </View>
+        <HeartIcon filled={liked} />
       </Pressable>
 
-      <Text variant="body" weight="bold" color={color.text.heading} numberOfLines={1} style={styles.placeName}>{place.nameKo}</Text>
-      <Text variant="caption" color={color.text.body} numberOfLines={1}>{place.address ?? ''}</Text>
+      {/* 갈래 이름표 — 사진 «아래». 사진 왼쪽 위는 PlaceVisual 의 「주변 사진」 표시 자리라 덮으면 안 된다(배포본에서 광안리 SUP Zone 표시를 가렸다). */}
+      <Text variant="caption" weight="bold" color={color.action.outline} numberOfLines={1} style={styles.placeName}>{category}</Text>
+      <Text variant="body" weight="bold" color={color.text.heading} numberOfLines={1}>{shownName}</Text>
+      <Text variant="caption" color={color.text.body} numberOfLines={1}>{sub}</Text>
+      <Pressable
+        accessibilityRole="link"
+        accessibilityLabel={`${category} · ${moreLabel(language)}`}
+        onPress={() => router.push(pick.href as Href)}
+        hitSlop={8}
+        style={({ pressed }) => [styles.pickMore, pressed && styles.pressed]}
+      >
+        <Text variant="caption" weight="bold" color={color.brand.navy} numberOfLines={1}>{`${moreLabel(language)} →`}</Text>
+      </Pressable>
     </View>
   );
 }
 
-export function PlaceRow({
-  row,
+export function LocalPicksRow({
+  picks,
   width,
   likedIds,
   onToggleLike,
@@ -220,7 +259,7 @@ export function PlaceRow({
   gutter,
   arrows,
 }: {
-  row: HomeFacetRow;
+  picks: HomeLocalPick[] | null;
   width: number;
   likedIds: Set<string>;
   onToggleLike: (placeId: string) => void;
@@ -229,35 +268,29 @@ export function PlaceRow({
   arrows?: boolean;
 }) {
   const router = useRouter();
-  const { tx, language } = useI18n();
+  const { language } = useI18n();
   const cardWidth = cardWidthOverride ?? homeCardWidth(width);
-  const places = row.places;
-
   // 한 곳도 못 받았으면 줄을 통째로 접는다 — 제목만 남고 아래가 비면 고장난 화면으로 보인다.
-  if (places !== null && places.length === 0) return null;
-
+  if (picks !== null && picks.length === 0) return null;
   return (
     <HomeRow
-      eyebrow={tx('로컬 탐색', 'Explore locally')}
-      title={tx(row.titleKo, row.titleEn)}
-      openLabel={tx('이 갈래 전체 보기', 'See all in this category')}
-      // 줄마다 여는 곳이 다르다 — 축제는 날짜로 거르는 축제 화면, 나머지는 로컬 탐색(S15P21E201-1594).
-      onOpen={() => router.push(row.href as Href)}
+      title={localSectionTitle(language)}
+      openLabel={moreLabel(language)}
+      onOpen={() => router.push('/explore')}
       width={width}
       gutter={gutter}
       arrows={arrows}
     >
-      {places === null
-        ? [0, 1, 2, 3, 4, 5, 6].map((slot) => (
-            <View key={slot} style={[styles.storySkeleton, { width: cardWidth, height: cardWidth }]} />
-          ))
-        : places.map((place) => (
-            <PlaceCard
-              key={place.placeId}
-              place={place}
+      {picks === null
+        // 불러오는 중 빈 칸은 갈래 수만큼 — 숫자를 따로 적어 두면 갈래를 더할 때 줄 길이가 그 숫자와 어긋난다.
+        ? LOCAL_PICK_ORDER.map((key) => <View key={key} testID="local-pick-skeleton" style={[styles.storySkeleton, { width: cardWidth, height: cardWidth }]} />)
+        : picks.map((pick) => (
+            <LocalPickCard
+              key={pick.key}
+              pick={pick}
               cardWidth={cardWidth}
-              liked={likedIds.has(place.placeId)}
-              onToggleLike={() => onToggleLike(place.placeId)}
+              liked={likedIds.has(pick.place.placeId)}
+              onToggleLike={() => onToggleLike(pick.place.placeId)}
             />
           ))}
     </HomeRow>
@@ -340,7 +373,9 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.85 },
 
   // 상단 바 안이라 위쪽 구분선도 여백도 없다. 바가 이미 자기 높이를 가진다.
-  weatherRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
+  weatherLabel: { flexShrink: 1 },
+  weatherValue: { flexShrink: 0 },
+  weatherRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], flexShrink: 1, minWidth: 0 },
 
   // 줄 배치에서는 카드 폭을 줄 부품(HomeRow)이 정해서 내려준다 — 여기서 상한을 두면
   // 한 줄에 몇 장이 보이는지가 두 곳에서 정해지고, 둘이 어긋나면 줄마다 장 수가 달라진다.
@@ -360,12 +395,8 @@ const styles = StyleSheet.create({
   placeName: { marginTop: spacing[3] },
   // 누르는 자리는 44 로 두고 보이는 원은 28 이다 — 손가락은 44 를 필요로 하는데
   // 28 보다 큰 동그라미를 사진 위에 얹으면 사진을 가린다.
+  pickMore: { alignSelf: 'flex-start', marginTop: spacing[1], minHeight: 24, justifyContent: 'center' },
   heartButton: { position: 'absolute', top: 0, right: 0, width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  heartBackdrop: { width: 28, height: 28, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
-  heartBackdropOn: { backgroundColor: color.surface.card, shadowColor: color.brand.navy, shadowOpacity: 0.15, shadowRadius: 4, shadowOffset: { width: 0, height: 1 }, elevation: 2 },
-  heartIcon: { width: 16, height: 16 },
-  heartOn: { tintColor: color.action.secondary },
-  heartOff: { tintColor: color.surface.card },
 
   tripBlock: { width: 360, gap: spacing[3] },
   // 시안은 패딩 20 인데 간격 토큰에 20 이 없다(4·8·12·16·24·32). 16 으로 내린다

@@ -13,11 +13,15 @@ import { fillNumbers, numericShape } from '@/i18n/pick';
 
 type Tx = (ko: string, en: string) => string;
 
+const HANGUL = /[가-힣]/;
+
 export const MESSAGE_EN: Record<string, string> = {
   // 서버가 이 기능을 모를 때 — 곳마다 다르던 「○○ API가 아직 준비되지 않았어요」를 한 문장으로(S15P21E201-1664, api/errorText.ts).
   '지금은 이 정보를 불러올 수 없어요. 잠시 뒤 다시 시도해 주세요.': "We can't load this right now. Please try again in a moment.",
   '서버 응답이 늦어 요청을 마쳤어요. 잠시 후 다시 시도해 주세요.': 'The server took too long to respond. Please try again shortly.',
   '서버에 연결할 수 없어요. 잠시 후 다시 시도해 주세요.': 'The server is unavailable. Please try again shortly.',
+  // 서버가 5xx·429 로 답했을 때(client.ts serverBusyMessage) — 「인터넷 연결을 확인해 주세요」가 아니라 이 말이다(S15P21E201-2060).
+  '서버가 잠시 바빠요. 잠시 후 다시 시도해 주세요.': 'The server is busy right now. Please try again shortly.',
   '요청을 취소했어요.': 'The request was cancelled.',
   '요청이 취소됐어요.': 'The request was cancelled.',
   '요청을 처리하지 못했어요.': 'We could not complete that request.',
@@ -33,6 +37,10 @@ export const MESSAGE_EN: Record<string, string> = {
   '소셜 로그인 요청이 거절되었어요.': 'The social sign-in request was rejected.',
   '로그인 응답을 확인할 수 없어요.': 'Could not verify the sign-in response.',
   '일정의 장소 위치를 한 곳도 받지 못했어요.': 'None of the places in this itinerary came with a location.',
+  // 일정 조정 — 머무는 시간 바꾸기(S15P21E201-2017, plan/itinerary.ts changeItineraryStay).
+  '그날 일정에 이미 들어 있는 장소예요.': 'This place is already in that day.',
+  '머무는 시간은 15분 단위로, 15분 이상이어야 해요.': 'Time at a place must be in 15-minute steps, at least 15 minutes.',
+  '자정을 넘겨서 이 시간으로는 바꿀 수 없어요.': "That would run past midnight, so it can't be changed to this time.",
   '다른 변경이 먼저 반영됐어요. 최신 일정을 불러와 다시 시도해 주세요.': 'Another change was applied first. Reload the latest itinerary and try again.',
   '순서 목록이 이 날짜의 장소와 맞지 않아요. 새로고침 후 다시 시도해 주세요.': 'The order list does not match this day’s places. Refresh and try again.',
   '고정된 장소는 자리를 옮길 수 없어요. 고정을 먼저 풀어 주세요.': 'Locked places cannot be moved. Unlock them first.',
@@ -57,7 +65,14 @@ export const MESSAGE_EN: Record<string, string> = {
   '조건에 맞는 장소를 찾지 못했어요. 날짜·예산·취향 조건을 조금 넓혀서 다시 시도해 주세요.': 'No places matched your conditions. Loosen the dates, budget or preferences a little and try again.',
   '일정을 아직 못 불러왔어요.': 'The itinerary has not loaded yet.',
   '(탈퇴한 사용자)': '(deleted user)',
+  // 서버(AuthenticatedUsers·AuthController)는 언어와 상관없이 이 한국어 문장을 준다 — 번체 여행 화면에 그대로 나왔다(S15P21E201-1922).
+  '인증 정보가 올바르지 않습니다.': 'Your sign-in has expired. Please sign in again.',
   // 5xx — 상태 번호가 끼므로 «모양»으로 둔다. 찾을 때 숫자를 빼고 찾는다(pick.ts numericShape).
+  // 여행 돈(src/trip/expenses.ts) — S15P21E201-1968
+  '여행 경비를 불러오지 못했어요.': 'Could not load your trip expenses.',
+  '지출을 추가하지 못했어요.': 'Could not add that expense.',
+  '지우지 못했어요.': 'Could not delete it.',
+  '예산을 저장하지 못했어요.': 'Could not save the budget.',
   '서버가 잠시 응답하지 못했어요. 잠시 후 다시 시도해 주세요. (HTTP %d)': 'The server could not handle this just now. Please try again shortly. (HTTP %d)',
 };
 
@@ -87,5 +102,8 @@ export function localizeMessage(tx: Tx, text: string | null | undefined): string
     const koShape = KO_BY_EN[shaped.shape];
     if (koShape) return tx(fillNumbers(koShape, shaped.numbers), text);
   }
+  // 🔴 표에 없는 한국어 문장(서버가 보낸 것) — 한국어가 아닌 화면에 한글을 그대로 내지 않는다(S15P21E201-1922).
+  //    tx 가 한국어 원문을 돌려주면 한국어 화면이다. 아니면 그 언어의 일반 안내로 바꾼다.
+  if (HANGUL.test(text) && tx(text, '') !== text) return tx('요청을 처리하지 못했어요.', 'We could not complete that request.');
   return text;
 }

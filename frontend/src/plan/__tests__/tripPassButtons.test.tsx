@@ -23,7 +23,7 @@ const data: TripPassData = {
   owner: '진미리',
   fields: [{ key: '방문지', value: '9곳' }],
   url: 'https://example.test/trips/1',
-  validText: '이 승차권은 10.3 여행에만 쓸 수 있어요',
+  validText: '이 승차권은 10.3 여행에만 쓸 수 있어요', firstStop: null, lastStop: null, conditions: []
 };
 
 const details: TripPassDetail[] = [

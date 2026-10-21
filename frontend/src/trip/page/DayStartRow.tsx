@@ -8,6 +8,7 @@ import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import type { DayStart } from '@/plan/itinerary';
+import { knownPlaceLabel } from '@/plan/origins';
 
 type Tx = (ko: string, en: string) => string;
 
@@ -19,7 +20,7 @@ export function DayStartRow({ start, tx, style }: { start: DayStart | null | und
       <Text weight="bold" color={color.text.muted}>↪</Text>
       <View style={styles.copy}>
         <Text variant="caption" weight="bold">{title}</Text>
-        {start.label ? <Text variant="caption" color={color.text.muted} numberOfLines={1}>{start.label}</Text> : null}
+        {start.label ? <Text variant="caption" color={color.text.muted} numberOfLines={1}>{knownPlaceLabel(start.label, tx)}</Text> : null}
       </View>
     </View>
   );

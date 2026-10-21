@@ -35,12 +35,10 @@ import { useI18n } from '@/i18n';
 import { useLayout } from '@/layout/useLayout';
 import { usePlan, type ConstraintSelectionStatus, type PlanDraft } from '@/plan/PlanProvider';
 import { COVERAGE_FEATURE, hasNoPlaceData, useConditionCoverage } from '@/plan/conditionCoverage';
-import { conditionsFromDraft, saveTravelConditions } from '@/plan/travelConditions';
+import { conditionsFromDraft, DIETS, saveTravelConditions } from '@/plan/travelConditions';
+import { tasteDietsApplied } from '@/plan/tasteDiets';
+import { txf } from '@/i18n/format';
 
-const DIETS = [
-  ['VEGETARIAN', '채식', 'Vegetarian'], ['VEGAN', '비건', 'Vegan'], ['HALAL', '할랄', 'Halal'],
-  ['GLUTEN_FREE', '글루텐 프리', 'Gluten-free'], ['PESCATARIAN', '페스코', 'Pescatarian'],
-] as const;
 
 const WALK_LIMITS = [500, 1000, 2000, 0] as const;
 
@@ -160,6 +158,9 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
   const savable = draft.dietAnswered
     && (draft.dietStatus !== 'VALUES' || draft.dietTypes.length > 0);
 
+  // 음식 취향에서 와서 이번 여행에 더해지는 식단 — 서버 규칙과 같은 셈(tasteDiets.ts).
+  const tasteDiets = tasteDietsApplied(draft).map((code) => { const found = DIETS.find(([c]) => c === code); return found ? tx(found[1], found[2]) : code; });
+
   const statusRow = (
     label: string,
     field: 'dietStatus',
@@ -177,9 +178,13 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
       {/* 바깥을 눌러 닫되 단추 역할을 주지 않는다. 단추 안에 단추가 들어가면
           웹에서 잘못된 마크업이 된다. 읽어 주는 이름은 안쪽 ✕ 가 갖는다.
       */}
-      <Pressable onPress={() => onClose('DISMISSED')} style={[styles.backdrop, phone && styles.backdropPhone]}>
-        {/* 안쪽 누름이 바깥으로 안 새게 한다 — 고르다가 모달이 닫히면 답이 통째로 날아간다. */}
-        <Animated.View onStartShouldSetResponder={() => true} style={[styles.sheet, phone ? styles.sheetPhone : styles.sheetWide, phone && { transform: [{ translateY: dragY }] }]}>
+      {/* 🔴 바깥 누름 판은 시트의 «부모»가 아니라 뒤에 깐 «형제»다(사용자 지적 2026-10-02 — 「내리는 게 뻑뻑하다」).
+          전에는 시트를 바깥 판 안에 두고, 안쪽 누름이 바깥으로 새지 않게 시트가 손가락이 닿자마자 터치를 가져갔다
+          (onStartShouldSetResponder). 그러면 안쪽 목록이 스크롤하려면 시트에게서 터치를 빼앗아 와야 해서, 끌기
+          첫머리가 먹히고 뻑뻑했다. 형제로 두면 시트 안 누름은 처음부터 바깥 판에 안 간다 — 가로챌 것이 없다. */}
+      <View style={[styles.backdrop, phone && styles.backdropPhone]}>
+        <Pressable onPress={() => onClose('DISMISSED')} style={StyleSheet.absoluteFill} />
+        <Animated.View style={[styles.sheet, phone ? styles.sheetPhone : styles.sheetWide, phone && { transform: [{ translateY: dragY }] }]}>
           <View testID="conditions-sheet-grab" {...(phone ? dragHandlers : {})}>
           {phone ? (
             <View testID="conditions-sheet-handle" style={styles.handleWrap} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
@@ -210,6 +215,13 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
                   <Chip key={code} label={tx(ko, en)} selected={draft.dietTypes.includes(code)} onPress={() => toggle('dietTypes', code)} />
                 ))}</View>
               ) : null}
+              {/* 🔴 음식 취향의 채식·할랄은 서버가 식단 조건처럼 반드시 지킨다(S15P21E201-1873) — 여기서 안 말하면
+                  「식단: 해당 없음」 칸만 보고 왜 고기집이 빠졌는지 모른다. 이번만 빼는 길(해당 없음)도 같이 말한다(S15P21E201-1878). */}
+              {tasteDiets.length ? (
+                <Text testID="taste-diet-note" variant="caption" color={color.text.body}>
+                  {txf(tx, '음식 취향에서 고른 「%s」도 이번 여행에 반드시 지켜요. 이번만 빼려면 「해당 없음」을 고르세요.', 'The %s you chose in your food preferences also applies to this trip. To leave it out this time, choose “None”.', tasteDiets.join('·'))}
+                </Text>
+              ) : null}
             </View>
 
             <View style={styles.block}>
@@ -232,10 +244,12 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
               {/* 🔴 마지막 칸은 이 줄이 «실제로 보는» 장소 표식이다 (S15P21E201-1044).
                   「이동 조건」으로 뭉뚱그리지 않는다 — 접근성은 자료가 있고 계단은 0곳이라,
                   뭉치면 있는 쪽이 없는 쪽을 덮어 계단 줄이 계속 못 지키는 약속으로 남는다. */}
+              {/* 🔴 그늘은 「그늘 많은 곳 우선」이다 — 「그늘길 우선」이라고 적었더니 길을 골라 주는 것처럼 읽혔는데,
+                  이 답은 장소 점수에만 들어가고 걷는 길은 안 바꾼다. 저장하는 값(PREFER)은 그대로다. */}
               {([
                 ['slopeConstraint', '가파른 경사 피하기', 'Avoid steep slopes', 'AVOID', 'ALLOW', COVERAGE_FEATURE.slope],
                 ['stairsConstraint', '계단 피하기', 'Avoid stairs', 'AVOID', 'ALLOW', COVERAGE_FEATURE.stairs],
-                ['shadePreference', '그늘길 우선', 'Prefer shaded routes', 'PREFER', 'NO_PREFERENCE', COVERAGE_FEATURE.shade],
+                ['shadePreference', '그늘 많은 곳 우선', 'Prefer shadier places', 'PREFER', 'NO_PREFERENCE', COVERAGE_FEATURE.shade],
               ] as const).map(([field, ko, en, yes, no, featureType]) => (
                 <View key={field}>
                   <View style={styles.binaryRow}>
@@ -286,7 +300,7 @@ export function ConditionsPromptModal({ visible, reprompt = false, onClose }: Co
             />
           </View>
         </Animated.View>
-      </Pressable>
+      </View>
     </Modal>
   );
 }

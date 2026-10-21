@@ -16,7 +16,7 @@ import { useI18n } from '@/i18n';
 import { formatMonthDay } from '@/i18n/datetime';
 import { txf } from '@/i18n/format';
 import { useLayout } from '@/layout/useLayout';
-import { loadWeatherForecast, type HourlyForecastDto, type PrecipitationType, type SkyCondition, type WeatherLoadResult } from '@/trip/weather';
+import { loadWeatherForecast, skyIcon, type HourlyForecastDto, type PrecipitationType, type SkyCondition, type WeatherLoadResult } from '@/trip/weather';
 
 const SKY_LABEL: Record<SkyCondition, readonly [string, string]> = {
   CLEAR: ['맑음', 'Clear'],
@@ -24,8 +24,8 @@ const SKY_LABEL: Record<SkyCondition, readonly [string, string]> = {
   CLOUDY: ['흐림', 'Cloudy'],
 };
 
-// 시간별 칸의 그림 — 시안 그대로 글자 그림이다. 비·눈이 오면 하늘보다 그것을 먼저 그린다.
-const SKY_ICON: Record<SkyCondition, string> = { CLEAR: '☀', PARTLY_CLOUDY: '⛅', CLOUDY: '☁' };
+// 시간별 칸의 그림은 weather.ts 의 skyIcon 이다 — 홈 머리말도 같은 규칙을 쓴다(S15P21E201-1981). 비·눈이 오면 하늘보다 그것을 먼저 그린다.
+export { skyIcon };
 const PRECIPITATION: Record<Exclude<PrecipitationType, 'NONE'>, { icon: string; label: readonly [string, string] }> = {
   RAIN: { icon: '🌧', label: ['비', 'Rain'] },
   SHOWER: { icon: '🌧', label: ['소나기', 'Showers'] },
@@ -46,9 +46,9 @@ type Tx = (ko: string, en: string) => string;
 export type WeatherStop = { time: string; name: string };
 
 /** 일정 항목 → 들르는 곳. 시각은 startsAt 글자 그대로(서버가 보낸 현지 시각)에서 읽는다. 시각이 없는 항목은 뺀다. */
-export function weatherStops(items: ReadonlyArray<{ startsAt: string; title: string }> | null | undefined): WeatherStop[] {
+export function weatherStops(items: ReadonlyArray<{ startsAt: string | null; title: string }> | null | undefined): WeatherStop[] {
   return (items ?? []).flatMap((item) => {
-    const clock = /T(\d{2}:\d{2})/.exec(item.startsAt)?.[1];
+    const clock = /T(\d{2}:\d{2})/.exec(item.startsAt ?? '')?.[1];
     return clock ? [{ time: clock, name: item.title }] : [];
   });
 }
@@ -77,7 +77,7 @@ function describeHour(hour: HourlyForecastDto, tx: Tx) {
   const precipitation = hour.precipitationType && hour.precipitationType !== 'NONE' ? PRECIPITATION[hour.precipitationType] : null;
   const chance = hour.precipitationProbability;
   return {
-    icon: precipitation?.icon ?? (hour.skyCondition ? SKY_ICON[hour.skyCondition] : null),
+    icon: precipitation?.icon ?? (hour.skyCondition ? skyIcon(hour.skyCondition, hour.time) : null),
     condition: precipitation ? tx(...precipitation.label) : hour.skyCondition ? tx(...SKY_LABEL[hour.skyCondition]) : null,
     temperature: hour.temperature != null ? `${Math.round(hour.temperature)}°` : null,
     chance,
@@ -110,7 +110,9 @@ function HourlyForecast({ hourly, stops }: { hourly: HourlyForecastDto[]; stops:
     const said = describeHour(hour, tx);
     return (
       <View key={hour.time} accessible accessibilityLabel={[label, said.condition, said.temperature, said.spokenChance].filter(Boolean).join(', ')} style={[styles.hourCell, desktop && styles.hourCellWide, numbers && styles.hourCellStop]}>
-        <Text variant="caption" weight="bold" color={numbers ? color.text.heading : color.text.muted} numberOfLines={1}>{label}</Text>
+        {/* 🔴 폰 칸은 좁아 「10시 · 1」이 「10시 · 」로 잘렸다(S15P21E201-1903) — 정차 번호는 아래 줄로 둔다. */}
+        <Text variant="caption" weight="bold" color={numbers ? color.text.heading : color.text.muted} numberOfLines={1}>{Number.isInteger(clock) ? tx(`${clock}시`, `${clock}:00`) : hour.time}</Text>
+        {numbers ? <Text variant="micro" weight="bold" color={color.text.heading} numberOfLines={1}>{numbers.map((n) => `${n}`).join(' · ')}</Text> : null}
         <Text style={styles.hourIcon}>{said.icon ?? UNKNOWN}</Text>
         <Text weight="bold">{said.temperature ?? UNKNOWN}</Text>
         <Text variant="caption" color={said.chance != null && said.chance >= RAIN_HIGHLIGHT ? color.state.info : color.text.muted}>{said.chance != null ? `${said.chance}%` : UNKNOWN}</Text>
@@ -223,7 +225,7 @@ export function TripWeatherCard({ date, hourly = false, stops = [] }: { date: st
         ) : weather?.state === 'out-of-range' ? (
           <Text variant="body" color={color.text.muted}>{tx('출발일 예보는 출발 3일 전부터 보여드려요. 그때 다시 열어 주세요.', 'The departure-day forecast opens 3 days before you leave. Check back then.')}</Text>
         ) : weather ? (
-          <Text variant="body" color={color.text.muted}>{tx('예보를 가져오지 못했습니다.', 'Could not load the forecast.')}</Text>
+          <Text variant="body" color={color.text.muted}>{tx('예보를 가져오지 못했어요.', 'Could not load the forecast.')}</Text>
         ) : (
           <Text variant="body" color={color.text.muted}>{tx('예보를 불러오는 중…', 'Loading the forecast…')}</Text>
         )}
@@ -265,6 +267,16 @@ export function weatherPhase(date: string | null | undefined, today: string): 'b
  * 머리 글(작은 머리 + 제목)을 날짜에 맞춰 고른다 — 여행 페이지 창과 여행 준비 화면(prepare)이 같이 쓴다.
  * 🔴 S15P21E201-1773: 준비 화면은 이 판정을 안 거치고 늘 「여행 전 · … 출발」이라 적었다(지난 여행에도).
  */
+/**
+ * 어느 날 예보를 보일까 — 여행 중(출발일 다음 날 ~ 마지막 날)이면 오늘, 아니면 출발일(S15P21E201-1911).
+ * 🔴 전에는 출발일만 봐서 여행 둘째 날부터 「지난 여행 · 예보 없음」이 떴다 — 정작 지금 필요한 오늘 날씨가 없었다.
+ */
+export function weatherDateFor(first: string | null | undefined, last: string | null | undefined, today: string): string | null | undefined {
+  if (!first) return first;
+  if (last && first < today && today <= last) return today;
+  return first;
+}
+
 export function weatherHeading(
   tx: (ko: string, en: string) => string,
   date: string | null | undefined,
@@ -281,7 +293,7 @@ export function weatherHeading(
   return { eyebrow, title };
 }
 
-export function TripWeatherPanel({ date, items, today = localToday() }: { date: string | null | undefined; items?: ReadonlyArray<{ startsAt: string; title: string }> | null; today?: string }) {
+export function TripWeatherPanel({ date, items, today = localToday() }: { date: string | null | undefined; items?: ReadonlyArray<{ startsAt: string | null; title: string }> | null; today?: string }) {
   const { tx, locale } = useI18n();
   const departure = date ? formatMonthDay(date, locale) : null;
   const { eyebrow, title } = weatherHeading(tx, date, departure, today);

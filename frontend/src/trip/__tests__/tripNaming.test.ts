@@ -8,7 +8,7 @@ import {
 
 // 여행 이름 짓기 연결 층.
 
-type Call = { url: string; method: string; body: unknown };
+type Call = { url: string; method: string; body: unknown; headers?: Record<string, string> };
 let calls: Call[] = [];
 
 function mockServer(handler: (method: string, url: string) => Response) {
@@ -22,7 +22,7 @@ function mockServer(handler: (method: string, url: string) => Response) {
       );
     }
     const method = init?.method ?? 'GET';
-    calls.push({ url, method, body: init?.body ? JSON.parse(String(init.body)) : undefined });
+    calls.push({ url, method, body: init?.body ? JSON.parse(String(init.body)) : undefined, headers: init?.headers as Record<string, string> | undefined });
     return handler(method, url);
   }) as unknown as typeof fetch;
 }
@@ -62,6 +62,14 @@ describe('이름 후보 받기', () => {
     expect(result.state).toBe('success');
     if (result.state !== 'success') return;
     expect(result.suggestions).toEqual([]);
+  });
+
+  it('🔴 일본어·중국어 화면이면 그 언어를 Accept-Language 로 보낸다 — ko/en 으로 접히면 영어 이름 틀이 나온다', async () => {
+    mockServer(() => ok({ suggestions: [], source: 'TEMPLATE', discardedCount: 0 }));
+    await loadTripNameSuggestions(TRIP, 'token', 'zh-Hant');
+    expect(calls[0].headers?.['Accept-Language']).toBe('zh-Hant');
+    await loadTripNameSuggestions(TRIP, 'token', 'ja');
+    expect(calls[calls.length - 1].headers?.['Accept-Language']).toBe('ja');
   });
 
   it('틀로 만든 이름은 모델이 지은 것과 구분된다', () => {

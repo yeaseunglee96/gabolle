@@ -48,6 +48,11 @@ describe('글자 한 덩어리로 담고 되읽기', () => {
     expect(decoded?.slopeConstraint).toBeNull();
   });
 
+  it('앱에서 뺀 비건·페스코는 채식으로 읽는다 — 끌 수 없는 칩으로 남지 않게', () => {
+    const decoded = decodeConditions(JSON.stringify({ v: 1, allergyStatus: 'NONE', dietStatus: 'VALUES', dietTypes: ['VEGAN', 'PESCATARIAN', 'HALAL'] }));
+    expect(decoded?.dietTypes).toEqual(['VEGETARIAN', 'HALAL']);
+  });
+
   it('🔴 「해당 없음」이면 고른 항목을 안 싣는다 — 둘이 같이 남으면 어느 쪽이 참인지 모른다', () => {
     const decoded = decodeConditions(JSON.stringify({ v: 1, allergyStatus: 'NONE', allergies: ['PEANUT'], dietStatus: 'NONE' }));
     expect(decoded?.allergies).toEqual([]);

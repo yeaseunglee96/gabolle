@@ -104,7 +104,7 @@ export default function OAuthLink() {
         {error && <Card><Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{localizeMessage(tx, error)}</Text></Card>}
         <Button label={submitting ? tx('연결 중…', 'Linking…') : tx('연결하고 로그인', 'Link and sign in')} disabled={!canSubmit} onPress={() => void submit()} />
         <Pressable accessibilityRole="link" style={styles.forgot} onPress={() => router.push('/forgot-password')}>
-          <Text variant="caption" color={color.action.primary}>{tx('비밀번호를 잊으셨나요?', 'Forgot your password?')}</Text>
+          <Text variant="caption" weight="bold" color={color.text.body}>{tx('비밀번호를 잊으셨나요?', 'Forgot your password?')}</Text>
         </Pressable>
       </View>
     </Screen>

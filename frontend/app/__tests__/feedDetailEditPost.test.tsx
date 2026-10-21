@@ -78,7 +78,7 @@ function installFetch() {
     requests.push({ url, method, body: init?.body ? JSON.parse(String(init.body)) : undefined });
 
     if (url.endsWith(`/api/v1/stories/${STORY_ID}`) && method === 'GET') {
-      return new Response(envelope(post({ mine: mineStory })), { status: 200, headers: { 'content-type': 'application/json' } });
+      return new Response(envelope(post({ mine: mineStory, ...(withPlace ? { region: '해운대구', place: { id: PLACE_ID, name: '해운대해수욕장', lat: null, lng: null } } : {}) })), { status: 200, headers: { 'content-type': 'application/json' } });
     }
     if (url.endsWith(`/api/v1/stories/${STORY_ID}/replies`)) {
       return new Response(envelope([]), { status: 200, headers: { 'content-type': 'application/json' } });
@@ -107,6 +107,8 @@ function installFetch() {
 
 let mineStory = false;
 let patchFails = false;
+let withPlace = false;
+const PLACE_ID = '55555555-5555-5555-5555-555555555555';
 
 // ⋯ 메뉴는 버튼 자리를 잰 뒤에 열린다(S15P21E201-1576). 시험 환경의 View 는 재는 함수가 아무것도 안 하는
 // 가짜라 그대로 두면 메뉴가 영영 안 열린다 — 버튼 하나의 자리를 돌려주게 한다.
@@ -120,6 +122,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   mineStory = false;
   patchFails = false;
+  withPlace = false;
   installFetch();
   measureButtonsAt(300, 100);
 });
@@ -180,5 +183,20 @@ describe('올린 기록 수정', () => {
     fireEvent.press(view.getAllByText('저장')[0]);
     await waitFor(() => expect(view.getAllByRole('alert').length).toBeGreaterThan(0));
     expect(view.getByLabelText('기록 수정')).toBeTruthy();
+  });
+
+  // 사용자 여정 점검(2026-09-29) — 쓸 때 단 장소를 고칠 때 뗄 수 있어야 한다. 서버는 clearPlace 로 받는다.
+  it('🔴 연결된 장소를 빼고 저장하면 clearPlace 가 나가고, 안 바꾼 지역은 안 싣는다', async () => {
+    mineStory = true;
+    withPlace = true;
+    const view = render(<StoryDetail />);
+    await waitFor(() => expect(view.getByText('오늘의 기록')).toBeTruthy());
+    fireEvent.press(view.getByLabelText('더 보기'));
+    fireEvent.press(view.getByText('수정'));
+    expect(view.getByText('📍 해운대해수욕장 연결됨')).toBeTruthy();
+    fireEvent.press(view.getByLabelText('해운대해수욕장 연결 빼기'));
+    fireEvent.press(view.getAllByText('저장')[0]);
+    await waitFor(() => expect(requests.some((r) => r.method === 'PATCH')).toBe(true));
+    expect(requests.find((r) => r.method === 'PATCH')?.body).toEqual({ body: '오늘의 기록', clearPlace: true });
   });
 });

@@ -7,6 +7,7 @@
 // 읽기 이름은 카탈로그에 이미 있는 문구(「이전」·「다음」·「사진 %d/%d」)를 쓴다 — 새 문구는 일본어·중국어로 떨어진다.
 import { useEffect, useRef, useState } from 'react';
 import { Image, Platform, Pressable, ScrollView, StyleSheet, View, type ImageResizeMode, type LayoutChangeEvent, type NativeScrollEvent, type NativeSyntheticEvent, type StyleProp, type ViewStyle } from 'react-native';
+import { AppImage } from '@/components/AppImage';
 
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
@@ -87,7 +88,7 @@ export function PhotoCarousel({
   };
 
   const photo = (url: string, at: number) => {
-    const image = <Image source={{ uri: url }} resizeMode={resizeMode} accessibilityIgnoresInvertColors style={styles.image} />;
+    const image = <AppImage source={{ uri: url }} resizeMode={resizeMode} accessibilityIgnoresInvertColors style={styles.image} />;
     const size = { width: width || '100%', height: '100%' } as const;
     return onPressPhoto
       ? <Pressable key={`${at}:${url}`} accessibilityRole="link" accessibilityLabel={pressLabel} onPress={() => onPressPhoto(at)} style={size}>{image}</Pressable>

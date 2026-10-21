@@ -13,6 +13,7 @@ import { Eyebrow } from '@/components/Eyebrow';
 import { Button } from '@/components/Button';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { addressForLanguage } from '@/discovery/localAddress';
 import { getLastVisitedPlace, type LastVisitedPlaceResult } from '@/discovery/lastVisitedPlace';
 import { getNearbyPlaces, type NearbyPlacesLoadResult } from '@/discovery/localExplore';
 import { RouteMap } from '@/map/RouteMap';
@@ -30,7 +31,7 @@ export default function Souvenirs() {
 }
 
 function SouvenirsForTrip({ tripId }: { tripId: string }) {
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
   const router = useRouter();
   const { accessToken } = useAuth();
 
@@ -132,7 +133,7 @@ function SouvenirsForTrip({ tripId }: { tripId: string }) {
               >
                 <View style={styles.grow}>
                   <Text weight="bold">{item.nameKo}</Text>
-                  {item.address ? <Text variant="caption" color={color.text.muted}>{item.address}</Text> : null}
+                  {item.address ? <Text variant="caption" color={color.text.muted}>{addressForLanguage(item, language)}</Text> : null}
                 </View>
                 <Text variant="caption" weight="bold" color={color.text.accent}>{tx(`${item.distanceM.toLocaleString()}m`, `${item.distanceM.toLocaleString()}m`)}</Text>
               </Pressable>

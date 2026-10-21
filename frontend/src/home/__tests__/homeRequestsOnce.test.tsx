@@ -20,10 +20,10 @@ import { loadFeed } from '@/social/stories';
 jest.mock('@/api/client', () => ({ apiRequest: jest.fn() }));
 jest.mock('@/trip/collaboration', () => ({ getTripActivity: jest.fn() }));
 jest.mock('@/trip/trips', () => ({ ...jest.requireActual('@/trip/trips'), loadTrips: jest.fn() }));
-jest.mock('@/social/stories', () => ({ loadFeed: jest.fn() }));
+jest.mock('@/social/stories', () => ({ loadFeed: jest.fn(), getStory: jest.fn(async () => ({ state: 'not-found' })) }));
 jest.mock('@/discovery/localExplore', () => ({ getFacets: jest.fn(async () => ({ state: 'success', facets: [] })) }));
 jest.mock('@/discovery/festivals', () => ({ ...jest.requireActual('@/discovery/festivals'), getFestivals: jest.fn(async () => []) }));
-jest.mock('@/discovery/places', () => ({ getPlacesByFacet: jest.fn(async () => []) }));
+jest.mock('@/discovery/places', () => ({ getPlacesByFacet: jest.fn(async () => []), getPlace: jest.fn(async (id: string) => ({ placeId: id, nameKo: id, nameEn: null, address: '' })) }));
 jest.mock('@/trip/weather', () => ({ loadWeatherForecast: jest.fn(async () => ({ state: 'empty' })) }));
 // 화면 초점 — 시험에는 화면이 없으니 그린 순간 한 번 도는 효과로 본다.
 jest.mock('expo-router', () => ({ useFocusEffect: (effect: () => void | (() => void)) => jest.requireActual('react').useEffect(effect, [effect]) }));

@@ -13,6 +13,7 @@
     "expo-constants": "~57.0.16",
     "expo-crypto": "~57.0.3",
     "expo-font": "~57.0.2",
+    "expo-image": "~57.0.5",
     "expo-image-manipulator": "~57.0.17",
     "expo-image-picker": "~57.0.17",
     "expo-linear-gradient": "~57.0.2",
@@ -77,5 +78,9 @@
     "verify:android-target-sdk": "node tools/verify-android-target-sdk.mjs",
     "eas-build-pre-install": "node tools/check-public-env.mjs"
   },
-  "private": true
+  "private": true,
+  "overrides": {
+    "brace-expansion@1": "1.1.21",
+    "brace-expansion@5": "5.0.12"
+  }
 }

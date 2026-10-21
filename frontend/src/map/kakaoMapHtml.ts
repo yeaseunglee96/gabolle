@@ -21,6 +21,7 @@ export function buildKakaoMapHtml(appKey: string): string {
   var map = null;
   var overlays = [];
   var fit = null;
+  var FOCUS_LEVEL = 4;
   var padNow = [60, 60, 60, 60];
   // 🔴 고른 곳이 바뀌면 다시 그리지 않는다(S15P21E201-1654). 전에는 고를 때마다 마커·선을 전부 새로 그리고
   //    전체 맞추기(setBounds — 순간 이동)를 해서 지도가 여행 전체로 튀었다. 고를 때는 아래 값만 고친다.
@@ -33,6 +34,34 @@ export function buildKakaoMapHtml(appKey: string): string {
   var locationOverlay = null;
   // 그린 경로 선마다 원래 점들과 그 선(테두리·선) — 줌이 바뀌면 덜어 낸 모양만 다시 셈한다(S15P21E201-1656).
   var lineRecords = [];
+  // 맞춤 대상(번호 장소) — 창을 열 때 가려진 점이 있는지 볼 때 쓴다(S15P21E201-1989).
+  var fitStopsNow = [];
+  // 보이는 띠가 이보다 좁으면(일정 창을 연 폰) 전체 맞춤 대신 고른 곳(없으면 1번)을 가까이 본다 — mapFocus.ts 의 NARROW_BAND·isNarrowBand(S15P21E201-1991).
+  //    띠 120~150 에 번호 장소 전부를 맞추면 김해~송정까지 물러나 점이 한 덩어리로 겹쳤다(빌드 47 폴드).
+  var NARROW_BAND = 200;
+  function narrow(pad, h) { return h > 0 && pad[2] > 60 && h - pad[0] - pad[2] < NARROW_BAND; }
+  // 좁은 띠에서 볼 곳 — 고른 곳, 없으면 첫 번호 장소.
+  function nearTarget() { return (selectedNow && stopsById[selectedNow]) ? stopsById[selectedNow] : fitStopsNow[0]; }
+  // 그곳을 가까이(FOCUS_LEVEL + 1), 보이는 띠 가운데에 «바로» 둔다(맞추기처럼 순간 이동 — 고를 때의 panTo 와 다르다).
+  function showNear(stop, pad, h) {
+    var maps = window.kakao.maps;
+    map.setLevel(FOCUS_LEVEL + 1);
+    var target = new maps.LatLng(stop.latitude, stop.longitude);
+    map.setCenter(target);
+    var shift = Math.max(0, pad[2] - pad[0]) / 2;
+    if (!shift || !(h > 0)) return;
+    var projection = map.getProjection();
+    var point = projection.containerPointFromCoords(target);
+    map.setCenter(projection.coordsFromContainerPoint(new maps.Point(point.x, point.y + shift)));
+  }
+  // 이 점이 위·아래 가림 띠(여백 pad = 가림 + 점 반지름) 밖, 보이는 자리에 있나.
+  function inBand(stop, pad) {
+    try {
+      var el = document.getElementById('map'); var h = el.clientHeight || 0; var w = el.clientWidth || 0;
+      var pt = map.getProjection().containerPointFromCoords(new window.kakao.maps.LatLng(stop.latitude, stop.longitude));
+      return pt.y >= pad[0] && pt.y <= h - pad[2] && pt.x >= 24 && pt.x <= w - 24;
+    } catch (e) { return true; }
+  }
   // 웹 RouteMap.tsx 의 ROUTE_WEIGHT·CASING_EXTRA·REAL_OPACITY·ESTIMATED_OPACITY·SIMPLIFY_PIXELS 와 같은 값.
   var ROUTE_WEIGHT = 5, CASING_EXTRA = 4, REAL_OPACITY = 0.9, ESTIMATED_OPACITY = 0.45, SIMPLIFY_PIXELS = 2;
 
@@ -135,6 +164,8 @@ export function buildKakaoMapHtml(appKey: string): string {
     for (var p = 0; p < points.length; p++) {
       for (var q = 0; q < points[p].stops.length; q++) pointStops.push(points[p].stops[q]);
     }
+    // 점 표시(지하철역 등)도 고를 수 있다 — 웹 RouteMap.tsx 와 같다(S15P21E201-1834).
+    for (var ps = 0; ps < pointStops.length; ps++) if (!stopsById[pointStops[ps].id]) stopsById[pointStops[ps].id] = pointStops[ps];
     var visible = stops.concat(pointStops);
     if (!visible.length) return;
 
@@ -147,11 +178,16 @@ export function buildKakaoMapHtml(appKey: string): string {
     for (var i = 0; i < overlays.length; i++) overlays[i].setMap(null);
     overlays = [];
 
+    // 🔴 맞추는 범위는 번호 장소만이다(S15P21E201-1903) — 출발지·숙소 같은 점 표시까지 넣으면 먼 출발지(부산역) 때문에
+    //    해운대 네 곳이 한 점에 뭉쳤다(김해~기장이 한 화면). 번호 장소가 없을 때만(주변 도움 지도 등) 점 표시로 맞춘다.
+    var fitStops = stops.length ? stops : visible;
+    // 점 표시(기준 장소 등)도 맞춘다 — 근처 편의시설 지도(S15P21E201-2052). 안 주면 전과 같다. 웹 mapFocus.ts 의 fitTargets(includePoints) 와 같다.
+    if (data.fitPoints) fitStops = visible;
     var bounds = new maps.LatLngBounds();
+    for (var fb = 0; fb < fitStops.length; fb++) bounds.extend(new maps.LatLng(fitStops[fb].latitude, fitStops[fb].longitude));
     for (var s = 0; s < visible.length; s++) {
       var stop = visible[s];
       var position = new maps.LatLng(stop.latitude, stop.longitude);
-      bounds.extend(position);
       var layer = null;
       for (var l = 0; l < points.length; l++) {
         for (var k = 0; k < points[l].stops.length; k++) {
@@ -181,12 +217,15 @@ export function buildKakaoMapHtml(appKey: string): string {
       }
       content.style.transition = 'transform 300ms cubic-bezier(.34,1.3,.64,1)';
       styleSelection(content, markerColor, stop.id === selectedId);
-      markers[stop.id] = { el: content, color: markerColor };
+      markers[stop.id] = { el: content, color: markerColor, z: layer ? 1 : 2 };
       (function (stopId) { content.onclick = function () { post('select', stopId); }; })(stop.id);
       // 🔴 출발지·숙소 같은 표시는 번호 장소 아래에 깐다(S15P21E201-1788) — 가까우면 「출발지」가 1번을 덮었다.
       //    겹쳐도 글자가 더 넓어 옆으로 보인다. 웹 RouteMap.tsx 와 같은 값.
       var overlay = new maps.CustomOverlay({ position: position, content: content, yAnchor: 0.5, zIndex: layer ? 1 : 2 });
       overlay.setMap(map); overlays.push(overlay);
+      // 🔴 고른 점은 겹친 점들 위에 — 마커 요소의 z-index 는 오버레이 상자 안에서만 통해서 오버레이 자체를 올린다(웹 RouteMap.tsx 의 SELECTED_Z_INDEX 와 같다, S15P21E201-2052).
+      markers[stop.id].overlay = overlay;
+      if (stop.id === selectedId && overlay.setZIndex) overlay.setZIndex(3);
     }
 
     window.__moveKakaoLocation(data.currentLocation);
@@ -212,9 +251,9 @@ export function buildKakaoMapHtml(appKey: string): string {
       if (points.length < 2) continue;
       // 실제 길 좌표가 있고 "추정 아님" 이라고 적혀 있을 때만 진하다. 나머지는 어림이라 옅다.
       var real = !!(route.path && route.path.length) && route.estimated === false;
-      // 걷는 길의 경사 조각 — 앱(RouteMap.native.tsx)이 slopeGrades.ts 로 잘라 색을 붙여 segments 로 보낸다(S15P21E201-1658).
+      // 걷는 길의 조각 — 앱(RouteMap.native.tsx)이 routeGrading.ts 로 고른 조건대로 잘라 색을 붙여 segments 로 보낸다(S15P21E201-1658 · -1896).
       if (route.weight == null) { drawRouteLine(points, route.segments && route.segments.length ? route.segments : [{ points: points, color: route.color }], route.opacity != null ? route.opacity : (real ? REAL_OPACITY : ESTIMATED_OPACITY)); continue; }
-      // 경사·그늘 겹(굵기를 직접 준 선)은 경로 아래 깔리는 옅은 띠라 그대로 그린다.
+      // 굵기를 직접 준 보조 선(전의 경사·그늘 겹)은 경로 아래 깔리는 옅은 띠라 그대로 그린다.
       var line = new maps.Polyline({ path: toPath(points), strokeWeight: route.weight, strokeColor: route.color, strokeOpacity: route.opacity != null ? route.opacity : (real ? 0.9 : 0.75), strokeStyle: real ? 'solid' : 'shortdash' });
       line.setMap(map); overlays.push(line);
     }
@@ -222,7 +261,19 @@ export function buildKakaoMapHtml(appKey: string): string {
     // 와 같은 이유 — 점이 하나면 bounds 넓이가 0이라 최대 줌으로 튄다.
     // 여백은 앱이 셈해서 보낸다 — 아래가 창에 가려진 만큼 더(S15P21E201-1607, mapFocus.ts). 안 보내면 네 변 60.
     padNow = data.fitPadding || [60, 60, 60, 60];
-    fit = function () { var pad = padNow; if (visible.length <= 1) { map.setCenter(center); map.setLevel(5); } else map.setBounds(bounds, pad[0], pad[1], pad[2], pad[3]); focusOn(selectedNow); };
+    fit = function () {
+      // 🔴 여백은 그릴 때의 지도 높이로 셈한 값이다(S15P21E201-1903). 폰을 가로로 돌리면 높이가 확 줄어 그 여백이 지도를 다 덮고, 카카오가 동아시아 전체로 물러났다.
+      //    지금 높이로 다시 줄여 맞출 자리를 60 은 남긴다(mapFocus.fitPadding 과 같은 규칙).
+      var pad = padNow.slice(); var el = document.getElementById('map'); var h = el.clientHeight || 0; var w = el.clientWidth || 0;
+      // 위·아래 가림 띠는 앱이 따로 셈해 보낸다(mapFocus.fitPadding, S15P21E201-1988). 여기서는 지금 높이에서 맞출 자리가
+      // 48 보다 좁아질 때만 아래부터(점 반지름 24 까지) 줄이고, 그래도 모자라면 위를 줄인다 — 같은 규칙.
+      if (h > 0) { var over = pad[0] + pad[2] + 48 - h; if (over > 0) { var cut = Math.min(over, pad[2] - 24); pad[2] -= cut; over -= cut; } if (over > 0) pad[0] = Math.max(24, pad[0] - over); }
+      // 🔴 전체를 맞춘 뒤에는 고른 곳으로 «밀지 않는다»(S15P21E201-1989) — 맞춘 범위를 고른 곳 쪽으로 밀면 반대쪽 끝 점이 가림 띠 뒤로 나갔다
+      //    (빌드 47 폴드 접음, 해운대 당일 6번). 고른 곳이 이미 보이는 띠 안이면 그대로 둔다.
+      if (fitStops.length > 1 && narrow(pad, h)) { var near = selectedNow && stopsById[selectedNow] ? stopsById[selectedNow] : fitStops[0]; showNear(near, pad, h); return; }
+      if (fitStops.length <= 1) { map.setCenter(new maps.LatLng(fitStops[0].latitude, fitStops[0].longitude)); map.setLevel(5); } else map.setBounds(bounds, pad[0], pad[1], pad[2], pad[3]);
+      if (selectedNow && stopsById[selectedNow] && !inBand(stopsById[selectedNow], pad)) focusOn(selectedNow); };
+    fitStopsNow = fitStops;
     fit();
     // 맞추면 줌이 바뀐다 — 줌 사건이 안 오는 환경도 있어 맞춘 뒤 한 번 더 셈한다.
     resimplify();
@@ -240,23 +291,63 @@ export function buildKakaoMapHtml(appKey: string): string {
     resimplify();
   };
 
+  // 창을 «열 때» RN 쪽이 부른다(S15P21E201-1989). 지금 화면에서 가림 띠 뒤로 숨는 번호 점이 하나라도 있을 때만 새 여백으로 다시 맞춘다 —
+  // 다 보이면 그대로 둔다(창을 열 때마다 튀지 않게, S15P21E201-1607). 전에는 접을 때 맞춘 줌 그대로 창이 올라와 아래쪽 점이 창 뒤에 숨었다.
+  window.__ensureKakaoMapFits = function (data) {
+    if (!map || !fit) return;
+    var pad = data.fitPadding || padNow;
+    var hidden = false;
+    var el = document.getElementById('map'); var h = (el && el.clientHeight) || 0;
+    // 좁은 띠면 다 보이게 할 수 없다 — 볼 곳(고른 곳·1번)이 띠 안에 있는지만 본다(S15P21E201-1991).
+    if (fitStopsNow.length > 1 && narrow(pad, h)) { var near = nearTarget(); if (near && !inBand(near, pad)) hidden = true; }
+    else for (var i = 0; i < fitStopsNow.length; i++) if (!inBand(fitStopsNow[i], pad)) { hidden = true; break; }
+    padNow = pad;
+    shiftNow = data.shiftY || 0;
+    if (!hidden) return;
+    fit();
+    resimplify();
+  };
+
   // 고른 곳만 바뀌었을 때 RN 쪽이 부른다 — 마커 모양만 바꾸고 panTo. 다시 그리지도, 다시 맞추지도 않는다.
   window.__selectKakaoMap = function (data) {
     if (!map) return;
     focusNow = !!data.focus;
     shiftNow = data.shiftY || 0;
-    for (var id in markers) styleSelection(markers[id].el, markers[id].color, id === data.selectedId);
+    for (var id in markers) {
+      styleSelection(markers[id].el, markers[id].color, id === data.selectedId);
+      if (markers[id].overlay && markers[id].overlay.setZIndex) markers[id].overlay.setZIndex(id === data.selectedId ? 3 : markers[id].z);
+    }
     if (selectedNow === data.selectedId) return;
     selectedNow = data.selectedId;
+    // 🔴 고르면 그 장소가 보일 만큼 확대한다(S15P21E201-1903) — 전에는 옮기기만 해서 멀리서 본 채 핀이 겹쳐 있었다.
+    //    이미 더 가까이 보고 있으면 그대로 둔다(사람이 맞춘 줌을 빼앗지 않는다). mapFocus.ts 의 FOCUS_LEVEL 과 같은 값.
+    if (focusNow && map.getLevel() > FOCUS_LEVEL) map.setLevel(FOCUS_LEVEL);
     focusOn(selectedNow);
   };
 
+  // 확대·축소 단추(RouteMap.native.tsx) — 스크롤 안에 든 지도(길 안내)는 두 손가락 확대가 스크롤과 다툰다.
+  window.__zoomKakaoMap = function (delta) {
+    if (!map) return;
+    var next = Math.max(1, Math.min(14, map.getLevel() + delta));
+    // 🔴 보이는 부분의 가운데를 기준으로 확대한다 — 지도 칸 가운데는 아래 창에 가려진 자리라, 그곳으로 확대하면 보이는 위쪽이 바다로만 찼다(실기기).
+    var el = document.getElementById('map');
+    var anchor = null;
+    try { anchor = map.getProjection().coordsFromContainerPoint(new window.kakao.maps.Point(el.clientWidth / 2, el.clientHeight / 2 - (shiftNow || 0))); } catch (e) { anchor = null; }
+    if (anchor) map.setLevel(next, { animate: true, anchor: anchor }); else map.setLevel(next, { animate: true });
+  };
+
   // 현재 위치는 점만 옮긴다 — 움직일 때마다 전체를 다시 맞추면 걷는 내내 지도가 튄다.
-  window.__moveKakaoLocation = function (loc) {
+  // follow = 길 안내 중(route-detail 의 탑승) — 내 위치를 따라간다(S15P21E201-1903). 처음 한 번은 동네가 보이게 확대한다.
+  var followedOnce = false;
+  window.__moveKakaoLocation = function (loc, follow) {
     if (!map || !window.kakao) return;
     var maps = window.kakao.maps;
-    if (!loc) { if (locationOverlay) { locationOverlay.setMap(null); locationOverlay = null; } return; }
+    if (!loc) { if (locationOverlay) { locationOverlay.setMap(null); locationOverlay = null; } followedOnce = false; return; }
     var curPos = new maps.LatLng(loc.latitude, loc.longitude);
+    if (follow) {
+      if (!followedOnce) { if (map.getLevel() > FOCUS_LEVEL) map.setLevel(FOCUS_LEVEL); map.setCenter(curPos); followedOnce = true; }
+      else map.panTo(curPos);
+    } else followedOnce = false;
     if (locationOverlay) { locationOverlay.setPosition(curPos); return; }
     var curEl = document.createElement('div');
     curEl.setAttribute('aria-label', '현재 위치');

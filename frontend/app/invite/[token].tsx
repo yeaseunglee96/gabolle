@@ -15,7 +15,8 @@ import { acceptTripInvite } from '@/trip/collaboration';
 import { loadTripItineraries } from '@/trip/trips';
 import { localizeMessage } from '@/i18n/messages';
 
-type Status = { state: 'checking' } | { state: 'expired' } | { state: 'error'; message: string };
+// gone — 초대는 있는데 그 여행이 지워졌거나 초대 자체가 없다(S15P21E201-1985). 전에는 말없이 「내 여행」으로 보냈다.
+type Status = { state: 'checking' } | { state: 'expired' } | { state: 'gone' } | { state: 'error'; message: string };
 
 export default function AcceptInvite() {
   const router = useRouter();
@@ -45,6 +46,10 @@ export default function AcceptInvite() {
         // 여행 탭으로 보낸다.
         const itineraries = await loadTripItineraries(accepted.tripId, accessToken);
         if (!active) return;
+        if (itineraries.state === 'unavailable') {
+          setStatus({ state: 'gone' });
+          return;
+        }
         if (itineraries.state === 'success' && itineraries.itineraries.length === 1) {
           router.replace(`/trips/${itineraries.itineraries[0].itineraryId}/itinerary`);
         } else {
@@ -52,6 +57,10 @@ export default function AcceptInvite() {
         }
       } catch (cause) {
         if (!active) return;
+        if (cause instanceof ApiClientError && (cause.code === 'TRIP_INVITE_NOT_FOUND' || cause.code === 'TRIP_NOT_FOUND')) {
+          setStatus({ state: 'gone' });
+          return;
+        }
         if (cause instanceof ApiClientError && cause.code === 'TRIP_INVITE_EXPIRED') {
           setStatus({ state: 'expired' });
           return;
@@ -78,6 +87,14 @@ export default function AcceptInvite() {
         <Text variant="title" weight="bold">{tx('초대 링크가 만료되었어요', 'This invite link has expired')}</Text>
         <Text color={color.text.body}>{tx('초대 링크는 발급 후 7일 동안만 사용할 수 있어요. 초대한 사람에게 새 링크를 요청해 주세요.', 'Invite links are valid for 7 days after they’re created. Please ask for a new link.')}</Text>
         <Button label={tx('홈으로', 'Go home')} onPress={() => router.replace('/home')} />
+      </View>
+    )}
+    {status.state === 'gone' && (
+      <View accessibilityRole="alert" style={styles.card}>
+        <Text variant="title" weight="bold">{tx('이 초대로 갈 수 있는 여행이 없어요', 'There is no trip for this invite')}</Text>
+        <Text color={color.text.body}>{tx('초대가 취소됐거나 여행이 지워졌을 수 있어요. 초대한 사람에게 새 링크를 요청해 주세요.', 'The invite may have been cancelled or the trip deleted. Please ask for a new link.')}</Text>
+        <Button label={tx('내 여행으로', 'Go to my trips')} onPress={() => router.replace('/trips')} />
+        <Button label={tx('홈으로', 'Go home')} variant="tertiary" onPress={() => router.replace('/home')} />
       </View>
     )}
     {status.state === 'error' && (

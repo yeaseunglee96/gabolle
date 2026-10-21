@@ -1,7 +1,10 @@
-// 로컬 탐색 화면 (상세설계서 v2 P-17). 8개 갈래(축제·야시장·전통시장·액티비티
-// 산책·자연·야경·기념품샵) 중 하나를 고르고, 내 근처와 부산 전체를 전환해 본다.
-import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Linking, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+// 로컬 탐색 화면 (상세설계서 v2 P-17). 첫 칸은 「로컬 장소」 묶음(S15P21E201-2024)이고, 그 뒤로 8개 갈래
+// (축제·야시장·전통시장·액티비티·산책·자연·야경·기념품샵) 중 하나를 고르며, 내 근처와 부산 전체를 전환해 본다.
+// 서버에 자료가 있으면 맨 뒤에 「맛집」과 「카페」가 더해진다(S15P21E201-2051 · S15P21E201-2059) — 현지인이 추천했거나 공공기관이 인증·소개한 곳만이고,
+// 범위 대신 구 → 동을 고른다. 내 위치를 읽었으면 가장 가까운 곳의 구를 미리 골라 그 구의 전체 목록을 바로 보여 준다.
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, Linking, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { AppImage } from '@/components/AppImage';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Location from 'expo-location';
 import { readCurrentPosition } from '@/location/currentPosition';
@@ -18,18 +21,29 @@ import { Eyebrow } from '@/components/Eyebrow';
 import { ScopeSwitch } from '@/discovery/ScopeSwitch';
 import { EXPLORE_GRID_GAP, exploreCardWidth } from '@/discovery/exploreGrid';
 import { PhotoSubjectBadge } from '@/components/PhotoSubjectBadge';
-import { color, radius, spacing } from '@/design/tokens';
+import { color, gutter, radius, spacing } from '@/design/tokens';
 import { flattenLocalFacets, getFacets, getNearbyPlaces, localFacetLabel, localPlaceName, type FacetsLoadResult, type LocalFacetEntry, type NearbyPlacesLoadResult } from '@/discovery/localExplore';
-import { getPlacesByFacet, photoLabels, type PhotoSubject, type PlaceSearchItem } from '@/discovery/places';
+import { getAllLocalPlaces, getNearbyLocalPlaces, isLocalPlaces, localPlacesLabel, withLocalPlacesFirst } from '@/discovery/localPlaces';
+import { getPlacesByFacetPage, photoLabels, type PhotoSubject, type PlaceSearchItem } from '@/discovery/places';
 import { useI18n } from '@/i18n';
+import { romanizeKorean } from '@/discovery/romanize';
+import { addressForLanguage } from '@/discovery/localAddress';
 import { txf } from '@/i18n/format';
 import { localizeMessage } from '@/i18n/messages';
 import { syncLocationConsent } from '@/personalization/locationConsent';
 import { useLocationGate } from '@/personalization/useLocationGate';
+import { SuggestPlaceLink } from '@/discovery/SuggestPlaceLink';
+import { localKindOf, placeCafeAfterRestaurant, type RestaurantItem } from '@/discovery/localRestaurants';
+import { LOCAL_PICK_ORDER } from '@/home/homeCuration';
+import { RestaurantBrowser, RestaurantSourceBadges } from '@/discovery/RestaurantBrowser';
+import { RouteMap, type MapRouteLayer } from '@/map/RouteMap';
+import type { MapStop } from '@/map/types';
 
 // 여덟 갈래의 실제 값(jaehyeon 님 확인) — 서버가 이 여덟을 항상 함께 돌려주므로, 응답에서
 // 이 값과 일치하는 항목만 골라 순서는 서버가 준 그대로 둔다. 화면 쪽에서 새로 만들지 않는다.
-const KNOWN_FACET_KEYS = new Set(['FESTIVAL', 'NIGHT_MARKET', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE', 'NIGHT_VIEW', 'SOUVENIR_SHOP']);
+// LOCAL_RESTAURANT(맛집)·LOCAL_CAFE(카페)는 여덟과 달리 «자료가 있을 때만» 온다(S15P21E201-2051 · S15P21E201-2059) — 서버가 안 주면 이 집합에 있어도
+// 칩이 안 그려지고, 0곳이면 아래 flattenLocalFacets 가 거른다. 앱을 서버보다 먼저 배포해도 되는 이유다.
+const KNOWN_FACET_KEYS = new Set(['FESTIVAL', 'NIGHT_MARKET', 'TRADITIONAL_MARKET', 'ACTIVITY', 'WALK', 'NATURE', 'NIGHT_VIEW', 'SOUVENIR_SHOP', 'LOCAL_RESTAURANT', 'LOCAL_CAFE']);
 
 // : 장소가 0곳인 갈래는 목록에서 아예 뺀다(지우는 게 아니라 거르는 것
 // 적재가 돌아 placeCount 가 늘면 다음 조회에서 코드 변경 없이 다시 나타난다).
@@ -59,9 +73,12 @@ export default function LocalExplore() {
     setLoading(false);
   }, []);
 
-  const detectLocation = useCallback(async () => {
-    // 🔴 위치 동의가 먼저다(S15P21E201-1691) — 「내 위치로」를 누른 것은 쓰고 싶다는 뜻이라, 거절했어도 다시 묻는다.
-    if (!(await locationGate.request())) { setLocationState('denied'); return; }
+  const detectLocation = useCallback(async (mode: 'request' | 'ensure' = 'request') => {
+    // 🔴 위치 동의가 먼저다(S15P21E201-1691) — 「내 위치로」를 누른 것('request')은 쓰고 싶다는 뜻이라, 거절했어도 다시 묻는다.
+    //    맛집·카페 칩을 누른 것('ensure')은 그렇지 않다 — 칩은 갈래를 고르는 손짓이지 위치를 쓰겠다는 말이 아니다. 물은 적이 없을 때만 한 번
+    //    묻고, 거절했으면 조르지 않는다(그 뒤에도 구를 직접 고르면 된다).
+    const allowed = mode === 'ensure' ? await locationGate.ensure() : await locationGate.request();
+    if (!allowed) { setLocationState('denied'); return; }
     setLocationState('detecting');
     try {
       const permission = await Location.requestForegroundPermissionsAsync();
@@ -72,7 +89,7 @@ export default function LocalExplore() {
     } catch {
       setLocationState('denied');
     }
-  }, [locationGate.request]);
+  }, [locationGate.request, locationGate.ensure]);
 
   const restoreGrantedLocation = useCallback(async () => {
     // 🔴 동의가 없으면 조용히 읽지도 않는다(S15P21E201-1691). 묻는 것은 「내 위치로」를 누를 때다.
@@ -95,11 +112,18 @@ export default function LocalExplore() {
   useEffect(() => { void restoreGrantedLocation(); }, [restoreGrantedLocation]);
   useEffect(() => { if (requestedFacet) setSelectedKey(requestedFacet); }, [requestedFacet]);
 
-  const facets = flattenLocalFacets(result, KNOWN_FACET_KEYS);
+  // 카페는 맛집 바로 뒤에 — 서버가 글자순으로 주던 응답이 와도 같은 순서다.
+  const flatFacets = flattenLocalFacets(result, KNOWN_FACET_KEYS);
+  // 탭 순서는 홈 로컬 탐색과 같다(LOCAL_PICK_ORDER). 거기 없는 갈래(야시장·기념품)는 서버 순서대로 뒤에 선다.
+  const facets = flatFacets ? orderLikeHome(placeCafeAfterRestaurant(flatFacets)) : flatFacets;
   // 홈에서 특정 갈래를 눌러 들어온 경우 그 갈래를 맨 위에서 바로 펼친다. 선택값을 버린 채
   // 같은 첫 화면만 보여 주면 사용자는 버튼이 동작하지 않았다고 느낀다.
-  const visibleFacets = facets && requestedFacet
-    ? [...facets].sort((a, b) => Number(b.featureKey === requestedFacet) - Number(a.featureKey === requestedFacet))
+  // 첫 칸은 「로컬 장소」 묶음이다(S15P21E201-2024) — 전에는 서버 순서대로 「전통시장」이 첫 칸이었다.
+  // 홈에서 특정 갈래로 들어오면 그 갈래가 묶음 바로 뒤에 오고 선택된 채 열린다.
+  const visibleFacets = facets
+    ? withLocalPlacesFirst(requestedFacet
+      ? [...facets].sort((a, b) => Number(b.featureKey === requestedFacet) - Number(a.featureKey === requestedFacet))
+      : facets)
     : facets;
   useEffect(() => {
     if (!selectedKey && visibleFacets?.length) setSelectedKey(visibleFacets[0].featureKey);
@@ -116,6 +140,18 @@ export default function LocalExplore() {
   const selectedFacet = visibleFacets?.find((entry) => entry.featureKey === selectedKey) ?? visibleFacets?.[0] ?? null;
   // 폰 2열 · 600~1023 3열 · 1024~ 4열. 계산은 exploreGrid 가 하고 여기서는 값만 받는다.
   const cardWidth = exploreCardWidth(width);
+  // 맛집·카페는 「내 근처 / 부산 전체」가 아니라 구 → 동이 범위를 대신한다(S15P21E201-2051 · S15P21E201-2059).
+  const localKind = localKindOf(selectedFacet);
+
+  // 맛집·카페 칩을 누르면 내 위치로 구를 미리 고른다. 위치를 이미 읽었으면(전에 동의한 사람) 그것을 쓰고, 아니면 이 화면에서 한 번만 묻는다.
+  const locateTried = useRef(false);
+  const selectFacet = useCallback((key: string) => {
+    setSelectedKey(key);
+    if (localKindOf({ featureKey: key }) && !coords && !locateTried.current) {
+      locateTried.current = true;
+      void detectLocation('ensure');
+    }
+  }, [coords, detectLocation]);
 
   return (
     <Screen scroll wide={split} style={styles.screen}>
@@ -139,10 +175,13 @@ export default function LocalExplore() {
             색을 안 주면 아이보리 바탕에 흰 글자가 되어 아무것도 안 보인다. 타입도 시험도
             안 잡는 종류라 여기서 반드시 준다. */}
         <Text variant={wide ? 'hero' : 'display'} weight="bold" color={color.text.heading}>
-          {tx('부산을 로컬처럼 둘러보기', 'Explore Busan like a local')}
+          {tx('부산 로컬 둘러보기', 'Explore local Busan')}
         </Text>
         <Text color={color.text.body}>{tx('갈래를 고르고, 내 근처 또는 부산 전체에서 찾아보세요.', 'Choose a category, then search nearby or across Busan.')}</Text>
       </View>
+
+      {/* 현지인이 직접 장소를 알려 주는 입구(S15P21E201-2031). */}
+      <View style={styles.suggest}><SuggestPlaceLink tx={tx} variant="card" /></View>
 
       {loading ? (
         <View accessibilityLiveRegion="polite" style={styles.stateCard}><ActivityIndicator color={color.action.primary} /><Text color={color.text.body}>{tx('갈래를 불러오고 있어요', 'Loading categories')}</Text></View>
@@ -166,23 +205,25 @@ export default function LocalExplore() {
               전에는 1024 부터 왼쪽 기둥(320)이 됐는데, 그 폭만큼 정작 보러 온 결과가 좁아졌다.
               갈래는 여덟 개뿐이라 한 줄에 들어간다 (시안 05).
           */}
-          <View style={[styles.filterBar, wide && styles.filterBarWide]}>
+          <View style={[styles.filterBar, wide ? styles.filterBarWide : styles.filterBarPhone]}>
             <FacetPicker
               facets={visibleFacets}
               selectedKey={selectedFacet?.featureKey ?? null}
-              onSelect={setSelectedKey}
+              onSelect={selectFacet}
               mode={wide ? 'wrap' : 'rail'}
               language={language}
             />
-            <ScopeSwitch
-              options={[
-                { value: 'nearby', label: tx('내 근처', 'Nearby') },
-                { value: 'all', label: tx('부산 전체', 'All Busan') },
-              ]}
-              value={scope}
-              onChange={setScope}
-              style={wide ? styles.scopeWide : undefined}
-            />
+            {localKind ? null : (
+              <ScopeSwitch
+                options={[
+                  { value: 'nearby', label: tx('내 근처', 'Nearby') },
+                  { value: 'all', label: tx('부산 전체', 'All Busan') },
+                ]}
+                value={scope}
+                onChange={setScope}
+                style={wide ? styles.scopeWide : undefined}
+              />
+            )}
           </View>
 
           {/* 결과 머리 — 안내 한 줄이 여기 붙는다. 고르는 자리에 있으면 「무엇을 고를까」를
@@ -191,18 +232,25 @@ export default function LocalExplore() {
           {selectedFacet ? (
             <View style={styles.resultHead}>
               <Text variant="display" weight="bold">
-                {localFacetLabel(selectedFacet, language)}{' '}
-                <Text variant="display" weight="bold" color={color.text.muted}>{tx(`${selectedFacet.placeCount}곳`, `${selectedFacet.placeCount} places`)}</Text>
+                {isLocalPlaces(selectedFacet) ? localPlacesLabel(language) : localFacetLabel(selectedFacet, language, tx)}
+                {/* 묶음은 갈래끼리 겹쳐 개수를 모른다 — 숫자를 안 그린다. */}
+                {isLocalPlaces(selectedFacet) ? null : <>{' '}<Text variant="display" weight="bold" color={color.text.muted}>{tx(`${selectedFacet.placeCount}곳`, `${selectedFacet.placeCount} places`)}</Text></>}
               </Text>
               <Text variant="caption" style={styles.resultNote}>
-                {scope === 'all'
-                  ? tx('부산 전체는 거리 제한 없이 찾아요.', 'All Busan searches without a distance limit.')
-                  : tx('내 근처는 반경 안에서 찾아요. 결과의 검색 범위를 확인하거나 부산 전체로 바꿔 보세요.', 'Nearby searches within a radius. Check the range shown with results, or switch to All Busan.')}
+                {localKind === 'RESTAURANT'
+                  ? tx('현지인이 추천했거나 공공기관이 인증한 식당만 보여 드려요. 구와 동을 차례로 골라 보세요.', 'Only restaurants recommended by locals or certified by public agencies. Pick a district, then a neighborhood.')
+                  : localKind === 'CAFE'
+                    ? tx('현지인이 추천했거나 공공기관이 소개한 카페만 보여 드려요. 구와 동을 차례로 골라 보세요.', 'Only cafes recommended by locals or featured by public agencies. Pick a district, then a neighborhood.')
+                  : scope === 'all'
+                    ? tx('부산 전체는 거리 제한 없이 찾아요.', 'All Busan searches without a distance limit.')
+                    : tx('내 근처는 반경 안에서 찾아요. 결과의 검색 범위를 확인하거나 부산 전체로 바꿔 보세요.', 'Nearby searches within a radius. Check the range shown with results, or switch to All Busan.')}
               </Text>
             </View>
           ) : null}
 
-          {selectedFacet ? <LocalBranchList facet={selectedFacet} scope={scope} coords={coords} canAskAgain={canAskAgain} onRetryLocation={() => void detectLocation()} cardWidth={cardWidth} /> : null}
+          {localKind
+            ? <RestaurantBrowser key={localKind} kind={localKind} wide={wide} coords={coords} renderRows={(items) => <PlaceRows items={items} cardWidth={cardWidth} />} />
+            : selectedFacet ? <LocalBranchList facet={selectedFacet} groupFacets={facets ?? []} scope={scope} coords={coords} canAskAgain={canAskAgain} onRetryLocation={() => void detectLocation()} cardWidth={cardWidth} /> : null}
         </View>
       ) : null}
       {locationGate.sheet}
@@ -228,26 +276,38 @@ function FacetPicker({ facets, selectedKey, onSelect, mode, language }: {
    */
   language: Parameters<typeof localFacetLabel>[1];
 }) {
+  const { tx } = useI18n();
+  // 🔴 고른 갈래가 칩 줄 밖에 숨어 있으면 무엇을 보고 있는지 모른다 — 홈의 「자연」 카드로 들어오면 첫 화면에
+  //    「전통시장 · 축제 · 액티비티」만 보이고 고른 「자연」은 오른쪽 밖이었다. 고른 칩이 보이게 줄을 옮긴다.
+  const railRef = useRef<ScrollView>(null);
+  const chipX = useRef<Record<string, number>>({});
+  const scrollToSelected = () => {
+    const x = selectedKey ? chipX.current[selectedKey] : undefined;
+    if (x !== undefined) railRef.current?.scrollTo({ x: Math.max(0, x - gutter), animated: false });
+  };
+  useEffect(scrollToSelected, [selectedKey]);
   const chips = facets.map((entry) => {
     const selected = entry.featureKey === selectedKey;
-    const label = localFacetLabel(entry, language);
+    const label = isLocalPlaces(entry) ? localPlacesLabel(language) : localFacetLabel(entry, language, tx);
     return (
-      <Pressable key={entry.featureKey} accessibilityRole="button" accessibilityState={{ selected }} onPress={() => onSelect(entry.featureKey)} style={[styles.categoryChip, selected && styles.categoryChipSelected]}>
+      <Pressable key={entry.featureKey} onLayout={(event) => { chipX.current[entry.featureKey] = event.nativeEvent.layout.x; if (selected) scrollToSelected(); }} accessibilityRole="button" accessibilityState={{ selected }} onPress={() => onSelect(entry.featureKey)} style={[styles.categoryChip, selected && styles.categoryChipSelected]}>
         {/* 개수는 이름과 다른 굵기·흐린 색으로 둔다 — 「축제 12」가 한 덩어리로 읽히면
             12가 이름의 일부처럼 보인다 (시안 05). */}
         <Text weight="bold" numberOfLines={1} color={selected ? color.text.onAction : color.text.heading}>{selected ? '✓ ' : ''}{label}</Text>
-        <Text variant="caption" weight="bold" numberOfLines={1} color={selected ? color.text.onAction : color.text.muted} style={styles.chipCount}>{entry.placeCount}</Text>
+        {isLocalPlaces(entry) ? null : <Text variant="caption" weight="bold" numberOfLines={1} color={selected ? color.text.onAction : color.text.muted} style={styles.chipCount}>{entry.placeCount}</Text>}
       </Pressable>
     );
   });
   if (mode === 'rail') {
-    return <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryRail}>{chips}</ScrollView>;
+    return <ScrollView ref={railRef} horizontal showsHorizontalScrollIndicator={false} style={styles.categoryRailBleed} contentContainerStyle={styles.categoryRail}>{chips}</ScrollView>;
   }
   return <View style={styles.facetWrap}>{chips}</View>;
 }
 
-function LocalBranchList({ facet, scope, coords, canAskAgain, onRetryLocation, cardWidth }: {
+function LocalBranchList({ facet, groupFacets, scope, coords, canAskAgain, onRetryLocation, cardWidth }: {
   facet: LocalFacetEntry;
+  /** 「로컬 장소」 묶음일 때 섞어 부를 실제 갈래들. */
+  groupFacets: LocalFacetEntry[];
   scope: ExploreScope;
   coords: { latitude: number; longitude: number } | null;
   canAskAgain: boolean;
@@ -260,30 +320,70 @@ function LocalBranchList({ facet, scope, coords, canAskAgain, onRetryLocation, c
   const [allItems, setAllItems] = useState<PlaceSearchItem[] | null>(null);
   const [allError, setAllError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  // 🔴 부산 전체는 20곳씩 끊어 받는다 — 서버가 준 커서로 «더 보기»를 이어 간다(S15P21E201-2060). 전에는 첫 20곳만 보였다:
+  //    2026-10-16 웹 점검에서 축제 76 · 전통시장 33 · 액티비티 33 · 자연 27 이 모두 20장에서 끊겼다. null 이면 더 없다.
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [moreFailed, setMoreFailed] = useState(false);
+  // 갈래·범위가 바뀌면 이어 받던 요청은 낡은 것이다 — 그 답이 새 목록 뒤에 붙지 않게 «몇 번째 목록인가»를 들고 있는다.
+  const listGeneration = useRef(0);
 
   // 위치를 모르면 부산 중심으로 찾는다 — S15P21E201-982.
   const center = scope === 'nearby' && coords ? { lat: coords.latitude, lng: coords.longitude } : BUSAN_CENTER;
   const usingFallback = !coords;
+  const groupKeys = groupFacets.map((f) => f.featureKey).join(',');
+  const loadNearby = (signal?: AbortSignal) => isLocalPlaces(facet)
+    ? getNearbyLocalPlaces(groupFacets, center, signal)
+    : getNearbyPlaces({ lat: center.lat, lng: center.lng, facetKey: facet.featureKey }, signal);
 
   useEffect(() => {
     let active = true;
     const controller = new AbortController();
+    listGeneration.current += 1;
     setLoading(true);
+    setNextCursor(null);
+    setMoreFailed(false);
+    setLoadingMore(false);
     (async () => {
       if (scope === 'all') {
         try {
-          const items = await getPlacesByFacet(facet.placeFeatureType, facet.featureKey, 20, controller.signal);
-          if (active) { setAllItems(items); setAllError(null); setLoading(false); }
+          // 묶음(「로컬 장소」)은 갈래마다 몇 곳씩 섞은 유한한 목록이라 이어 받을 쪽이 없다.
+          const page = isLocalPlaces(facet)
+            ? { items: await getAllLocalPlaces(groupFacets, controller.signal), nextCursor: null }
+            : await getPlacesByFacetPage(facet.placeFeatureType, facet.featureKey, 20, null, controller.signal);
+          if (active) { setAllItems(page.items); setNextCursor(page.nextCursor); setAllError(null); setLoading(false); }
         } catch (error) {
           if (active) { setAllItems([]); setAllError(error instanceof Error ? error.message : tx('장소를 불러오지 못했어요.', 'Could not load places.')); setLoading(false); }
         }
         return;
       }
-      const next = await getNearbyPlaces({ lat: center.lat, lng: center.lng, facetKey: facet.featureKey }, controller.signal);
+      const next = await loadNearby(controller.signal);
       if (active) { setResult(next); setLoading(false); }
     })();
     return () => { active = false; controller.abort(); };
-  }, [center.lat, center.lng, facet.featureKey, facet.placeFeatureType, scope, tx]);
+    // groupFacets 는 렌더마다 새 배열이라 갈래 열쇠(groupKeys)로만 다시 부른다.
+  }, [center.lat, center.lng, facet.featureKey, facet.placeFeatureType, scope, tx, groupKeys]);
+
+  // 「더 보기」 — 다음 쪽을 받아 목록 뒤에 붙인다. 같은 장소가 두 쪽에 걸려 와도 한 번만 그린다(쪽 사이에 자료가 바뀌었을 때).
+  const loadMore = async () => {
+    if (!nextCursor || loadingMore || isLocalPlaces(facet)) return;
+    const generation = listGeneration.current;
+    setLoadingMore(true);
+    setMoreFailed(false);
+    try {
+      const page = await getPlacesByFacetPage(facet.placeFeatureType, facet.featureKey, 20, nextCursor);
+      if (generation !== listGeneration.current) return;
+      setAllItems((previous) => {
+        const seen = new Set((previous ?? []).map((item) => item.placeId));
+        return [...(previous ?? []), ...page.items.filter((item) => !seen.has(item.placeId))];
+      });
+      setNextCursor(page.nextCursor);
+    } catch {
+      if (generation === listGeneration.current) setMoreFailed(true);
+    } finally {
+      if (generation === listGeneration.current) setLoadingMore(false);
+    }
+  };
 
   if (loading || (scope === 'nearby' && !result) || (scope === 'all' && !allItems)) {
     return <View accessibilityLiveRegion="polite" style={styles.branchBody}><ActivityIndicator color={color.action.primary} /></View>;
@@ -291,13 +391,23 @@ function LocalBranchList({ facet, scope, coords, canAskAgain, onRetryLocation, c
   if (scope === 'all') {
     if (allError) return <View style={styles.branchBody}><Text color={color.text.body}>{allError}</Text></View>;
     if (!allItems?.length) return <View style={styles.branchBody}><Text color={color.text.body}>{tx('부산 전체에서도 이 갈래의 장소를 찾지 못했어요.', 'No places in this category were found across Busan.')}</Text></View>;
-    return <PlaceRows items={allItems} cardWidth={cardWidth} />;
+    return (
+      <>
+        <PlaceRows items={allItems} cardWidth={cardWidth} />
+        {nextCursor ? (
+          <View style={styles.loadMore}>
+            {moreFailed ? <Text accessibilityRole="alert" variant="caption" color={color.text.body}>{tx('더 불러오지 못했어요.', "We couldn't load more.")}</Text> : null}
+            <Button testID="explore-load-more" label={loadingMore ? tx('불러오는 중…', 'Loading…') : tx('더 보기', 'Load more')} variant="tertiary" disabled={loadingMore} onPress={() => void loadMore()} />
+          </View>
+        ) : null}
+      </>
+    );
   }
   if (!result) return null;
   if (result.state !== 'success') {
     return <View style={styles.branchBody}>
       <Text color={color.text.body}>{localizeMessage(tx, result.message)}</Text>
-      <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void getNearbyPlaces({ lat: center.lat, lng: center.lng, facetKey: facet.featureKey }).then(setResult)} compact containerStyle={styles.branchRetry} />
+      <Button label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void loadNearby().then(setResult)} compact containerStyle={styles.branchRetry} />
     </View>;
   }
   if (result.items.length === 0) {
@@ -337,7 +447,7 @@ function PlacePhoto({ item, style }: { item: { photoUrl?: string | null; photoSu
     // 그 장소를 직접 찍은 사진에는 아무것도 안 나온다(판정은 photoLabels 한 곳에 있다).
     return (
       <View style={[style, styles.photoWrap]}>
-        <Image source={{ uri: item.photoUrl }} resizeMode="cover" style={StyleSheet.absoluteFill} />
+        <AppImage source={{ uri: item.photoUrl }} resizeMode="cover" style={StyleSheet.absoluteFill} />
         <PhotoSubjectBadge photoSubject={item.photoSubject} style={styles.photoBadge} />
       </View>
     );
@@ -346,7 +456,7 @@ function PlacePhoto({ item, style }: { item: { photoUrl?: string | null; photoSu
 }
 
 function PlaceRows({ items, showDistance = false, cardWidth }: {
-  items: Array<PlaceSearchItem | import('@/discovery/localExplore').NearbyPlaceItem>;
+  items: Array<PlaceSearchItem | RestaurantItem | import('@/discovery/localExplore').NearbyPlaceItem>;
   showDistance?: boolean;
   /** 한 장의 폭. 열 수는 이 값이 정한다 — exploreGrid 가 계산한다. */
   cardWidth: number;
@@ -354,12 +464,31 @@ function PlaceRows({ items, showDistance = false, cardWidth }: {
   const router = useRouter();
   const { tx, language } = useI18n();
   const open = (placeId: string) => router.push(`/place/${placeId}`);
-  const label = (item: PlaceSearchItem | import('@/discovery/localExplore').NearbyPlaceItem) =>
+  const label = (item: PlaceSearchItem | RestaurantItem | import('@/discovery/localExplore').NearbyPlaceItem) =>
     txf(tx, '%s 상세 보기', 'View details for %s', localPlaceName(item, language));
+  // 지도 보기 — 지금 목록의 장소를 핀으로. 핀을 누르면 장소 상세로 간다(S15P21E201-2068, 사용자 요청 2026-10-20).
+  //    목록과 같은 items 를 쓰므로 「더 보기」로 늘어난 곳도 그대로 핀이 된다.
+  const [showMap, setShowMap] = useState(false);
+  const { width } = useLayout();
+  const stops: MapStop[] = useMemo(() => items
+    .filter((item) => Number.isFinite(item.lat) && Number.isFinite(item.lng))
+    .map((item, index) => ({ id: item.placeId, number: index + 1, name: localPlaceName(item, language), latitude: item.lat, longitude: item.lng })), [items, language]);
 
   // 폰이든 데스크톱이든 같은 격자다. 열 수만 폭이 정한다 (시안 05·06).
   // 두 벌로 만들면 한쪽만 고쳐지고, 그 차이는 두 폭을 나란히 열어 봐야만 보인다.
-  return <View style={styles.cardGrid}>{items.map((item) => (
+  const mapToggle = stops.length ? (
+    <View style={styles.mapToggleRow}>
+      <Button testID="explore-map-toggle" label={showMap ? tx('목록 보기', 'Show list') : tx('지도 보기', 'Show map')} variant="tertiary" compact onPress={() => setShowMap((value) => !value)} />
+    </View>
+  ) : null;
+  if (showMap) {
+    return <View style={styles.mapBlock}>
+      {mapToggle}
+      <RouteMap stops={stops} selectedId="" onSelect={open} routes={NO_MAP_ROUTES} height={isAtLeast(width, 'md') ? 560 : 420} />
+      <Text variant="caption" color={color.text.muted}>{tx('핀을 누르면 장소 상세로 가요.', 'Tap a pin to open the place.')}</Text>
+    </View>;
+  }
+  return <>{mapToggle}<View style={styles.cardGrid}>{items.map((item) => (
     <Pressable
       key={item.placeId}
       accessibilityRole="link"
@@ -377,16 +506,24 @@ function PlaceRows({ items, showDistance = false, cardWidth }: {
       </View>
       <View style={styles.cardBody}>
         <Text weight="bold" numberOfLines={1}>{localPlaceName(item, language)}</Text>
-        {item.address ? <Text variant="caption" color={color.text.muted} numberOfLines={1}>{tx(item.address, item.addressEn ?? item.address)}</Text> : null}
+        {/* 번역 이름이 없어 한글로 남은 이름엔 읽는 법을 곁들인다(S15P21E201-1867) — 외국어 화면에서 「부산연등회」만 있으면 읽지도 묻지도 못한다. */}
+        {language !== 'ko' && localPlaceName(item, language) === item.nameKo && romanizeKorean(item.nameKo) ? <Text variant="caption" color={color.text.body} numberOfLines={1}>{romanizeKorean(item.nameKo)}</Text> : null}
+        {item.address ? <Text variant="caption" color={color.text.muted} numberOfLines={1}>{addressForLanguage(item, language)}</Text> : null}
+        {/* 맛집·카페 목록의 카드에만 온다 — 어느 목록이 소개·인증했는지, 현지인이 추천했는지(S15P21E201-2051 · S15P21E201-2059). 다른 갈래의 카드는 이 칸이 없어 아무것도 안 그린다. */}
+        {'certifiedSources' in item ? <RestaurantSourceBadges sources={item.certifiedSources} broadcastOrAward={item.broadcastOrAward === true} /> : null}
         {/* 🔴 거리는 「내 근처」일 때만. 부산 전체로 찾을 때는 거리 기준이 없어서,
             그리면 없는 기준을 있는 것처럼 보여준다. */}
         {showDistance && 'distanceM' in item ? <Text variant="caption" weight="bold" color={color.text.accent}>{item.distanceM.toLocaleString()}m</Text> : null}
       </View>
     </Pressable>
-  ))}</View>;
+  ))}</View></>;
 }
 
+/** 지도 보기에서는 장소를 선으로 잇지 않는다 — 순서가 있는 코스가 아니라 흩어진 곳들이다. */
+const NO_MAP_ROUTES: MapRouteLayer[] = [];
+
 const styles = StyleSheet.create({
+  suggest: { marginBottom: spacing[4] },
   screen: { backgroundColor: color.canvas },
   topBar: { minHeight: 52, marginTop: spacing[6], flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing[3] },
   back: { width: 44, height: 44, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card },
@@ -396,11 +533,14 @@ const styles = StyleSheet.create({
   heading: { gap: spacing[2], marginBottom: spacing[6] },
   stateCard: { gap: spacing[3], marginTop: spacing[4], padding: spacing[6], borderRadius: radius.lg, backgroundColor: color.surface.card, alignItems: 'center' },
   results: { gap: spacing[4] },
-  categoryRail: { gap: spacing[2], paddingRight: spacing[4] },
+  categoryRail: { gap: spacing[2], paddingHorizontal: gutter },
+  categoryRailBleed: { marginHorizontal: -gutter },
   categoryChip: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minHeight: 44, paddingHorizontal: spacing[4], borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.border },
   categoryChipSelected: { backgroundColor: color.brand.navy, borderColor: color.brand.navy },
   branchBody: { padding: spacing[4], paddingTop: 0, gap: spacing[2] },
   branchRetry: { alignSelf: 'flex-start' },
+  // 「더 보기」 — 격자 아래 가운데. 실패 문구가 있으면 단추 위에 선다.
+  loadMore: { alignItems: 'center', gap: spacing[2], marginTop: spacing[4] },
   expandedNotice: { padding: spacing[2], borderRadius: radius.md, backgroundColor: color.surface.tint },
 
   // ── 고르는 줄 ──────────────────────────────────────────────
@@ -413,17 +553,23 @@ const styles = StyleSheet.create({
     ...(Platform.OS === 'web'
       ? ({ position: 'sticky', top: 0, zIndex: 10 } as object)
       : null),
-    backgroundColor: color.brand.ivory,
+    // 🔴 화면 바탕과 같은 색 — 흰색(brand.ivory)이면 폰에서 여백 안쪽에 흰 상자가 떠 보였고, 칩 줄이 그 상자 끝에서 잘렸다.
+    backgroundColor: color.canvas,
     borderBottomWidth: 1,
     borderBottomColor: color.surface.border,
   },
+  // 폰 — 칩 줄이 화면 끝까지 흐른다. 여백 안에서 잘리면 끝 칩이 반쯤 걸려 「고장」처럼 보인다.
+  filterBarPhone: { marginHorizontal: -gutter, paddingHorizontal: gutter },
   // 넓으면 칩과 토글이 한 행에 선다. 좁으면 칩 레일 아래에 토글이 온다.
   filterBarWide: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[4] },
   scopeWide: { width: 232 },
+  mapToggleRow: { flexDirection: 'row', justifyContent: 'flex-end', marginBottom: spacing[3] },
+  mapBlock: { gap: spacing[2] },
 
   // 결과 머리 — 제목과 안내 한 줄.
-  resultHead: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: spacing[3], flexWrap: 'wrap' },
-  resultNote: { flexShrink: 1 },
+  // 🔴 안내 한 줄은 제목 «아래». 오른쪽에 붙이면 폰에서 제목 밑줄과 어긋난 채 두 줄로 꺾여 떠 보였다.
+  resultHead: { gap: spacing[1] },
+  resultNote: { color: color.text.muted },
 
   // 칩이 줄바꿈된다. 숨는 것이 없어야 한다는 게 이 모양의 전부다.
   // 🔴 flex 1 · minWidth 0 — 토글을 뺀 남는 폭만 쓴다. 안 주면 줄지 않고 한 줄로 늘어나, 영어판에서
@@ -446,3 +592,8 @@ const styles = StyleSheet.create({
   cardPhoto: { width: '100%', aspectRatio: 1, borderRadius: radius.md, backgroundColor: color.surface.soft },
   cardBody: { gap: 2, paddingTop: spacing[1] },
 });
+
+function orderLikeHome<T extends { featureKey: string }>(facets: T[]): T[] {
+  const rank = (key: string) => { const index = (LOCAL_PICK_ORDER as readonly string[]).indexOf(key); return index < 0 ? LOCAL_PICK_ORDER.length : index; };
+  return [...facets].sort((a, b) => rank(a.featureKey) - rank(b.featureKey));
+}

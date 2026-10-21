@@ -22,7 +22,7 @@ jest.mock('expo-router', () => ({
   useLocalSearchParams: () => ({}),
   usePathname: () => '/trips',
 }));
-jest.mock('@/auth/AuthProvider', () => ({ useAuth: () => ({ accessToken: 'token', user: { userId: 'me' } }) }));
+jest.mock('@/auth/AuthProvider', () => ({ useAuth: () => ({ accessToken: 'token', user: { userId: 'me' }, ready: true }) }));
 jest.mock('@/layout/useLayout', () => ({
   useLayout: () => ({ desktop: mockDesktop, kind: mockDesktop ? 'tablet' : 'phone', width: mockDesktop ? 1440 : 390, height: 900, isLandscape: false }),
 }));
@@ -32,8 +32,10 @@ jest.mock('@/components/TabBar', () => ({ ...jest.requireActual('@/components/Ta
 
 import Trips from '../../../app/(tabs)/trips';
 
+// 🔴 날짜를 박지 않는다 — 2026-10-10~11 로 박혀 있어 10/12 부터 지난 여행으로 빠져 시험이 깨졌다(S15P21E201-2049).
+const dayFromToday = (days: number) => { const d = new Date(); d.setDate(d.getDate() + days); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 const trip = (tripId: string, coverImageUrl: string | null, title: string | null): TripSummaryDto => ({
-  tripId, title, startDate: '2026-10-10', endDate: '2026-10-11', dayCount: 2, partySize: 2, status: 'READY', role: 'OWNER',
+  tripId, title, startDate: dayFromToday(7), endDate: dayFromToday(8), dayCount: 2, partySize: 2, status: 'READY', role: 'OWNER',
   createdAt: '2026-09-20T00:00:00Z', updatedAt: '2026-09-20T00:00:00Z', coverImageUrl, firstStopNameKo: null, firstStopNameEn: null,
 });
 const TRIPS = [trip('t1', 'https://example.test/haeundae.png', '부산 가족여행'), trip('t2', null, '광안리 야경 투어'), trip('t3', null, null)];
@@ -98,6 +100,8 @@ describe('내 여행 탭 — 새 시안', () => {
 //    알약만 안쪽 여백으로 가운데에 섰다.
 describe('내 여행 카드 상태 줄', () => {
   it('🔴 알약과 글자가 세로 가운데로 맞는다', async () => {
+    // 상태 줄은 큰 카드에 있다 — 폰에서 다가오는 여행은 작은 줄이라(UI 캔버스 ⑥) 큰 카드가 그려지는 넓은 화면에서 본다.
+    mockDesktop = true;
     render(<Trips />, { wrapper: Providers });
     expect(await screen.findByText('광안리 야경 투어', {}, WAIT)).toBeTruthy();
 

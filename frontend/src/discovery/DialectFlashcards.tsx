@@ -55,6 +55,8 @@ export function DialectFlashcards({ showTitle = true }: { showTitle?: boolean })
             <View key={phrase.id} style={[styles.card, expanded && styles.cardExpanded]}>
               <Pressable accessibilityRole="button" accessibilityState={{ expanded }} onPress={() => setExpandedId(expanded ? null : phrase.id)} style={styles.cardHeader}>
                 <Text variant={expanded ? 'display' : 'title'} weight="bold">{phrase.dialect}</Text>
+                {/* 한국어 사용자에게는 읽는 법이 필요 없다 — 다른 언어에서만 한글 아래에 적는다. */}
+                {language !== 'ko' ? <Text variant="caption" color={color.text.muted}>{language === 'ja' ? phrase.pronunciationJa : phrase.pronunciation}</Text> : null}
                 {!expanded ? <Text variant="caption" color={color.text.muted}>{tx('눌러서 뜻 보기', 'Tap to see meaning')}</Text> : null}
               </Pressable>
               {expanded ? (

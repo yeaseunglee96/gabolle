@@ -8,6 +8,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { Platform, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { enableFreeze } from 'react-native-screens';
 
 import { color, fontFamily } from '@/design/tokens';
 import { shouldWaitForFonts } from '@/design/fontGate';
@@ -20,6 +21,7 @@ import { BuildInfoBadge } from '@/components/BuildInfoBadge';
 import { OnboardingPreferencesProvider, useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
 import { PlanProvider } from '@/plan/PlanProvider';
 import { PolicyUpdateNotice } from '@/legal/PolicyUpdateNotice';
+import { AppUpdateGate } from '@/features/appUpdate/AppUpdateGate';
 import { TopNav } from '@/nav/TopNav';
 import { queryClient } from '@/api/queryClient';
 import { attachNotificationNavigation, installNotificationHandler } from '@/notifications/pushToken';
@@ -47,6 +49,10 @@ function HtmlLangSync() {
   }, [language]);
   return null;
 }
+
+// 가려진 화면(뒤에 쌓인 화면)은 다시 그리지 않는다 — 사진이 많은 화면이 쌓이면 메모리가 차서 새 사진을
+// 못 그렸다(S15P21E201-1975). 앱만. 웹은 react-native-screens 를 쓰지 않는다.
+if (Platform.OS !== 'web') enableFreeze(true);
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
@@ -104,6 +110,8 @@ export default function RootLayout() {
                 />
                 {/* 처리방침이 바뀌면 한 번 알린다 — 로그인한 사람에게만, 서버가 지금 판을 알려 줄 때만(S15P21E201-1694). */}
                 <PolicyUpdateNotice />
+                {/* 새 버전 안내·새로워진 점 — 앱만, 로그인과 무관하게(S15P21E201-2048). */}
+                <AppUpdateGate />
               </View>
             </PlanProvider>
           </AuthProvider>

@@ -12,6 +12,21 @@ export const FOODS = [
   ['VEGETARIAN', '채식', 'Vegetarian'],
 ] as const;
 
+/**
+ * 「상관 없음」 — 음식 취향 맨 앞 칩(사용자 지시 2026-10-16). 고르면 다른 음식은 풀리고, 다른 음식을 고르면 이것이 풀린다.
+ * 서버에는 그대로 ["ANY"] 로 간다 — 장소 표식과 맞는 것이 없어 추천에 가산점을 주지 않으니 「취향 없음」과 같게 동작한다.
+ */
+export const ANY_FOOD = 'ANY';
+export const ANY_FOOD_LABEL = ['상관 없음', 'No preference'] as const;
+
+/** 칩 하나를 눌렀을 때의 새 선택 — 「상관 없음」과 다른 음식이 함께 골라지지 않게 한다. */
+export function toggleFood(values: readonly string[], code: string): string[] {
+  const selected = values.includes(code);
+  if (code === ANY_FOOD) return selected ? [] : [ANY_FOOD];
+  const rest = values.filter((value) => value !== ANY_FOOD);
+  return selected ? rest.filter((value) => value !== code) : [...rest, code];
+}
+
 export const FOOD_ALLERGY_CONFLICTS: Record<string, readonly string[]> = {
   SEAFOOD: ['SHELLFISH_CRUSTACEAN', 'FISH'],
   MILMYEON: ['WHEAT'],

@@ -15,6 +15,9 @@ import {
   summarizeStartBar,
   toDateKey,
   type StartBarValue,
+  placeEnglishOf,
+  startBarPlaceName,
+  startBarPlaceShortName,
 } from '@/home/startBarValue';
 
 // 예전엔 ko: boolean 을 넘겼다. 이제 번역 함수를 받는다 — 시험은 한국어·영어를 그대로 고른다.
@@ -204,5 +207,23 @@ describe('숙소 — design_handoff_home_lodging', () => {
   it('초안에서 시작 바로 옮길 때 숙소 좌표까지 같이 옮긴다', () => {
     const draft = value({ lodging: '해운대', lodgingLat: 35.1587, lodgingLng: 129.1604 });
     expect(startBarFromDraft(draft)).toMatchObject({ lodging: '해운대', lodgingLat: 35.1587, lodgingLng: 129.1604 });
+  });
+});
+
+// 🔴 S15P21E201-1923 — 일본어·중국어 화면의 출발지·숙소 칩이 「Busan Station (부산역)」처럼 영어였다(실기기 2026-10-02).
+describe('정해 둔 출발지·동네는 일본어·중국어 이름으로', () => {
+  const busan = { name: '부산역', nameEn: 'Busan Station' };
+  it('🔴 일본어·간체·번체는 그 언어 이름 (한글)', () => {
+    expect(startBarPlaceName('부산역', placeEnglishOf(busan), 'ja')).toBe('釜山駅 (부산역)');
+    expect(startBarPlaceName('해운대', placeEnglishOf({ name: '해운대', nameEn: 'Haeundae' }), 'zh-Hant')).toBe('海雲臺 (해운대)');
+    expect(startBarPlaceName('김해공항', placeEnglishOf({ name: '김해공항', nameEn: 'Gimhae International Airport' }), 'zh-Hans')).toBe('金海国际机场 (김해공항)');
+  });
+  it('영어·한국어는 그대로, 검색해 고른 이름은 지어내지 않는다', () => {
+    expect(startBarPlaceName('부산역', placeEnglishOf(busan), 'en')).toBe('Busan Station (부산역)');
+    expect(startBarPlaceName('부산역', placeEnglishOf(busan), 'ko')).toBe('부산역');
+    expect(startBarPlaceName('파스쿠치 광안리점', placeEnglishOf({ name: '파스쿠치 광안리점', nameEn: 'Pascucci' }), 'ja')).toBe('Pascucci (파스쿠치 광안리점)');
+  });
+  it('알약(짧은 이름)도 같은 이름', () => {
+    expect(startBarPlaceShortName('부산역', placeEnglishOf(busan), 'ja')).toBe('釜山駅');
   });
 });

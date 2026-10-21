@@ -1,6 +1,6 @@
-// 이 앱이 아는 언어 다섯 — S15P21E201-1109.
+// 이 앱이 아는 언어 여섯 — S15P21E201-1109, 베트남어는 S15P21E201-2003.
 
-export const LANGUAGE_CODES = ['ko', 'en', 'ja', 'zh-Hans', 'zh-Hant'] as const;
+export const LANGUAGE_CODES = ['ko', 'en', 'ja', 'zh-Hans', 'zh-Hant', 'vi'] as const;
 
 export type LanguageCode = (typeof LANGUAGE_CODES)[number];
 
@@ -31,6 +31,7 @@ export const LANGUAGE_OPTIONS: readonly LanguageOption[] = [
   { code: 'ja', endonym: '日本語', englishName: 'Japanese', uiTranslated: true },
   { code: 'zh-Hans', endonym: '简体中文', englishName: 'Chinese (Simplified)', uiTranslated: true },
   { code: 'zh-Hant', endonym: '繁體中文', englishName: 'Chinese (Traditional)', uiTranslated: true },
+  { code: 'vi', endonym: 'Tiếng Việt', englishName: 'Vietnamese', uiTranslated: true },
 ];
 
 // 🔴 훅(useI18n)을 못 쓰는 자리 — 오류 경계(클래스 컴포넌트)·컨텍스트 밖의 throw — 를 위해 고른 언어를
@@ -51,6 +52,7 @@ export function toBcp47(language: LanguageCode): string {
   if (language === 'ko') return 'ko-KR';
   if (language === 'en') return 'en-US';
   if (language === 'ja') return 'ja-JP';
+  if (language === 'vi') return 'vi-VN';
   return language === 'zh-Hans' ? 'zh-CN' : 'zh-TW';
 }
 
@@ -76,6 +78,7 @@ export function parseLanguageCode(value: unknown): LanguageCode {
   if (lower.startsWith('ko')) return 'ko';
   if (lower.startsWith('ja')) return 'ja';
   if (lower.startsWith('en')) return 'en';
+  if (lower.startsWith('vi')) return 'vi';
   if (lower.startsWith('zh')) {
     // zh-TW · zh-HK · zh-Hant-* 는 번체, 그 밖의 zh 는 간체로 본다.
     return /hant|tw|hk|mo/.test(lower) ? 'zh-Hant' : 'zh-Hans';

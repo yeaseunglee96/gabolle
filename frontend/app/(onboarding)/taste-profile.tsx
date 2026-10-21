@@ -13,7 +13,7 @@ import { color, radius, spacing } from '@/design/tokens';
 import { enterApp } from '@/auth/enterApp';
 import { useI18n } from '@/i18n';
 import { useLayout } from '@/layout/useLayout';
-import { FOODS } from '@/plan/foodConflicts';
+import { ANY_FOOD, ANY_FOOD_LABEL, FOODS, toggleFood } from '@/plan/foodConflicts';
 import {
   countTasteAnswers,
   getTasteProfile,
@@ -74,20 +74,28 @@ function Scale({ label, value, low, high, desktop, onChange }: { label: string; 
 
 function FoodChips({ values, desktop, onChange }: { values: string[]; desktop: boolean; onChange: (values: string[]) => void }) {
   const { tx } = useI18n();
-  return <View style={styles.chips}>
-    {FOODS.map(([code, labelKo, labelEn]) => {
+  return <>
+  <View style={styles.chips}>
+    {[[ANY_FOOD, ...ANY_FOOD_LABEL] as const, ...FOODS].map(([code, labelKo, labelEn]) => {
       const selected = values.includes(code);
       return <Pressable
         key={code}
         accessibilityRole="checkbox"
         accessibilityState={{ checked: selected }}
-        onPress={() => onChange(selected ? values.filter((value) => value !== code) : [...values, code])}
+        onPress={() => onChange(toggleFood(values, code))}
         style={[styles.chip, selected && (desktop ? styles.chipSelectedDesktop : styles.chipSelected)]}
       >
         <Text weight="bold" color={selected ? (desktop ? color.action.secondary : color.text.onAction) : color.text.heading}>{tx(labelKo, labelEn)}</Text>
       </Pressable>;
     })}
-  </View>;
+  </View>
+  {/* 🔴 채식은 취향이 아니라 조건처럼 쓰인다 — 서버가 여행 일정에서 반드시 지킨다(S15P21E201-1873). 고를 때 알린다(S15P21E201-1878). */}
+  {values.includes('VEGETARIAN') ? (
+    <Text testID="taste-vegetarian-note" variant="caption" color={color.text.body} style={styles.foodNote}>
+      {tx('채식을 고르면 여행 일정에는 채식 근거가 있는 식당만 넣어요. 여행마다 식단에서 「해당 없음」으로 뺄 수 있어요.', 'If you choose vegetarian, trips only include restaurants with vegetarian options. You can turn it off per trip by setting Diet to “None”.')}
+    </Text>
+  ) : null}
+  </>;
 }
 
 export default function TasteProfileScreen() {
@@ -287,6 +295,7 @@ const styles = StyleSheet.create({
   multi: { gap: spacing[4] },
   multiCta: { minHeight: 46 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[2] },
+  foodNote: { marginTop: spacing[2] },
   chip: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 14, borderRadius: radius.full, borderWidth: 1, borderColor: color.surface.field },
   chipSelected: { backgroundColor: color.action.secondary, borderColor: color.action.secondary },
   chipSelectedDesktop: { backgroundColor: color.surface.tint, borderColor: color.action.secondary },

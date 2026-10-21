@@ -1,4 +1,4 @@
-import { enCount } from '@/i18n/format';
+import { enCount, txf } from '@/i18n/format';
 import type { DayStart, ItineraryDto, ItineraryItemDto } from './itinerary';
 
 type Tx = (ko: string, en: string) => string;
@@ -9,7 +9,16 @@ type Tx = (ko: string, en: string) => string;
 //
 // `from` — 그날 첫 곳이면 어디서 오는가. `true` 는 출발지다(옛 호출).
 // 🔴 둘째 날부터는 숙소에서 나서는데 「출발지에서」라고 적으면 틀린 말이다(S15P21E201-1580).
+// 🔴 구간 요금을 붙인다 — S15P21E201-1833. 서버는 대중교통 구간마다 요금을 주는데(travelFareKrw) 화면은 시간만 적었다.
+//    「이동 92분 (어림) · 1,550원」. 요금이 없거나 0이면(걷는 구간) 안 붙인다 — 「0원」은 걷기를 공짜 탈것처럼 읽힌다.
 export function formatTravelLabel(item: ItineraryItemDto, tx: Tx, from: boolean | DayStart['kind'] = false): string | null {
+  const label = travelMinutesLabel(item, tx, from);
+  if (label === null) return null;
+  const fare = item.travelFareKrw;
+  return typeof fare === 'number' && fare > 0 ? `${label} · ${txf(tx, '%s원', '₩%s', fare.toLocaleString('en-US'))}` : label;
+}
+
+function travelMinutesLabel(item: ItineraryItemDto, tx: Tx, from: boolean | DayStart['kind'] = false): string | null {
   if (item.travelDurationMin == null) return null;
   const minutes = Math.round(item.travelDurationMin);
   const estimated = item.travelDataStatus === 'ESTIMATED';

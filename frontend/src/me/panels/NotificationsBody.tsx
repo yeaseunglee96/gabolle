@@ -12,7 +12,10 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { formatDayHeading } from '@/i18n/datetime';
-import { hasUnseen, loadActivityFeed, loadSeenAt, markSeenNow, noticeCopy, type ActivityNotice } from '@/notifications/activityFeed';
+import { groupLines, groupNotices, hasUnseen, loadActivityFeed, loadSeenAt, markSeenNow, noticeCopy, noticeKind, type ActivityNotice, type NoticeGroup } from '@/notifications/activityFeed';
+import { NoticeIcon } from '@/components/NoticeIcon';
+import { dismissAll, dismissNotices, loadDismissed, visibleNotices, type DismissedNotices } from '@/notifications/dismissedNotices';
+import { txf } from '@/i18n/format';
 import { relativeStoryTime } from '@/social/stories';
 
 const bellIcon = require('../../../assets/icons/home/bell.png');
@@ -35,12 +38,23 @@ export function splitToday<T extends { at: string }>(items: T[], now: Date = new
   return { today, earlier };
 }
 
+/**
+ * 빈 화면이 「다 지워서 빈 것」인지 「원래 없는 것」인지(S15P21E201-1976).
+ * 지운 것인데 「아직 도착한 알림이 없어요」라고 하면 알림이 사라진 줄로 안다.
+ */
+export function emptyNoticeState(receivedCount: number, shownCount: number): 'cleared' | 'none' {
+  return receivedCount > 0 && shownCount === 0 ? 'cleared' : 'none';
+}
+
 export function NotificationsBody() {
   const { tx, language, locale } = useI18n();
   const router = useRouter();
   const { accessToken, user } = useAuth();
   // 🔴 알림은 여행 활동에서 나온다(S15P21E201-1380) — 서버 알림 API 가 없어 늘 비어 있던 화면이었다.
   const [feed, setFeed] = useState<{ state: 'loading' } | { state: 'ready'; items: ActivityNotice[]; seenAt: string | null } | { state: 'error'; message: string }>({ state: 'loading' });
+  // 지운 알림(이 기기·계정) — S15P21E201-1907.
+  const [dismissed, setDismissed] = useState<DismissedNotices>({ clearedBefore: null, ids: [] });
+  useEffect(() => { let alive = true; void loadDismissed(user?.userId).then((d) => { if (alive) setDismissed(d); }); return () => { alive = false; }; }, [user?.userId]);
   useEffect(() => {
     let active = true;
     if (!user) { setFeed({ state: 'ready', items: [], seenAt: null }); return undefined; }
@@ -109,31 +123,90 @@ export function NotificationsBody() {
     return <View style={styles.empty}><ActivityIndicator color={color.action.primary} /></View>;
   }
 
-  if (feed.state === 'ready' && feed.items.length) {
-    const { today, earlier } = splitToday(feed.items);
+  const shownItems = feed.state === 'ready' ? visibleNotices(feed.items, dismissed) : [];
+  const removeGroup = (group: NoticeGroup) => { if (user) void dismissNotices(user.userId, dismissed, group.items.map((item) => item.id)).then(setDismissed); };
+  const removeAll = () => {
+    if (!user || !shownItems.length || feed.state !== 'ready') return;
+    void dismissAll(user.userId, feed.items).then((next) => { if (next) setDismissed(next); });
+  };
+
+  if (feed.state === 'ready' && shownItems.length) {
     const unseenFrom = feed.seenAt;
-    const row = (item: ActivityNotice) => {
+    const isFresh = (item: ActivityNotice) => (unseenFrom ? item.at > unseenFrom : true);
+    const groups = groupNotices(shownItems);
+    // 🔴 동행이 바꾼 것 중 아직 안 본 것은 맨 위에 — 「장소가 빠졌어요」 한 줄이면 중요한지 모르고 지나갔다(UI 캔버스 ⑦).
+    const companionFresh = groups.filter((group) => !group.latest.isMe && group.latest.operation !== 'CREATE' && group.items.some(isFresh));
+    const rest = groups.filter((group) => !companionFresh.includes(group));
+    const { today, earlier } = splitToday(rest.map((group) => ({ ...group, at: group.latest.at })));
+    const open = (group: NoticeGroup) => router.push(`/trips/${group.latest.itineraryId}/itinerary`);
+    const trip = (group: NoticeGroup) => txf(tx, '「%s」', '“%s”', group.latest.tripTitle);
+
+    // 동행이 바꾼 일정 — 누가 · 무엇을 · 몇 곳을, 그리고 「일정에서 확인하기」.
+    const companionCard = (group: NoticeGroup) => (
+      <View key={group.id} style={styles.companionCard}>
+        <View style={styles.companionHead}>
+          <View style={styles.actorBadge}><Text weight="bold" color={color.text.onAction}>{(group.latest.actorName ?? '·').trim().slice(0, 1)}</Text></View>
+          <View style={styles.rowBody}>
+            <View style={styles.rowTitle}>
+              <Text weight="bold" numberOfLines={2} style={styles.rowTitleText}>{group.latest.actorName ? txf(tx, '%s님이 일정을 바꿨어요', '%s changed your trip', group.latest.actorName) : tx('동행이 일정을 바꿨어요', 'A companion changed your trip')}</Text>
+              <View style={styles.freshDot} />
+            </View>
+            <Text variant="caption" color={color.text.muted} numberOfLines={1}>{`${trip(group)} · ${relativeStoryTime(group.latest.at, tx)}`}</Text>
+          </View>
+        </View>
+        <View style={styles.changeLines}>
+          {groupLines(group, tx).map((line) => (
+            <View key={line.kind} style={styles.changeLine}>
+              <NoticeIcon kind={line.kind} tint={color.text.body} size={18} />
+              <Text variant="caption" color={color.text.body}>{line.text}</Text>
+            </View>
+          ))}
+        </View>
+        <Button label={tx('일정에서 확인하기', 'Review in itinerary')} variant="secondary" compact onPress={() => open(group)} />
+      </View>
+    );
+
+    // 한 장 — 하나면 전과 같은 문구, 여럿이면 「내가 한 변경 N건」·「○○님이 바꾼 것 N건」으로 접는다.
+    const row = (group: NoticeGroup) => {
+      const item = group.latest;
+      const many = group.items.length > 1;
       const copy = noticeCopy(item, tx);
-      const fresh = unseenFrom ? item.at > unseenFrom : true;
+      const title = !many ? copy.title : item.isMe ? txf(tx, '내가 한 변경 %s건', '%s changes you made', String(group.items.length)) : item.actorName ? txf(tx, '%s님이 일정을 바꿨어요', '%s changed your trip', item.actorName) : tx('일정이 바뀌었어요', 'Your itinerary changed');
+      const body = !many ? copy.body : `${trip(group)} · ${groupLines(group, tx).map((line) => line.text).join(' · ')}`;
+      // 묶음이 한 종류뿐이면(고정 10건) 그 아이콘 — 네모(여러 종류)는 섞였을 때만.
+      const lines = many ? groupLines(group, tx) : [];
+      const kind = many ? (lines.length === 1 ? lines[0].kind : 'change') : noticeKind(item.operation);
       return (
-        <Pressable key={item.id} accessibilityRole="button" accessibilityLabel={copy.title} onPress={() => router.push(`/trips/${item.itineraryId}/itinerary`)} style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
-          <View style={[styles.rowIcon, item.operation === 'CREATE' && styles.rowIconCreate]}>
-            <Text variant="body" weight="bold" color={item.operation === 'CREATE' ? color.state.success : color.text.heading}>{item.operation === 'CREATE' ? '✦' : '⇄'}</Text>
+        <View key={group.id} style={styles.rowWrap}>
+        <Pressable accessibilityRole="button" accessibilityLabel={title} onPress={() => open(group)} style={({ pressed }) => [styles.row, styles.rowFlex, pressed && styles.pressed]}>
+          <View style={[styles.rowIcon, kind === 'created' && styles.rowIconCreate]}>
+            <NoticeIcon kind={kind} tint={kind === 'created' ? color.state.success : color.text.heading} />
           </View>
           <View style={styles.rowBody}>
             <View style={styles.rowTitle}>
-              <Text weight="bold" numberOfLines={1} style={styles.rowTitleText}>{copy.title}</Text>
-              {fresh ? <View style={styles.freshDot} /> : null}
+              <Text weight="bold" numberOfLines={1} style={styles.rowTitleText}>{title}</Text>
+              {group.items.some(isFresh) ? <View style={styles.freshDot} /> : null}
             </View>
-            <Text variant="caption" color={color.text.body} numberOfLines={2}>{copy.body}</Text>
+            <Text variant="caption" color={color.text.body} numberOfLines={2}>{body}</Text>
             <Text variant="micro" color={color.text.muted}>{relativeStoryTime(item.at, tx)}</Text>
           </View>
         </Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 알림 지우기', 'Remove notification: %s', title)} hitSlop={8} onPress={() => removeGroup(group)} style={({ pressed }) => [styles.remove, pressed && styles.pressed]}>
+          <Text variant="body" color={color.text.muted}>✕</Text>
+        </Pressable>
+        </View>
       );
     };
     return (
       <View style={styles.list}>
-        {today.length ? <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('오늘', 'Today')}</Text> : null}
+        <View style={styles.listHead}>
+          <Pressable accessibilityRole="button" onPress={removeAll} style={({ pressed }) => [styles.clearAll, pressed && styles.pressed]}>
+            <Text variant="caption" weight="bold" color={color.text.muted}>{tx('모두 지우기', 'Clear all')}</Text>
+          </Pressable>
+        </View>
+        {companionFresh.length ? <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('동행이 바꾼 일정 · 확인해 주세요', 'Changed by companions · please review')}</Text> : null}
+        {companionFresh.map(companionCard)}
+        {today.length ? <Text variant="caption" weight="bold" color={color.text.eyebrow} style={companionFresh.length ? styles.sectionGap : undefined}>{tx('오늘', 'Today')}</Text> : null}
         {today.map(row)}
         {earlier.length ? <Text variant="caption" weight="bold" color={color.text.eyebrow} style={styles.sectionGap}>{tx('이전 알림', 'Earlier')}</Text> : null}
         {earlier.map(row)}
@@ -143,11 +216,12 @@ export function NotificationsBody() {
     );
   }
 
+  const cleared = feed.state === 'ready' && emptyNoticeState(feed.items.length, shownItems.length) === 'cleared';
   return (
       <View style={styles.empty}>
         <View style={styles.icon}><Image source={bellIcon} resizeMode="contain" style={styles.iconImage} /></View>
-        <Text variant="title" weight="bold">{tx('아직 도착한 알림이 없어요', 'No notifications yet')}</Text>
-        <Text variant="body" color={color.text.muted} style={styles.description}>{user ? tx('여행 일정이 만들어지거나 바뀌면 이곳에서 알려드려요.', "We'll let you know here when a trip is created or changed.") : tx('로그인하면 내 여행의 소식을 여기서 볼 수 있어요.', 'Sign in to see updates about your trips here.')}</Text>
+        <Text variant="title" weight="bold">{cleared ? tx('알림을 모두 지웠어요', 'All notifications cleared') : tx('아직 도착한 알림이 없어요', 'No notifications yet')}</Text>
+        <Text variant="body" color={color.text.muted} style={styles.description}>{cleared ? tx('새 알림이 오면 여기에 보여요.', 'New notifications will show up here.') : user ? tx('여행 일정이 만들어지거나 바뀌면 이곳에서 알려드려요.', "We'll let you know here when a trip is created or changed.") : tx('로그인하면 내 여행의 소식을 여기서 볼 수 있어요.', 'Sign in to see updates about your trips here.')}</Text>
         {!user ? <Button label={tx('로그인', 'Sign in')} variant="outline" onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/notifications' } })} containerStyle={styles.action} /> : null}
         {feed.state === 'error' ? <Text variant="caption" color={color.state.danger}>{feed.message}</Text> : null}
         {permissionCard}
@@ -156,11 +230,21 @@ export function NotificationsBody() {
 }
 
 const styles = StyleSheet.create({
+  rowWrap: { flexDirection: 'row', alignItems: 'center', gap: spacing[1] },
+  rowFlex: { flex: 1, minWidth: 0 },
+  remove: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  listHead: { flexDirection: 'row', justifyContent: 'flex-end' },
+  clearAll: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[2] },
   list: { gap: spacing[2], paddingTop: spacing[3] },
   sectionGap: { marginTop: spacing[3] },
   row: { flexDirection: 'row', gap: spacing[3], padding: spacing[3], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
   rowIcon: { width: 40, height: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.soft },
   rowIconCreate: { backgroundColor: color.state.successBg },
+  companionCard: { gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field },
+  companionHead: { flexDirection: 'row', gap: spacing[3], alignItems: 'center' },
+  actorBadge: { width: 40, height: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
+  changeLines: { gap: spacing[2], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.tint },
+  changeLine: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
   rowBody: { flex: 1, minWidth: 0, gap: 2 },
   rowTitle: { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
   rowTitleText: { flexShrink: 1 },

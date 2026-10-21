@@ -1,6 +1,6 @@
 // 계정에 기억되는 취향 다섯 — 온보딩 ③ 과 마이페이지 「여행 취향」이 함께 쓴다.
 import { apiRequest } from '@/api/client';
-import { FOODS } from '@/plan/foodConflicts';
+import { ANY_FOOD, ANY_FOOD_LABEL, FOODS } from '@/plan/foodConflicts';
 
 export type TasteKey = 'locality' | 'quiet' | 'tourist' | 'foods' | 'slope';
 
@@ -101,6 +101,7 @@ export function describeTasteAnswer(key: TasteKey, answers: TasteAnswers): Bilin
   if (question.kind === 'multi') {
     const codes = answers.foods;
     if (!codes || codes.length === 0) return null;
+    if (codes.includes(ANY_FOOD)) return { ko: ANY_FOOD_LABEL[0], en: ANY_FOOD_LABEL[1] };
     const picked = codes.map((code) => FOODS.find((food) => food[0] === code)).filter((food) => food !== undefined);
     if (picked.length === 0) return null;
     return { ko: picked.map((food) => food[1]).join(' · '), en: picked.map((food) => food[2]).join(' · ') };
@@ -121,7 +122,7 @@ export function countTasteAnswers(answers: TasteAnswers): number {
 
 type TasteAnswerDto = { dimension: string; status: string; value: string | null };
 
-const FOOD_CODES = new Set<string>(FOODS.map((food) => food[0]));
+const FOOD_CODES = new Set<string>([ANY_FOOD, ...FOODS.map((food) => food[0])]);
 
 /**
  * 서버가 준 값 하나를 화면이 쓰는 값으로. 모르는 모양이면 그 칸만 버린다 — 화면을

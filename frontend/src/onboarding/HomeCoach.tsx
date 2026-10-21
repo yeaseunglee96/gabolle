@@ -108,6 +108,7 @@ export function shouldFoldAssistantCopy({ placement, startBarBottom, startCopyTo
  */
 const SCRIM = 'rgba(25,25,25,0.95)';
 const RING = color.action.primary;
+const PANEL = 'rgba(25,25,25,1)';
 
 export function HomeCoach({ visible, startBar, assistant, onStart, onClose }: {
   visible: boolean;
@@ -155,6 +156,9 @@ export function HomeCoach({ visible, startBar, assistant, onStart, onClose }: {
   const copyPosition = placement === 'above' && startBar
     ? { bottom: height - startBar.y + spacing[4] }
     : { top: startCopyTop };
+  // 🔴 접었을 때 글 덩이 아래쪽이 동백이 단추 밑으로 들어가 글자가 단추에 가렸다(2026-10-17 사용자 지적, 폰 1080×2340).
+  //    접으면 단추 폭만큼 오른쪽을 비워 글과 단추가 같은 자리에 서지 않게 한다.
+  const copyRight = folded && assistant ? Math.max(spacing[6], width - assistant.x + spacing[2]) : spacing[6];
 
   return (
     <Modal visible transparent animationType="fade" onRequestClose={onClose} statusBarTranslucent>
@@ -182,7 +186,7 @@ export function HomeCoach({ visible, startBar, assistant, onStart, onClose }: {
           ) : null}
         </Svg>
 
-        <View style={[styles.copy, copyPosition]} onLayout={(event) => setStartCopyHeight(Math.round(event.nativeEvent.layout.height))}>
+        <View style={[styles.copy, copyPosition, { right: copyRight }]} onLayout={(event) => setStartCopyHeight(Math.round(event.nativeEvent.layout.height))}>
           <Text variant="micro" weight="bold" color={RING} style={styles.eyebrow}>{tx('GABOLLE · 부산 전용 AI 여행 가이드', 'GABOLLE · AI travel guide just for Busan')}</Text>
           <Text variant="title" weight="bold" color={color.text.onAction} style={styles.center}>{tx('여기서 시작해요', 'Start right here')}</Text>
           <Text variant="body" color="rgba(255,255,255,0.85)" style={styles.center}>{tx('출발지·날짜·인원만 고르면 돼요. 나머지는 물어보는 만큼만 답하면 되고, 절반은 건너뛰어도 괜찮아요.', 'Just pick where you start, your dates and who is coming. Answer the rest only as much as you like — skipping half is fine.')}</Text>
@@ -209,13 +213,14 @@ export function HomeCoach({ visible, startBar, assistant, onStart, onClose }: {
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
-  copy: { position: 'absolute', left: spacing[6], right: spacing[6], gap: spacing[2], alignItems: 'center' },
+  // 글 뒤에 불투명한 판 — 막(0.95)만으로는 뒤 화면의 흰 글자가 비쳐 안내 글과 겹쳐 읽혔다.
+  copy: { position: 'absolute', left: spacing[6], right: spacing[6], gap: spacing[2], alignItems: 'center', padding: spacing[4], borderRadius: radius.lg, backgroundColor: PANEL },
   eyebrow: { letterSpacing: 1 },
   center: { textAlign: 'center' },
   right: { textAlign: 'right' },
   actions: { alignItems: 'center', gap: spacing[1], marginTop: spacing[2] },
   primary: { minHeight: 48, paddingHorizontal: spacing[8], borderRadius: radius.md, backgroundColor: color.surface.card, justifyContent: 'center' },
   ghost: { minHeight: 40, paddingHorizontal: spacing[3], justifyContent: 'center' },
-  assistantCopy: { position: 'absolute', maxWidth: 250, gap: spacing[1] },
+  assistantCopy: { position: 'absolute', maxWidth: 250, gap: spacing[1], padding: spacing[3], borderRadius: radius.lg, backgroundColor: PANEL },
   pressed: { opacity: 0.8 },
 });
