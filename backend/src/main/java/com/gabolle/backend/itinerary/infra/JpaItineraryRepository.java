@@ -400,7 +400,9 @@ public class JpaItineraryRepository implements ItineraryRepository {
 				List.of(e.reasonCodes()),
 				List.of(e.warningCodes()),
 				e.sourceRequestId() != null ? e.sourceRequestId().toString() : null,
-				toInstant(e.createdAt()));
+				toInstant(e.createdAt()),
+				// NULL 이면서 locked 면 생성자가 순서 고정으로 읽는다 — 이 칸 이전의 고정.
+				e.lockMode() == null ? null : ItineraryItem.LockMode.valueOf(e.lockMode()));
 	}
 
 	private static ItineraryItemJpaEntity toEntity(UUID versionId, ItineraryItem item) {
@@ -421,10 +423,12 @@ public class JpaItineraryRepository implements ItineraryRepository {
 				item.reasonCodes().toArray(String[]::new),
 				item.warningCodes().toArray(String[]::new),
 				item.sourceRequestId() != null ? UUID.fromString(item.sourceRequestId()) : null,
-				toOffset(item.createdAt()));
+				toOffset(item.createdAt()),
+				item.lockMode() == null ? null : item.lockMode().name());
 	}
 
 	private static ItineraryLeg toDomain(ItineraryLegJpaEntity e) {
+		List<double[]> path = decodePath(e.path());
 		return new ItineraryLeg(
 				e.itineraryLegId().toString(),
 				e.itineraryVersionId().toString(),
@@ -440,12 +444,14 @@ public class JpaItineraryRepository implements ItineraryRepository {
 				e.stairSteps(),
 				e.dataStatus(),
 				e.fareKrw(),
-				decodePath(e.path()),
+				path,
+				decodePieces(e.pieces(), path),
 				e.uncalibratedDurationMin(),
 				toInstant(e.createdAt()));
 	}
 
 	private static ItineraryLegJpaEntity toEntity(UUID versionId, ItineraryLeg leg) {
+		String path = encodePath(leg.path());
 		return new ItineraryLegJpaEntity(
 				UUID.fromString(leg.itineraryLegId()),
 				versionId,
@@ -461,9 +467,92 @@ public class JpaItineraryRepository implements ItineraryRepository {
 				leg.stairSteps(),
 				leg.dataStatus(),
 				leg.fareKrw(),
-				encodePath(leg.path()),
+				path,
+				// 선형을 못 적었으면 조각도 적지 않는다 — 가리킬 자리가 없는 조각이 된다.
+				(path == null) ? null : encodePieces(leg.pieces()),
 				leg.uncalibratedDurationMin(),
 				toOffset(leg.createdAt()));
+	}
+
+	/**
+	 * 경사·계단·그늘 조각을 {@code [{"from":0,"to":3,"slopePercent":2.5,"stairs":false,"shade":0.4}, …]} JSON 으로
+	 * 적는다 — 경로 API 의 {@code pieces} 와 같은 모양이다. 없으면 {@code null}. 선형과 같은 이유로 손으로
+	 * 잇는다(숫자·참거짓뿐이다). 경사·그늘이 NaN·무한대면 JSON 이 아니므로 모름({@code null})으로 적는다.
+	 *
+	 * <p>{@code shade} 칸은 2026-09-30(S15P21E201-1895)에 생겼다. 그 전에 적힌 JSON 에는 이 칸이 없고,
+	 * {@link #decodePieces} 는 없는 칸을 「그늘 모름」으로 읽는다.
+	 */
+	static String encodePieces(List<ItineraryLeg.Piece> pieces) {
+		if (pieces == null || pieces.isEmpty()) {
+			return null;
+		}
+		StringBuilder json = new StringBuilder(pieces.size() * 72).append('[');
+		for (int i = 0; i < pieces.size(); i++) {
+			ItineraryLeg.Piece piece = pieces.get(i);
+			if (i > 0) {
+				json.append(',');
+			}
+			Double slope = piece.slopePercent();
+			Double shade = piece.shade();
+			json.append("{\"from\":").append(piece.from())
+					.append(",\"to\":").append(piece.to())
+					.append(",\"slopePercent\":").append((slope == null || !Double.isFinite(slope)) ? "null" : slope)
+					.append(",\"stairs\":").append(piece.stairs())
+					.append(",\"shade\":").append((shade == null || !Double.isFinite(shade)) ? "null" : shade)
+					.append('}');
+		}
+		return json.append(']').toString();
+	}
+
+	/**
+	 * 조각 JSON 을 읽는다. 선형이 없거나, 값이 깨졌거나, 번호가 선형 밖을 가리키면 {@code null} — 선형과 같이 그 구간만
+	 * 조각 없이 두고 일정 전체를 실패시키지 않는다. 틀린 자리를 칠하느니 안 칠하는 편이 낫다.
+	 */
+	static List<ItineraryLeg.Piece> decodePieces(String json, List<double[]> path) {
+		if (json == null || json.isBlank() || path == null) {
+			return null;
+		}
+		try {
+			JsonNode root = PATH_MAPPER.readTree(json);
+			if (!root.isArray() || root.size() == 0) {
+				return null;
+			}
+			List<ItineraryLeg.Piece> pieces = new ArrayList<>(root.size());
+			for (JsonNode node : root) {
+				JsonNode from = node.get("from");
+				JsonNode to = node.get("to");
+				JsonNode slope = node.get("slopePercent");
+				JsonNode stairs = node.get("stairs");
+				JsonNode shade = node.get("shade");
+				if (from == null || !from.isInt() || to == null || !to.isInt() || stairs == null
+						|| !stairs.isBoolean() || (slope != null && !slope.isNull() && !slope.isNumber())) {
+					return null;
+				}
+				if (from.intValue() < 0 || to.intValue() < from.intValue() || to.intValue() >= path.size()) {
+					return null;
+				}
+				pieces.add(new ItineraryLeg.Piece(from.intValue(), to.intValue(),
+						(slope == null || slope.isNull()) ? null : slope.doubleValue(), stairs.booleanValue(),
+						shadeOf(shade)));
+			}
+			return pieces;
+		}
+		catch (JacksonException malformed) {
+			return null;
+		}
+	}
+
+	/**
+	 * 그늘 칸을 읽는다. 칸이 없거나(그늘 칸이 생기기 전에 적은 판) {@code null} 이거나 숫자가 아니거나 0~1 밖이면
+	 * 「그늘 모름」({@code null})이다 — 조각의 다른 값(경사·계단)은 멀쩡하므로 그늘 하나가 틀렸다고 구간 전체의
+	 * 조각을 버리지 않는다. 틀린 그늘을 칠하느니 그늘 없이 경사만 칠하는 편이 낫다.
+	 */
+	private static Double shadeOf(JsonNode shade) {
+		if (shade == null || shade.isNull() || !shade.isNumber()) {
+			return null;
+		}
+		double value = shade.doubleValue();
+		return (Double.isFinite(value) && value >= 0.0 && value <= 1.0) ? value : null;
 	}
 
 	/**

@@ -9,7 +9,7 @@ import { Linking, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } 
 
 import { Text } from '@/components/Text';
 import { color, spacing } from '@/design/tokens';
-import { photoSourceShortText, photoSourceText } from '@/discovery/places';
+import { isSelfLabelledSource, photoSourceShortText, photoSourceText, sourceMentionsLicense } from '@/discovery/places';
 import { txf } from '@/i18n/format';
 
 type Tx = (ko: string, en: string) => string;
@@ -18,13 +18,19 @@ export function PhotoCreditBar({ source, license, licenseUrl, tx, style }: {
   source: string; license: string | null; licenseUrl: string | null; tx: Tx; style?: StyleProp<ViewStyle>;
 }) {
   // 띠에는 짧은 출처(기관 · 공공누리 유형), 화면 낭독에는 긴 출처 전체(S15P21E201-1705, 사용자 결정).
-  const credit = txf(tx, '사진: %s', 'Photo: %s', photoSourceShortText(source, tx));
-  const spoken = txf(tx, '사진: %s', 'Photo: %s', photoSourceText(source, tx));
-  const full = license ? `${spoken} · ${license}` : spoken;
-  const lines = license ? (
+  // 🔴 「출처 : …」「Google 지도 · 사진 …」처럼 이름표를 달고 오는 출처에는 「사진: 」을 또 붙이지 않는다.
+  const labelled = isSelfLabelledSource(source);
+  const credit = labelled ? photoSourceShortText(source, tx) : txf(tx, '사진: %s', 'Photo: %s', photoSourceShortText(source, tx));
+  const spoken = labelled ? photoSourceText(source, tx) : txf(tx, '사진: %s', 'Photo: %s', photoSourceText(source, tx));
+  // 🔴 출처 글자에 라이선스 이름이 이미 들어 있으면 둘째 줄을 또 만들지 않는다 — 「Google 지도 · 사진 박대규」 아래에 「Google 지도」가 한 번 더
+  //    나왔다(운영 탐색 카드, 2026-10-16 웹 점검, S15P21E201-2060). 일본어·중국어 화면에서는 그 둘째 줄이 번역도 안 된 한국어였다.
+  //    장소 상세의 출처 한 줄(photoLabels)은 이미 같은 규칙이다 — 여기만 빠져 있었다.
+  const extraLicense = license && !sourceMentionsLicense(source, license) ? license : null;
+  const full = extraLicense ? `${spoken} · ${extraLicense}` : spoken;
+  const lines = extraLicense ? (
     <>
       <Text variant="caption" numberOfLines={1} color={color.text.onAction}>{credit}</Text>
-      <Text variant="caption" numberOfLines={1} color={color.text.onAction} style={licenseUrl ? styles.link : undefined}>{license}</Text>
+      <Text variant="caption" numberOfLines={1} color={color.text.onAction} style={licenseUrl ? styles.link : undefined}>{extraLicense}</Text>
     </>
   ) : (
     <Text variant="caption" numberOfLines={2} color={color.text.onAction}>{credit}</Text>

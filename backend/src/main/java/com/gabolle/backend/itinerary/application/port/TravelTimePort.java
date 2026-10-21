@@ -19,4 +19,17 @@ public interface TravelTimePort {
 	 *     경로 계층이 자기 갈래로 옮겨 이해한다 — 일정은 그 대응표를 몰라도 된다
 	 */
 	TravelTime between(Double fromLat, Double fromLng, Double toLat, Double toLng, String travelMode);
+
+	/**
+	 * 계단과 급경사를 피하는 길로 잰 이동 거리와 시간 — 휠체어·유모차를 쓰거나 계단을 피하겠다고 답한 여행.
+	 *
+	 * <p>기본 구현은 {@code stepFree} 를 무시하고 위의 보통 길로 답한다. 길을 고를 줄 모르는 구현(시험용 가짜 등)이
+	 * 따로 고치지 않아도 되게 하려는 것이고, 실제로 길을 고르는 구현({@code RouteTravelTimeAdapter})은 이것을 덮어쓴다.
+	 *
+	 * @param stepFree 계단·급경사를 피할까. {@code false} 면 위의 메서드와 같다
+	 */
+	default TravelTime between(Double fromLat, Double fromLng, Double toLat, Double toLng, String travelMode,
+			boolean stepFree) {
+		return between(fromLat, fromLng, toLat, toLng, travelMode);
+	}
 }

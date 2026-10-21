@@ -5,7 +5,7 @@
 //    - 촬영자 이름(「촬영 ○○」의 ○○)은 로마자로 바꾸지 않는다 — 본인이 쓰는 철자가 따로 있을 수 있다. 이름표만 영어.
 //    - 공공누리 유형 번호는 그대로 옮긴다. 한국어판은 그대로.
 //    - 「KOGL Type 1」은 줄바꿈 안 되는 공백(\u00A0)으로 붙는다 — 카드 띠에서 번호만 둘째 줄로 떨어지지 않게.
-import { photoLabels, photoSourceEnglish } from '../places';
+import { isSelfLabelledSource, photoLabels, photoSourceEnglish, photoSourceShortText } from '../places';
 
 // tsconfig 가 node 타입을 안 들고 있어서 import 로 쓰면 타입 검사가 막힌다 — 이 저장소의 다른 파일 검사 시험과 같은 방식.
 declare const require: (id: string) => any;
@@ -49,5 +49,18 @@ describe('사진 출처를 영어로', () => {
   it.each(['src/components/PhotoCreditBar.tsx', 'src/plan/CourseCard.tsx'])('%s 도 같은 것을 쓴다 — 카드 띠·코스 표지', (file) => {
     const source = readFileSync(join(__dirname, '..', '..', '..', file), 'utf8');
     expect(source).toContain("txf(tx, '사진: %s', 'Photo: %s', photoSourceText(");
+  });
+});
+
+// 5개 언어 점검(2026-09-29) — 장소 사진 여러 장의 구글 출처가 영어·일본어·중국어 화면에서 한국어로 떴다.
+describe('구글 지도 출처', () => {
+  const en = (_ko: string, english: string) => english;
+  it('🔴 이름표만 영어로, 촬영자 이름은 그대로', () => {
+    expect(photoSourceEnglish('Google 지도 · 사진 박대규')).toBe('Google Maps · Photo: 박대규');
+    expect(photoSourceShortText('Google 지도 · 사진 박대규', en)).toBe('Google Maps · Photo: 박대규');
+  });
+  it('🔴 이름표를 달고 오므로 「사진: 」을 또 붙이지 않는다', () => {
+    expect(isSelfLabelledSource('Google 지도 · 사진 박대규')).toBe(true);
+    expect(isSelfLabelledSource('한국관광공사 공공누리 제1유형')).toBe(false);
   });
 });

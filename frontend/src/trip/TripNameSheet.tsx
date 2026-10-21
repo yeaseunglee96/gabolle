@@ -39,7 +39,7 @@ export type TripNameSheetProps = {
 };
 
 export function TripNameSheet({ tripId, currentTitle, dateLabel, accessToken, onClose, onSaved }: TripNameSheetProps) {
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
   const { kind } = useLayout();
   // 🔴 안드로이드 탐색 막대 밑으로 버튼이 들어가지 않게(S15P21E201-1765).
   const bottomPad = useSheetBottomPadding(spacing[8]);
@@ -59,7 +59,7 @@ export function TripNameSheet({ tripId, currentTitle, dateLabel, accessToken, on
     if (mode !== 'add') return;
     let alive = true;
     void (async () => {
-      const result = await loadTripNameSuggestions(tripId, accessToken);
+      const result = await loadTripNameSuggestions(tripId, accessToken, language);
       if (!alive) return;
       const next = planNameStep(result);
       setSuggestions(next.suggestions);
@@ -124,9 +124,9 @@ export function TripNameSheet({ tripId, currentTitle, dateLabel, accessToken, on
         <Text color={color.text.body}>{tx('비워 두고 저장하면 이름이 지워지고 카드에 날짜가 보여요.', 'Save it empty to clear the name and show the dates.')}</Text>
       ) : dateLabel ? (
         <Text color={color.text.body}>
-          {tx('지금은 카드에 날짜 ', 'Right now the card shows ')}
+          {/* 넘어오는 값은 날짜일 때도, 「6곳 · 약 9.1만원」 같은 요약일 때도 있다 — 「날짜」라고 부르지 않고, 조사도 붙이지 않는다(S15P21E201-1990). */}
+          {tx('지금 카드에는 이렇게 보여요: ', 'Right now the card shows: ')}
           <Text weight="bold" color={color.text.heading}>{dateLabel}</Text>
-          {tx('가 보여요.', '.')}
         </Text>
       ) : null}
 
@@ -227,7 +227,9 @@ export function TripNameSheet({ tripId, currentTitle, dateLabel, accessToken, on
   });
 
   const sheet = (
-    <Pressable onPress={() => {}} style={kind === 'phone' ? [styles.sheet, { paddingBottom: bottomPad }] : styles.card}>
+    // 🔴 accessible={false} — S15P21E201-1993. 누름을 가두려고 감싼 Pressable 이 iOS 에서 「단추 하나」로 묶여,
+    //    안의 이름 입력칸·저장 단추가 VoiceOver·자동화 도구에 따로 잡히지 않았다.
+    <Pressable accessible={false} onPress={() => {}} style={kind === 'phone' ? [styles.sheet, { paddingBottom: bottomPad }] : styles.card}>
       {kind === 'phone' ? <View {...sheetDrag} style={styles.handleZone}><View style={styles.handle} /></View> : null}
       {body}
     </Pressable>

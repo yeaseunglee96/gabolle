@@ -1,5 +1,5 @@
 // 환율 계산기 — S15P21E201-1137.
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -7,6 +7,7 @@ import { useAuth } from '@/auth/AuthProvider';
 import { Button } from '@/components/Button';
 import { Screen } from '@/components/Screen';
 import { Text } from '@/components/Text';
+import { FieldBackButton } from '@/components/FieldBackButton';
 import { color, radius, spacing } from '@/design/tokens';
 import {
   defaultCurrencyFor,
@@ -40,16 +41,23 @@ function digitsOnly(value: string): string {
  *    않는 자리 구분(쉼표)으로 내려간다 — 환전 화면에서 숫자가 잘못 보이면 실제 돈 액수를
  *    오해하게 되므로, 여기서만은 «다른 나라 표기가 섞이는 것»조차 허용하지 않는다.
  */
-function grouped(value: number, locale: string): string {
-  const rounded = Math.round(value);
+function grouped(value: number, locale: string, fractionDigits = 0): string {
+  const factor = 10 ** fractionDigits;
+  const rounded = Math.round(value * factor) / factor;
   try {
     if (Intl.NumberFormat.supportedLocalesOf([locale]).length) {
-      return new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(rounded);
+      return new Intl.NumberFormat(locale, { minimumFractionDigits: 0, maximumFractionDigits: fractionDigits }).format(rounded);
     }
   } catch {
     // 아래 자리 구분으로 내려간다.
   }
-  return rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  const [whole, fraction] = rounded.toString().split('.');
+  return whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (fraction ? `.${fraction}` : '');
+}
+
+/** 결과의 소수 자리 — 원·엔은 정수, 그 밖의 외화는 센트까지(50,000원 → 37 이 아니라 37.06 달러, 2026-10-17 폰). */
+function fractionDigitsFor(code: string): number {
+  return code === 'KRW' || code === 'JPY' ? 0 : 2;
 }
 
 /**
@@ -91,6 +99,13 @@ export default function Exchange() {
   // "외화 → 원" 으로 시작한다. 이 화면에 오는 사람 대부분이 한국 가격표를 보고 있는 것이
   // 아니라, 자기 돈이 여기서 얼마인지를 먼저 궁금해한다. 한국어 사용자만 반대다.
   const [fromKrw, setFromKrw] = useState(language === 'ko');
+  // 🔴 웹에서는 고른 언어가 저장소에서 늦게 온다 — 첫 그림의 언어(영어)로 정한 USD 가 중국어 화면에 남았다
+  //    (운영 웹 10/2, S15P21E201-1941). 사람이 직접 고르거나 바꾸기 전까지는 언어가 바뀌면 기본값을 다시 맞춘다.
+  const touched = useRef({ code: false, direction: false });
+  useEffect(() => {
+    if (!touched.current.code) setCode(defaultCurrencyFor(language));
+    if (!touched.current.direction) setFromKrw(language === 'ko');
+  }, [language]);
   const [amount, setAmount] = useState('');
 
   // 화면 상태를 눈으로 확인하기 위한 자리 — (plan)/confirm.tsx 의 preview=api-error 와 같은
@@ -157,6 +172,7 @@ export default function Exchange() {
 
   return (
     <Screen scroll wide>
+      <FieldBackButton />
       <Text variant="display" weight="bold">{tx('환율 계산', 'Currency')}</Text>
       <Text variant="caption" color={color.text.body} style={styles.subtitle}>
         {tx('가격표를 보고 바로 내 돈으로 바꿔 보세요.', 'Turn a price tag into your own money, right here.')}
@@ -189,7 +205,7 @@ export default function Exchange() {
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel={tx('바꾸는 방향 뒤집기', 'Swap direction')}
-                onPress={() => setFromKrw((v) => !v)}
+                onPress={() => { touched.current.direction = true; setFromKrw((v) => !v); }}
                 style={({ pressed }) => [styles.swap, pressed && styles.pressed]}
               >
                 <Text variant="caption" weight="bold" color={color.brand.navy}>{tx('방향 바꾸기 ⇅', 'Swap ⇅')}</Text>
@@ -197,7 +213,7 @@ export default function Exchange() {
             </View>
             <TextInput
               accessibilityLabel={tx('바꿀 금액', 'Amount to convert')}
-              value={amount}
+              value={amount ? grouped(Number(amount), locale) : ''}
               onChangeText={(v) => setAmount(digitsOnly(v))}
               keyboardType="number-pad"
               placeholder="0"
@@ -207,7 +223,7 @@ export default function Exchange() {
 
             <View style={styles.resultBox}>
               <View style={styles.codeRow}><CurrencyBadge code={outCode} /><Text variant="caption" weight="bold" color={color.text.eyebrow}>{outCode}</Text></View>
-              <Text variant="display" weight="bold" style={styles.result}>{grouped(Math.round(converted), locale)}</Text>
+              <Text variant="display" weight="bold" style={styles.result}>{grouped(converted, locale, fractionDigitsFor(outCode))}</Text>
             </View>
 
             {/* 기준율과 매도율을 같이 적는다. 기준율만 보여주면 환전소에서 그 값이 안 나온다. */}
@@ -234,7 +250,7 @@ export default function Exchange() {
                   accessibilityRole="radio"
                   accessibilityState={{ selected }}
                   accessibilityLabel={`${quotedCode(item.currencyCode)} ${name}`}
-                  onPress={() => setCode(item.currencyCode)}
+                  onPress={() => { touched.current.code = true; setCode(item.currencyCode); }}
                   style={({ pressed }) => [styles.currencyRow, selected && styles.currencyRowSelected, pressed && styles.pressed]}
                 >
                   <CurrencyBadge code={item.currencyCode} size="large" />

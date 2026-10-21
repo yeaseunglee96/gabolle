@@ -1,7 +1,8 @@
 // 여행 지도 — 걷는 길을 경사 색 조각으로 칠하기 — S15P21E201-1658 (백엔드 !1626 의 pieces).
 //
 // 🔴 이 시험이 지키는 것:
-//    ① 색은 세 단계다(사용자 결정) — 5% 미만 초록 · 5~8.33% 노랑 · 8.33% 이상·계단 빨강 · 모름 회색.
+//    ① 색은 세 단계다(사용자 결정) — 5% 미만 초록 · 5~8.33% 노랑 · 8.33% 초과·계단 빨강 · 모름 회색.
+//       🔴 8.33% 자신은 노랑이다 — 서버가 8.33% 이하를 통과로 본다(slopeGrades.ts 주석).
 //    ② 조각은 path 의 자리 번호(from·to, 둘 다 포함)로 자른다. 번호가 path 밖이면 조각을 버리고 한 선으로 그린다.
 //    ③ 🔴 스위치가 꺼져 있으면(지금 — !1626 배포 전) 걷기 요청을 보내지 않는다. 켜면 걷는 구간만 걷기로 받는다.
 //    ④ 조각이 있으면 웹·앱 지도 둘 다 조각마다 색을 달리해 긋는다. 🔴 색의 뜻 안내 문구는 기본 화면에 안 띄운다(S15P21E201-1820, 어색하다는 사용자 결정).
@@ -38,7 +39,8 @@ describe('경사 색', () => {
     expect(slopeColor(piece(4.99))).toBe(color.state.success);
     expect(slopeColor(piece(5))).toBe(color.state.warning);
     expect(slopeColor(piece(8.32))).toBe(color.state.warning);
-    expect(slopeColor(piece(8.33))).toBe(color.state.danger);
+    expect(slopeColor(piece(8.33))).toBe(color.state.warning);
+    expect(slopeColor(piece(8.34))).toBe(color.state.danger);
     expect(slopeColor(piece(1, true))).toBe(color.state.danger);
     expect(slopeColor(piece(null))).toBe(color.text.muted);
     expect(slopeColor(piece(null, true))).toBe(color.state.danger);

@@ -81,6 +81,24 @@ class DevProfilePlaceholderTest {
 	}
 
 	/**
+	 * 운영은 dev 프로필이고 Jenkinsfile 이 GABOLLE_REFRESH_TOKEN_TTL 을 넘기지 않는다 — 그래서 사용자가
+	 * 겪는 로그인 유지 기간은 이 파일의 기본값이다. AuthProperties 의 기본값만 바꾸면 운영은 그대로 2시간이다
+	 * (S15P21E201-1978, 10/5 운영 컨테이너 env 로 확인).
+	 */
+	@Test
+	void deployedLoginLastsTwoDaysWhenJenkinsGivesNoTtl() throws IOException {
+		StandardEnvironment environment = new StandardEnvironment();
+		environment.getPropertySources().addLast(
+				new ResourcePropertySource(new ClassPathResource("application-dev.properties")));
+
+		String resolved = environment.resolveRequiredPlaceholders(
+				environment.getProperty("gabolle.auth.refresh-token-ttl", ""));
+
+		assertThat(org.springframework.boot.convert.DurationStyle.detectAndParse(resolved))
+				.isEqualTo(java.time.Duration.ofDays(2));
+	}
+
+	/**
 	 * 같은 실수가 다른 속성에서 반복되는 것을 막는다.
 	 *
 	 * <p>파싱된 값이 아니라 파일 바이트를 본다. {@code Properties} 는 읽는 시점에 유니코드

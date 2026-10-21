@@ -45,7 +45,7 @@ public class TripTitleController {
 			@RequestBody UpdateTripTitleRequest request,
 			Authentication authentication) {
 
-		String requester = AuthenticatedUsers.requireId(authentication).toString();
+		String requester = AuthenticatedUsers.requireTripActor(authentication);
 		Trip trip = this.service.rename(tripId, requester, request == null ? null : request.title());
 		return ApiResponse.success(TripTitleResponse.of(trip), "req_" + UUID.randomUUID());
 	}

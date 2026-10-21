@@ -3,8 +3,8 @@
     "name": "GABOLLE",
     "slug": "gabolle",
     "scheme": "gabolle",
-    "version": "1.0.1",
-    "orientation": "default",
+    "version": "1.0.5",
+    "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
@@ -12,8 +12,8 @@
       "bundleIdentifier": "com.gabolle.app",
       "appleTeamId": "LXS8LP2F8H",
       "associatedDomains": [
-        "applinks:j15e201.p.ssafy.io",
-        "webcredentials:j15e201.p.ssafy.io"
+        "applinks:gabolle.kr",
+        "webcredentials:gabolle.kr"
       ],
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
@@ -48,8 +48,23 @@
           "data": [
             {
               "scheme": "https",
-              "host": "j15e201.p.ssafy.io",
+              "host": "gabolle.kr",
               "pathPrefix": "/oauth"
+            },
+            {
+              "scheme": "https",
+              "host": "gabolle.kr",
+              "pathPrefix": "/s/"
+            },
+            {
+              "scheme": "https",
+              "host": "gabolle.kr",
+              "pathPrefix": "/invite/"
+            },
+            {
+              "scheme": "https",
+              "host": "gabolle.kr",
+              "pathPrefix": "/story-invite/"
             }
           ],
           "category": [

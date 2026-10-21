@@ -28,9 +28,19 @@ public class TripDeletionService {
 
 	private final Clock clock;
 
+	/** 없으면(단위 시험) 알리지 않는다. */
+	private final org.springframework.context.ApplicationEventPublisher events;
+
 	public TripDeletionService(TripRepository repository, Clock clock) {
+		this(repository, clock, null);
+	}
+
+	@org.springframework.beans.factory.annotation.Autowired
+	public TripDeletionService(TripRepository repository, Clock clock,
+			org.springframework.context.ApplicationEventPublisher events) {
 		this.repository = repository;
 		this.clock = clock;
+		this.events = events;
 	}
 
 	/**
@@ -65,6 +75,9 @@ public class TripDeletionService {
 
 		trip.markDeleted(Instant.now(this.clock));
 		this.repository.softDelete(trip);
+		if (this.events != null) {
+			this.events.publishEvent(new com.gabolle.backend.trip.domain.TripDeleted(tripId));
+		}
 	}
 
 	/** 회원이지만 그 여행의 소유자가 아니다. */

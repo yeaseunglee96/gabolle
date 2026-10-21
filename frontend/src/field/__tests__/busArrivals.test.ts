@@ -1,6 +1,7 @@
 // — 주변 버스 도착.
 import {
   arrivalLabel,
+  catchVerdict,
   loadNearbyBusArrivals,
   sortArrivals,
   sortStops,
@@ -137,3 +138,17 @@ describe('안 될 때 — 이유마다 다르게 말한다', () => {
     await expect(loadNearbyBusArrivals(BUSAN, 't')).resolves.toEqual({ state: 'blocked', reason: 'vendor' });
   });
 });
+
+describe('걸어가서 탈 수 있나 — catchVerdict', () => {
+  it('🔴 걷는 시간보다 2분 넘게 남으면 탄다 · 걷는 시간 안쪽이면 빠듯 · 모자라면 놓친다', () => {
+    expect(catchVerdict(8 * 60, 2)).toBe('catch');
+    expect(catchVerdict(3 * 60, 2)).toBe('tight');
+    expect(catchVerdict(60, 2)).toBe('miss');
+    expect(catchVerdict(30, 7)).toBe('miss');
+  });
+
+  it('도착 시간을 모르면 판정하지 않는다 — 지어내지 않는다', () => {
+    expect(catchVerdict(null, 2)).toBeNull();
+  });
+});
+

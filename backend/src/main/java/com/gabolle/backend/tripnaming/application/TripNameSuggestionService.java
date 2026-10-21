@@ -72,11 +72,21 @@ public class TripNameSuggestionService {
 	 */
 	@Transactional(readOnly = true)
 	public TripNameSuggestionsResponse suggest(String tripId, String requesterUserId, boolean english) {
+		return suggest(tripId, requesterUserId, english ? NameLanguage.EN : NameLanguage.KO);
+	}
+
+	/**
+	 * 화면 언어로 이름 후보를 준다. 한국어가 아니면 모델을 안 부르고 그 언어 틀로 답한다 — 이유는 영어와 같다
+	 * ({@link PlaceWordGuard} 가 한글 조각만 본다). S15P21E201-1916 — 전에는 일본어·중국어 화면에도 영어 틀이 나왔다.
+	 */
+	@Transactional(readOnly = true)
+	public TripNameSuggestionsResponse suggest(String tripId, String requesterUserId, NameLanguage language) {
 		TripQueryService.View view = this.tripQueryService.get(tripId, requesterUserId);
 		Trip trip = view.trip();
 
-		if (english) {
-			return englishTemplate(trip, this.vocabulary.placeNamesOf(tripId, true));
+		if (language != NameLanguage.KO) {
+			List<String> names = leadWithForeignName(this.vocabulary.placeNamesOf(tripId, true));
+			return language == NameLanguage.EN ? englishTemplate(trip, names) : localizedTemplate(trip, names, language);
 		}
 
 		List<String> placeNames = this.vocabulary.placeNamesOf(tripId);
@@ -110,6 +120,37 @@ public class TripNameSuggestionService {
 	 * 저장할 수 있는 이름인가. {@link Trip#rename} 이 거부할 이름은 후보로 내놓지 않는다 —
 	 * 고른 순간 400 이 나면 막다른 길이다.
 	 */
+	/**
+	 * S15P21E201-1995 — 영어·일본어·중국어 틀의 맨 앞 이름. 다국어 이름이 없는 곳은 한글 그대로 와서, 영어 화면에
+	 * 「젤라또조이 + 11 more · 2 days」가 나왔다(10/5 녹화). 다국어 이름이 있는 첫 장소를 앞세우고, 하나도 없으면
+	 * 지명 「Busan」을 앞세운다. 개수(+N)는 그대로라 거짓이 되지 않는다.
+	 */
+	static List<String> leadWithForeignName(List<String> names) {
+		if (names.isEmpty()) {
+			return names;
+		}
+		for (int i = 0; i < names.size(); i++) {
+			if (!HANGUL.matcher(names.get(i)).find()) {
+				if (i == 0) {
+					return names;
+				}
+				List<String> reordered = new java.util.ArrayList<>(names.size());
+				reordered.add(names.get(i));
+				for (int j = 0; j < names.size(); j++) {
+					if (j != i) {
+						reordered.add(names.get(j));
+					}
+				}
+				return reordered;
+			}
+		}
+		List<String> withBusan = new java.util.ArrayList<>(names);
+		withBusan.set(0, "Busan");
+		return withBusan;
+	}
+
+	private static final java.util.regex.Pattern HANGUL = java.util.regex.Pattern.compile("[\uAC00-\uD7A3\u3131-\u318E]");
+
 	private boolean isUsable(String candidate) {
 		if (candidate == null || candidate.isBlank()) {
 			return false;
@@ -150,6 +191,65 @@ public class TripNameSuggestionService {
 		}
 		names.add(trip.startDate() + " ~ " + trip.finishDate());
 		return new TripNameSuggestionsResponse(List.copyOf(names), TripNameSuggestionsResponse.TEMPLATE, 0);
+	}
+
+	/**
+	 * {@link #template} 의 일본어·중국어판. 장소 이름은 영어 이름이 있으면 그것, 없으면 한국어 그대로다 — 일본어·중국어
+	 * 이름은 아직 없다.
+	 */
+	private TripNameSuggestionsResponse localizedTemplate(Trip trip, List<String> placeNames, NameLanguage language) {
+		List<String> names = new ArrayList<>();
+		int d = trip.days();
+		if (!placeNames.isEmpty()) {
+			String first = placeNames.get(0);
+			int others = placeNames.size() - 1;
+			switch (language) {
+				case JA -> {
+					names.add(others > 0 ? first + " ほか" + others + "か所 · " + d + "日間" : first + " · " + d + "日間");
+					names.add(first + " " + d + "日間の旅");
+				}
+				case VI -> {
+					names.add(others > 0 ? first + " và " + others + " nơi khác · " + d + " ngày" : first + " · " + d + " ngày");
+					names.add(d + " ngày ở " + first);
+				}
+				case ZH_HANS -> {
+					names.add(others > 0 ? first + " 等" + (others + 1) + "处 · " + d + "天" : first + " · " + d + "天");
+					names.add(first + " " + d + "日游");
+				}
+				default -> {
+					names.add(others > 0 ? first + " 等" + (others + 1) + "處 · " + d + "天" : first + " · " + d + "天");
+					names.add(first + " " + d + "日遊");
+				}
+			}
+		}
+		names.add(trip.startDate() + " ~ " + trip.finishDate());
+		return new TripNameSuggestionsResponse(List.copyOf(names), TripNameSuggestionsResponse.TEMPLATE, 0);
+	}
+
+	/** 이름 후보의 언어. {@code Accept-Language} 첫 태그만 본다({@code RequestLanguage} 와 같은 단순화). */
+	public enum NameLanguage {
+		KO, EN, JA, ZH_HANS, ZH_HANT, VI;
+
+		public static NameLanguage of(String acceptLanguage) {
+			if (acceptLanguage == null || acceptLanguage.isBlank()) {
+				return KO;
+			}
+			String tag = acceptLanguage.split(",")[0].split(";")[0].trim().toLowerCase(java.util.Locale.ROOT);
+			if (tag.startsWith("en")) {
+				return EN;
+			}
+			if (tag.startsWith("ja")) {
+				return JA;
+			}
+			if (tag.startsWith("vi")) {
+				return VI;
+			}
+			if (tag.startsWith("zh")) {
+				// 번체: zh-Hant · 대만·홍콩·마카오. 나머지 중국어(zh · zh-Hans · zh-CN)는 간체.
+				return (tag.contains("hant") || tag.endsWith("-tw") || tag.endsWith("-hk") || tag.endsWith("-mo")) ? ZH_HANT : ZH_HANS;
+			}
+			return KO;
+		}
 	}
 
 	/** 넘으면 거절하지 않고 템플릿으로 간다. */

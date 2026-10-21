@@ -41,7 +41,7 @@ const TYPE_LABEL: Record<ConstraintType, LocalizedText> = {
 };
 
 /**
- * 앱이 실제로 보내는 값만 적는다 — 식단은 ConditionsPromptModal 의 DIETS,
+ * 앱이 실제로 보내는 값만 적는다 — 식단은 travelConditions 의 DIETS,
  * 이동은 tripApi 의 mobility(). 알레르기는 -1497 부터 안 보내므로 값 이름을 두지 않는다
  * (오더라도 갈래 이름 「알레르기」로 적힌다).
  */
@@ -53,6 +53,7 @@ const KEY_LABEL: Record<string, LocalizedText> = {
   PESCATARIAN: { ko: '페스코', en: 'Pescatarian' },
   WHEELCHAIR: { ko: '휠체어', en: 'Wheelchair' },
   STROLLER: { ko: '유아차', en: 'Stroller' },
+  // 큰 짐 — 서버가 경사로만 가르는 이동 조건. 경사 때문에 다 빠지면 이 이름으로 「큰 짐」이 막았다고 말한다.
   HEAVY_LUGGAGE: { ko: '큰 짐', en: 'Large luggage' },
   STAIRS_AVOIDANCE: { ko: '계단 피하기', en: 'Avoid stairs' },
   MAX_WALKING_METERS: { ko: '걷는 거리', en: 'Walking distance' },

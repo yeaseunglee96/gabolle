@@ -4,7 +4,7 @@
       "developmentClient": true,
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_API_BASE_URL": "https://j15e201.p.ssafy.io"
+        "EXPO_PUBLIC_API_BASE_URL": "https://api.gabolle.kr"
       }
     },
     "preview": {
@@ -13,7 +13,7 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_BASE_URL": "https://j15e201.p.ssafy.io"
+        "EXPO_PUBLIC_API_BASE_URL": "https://api.gabolle.kr"
       }
     },
     "production": {
@@ -22,7 +22,7 @@
       },
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_API_BASE_URL": "https://j15e201.p.ssafy.io"
+        "EXPO_PUBLIC_API_BASE_URL": "https://api.gabolle.kr"
       }
     }
   },

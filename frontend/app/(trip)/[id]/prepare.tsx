@@ -1,29 +1,31 @@
 // 16 여행 준비·날씨 — Figma 16_여행 준비·날씨 실측 그대로.
+import { storyBodyText } from '@/social/courseLink';
 import { txf } from '@/i18n/format';
 import { localDateKey } from '@/plan/tripProgress';
 import { formatMonthDay } from '@/i18n/datetime';
 import { useEffect, useState } from 'react';
-import { Image, Share as NativeShare, StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { ApiClientError } from '@/api/client';
 import { color, radius, spacing } from '@/design/tokens';
 import { Screen } from '@/components/Screen';
+import { FieldBackButton } from '@/components/FieldBackButton';
 import { Text } from '@/components/Text';
 import { Eyebrow } from '@/components/Eyebrow';
 import { Button } from '@/components/Button';
 import { useAuth } from '@/auth/AuthProvider';
 import { useI18n } from '@/i18n';
-import { DialectFlashcards } from '@/discovery/DialectFlashcards';
 import { RouteMap } from '@/map/RouteMap';
 import type { MapStop } from '@/map/types';
 import { loadItinerary } from '@/plan/itinerary';
 import { issueShareLink } from '@/share/sharedItinerary';
-import { getTripStories } from '@/social/stories';
+import { getTripStories, storyPlaceName } from '@/social/stories';
 import { SelectTripFirst } from '@/trip/SelectTripFirst';
 import { loadTripItineraries, loadTrips } from '@/trip/trips';
-import { TripWeatherCard, weatherHeading } from '@/trip/TripWeatherPanel';
+import { TripWeatherCard, weatherDateFor, weatherHeading } from '@/trip/TripWeatherPanel';
 import { localToday } from '@/plan/tripBasics';
+import { shareLink, type ShareOutcome } from '@/utils/shareLink';
 
 // 🔴 한국어면 손으로, 그 밖이면 «무조건 en-US» 였다 (S15P21E201-1355).
 //    이제는 고른 언어에 맞는 꼴로 운영체제가 만든다.
@@ -32,7 +34,7 @@ function formatDepartureDate(value: string, locale: string) {
 }
 
 // 🔴 「가볼래가 챙긴 준비물」은 뺐다(S15P21E201-1422) — 고정 샘플(우산·신발·카드 사본, 「오후 비 예보」)이라 진짜가 아니었고,
-//    같은 화면의 날씨(진짜)까지 가짜로 보이게 했다. 사투리 카드는 src/discovery/DialectFlashcards.tsx 로 갔고 여기서도 그대로 쓴다.
+//    같은 화면의 날씨(진짜)까지 가짜로 보이게 했다. 사투리 카드는 src/discovery/DialectFlashcards.tsx 로 갔다(이 화면에서는 2026-10-02 에 뺐다 — 아래 주석).
 
 // — 여행 종료일이 지나면 이 탭에 추억 지도 카드를 띄운다. 계획한 경로가
 // 아니라 실제로 쓴 기록(story)의 장소를 방문 순서(created_at)대로 이어 그린다 — 서버가
@@ -76,19 +78,27 @@ function TripSummaryCard({ tripId, title, visitCount, photoUrl }: { tripId: stri
   const { accessToken } = useAuth();
   const [sharing, setSharing] = useState(false);
   const [shareError, setShareError] = useState('');
+  const [shareNotice, setShareNotice] = useState('');
 
   async function share() {
     if (!accessToken || sharing) return;
     setSharing(true);
     setShareError('');
+    setShareNotice('');
+    let shareUrl: string;
     try {
-      const issued = await issueShareLink(tripId, accessToken);
-      await NativeShare.share({ title, message: txf(tx, '%s 일정을 공유해요.\n%s', 'Sharing my %s itinerary.\n%s', title, issued.shareUrl), url: issued.shareUrl });
+      shareUrl = (await issueShareLink(tripId, accessToken)).shareUrl;
     } catch (cause) {
       setShareError(cause instanceof ApiClientError ? cause.message : tx('공유 링크를 만들지 못했어요. 잠시 후 다시 시도해 주세요.', 'Could not create the share link. Please try again shortly.'));
-    } finally {
       setSharing(false);
+      return;
     }
+    // 링크는 만들어졌다 — 웹에서 공유 창을 닫거나 브라우저가 공유를 못 해도 「만들지 못했어요」가 아니다(S15P21E201-1958).
+    let outcome: ShareOutcome;
+    try { outcome = await shareLink({ title, message: txf(tx, '%s 일정을 공유해요.\n%s', 'Sharing my %s itinerary.\n%s', title, shareUrl), url: shareUrl }); } catch { outcome = 'failed'; }
+    if (outcome === 'copied') setShareNotice(tx('링크를 복사했어요. 붙여넣어 공유하세요.', 'Link copied. Paste it to share.'));
+    else if (outcome === 'failed') setShareNotice(shareUrl);
+    setSharing(false);
   }
 
   return (
@@ -101,6 +111,7 @@ function TripSummaryCard({ tripId, title, visitCount, photoUrl }: { tripId: stri
       </View>
       <Button label={sharing ? tx('공유 링크 만드는 중…', 'Creating share link…') : tx('여행 공유하기', 'Share this trip')} variant="tertiary" disabled={sharing} onPress={() => void share()} />
       {shareError ? <Text variant="caption" color={color.state.danger}>{shareError}</Text> : null}
+      {shareNotice ? <Text testID="trip-summary-share-notice" variant="caption" selectable color={color.text.muted}>{shareNotice}</Text> : null}
     </View>
   );
 }
@@ -112,11 +123,12 @@ export default function Prepare() {
 }
 
 function PrepareForTrip({ tripId }: { tripId: string }) {
-  const { tx, locale } = useI18n();
+  const { tx, locale, language } = useI18n();
   const router = useRouter();
   const { accessToken } = useAuth();
   // undefined = 아직 모름(불러오는 중). null = 일정이 없어 알 수 없음.
   const [firstDayDate, setFirstDayDate] = useState<string | null | undefined>(undefined);
+  const [lastDayDate, setLastDayDate] = useState<string | null>(null);
   const [tripTitle, setTripTitle] = useState<string | null>(null);
   const [memoryMap, setMemoryMap] = useState<MemoryMapState>({ status: 'loading' });
   const [tripSummary, setTripSummary] = useState<{ visitCount: number; photoUrl: string | null } | null>(null);
@@ -135,7 +147,7 @@ function PrepareForTrip({ tripId }: { tripId: string }) {
         .map((story, index) => ({
           id: story.id,
           number: index + 1,
-          name: story.place?.name ?? story.body.slice(0, 20),
+          name: (story.place ? storyPlaceName(story.place, tx, language) : null) ?? storyBodyText(story.body).slice(0, 20),
           latitude: story.place!.lat as number,
           longitude: story.place!.lng as number,
           imageUrl: story.images[0]?.url,
@@ -167,17 +179,21 @@ function PrepareForTrip({ tripId }: { tripId: string }) {
       if (cancelled) return;
       const date = result.state === 'success' ? (result.itinerary.days[0]?.date ?? null) : null;
       setFirstDayDate(date);
+      setLastDayDate(result.state === 'success' ? (result.itinerary.days[result.itinerary.days.length - 1]?.date ?? null) : null);
       setTripTitle(result.state === 'success' ? result.itinerary.title : null);
     });
     return () => { cancelled = true; };
   }, [tripId, accessToken]);
 
   const departure = firstDayDate ? formatDepartureDate(firstDayDate, locale) : null;
-  // 머리 글은 날짜에 맞춘다 — 지난 여행에 「여행 전」이라 적지 않는다(S15P21E201-1773).
-  const heading = weatherHeading(tx, firstDayDate, departure, localToday());
+  // 여행 중이면 오늘 날씨를 보인다(S15P21E201-1911). 머리 글도 그 날짜에 맞춘다(S15P21E201-1773).
+  const weatherDate = weatherDateFor(firstDayDate, lastDayDate, localToday());
+  const heading = weatherHeading(tx, weatherDate, departure, localToday());
 
   return (
     <Screen scroll>
+      {/* 뒤로 단추 — 홈 날씨에서 들어오면 나갈 길이 없었다(S15P21E201-1998). 돌아갈 화면이 없으면 홈으로. */}
+      <FieldBackButton fallback="/home" />
       <View style={styles.headerRow}>
         <View style={styles.headerCopy}>
           <Eyebrow>
@@ -195,13 +211,14 @@ function PrepareForTrip({ tripId }: { tripId: string }) {
 
       {memoryMap.status === 'ready' && <MemoryMapCard tripId={tripId} stops={memoryMap.stops} />}
 
-      <TripWeatherCard date={firstDayDate} />
+      <TripWeatherCard date={weatherDate} />
 
       {/* : 기념품샵 진입 카드는 최초 배포에서 뺐다 — 기념품샵 갈래 장소가
           0곳이라 눌러도 항상 빈 목록만 나온다. /{tripId}/souvenirs 라우트는 그대로 있다.
       */}
 
-      <View style={styles.dialectSection}><DialectFlashcards /></View>
+      {/* 🔴 사투리 카드를 뺐다 — 날씨·준비물을 보러 온 화면에 「부산 사투리」가 같이 떠서 헷갈렸다(사용자 지적 2026-10-02).
+          사투리는 현장 도구(/field/dialect)와 동백이 메뉴에 그대로 있다. */}
     </Screen>
   );
 }
@@ -249,8 +266,5 @@ const styles = StyleSheet.create({
   },
   prepTitle: {
     marginBottom: spacing[2],
-  },
-  dialectSection: {
-    marginTop: spacing[4],
   },
 });

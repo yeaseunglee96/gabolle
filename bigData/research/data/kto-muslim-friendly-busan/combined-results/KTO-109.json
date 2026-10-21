@@ -1,0 +1,75 @@
+{
+  "id": "KTO-109",
+  "name": "봄베이브로이 해운대점",
+  "cat": "인도음식",
+  "attempts": 1,
+  "geminiTokens": 44257,
+  "researchedAt": "2026-09-30T00:26:25.172Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false
+  },
+  "descriptors": {
+    "audience": "관광객/연인/가족",
+    "generations": 1,
+    "parking": false,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "버터 치킨",
+      "치킨 티카 마살라",
+      "탄두리 치킨",
+      "난"
+    ],
+    "yearsClaimed": 0
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:00 ~ 23:00"
+  },
+  "localVsTourist": {
+    "found": false
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "해운대 구남로 30 2층에 위치한 인도요리 전문점으로 버터 치킨, 티카 마살라 커리 및 화덕 탄두리 치킨, 난 등을 취급함.",
+  "photoUrls": [],
+  "price": {
+    "found": true,
+    "priceMenu": "버터 치킨 15,000원, 탄두리 치킨 18,000원",
+    "priceWon": 15000
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "주소: 부산광역시 해운대구 구남로 30 (2층). 영업시간: 매일 11:00 ~ 23:00. 주요 메뉴: 인도 커리, 탄두리 치킨, 각종 난, 사모사 등. 인도 현지의 맛을 즐길 수 있는 인도 요리 전문점으로, 오픈 키친 형태로 운영되며 예약이 가능합니다.",
+      "url": "https://www.shuttledelivery.co.kr"
+    },
+    {
+      "excerpt": "대표 메뉴 및 가격대: 커리: 버터 치킨(15,000원), 치킨 티카 마살라(15,000원), 치킨/양고기/소고기 코르마 커리(각 16,000원) 등 다양한 커리가 준비되어 있습니다. 탄두리 요리: 탄두리 치킨(한 마리 18,000원 / 반 마리 10,000원), 치킨 티카(18,000원), 탄두리 양갈비(36,000원) 등 화덕에서 구운 다양한 BBQ 메뉴가 인기입니다.",
+      "url": "https://www.shuttledelivery.co.kr"
+    }
+  ],
+  "sources": [
+    "https://www.shuttledelivery.co.kr",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "화덕에서 구워낸 탄두리 치킨과 버터 치킨 등 정통 인도 커리의 맛을 즐기기 위해 방문함",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "해운대 구남로 중심가 2층에 위치하여 접근성이 좋고 배달/포장 이용이 용이함",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

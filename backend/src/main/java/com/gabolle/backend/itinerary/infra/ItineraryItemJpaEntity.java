@@ -59,6 +59,10 @@ public class ItineraryItemJpaEntity {
 	@Column(name = "locked", nullable = false, updatable = false)
 	private boolean locked;
 
+	/** 고정 방식(ORDER·TIME). 고정이 아니거나 이 칸 이전의 고정이면 NULL — S15P21E201-2017. */
+	@Column(name = "lock_mode", length = 5, updatable = false)
+	private String lockMode;
+
 	@Column(name = "estimated_cost_krw", updatable = false)
 	private Integer estimatedCostKrw;
 
@@ -87,7 +91,9 @@ public class ItineraryItemJpaEntity {
 	ItineraryItemJpaEntity(UUID itineraryItemId, UUID itineraryVersionId, UUID itemKey, int dayIndex,
 			LocalDate visitDate, int sequence, UUID placeId, LocalTime startTime, LocalTime endTime,
 			Integer stayMinutes, boolean locked, Integer estimatedCostKrw, ItineraryItem.DataStatus dataStatus,
-			String[] reasonCodes, String[] warningCodes, UUID sourceRequestId, OffsetDateTime createdAt) {
+			String[] reasonCodes, String[] warningCodes, UUID sourceRequestId, OffsetDateTime createdAt,
+			String lockMode) {
+		this.lockMode = lockMode;
 		this.itineraryItemId = itineraryItemId;
 		this.itineraryVersionId = itineraryVersionId;
 		this.itemKey = itemKey;
@@ -118,6 +124,8 @@ public class ItineraryItemJpaEntity {
 	LocalTime endTime() { return endTime; }
 	Integer stayMinutes() { return stayMinutes; }
 	boolean locked() { return locked; }
+
+	String lockMode() { return lockMode; }
 	Integer estimatedCostKrw() { return estimatedCostKrw; }
 	ItineraryItem.DataStatus dataStatus() { return dataStatus; }
 	String[] reasonCodes() { return reasonCodes; }

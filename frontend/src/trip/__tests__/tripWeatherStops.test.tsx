@@ -82,8 +82,11 @@ describe('날씨 창 — 들를 때 날씨·테두리', () => {
     respond(fullDay.map((cell) => (cell.time === '14:00' ? { ...cell, temperature: 26, skyCondition: 'PARTLY_CLOUDY' as const, precipitationProbability: 10 } : cell)));
     render(<TripWeatherPanel date="2026-09-25" items={[item('09:46', '카페오뜨'), item('14:08', '무슈뱅상')]} />, { wrapper: Providers });
 
-    expect(await screen.findByText('10시 · 1', {}, WAIT)).toBeTruthy();
-    expect(screen.getByText('14시 · 2')).toBeTruthy();
+    // 정차 번호는 시각 아래 줄이다 — 한 줄에 붙이면 폰 칸에서 「10시 · 」로 잘렸다(S15P21E201-1903).
+    expect(await screen.findByLabelText(/^10시 · 1,/, {}, WAIT)).toBeTruthy();
+    expect(screen.getByLabelText(/^14시 · 2,/)).toBeTruthy();
+    expect(screen.getByText('10시')).toBeTruthy();
+    expect(screen.getByText('1')).toBeTruthy();
     expect(screen.getByText('9시')).toBeTruthy();
     expect(screen.getByText('들를 때 날씨')).toBeTruthy();
     expect(screen.getByText('카페오뜨')).toBeTruthy();
@@ -114,7 +117,7 @@ describe('날씨 창 — 들를 때 날씨·테두리', () => {
     jest.spyOn(ScrollView.prototype, 'scrollTo').mockImplementation(scrollTo);
     render(<TripWeatherPanel date="2026-09-25" items={[item('08:10', '아침')]} />, { wrapper: Providers });
 
-    await screen.findByText('8시 · 1', {}, WAIT);
+    await screen.findByLabelText(/^8시 · 1,/, {}, WAIT);
     const row = screen.UNSAFE_getByType(ScrollView);
     fireEvent(row, 'contentSizeChange', 1600, 120);
     fireEvent(row, 'contentSizeChange', 1600, 120);

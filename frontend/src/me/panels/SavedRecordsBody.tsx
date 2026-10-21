@@ -1,6 +1,7 @@
 // SavedRecords 본문 — 화면과 마이페이지 패널이 같은 것을 쓴다.
 //
 // 제목과 설명은 껍데기가 그린다(myPanels 의 panelTitle). 여기서 또 그리면 두 번 나온다.
+import { storyBodyText } from '@/social/courseLink';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -12,12 +13,12 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { markdownToPlain } from '@/social/markdown';
-import { loadSavedStories, relativeStoryTime, setStorySaved, type FeedLoadResult, type StoryDto } from '@/social/stories';
+import { loadSavedStories, relativeStoryTime, setStorySaved, type FeedLoadResult, type StoryDto, storyPlaceName } from '@/social/stories';
 import { regionText } from '@/social/districtNames';
 
 export function SavedRecordsBody() {
   const router = useRouter();
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
   const { accessToken } = useAuth();
   const [result, setResult] = useState<FeedLoadResult>({ state: 'success', items: [], nextCursor: null });
   const [loading, setLoading] = useState(true);
@@ -69,13 +70,13 @@ export function SavedRecordsBody() {
         {items.map((story: StoryDto) => (
           <View key={story.id} style={styles.card}>
             <Text variant="caption" numberOfLines={1} style={styles.cardMeta}>
-              {story.author.displayName}{' · '}{relativeStoryTime(story.createdAt, tx)}{story.place?.name ? ` · ${story.place.name}` : story.region ? ` · ${regionText(story.region, tx)}` : ''}
+              {story.author.displayName}{' · '}{relativeStoryTime(story.createdAt, tx)}{story.place?.name ? ` · ${storyPlaceName(story.place, tx, language)}` : story.region ? ` · ${regionText(story.region, tx)}` : ''}
             </Text>
 
             <View style={styles.cardBody}>
               {story.images.length ? <Image source={{ uri: story.images[0].url }} resizeMode="cover" accessibilityLabel={tx('여행 기록 사진', 'Trip record photo')} style={styles.thumb} /> : null}
               {/* 목록 카드와 같은 평문 미리보기 — 본문을 그대로 찍으면 「# 제목」「**굵게**」 같은 마크다운 기호가 보인다(S15P21E201-1657). */}
-              <Text numberOfLines={3} color={color.text.heading} style={styles.body}>{markdownToPlain(story.body)}</Text>
+              <Text numberOfLines={3} color={color.text.heading} style={styles.body}>{markdownToPlain(storyBodyText(story.body))}</Text>
             </View>
 
             <View style={styles.actions}>

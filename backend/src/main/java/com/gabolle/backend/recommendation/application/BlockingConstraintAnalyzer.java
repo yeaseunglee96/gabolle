@@ -73,7 +73,12 @@ public class BlockingConstraintAnalyzer {
 			"DIET_MAPPING_MISSING", new Meaning("DIET", REASON_UNVERIFIED),
 			"DIET_NOT_SUPPORTED", new Meaning("DIET", REASON_VIOLATED),
 			"ACCESSIBILITY_MAPPING_MISSING", new Meaning("MOBILITY", REASON_UNVERIFIED),
-			"ACCESS_VERIFIED_UNAVAILABLE", new Meaning("MOBILITY", REASON_VIOLATED));
+			"ACCESS_VERIFIED_UNAVAILABLE", new Meaning("MOBILITY", REASON_VIOLATED),
+			// 경사가 상한(휠체어 경사로 기준 1:12 = 8.33%)을 넘은 곳. 둘레 길에서 짐작한 값이지만
+			// 「경사를 모른다」가 아니라 「재어 보니 가파르다」라서 확인된 위반 쪽이다. 이 줄이 빠져
+			// 있던 동안 경사만으로 다 막힌 여행은 갈래 없는 코드로 나가, 화면이 이동 조건 탓인 줄 몰랐다.
+			// (Map.of 는 짝 10개까지다 — 하나 더 늘면 Map.ofEntries 로 바꾼다.)
+			"SLOPE_OVER_LIMIT", new Meaning("MOBILITY", REASON_VIOLATED));
 
 	/**
 	 * 코드 하나의 뜻.

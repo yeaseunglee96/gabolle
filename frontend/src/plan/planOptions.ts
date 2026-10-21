@@ -33,16 +33,20 @@ export const CATEGORY_OPTIONS: readonly PlanOption[] = [
   ['FESTIVAL_EVENT', '축제 & 행사', 'Festivals & events', '여행 날짜에 열리는 축제만', 'Only festivals on your travel dates'],
 ] as const;
 
-/** 여행 취향 카드의 사진 — 글자만 있던 카드가 안 읽혔다(2026-09-21 실기, S15P21E201-1442). 온보딩용으로 그려 둔 그림(assets/taste)의 480px 축소판. */
+/**
+ * 여행 취향 카드의 사진 — 글자만 있던 카드가 안 읽혔다(2026-09-21 실기, S15P21E201-1442).
+ * 🔴 2026-10-16 사용자 지시(S15P21E201-2061): AI 가 그린 그림 대신 카테고리가 잘 드러나는 «부산 대표 관광지 실제 사진»으로 바꿨다.
+ *    부산관광아카이브의 공공누리 제1유형 사진을 800px 로 줄였다(자르지 않았다). 화면에는 출처를 적지 않는다(사용자 지시) —
+ *    어디서 왔는지는 assets/taste/photo/README.md 에 사진마다 적어 두었다. 옛 그림(assets/taste/thumb)은 지우지 않았다.
+ */
 export const CATEGORY_IMAGES: Record<string, number> = {
-  SEA_BEACH: require('../../assets/taste/thumb/sea-beach.jpg'),
-  CITY: require('../../assets/taste/thumb/city.jpg'),
-  CAFE_HEALING: require('../../assets/taste/thumb/cafe.jpg'),
-  CULTURE_TEMPLE: require('../../assets/taste/thumb/culture.jpg'),
-  FOOD: require('../../assets/taste/thumb/food.jpg'),
-  NATURE_WALK: require('../../assets/taste/thumb/nature.jpg'),
-  // 저장소의 광안대교 야경(assets/home/gwangalli.png)을 같은 크기로 자른 것 — 부산불꽃축제·드론쇼가 열리는 자리다. 새 외부 사진이 아니다.
-  FESTIVAL_EVENT: require('../../assets/taste/thumb/festival.jpg'),
+  SEA_BEACH: require('../../assets/taste/photo/sea-beach.jpg'), // 해운대해수욕장 항공
+  CITY: require('../../assets/taste/photo/city.jpg'), // 해운대스퀘어 야경 (2026-10-17 교체 — 용두산공원은 주제와 안 맞는다는 지시)
+  CAFE_HEALING: require('../../assets/taste/photo/cafe.jpg'), // 모모스커피 커피 (2026-10-17 사용자 지정)
+  CULTURE_TEMPLE: require('../../assets/taste/photo/culture.jpg'), // 해동용궁사 바다 쪽 전경 (2026-10-17 사용자 지정)
+  FOOD: require('../../assets/taste/photo/food.jpg'), // 부산삼겹살 하단본점 한 상 (2026-10-17 사용자 지정)
+  NATURE_WALK: require('../../assets/taste/photo/nature.jpg'), // 오륙도 해맞이공원 수선화 길
+  FESTIVAL_EVENT: require('../../assets/taste/photo/festival.jpg'), // 부산바다축제 불꽃
 };
 
 export const ATMOSPHERE_OPTIONS: readonly PlanOption[] = [
@@ -57,6 +61,14 @@ export const PACE_OPTIONS: readonly PlanOption[] = [
   ['BALANCED', '균형 있게', 'Balanced', '2시간에 한 곳 꼴', 'About one place every 2 hours'],
   ['PACKED', '알차게', 'Packed', '1시간 반에 한 곳 꼴 · 이동 빠르게', 'About one place every 90 minutes · quick hops'],
 ] as const;
+
+/**
+ * 여행 기분 칸 아래 한 줄 — 설명의 첫 마디. 🔴 번역한 «뒤에» 자른다(S15P21E201-1914).
+ * 먼저 자르면 「3시간에 한 곳 꼴」이 번역표에 없어 일본어·중국어 화면에 영어가 나왔다.
+ */
+export function paceSubtitle(option: PlanOption, tx: (ko: string, en: string) => string): string {
+  return tx(option[3], option[4]).split(' · ')[0];
+}
 
 // 🔴 택시는 없다. 초안의 이동수단 칸이 셋만 받는다 — 화면에만 넣으면 고른 값이 조용히 버려진다.
 export const TRANSPORT_OPTIONS: readonly PlanOption[] = [

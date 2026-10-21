@@ -21,3 +21,8 @@ export function browserLanguages(): readonly string[] | undefined {
   if (typeof navigator === 'undefined') return undefined;
   return navigator.languages?.length ? navigator.languages : navigator.language ? [navigator.language] : undefined;
 }
+
+/** 영어 문장 첫 글자를 대문자로 — 공유 페이지 「starting point, … are not shared.」(S15P21E201-1915). 다른 글자는 그대로. */
+export function sentenceStart(text: string): string {
+  return text.replace(/^[a-z]/, (c) => c.toUpperCase());
+}

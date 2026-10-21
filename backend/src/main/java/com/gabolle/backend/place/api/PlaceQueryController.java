@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.gabolle.backend.common.api.ApiResponse;
 import com.gabolle.backend.place.domain.AccommodationCategories;
+import com.gabolle.backend.place.service.CertifiedRestaurantQueryService;
 import com.gabolle.backend.place.service.PlaceCategoryService;
 import com.gabolle.backend.place.service.PlaceFacetService;
 import com.gabolle.backend.place.service.PlaceRequestException;
@@ -39,11 +40,15 @@ public class PlaceQueryController {
 
 	private final PlaceCategoryService placeCategoryService;
 
+	private final CertifiedRestaurantQueryService certifiedRestaurantQueryService;
+
 	public PlaceQueryController(PlaceSearchService placeSearchService, PlaceFacetService placeFacetService,
-			PlaceCategoryService placeCategoryService) {
+			PlaceCategoryService placeCategoryService,
+			CertifiedRestaurantQueryService certifiedRestaurantQueryService) {
 		this.placeSearchService = placeSearchService;
 		this.placeFacetService = placeFacetService;
 		this.placeCategoryService = placeCategoryService;
+		this.certifiedRestaurantQueryService = certifiedRestaurantQueryService;
 	}
 
 	/**
@@ -81,7 +86,7 @@ public class PlaceQueryController {
 
 		PlacePageResponse page = hasQuery
 				? this.placeSearchService.search(query, category, limit, cursor)
-				: this.placeSearchService.searchByFacet(facetType, facetKey, limit);
+				: this.placeSearchService.searchByFacet(facetType, facetKey, limit, cursor);
 
 		return ApiResponse.success(page, resolveRequestId(requestId));
 	}
@@ -105,6 +110,42 @@ public class PlaceQueryController {
 	public ApiResponse<PlaceFacetResponse> facets(
 			@RequestHeader(value = "X-Request-Id", required = false) String requestId) {
 		return ApiResponse.success(this.placeFacetService.facets(), resolveRequestId(requestId));
+	}
+
+	/**
+	 * 「맛집」·「카페」 갈래의 구 → 동 목록과 곳마다의 수(S15P21E201-2051, 카페는 S15P21E201-2059). 자료를 아직 안 넣었으면 빈
+	 * 목록이다.
+	 *
+	 * <p>{@code kind} 는 {@code RESTAURANT}(기본) 또는 {@code CAFE} — 안 주면 맛집이라 옛 앱이 그대로 돈다. {@code lat}·{@code lng} 를
+	 * 함께 주면 응답의 {@code nearestGu} 에 <b>그 갈래의 장소 가운데 가장 가까운 곳의 구</b>를 담는다(5km 를 넘으면 {@code null}).
+	 * 좌표는 이 계산에만 쓰고 저장하지 않는다. 앱은 약 100m 로 줄여 보낸다.
+	 */
+	@GetMapping("/restaurants/areas")
+	public ApiResponse<RestaurantAreaResponse> restaurantAreas(
+			@RequestParam(required = false) String kind,
+			@RequestParam(required = false) Double lat,
+			@RequestParam(required = false) Double lng,
+			@RequestHeader(value = "X-Request-Id", required = false) String requestId) {
+		return ApiResponse.success(this.certifiedRestaurantQueryService
+				.areas(this.certifiedRestaurantQueryService.parseKind(kind), lat, lng), resolveRequestId(requestId));
+	}
+
+	/**
+	 * 구·동으로 거른 맛집·카페 목록(S15P21E201-2051, 카페는 S15P21E201-2059). {@code gu} 는 필수이고 {@code dong} 을 빼면 구 전체다.
+	 * {@code kind} 는 {@code RESTAURANT}(기본) 또는 {@code CAFE}. 소개·인증한 목록이 많은 집이 먼저, 같으면 이름 순이다. 각 줄은
+	 * {@code /places?facetType=…} 목록과 같은 칸에 {@code gu}·{@code dong}·{@code certifiedSources}(·{@code broadcastOrAward})를 더한
+	 * 모양이다.
+	 */
+	@GetMapping("/restaurants")
+	public ApiResponse<RestaurantPageResponse> restaurants(
+			@RequestParam(required = false) String kind,
+			@RequestParam(required = false) String gu,
+			@RequestParam(required = false) String dong,
+			@RequestParam(required = false) Integer limit,
+			@RequestHeader(value = "X-Request-Id", required = false) String requestId) {
+		return ApiResponse.success(this.certifiedRestaurantQueryService
+				.restaurants(this.certifiedRestaurantQueryService.parseKind(kind), gu, dong, limit),
+				resolveRequestId(requestId));
 	}
 
 	private String resolveRequestId(String requestId) {

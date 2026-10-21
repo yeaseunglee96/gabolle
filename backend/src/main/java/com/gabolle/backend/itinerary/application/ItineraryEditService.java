@@ -30,6 +30,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
+import com.gabolle.backend.place.domain.Place;
+import com.gabolle.backend.place.repository.PlaceRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -124,6 +131,15 @@ public class ItineraryEditService {
     @Transactional
     public ItineraryVersion setItemLocked(String itineraryId, String itemKey, boolean locked,
                                           int baseVersion, String editorUserId) {
+        return setItemLocked(itineraryId, itemKey, locked, null, baseVersion, editorUserId);
+    }
+
+    /**
+     * 고정 방식까지 정해 고정한다(S15P21E201-2017) — {@code mode} 는 순서 고정·시각 고정. {@code null} 이면 순서 고정.
+     */
+    @Transactional
+    public ItineraryVersion setItemLocked(String itineraryId, String itemKey, boolean locked,
+                                          ItineraryItem.LockMode mode, int baseVersion, String editorUserId) {
 
         Itinerary itinerary = repository.findById(itineraryId)
                 .orElseThrow(() -> new NoSuchElementException("일정을 찾을 수 없습니다: " + itineraryId));
@@ -139,7 +155,7 @@ public class ItineraryEditService {
         Instant now = clock.instant();
         String newVersionId = UUID.randomUUID().toString();
         ItineraryRevision.Draft draft =
-                ItineraryRevision.setLocked(base, newVersionId, itemKey, locked, now);
+                ItineraryRevision.setLocked(base, newVersionId, itemKey, locked, mode, now);
 
         ItineraryVersion candidate = new ItineraryVersion(
                 newVersionId,
@@ -269,6 +285,326 @@ public class ItineraryEditService {
 
         // 판정은 저장한 뒤에 한다. 위반이 있어도 순서 바꾸기는 성공해야 한다 — 경고가 순서를 막는 자리에 있으면 안 된다.
         return new ReorderOutcome(saved, this.openingHours.checkDay(draft.items(), dayIndex));
+    }
+
+    // ── 일정 조정 — 머무는 시간 바꾸기 · 고른 자리에 더하기 (S15P21E201-2017) ─────────────────────────────
+
+    /** 머무는 시간의 눈금 — 15분. */
+    public static final int STAY_STEP_MINUTES = 15;
+
+    /** 머무는 시간의 최소 — 15분. */
+    public static final int MIN_ADJUSTED_STAY_MINUTES = 15;
+
+    /** 머무는 시간의 최대 — 12시간. 그보다 길면 하루 일정이 아니다. */
+    public static final int MAX_ADJUSTED_STAY_MINUTES = 12 * 60;
+
+    /** 하루 활동 시간의 끝을 넘겼다 — 저장은 하되 알린다. */
+    public static final String NOTICE_DAY_END_EXCEEDED = "DAY_END_EXCEEDED";
+
+    /** 시각 고정한 곳에 제 시각에 못 닿아 밀렸다. */
+    public static final String NOTICE_TIME_FIX_MISSED = "TIME_FIX_MISSED";
+
+    /**
+     * 새로 더한 곳의 머무는 시간을 갈래로 정하려고 장소를 읽는다. 생성자에 넣지 않은 이유 — 이 서비스를 손으로 만드는 시험이
+     * 둘 있고, 없을 때는 갈래를 모르는 곳의 기본값({@link StayDefaults#UNKNOWN_CATEGORY_MINUTES})으로 충분하다.
+     */
+    private PlaceRepository placeRepository;
+
+    @Autowired(required = false)
+    void setPlaceRepository(PlaceRepository placeRepository) {
+        this.placeRepository = placeRepository;
+    }
+
+    /**
+     * 편집이 스스로 알게 된 것 — 하루 끝을 넘김, 시각 고정을 못 지킴. 영업시간 경고와 같은 칸으로 나간다.
+     *
+     * @param at 그 곳의 날짜와 시각(부산). 모르면 {@code null}
+     */
+    public record Notice(String code, String itemKey, String placeId, LocalDateTime at) {
+    }
+
+    /** 조정이 만든 것 — 새 판, 영업시간 판정, 그리고 스스로 알게 된 것. */
+    public record AdjustOutcome(ItineraryVersion version, ItineraryOpeningHoursChecker.Result openingHours,
+            List<Notice> notices) {
+    }
+
+    /**
+     * 한 곳에 머무는 시간을 바꾸고, 그날 뒤따르는 곳의 시각을 다시 매긴다. 장소·순서·구간은 그대로다.
+     * 곳 사이 간격(이동 + 빈 시각)은 그대로 두고 앞에서부터 민다 — 규칙은 {@link ItineraryDayRetimer}.
+     * 하루 끝을 넘기거나 시각 고정을 못 지켜도 저장은 한다 — 사용자가 고른 값이다. 대신 {@link Notice} 로 알린다.
+     *
+     * @throws InvalidStayException 15분 단위가 아니거나 15분 미만·12시간 초과다 (400)
+     * @throws ReplanOverflowsDayException 자정을 넘긴다 — 아무것도 저장하지 않는다 (422)
+     */
+    @Transactional
+    public AdjustOutcome changeStay(String itineraryId, String itemKey, int stayMinutes, int baseVersion,
+                                    String editorUserId) {
+        if (stayMinutes < MIN_ADJUSTED_STAY_MINUTES || stayMinutes > MAX_ADJUSTED_STAY_MINUTES
+                || stayMinutes % STAY_STEP_MINUTES != 0) {
+            throw new InvalidStayException(stayMinutes);
+        }
+        Itinerary itinerary = repository.findById(itineraryId)
+                .orElseThrow(() -> new NoSuchElementException("일정을 찾을 수 없습니다: " + itineraryId));
+        int next = itinerary.nextVersionFrom(baseVersion);
+        ItineraryContent base = repository.findContent(itineraryId, baseVersion)
+                .orElseThrow(() -> new IllegalStateException(
+                        "바탕 판의 내용이 없습니다: itineraryId=" + itineraryId + ", version=" + baseVersion));
+        ItineraryItem target = base.items().stream()
+                .filter((item) -> item.itemKey().equals(itemKey))
+                .findFirst()
+                .orElseThrow(() -> new ItineraryRevision.ItemNotFoundException(itemKey));
+        int dayIndex = target.dayIndex();
+
+        Instant now = clock.instant();
+        String newVersionId = UUID.randomUUID().toString();
+        ItineraryRevision.Draft copied = ItineraryRevision.copyOf(base, newVersionId, now);
+        Retimed retimed = retimeDay(itinerary, base, copied.items(), copied.legs(), dayIndex,
+                Map.of(itemKey, stayMinutes), Set.of());
+
+        ItineraryRevision.Draft draft = ItineraryRevision.withRetimedDay(
+                new ItineraryContent(null, retimed.items(), copied.legs(), copied.exclusions()), newVersionId,
+                dayIndex, retimed.result().starts(), retimed.result().ends(), now);
+
+        ItineraryVersion candidate = new ItineraryVersion(newVersionId, itineraryId, next, baseVersion,
+                // 시각만 다시 매기는 편집이라 REPLAN_DAY 로 남긴다. 따로 CHANGE_STAY 를 두지 않은 이유 — 판 종류를 더하면 폰 알림
+                //    문구(PushCopy)의 모든 언어 분기를 함께 고쳐야 하는데, 그 파일은 베트남어 작업이 잡고 있었다(2026-10-09).
+                ItineraryVersion.Operation.REPLAN_DAY, editorUserId, "req_edit_" + UUID.randomUUID(),
+                new ItineraryVersion.Versions(null, null, null, null, null), now);
+        ItineraryVersion saved = appendAndAnnounce(candidate, draft.items(), draft.legs(), draft.exclusions());
+        return new AdjustOutcome(saved, this.openingHours.checkDay(draft.items(), dayIndex),
+                noticesFor(itinerary, draft.items(), dayIndex, retimed.result()));
+    }
+
+    /**
+     * 고른 자리에 장소를 끼워 넣고, 그날 구간을 다시 만들고, 시각을 바로 매긴다. 검사는 {@link #addPlace} 와 같다.
+     * 끼운 곳의 머무는 시간은 장소 갈래의 기본값({@link StayDefaults})이다.
+     *
+     * @param position 그날 안의 순번(1부터). 그날 곳 수보다 크면 맨 끝
+     */
+    @Transactional
+    public AdjustOutcome insertPlace(String itineraryId, String placeId, int dayIndex, int position,
+                                     LocalDate tripStartDate, LocalDate tripFinishDate,
+                                     int baseVersion, String editorUserId) {
+        Itinerary itinerary = repository.findById(itineraryId)
+                .orElseThrow(() -> new NoSuchElementException("일정을 찾을 수 없습니다: " + itineraryId));
+        int next = itinerary.nextVersionFrom(baseVersion);
+        ItineraryContent base = repository.findContent(itineraryId, baseVersion)
+                .orElseThrow(() -> new IllegalStateException(
+                        "바탕 판의 내용이 없습니다: itineraryId=" + itineraryId + ", version=" + baseVersion));
+        LocalDate visitDate = tripStartDate.plusDays(dayIndex);
+        requireAddable(base, placeId, dayIndex, visitDate, tripStartDate, tripFinishDate);
+        // 같은 날에 이미 있는 곳은 끼우지 않는다 — 바로 옆에 끼우면 「같은 장소로의 구간」이 생겨 구간 계산이 실패했고(운영 500,
+        //    2026-10-09), 하루에 같은 곳을 두 번 들르는 것은 고른 자리를 잘못 누른 경우가 거의 전부다. 다른 날에는 넣을 수 있다.
+        if (base.items().stream().anyMatch((item) -> item.dayIndex() == dayIndex && placeId.equals(item.placeId()))) {
+            throw new PlaceAlreadyInItineraryException(placeId, dayIndex, List.of(dayIndex));
+        }
+
+        Instant now = clock.instant();
+        String newVersionId = UUID.randomUUID().toString();
+        ItineraryRevision.Draft added = ItineraryRevision.withAddedItem(base, newVersionId, placeId, dayIndex,
+                visitDate, position, now);
+        // withAddedItem 은 그날 옛 구간까지 복사해 준다. 끼우면 순서가 바뀌어 옛 구간은 참이 아니고, 그대로 두면 다시 만든 구간과
+        //    (판·날·순번) 자리가 겹쳐 uq_itinerary_leg_slot 으로 500 이 난다(운영 2026-10-09). 순서 바꾸기처럼 그날 것은 버리고 다시 만든다.
+        ItineraryRevision.Draft withoutDayLegs = new ItineraryRevision.Draft(added.items(),
+                added.legs().stream().filter((leg) -> leg.dayIndex() != dayIndex).toList(), added.exclusions());
+        List<ItineraryLeg> legs = withRebuiltDayLegs(itinerary, withoutDayLegs, dayIndex, newVersionId, now);
+
+        Set<String> baseKeys = new HashSet<>();
+        base.items().forEach((item) -> baseKeys.add(item.itemKey()));
+        String newKey = added.items().stream().filter((item) -> !baseKeys.contains(item.itemKey()))
+                .map(ItineraryItem::itemKey).findFirst().orElseThrow();
+        Retimed retimed = retimeDay(itinerary, base, added.items(), legs, dayIndex,
+                Map.of(newKey, stayFor(placeId)), Set.of(newKey));
+
+        ItineraryRevision.Draft draft = ItineraryRevision.withRetimedDay(
+                new ItineraryContent(null, retimed.items(), legs, added.exclusions()), newVersionId, dayIndex,
+                retimed.result().starts(), retimed.result().ends(), now);
+
+        ItineraryVersion candidate = new ItineraryVersion(newVersionId, itineraryId, next, baseVersion,
+                ItineraryVersion.Operation.ADD_ITEM, editorUserId, "req_edit_" + UUID.randomUUID(),
+                new ItineraryVersion.Versions(null, null, null, null, null), now);
+        ItineraryVersion saved = appendAndAnnounce(candidate, draft.items(), draft.legs(), draft.exclusions());
+        return new AdjustOutcome(saved, this.openingHours.checkDay(draft.items(), dayIndex),
+                noticesFor(itinerary, draft.items(), dayIndex, retimed.result()));
+    }
+
+    private record Retimed(List<ItineraryItem> items, ItineraryDayRetimer.Result result) {
+    }
+
+    /**
+     * 그날을 다시 매긴다. 곳 사이 간격은 바탕 판에서 «앞 곳이 그대로인» 곳만 물려받고, 앞 곳이 바뀐 곳(끼운 곳과 그 바로 뒤)은
+     * 새 구간의 이동 분만 둔다 — 끼워 넣으면 그 자리의 빈 시각을 먼저 쓴다.
+     * 하루 시작은 바탕 판 그날 첫 곳의 시작이다. 그것도 모르면 여행의 활동 시작, 그것도 모르면 다시 매기지 않는다.
+     *
+     * @param stayOverride 머무는 시간을 바꿀 곳
+     * @param fresh        새로 생긴 곳
+     * @return 항목들(시각을 못 매기는 날이면 바꾼 머무는 시간만 들어간 것)과 다시 매긴 결과
+     * @throws ReplanOverflowsDayException 자정을 넘긴다
+     */
+    private Retimed retimeDay(Itinerary itinerary, ItineraryContent base, List<ItineraryItem> items,
+                              List<ItineraryLeg> legs, int dayIndex, Map<String, Integer> stayOverride,
+                              Set<String> fresh) {
+        List<ItineraryItem> baseDay = base.items().stream().filter((item) -> item.dayIndex() == dayIndex)
+                .sorted(Comparator.comparingInt(ItineraryItem::sequence)).toList();
+        Map<String, ItineraryItem> baseByKey = new HashMap<>();
+        Map<String, String> basePredecessor = new HashMap<>();
+        for (int i = 0; i < baseDay.size(); i++) {
+            baseByKey.put(baseDay.get(i).itemKey(), baseDay.get(i));
+            basePredecessor.put(baseDay.get(i).itemKey(), i == 0 ? null : baseDay.get(i - 1).itemKey());
+        }
+        Map<Integer, Integer> travelBySequence = new HashMap<>();
+        for (ItineraryLeg leg : legs) {
+            if (leg.dayIndex() == dayIndex && leg.durationMin() != null) {
+                travelBySequence.put(leg.sequence(), Math.max(0, leg.durationMin()));
+            }
+        }
+
+        // 시각을 못 매기는 날에도 바꾼 머무는 시간은 남아야 한다 — 시각이 없는 곳에는 값만 넣어 둔다.
+        List<ItineraryItem> withStay = new ArrayList<>(items.size());
+        for (ItineraryItem item : items) {
+            Integer stay = stayOverride.get(item.itemKey());
+            withStay.add(stay == null || item.startTime() != null ? item : new ItineraryItem(item.itineraryItemId(),
+                    item.itineraryVersionId(), item.itemKey(), item.dayIndex(), item.visitDate(), item.sequence(),
+                    item.placeId(), null, null, stay, item.locked(), item.estimatedCostKrw(), item.dataStatus(),
+                    item.reasonCodes(), item.warningCodes(), item.sourceRequestId(), item.createdAt(),
+                    item.lockMode()));
+        }
+
+        List<ItineraryItem> day = withStay.stream().filter((item) -> item.dayIndex() == dayIndex)
+                .sorted(Comparator.comparingInt(ItineraryItem::sequence)).toList();
+        LocalTime dayStart = baseDay.isEmpty() ? null : baseDay.get(0).startTime();
+        if (dayStart == null) {
+            Trip trip = tripRepository.findById(itinerary.tripId()).orElse(null);
+            DayWindow window = trip == null ? null : DayWindow.of(trip);
+            dayStart = (window != null && window.known()) ? window.start() : null;
+            // 🔴 오늘이 그날이면 지금보다 앞선 시각으로 세우지 않는다 — 18시에 직접 짜기를 하면 첫 곳이 10:14 로 섰다
+            //    (2026-10-17 폰 1.0.5). 10분 단위로 올린 «지금»이 하루 시작보다 늦으면 그 시각에 나선다.
+            if (dayStart != null && !day.isEmpty()) {
+                dayStart = notBeforeNow(day.get(0).visitDate(), dayStart);
+            }
+            // 🔴 활동 시작은 «출발지를 나서는» 시각이다 — 첫 곳에는 출발지에서 가는 이동 뒤에 닿는다(S15P21E201-2043).
+            //    직접 짜기에서 서면역→해운대 45분을 빼고 첫 곳을 09:00 에 세웠다. 바탕 판에 첫 곳이 있으면 그 시각이 이미 이동을 품고 있다.
+            if (dayStart != null && !day.isEmpty()) {
+                dayStart = arrivalAfterOriginLeg(dayStart, travelBySequence.get(day.get(0).sequence()));
+            }
+        }
+        if (dayStart == null || day.isEmpty()) {
+            return new Retimed(withStay, new ItineraryDayRetimer.Result(Map.of(), Map.of(), List.of(), List.of()));
+        }
+
+        List<ItineraryDayRetimer.Stop> stops = new ArrayList<>(day.size());
+        for (int i = 0; i < day.size(); i++) {
+            ItineraryItem item = day.get(i);
+            String previousKey = i == 0 ? null : day.get(i - 1).itemKey();
+            int lead = travelBySequence.getOrDefault(item.sequence(), 0);
+            boolean samePredecessor = !fresh.contains(item.itemKey()) && baseByKey.containsKey(item.itemKey())
+                    && Objects.equals(basePredecessor.get(item.itemKey()), previousKey);
+            if (i > 0 && samePredecessor) {
+                ItineraryItem original = baseByKey.get(item.itemKey());
+                ItineraryItem originalPrevious = baseByKey.get(previousKey);
+                if (original.startTime() != null && originalPrevious != null && originalPrevious.endTime() != null) {
+                    long gap = Duration.between(originalPrevious.endTime(), original.startTime()).toMinutes();
+                    if (gap >= 0) {
+                        lead = (int) gap;
+                    }
+                }
+            }
+            stops.add(new ItineraryDayRetimer.Stop(item.itemKey(), item.startTime(), stayOf(item, stayOverride),
+                    item.timeFixed(), lead));
+        }
+        ItineraryDayRetimer.Result result = ItineraryDayRetimer.retime(dayStart, stops);
+        if (!result.overflowing().isEmpty()) {
+            throw new ReplanOverflowsDayException(dayIndex, result.overflowing());
+        }
+        return new Retimed(withStay, result);
+    }
+
+    /** 출발지를 나선 시각에 첫 구간 이동을 더한 도착 시각. 이동을 모르거나 자정을 넘기면 나선 시각 그대로. */
+    private static final java.time.ZoneId TRIP_ZONE = java.time.ZoneId.of("Asia/Seoul");
+
+    /** 그날이 오늘(부산 시각)이면 하루 시작을 «지금»(10분 단위 올림)보다 앞세우지 않는다. 다른 날·자정 넘김은 그대로. */
+    LocalTime notBeforeNow(LocalDate visitDate, LocalTime dayStart) {
+        if (visitDate == null || dayStart == null) return dayStart;
+        LocalDateTime now = LocalDateTime.now(clock.withZone(TRIP_ZONE));
+        if (!visitDate.equals(now.toLocalDate())) return dayStart;
+        int minutes = now.getHour() * 60 + now.getMinute();
+        int rounded = ((minutes + 9) / 10) * 10;
+        if (rounded >= 24 * 60) return dayStart;
+        LocalTime nowRounded = LocalTime.of(rounded / 60, rounded % 60);
+        return nowRounded.isAfter(dayStart) ? nowRounded : dayStart;
+    }
+
+    static LocalTime arrivalAfterOriginLeg(LocalTime leaveAt, Integer originLegMinutes) {
+        if (originLegMinutes == null || originLegMinutes <= 0) {
+            return leaveAt;
+        }
+        int arrive = leaveAt.toSecondOfDay() / 60 + originLegMinutes;
+        return arrive >= 24 * 60 ? leaveAt : leaveAt.plusMinutes(originLegMinutes);
+    }
+
+    private static int stayOf(ItineraryItem item, Map<String, Integer> stayOverride) {
+        Integer override = stayOverride.get(item.itemKey());
+        if (override != null) {
+            return override;
+        }
+        if (item.stayMinutes() != null) {
+            return item.stayMinutes();
+        }
+        if (item.startTime() != null && item.endTime() != null) {
+            return (int) Duration.between(item.startTime(), item.endTime()).toMinutes();
+        }
+        return StayDefaults.UNKNOWN_CATEGORY_MINUTES;
+    }
+
+    private int stayFor(String placeId) {
+        if (this.placeRepository == null) {
+            return StayDefaults.UNKNOWN_CATEGORY_MINUTES;
+        }
+        try {
+            return this.placeRepository.findById(UUID.fromString(placeId)).map(Place::getCategory)
+                    .map(StayDefaults::minutesFor).orElse(StayDefaults.UNKNOWN_CATEGORY_MINUTES);
+        }
+        catch (IllegalArgumentException e) {
+            return StayDefaults.UNKNOWN_CATEGORY_MINUTES;
+        }
+    }
+
+    /** 시각 고정을 못 지킨 곳과, 하루 활동 시간의 끝을 넘긴 마지막 곳을 알린다. */
+    private List<Notice> noticesFor(Itinerary itinerary, List<ItineraryItem> items, int dayIndex,
+                                    ItineraryDayRetimer.Result result) {
+        List<ItineraryItem> day = items.stream().filter((item) -> item.dayIndex() == dayIndex)
+                .sorted(Comparator.comparingInt(ItineraryItem::sequence)).toList();
+        List<Notice> notices = new ArrayList<>();
+        for (ItineraryItem item : day) {
+            if (result.missedTimeFixed().contains(item.itemKey())) {
+                notices.add(new Notice(NOTICE_TIME_FIX_MISSED, item.itemKey(), item.placeId(),
+                        item.startTime() == null ? null : LocalDateTime.of(item.visitDate(), item.startTime())));
+            }
+        }
+        ItineraryItem last = day.isEmpty() ? null : day.get(day.size() - 1);
+        if (last != null && last.endTime() != null) {
+            Trip trip = tripRepository.findById(itinerary.tripId()).orElse(null);
+            DayWindow window = trip == null ? null : DayWindow.of(trip);
+            if (window != null && window.known() && last.endTime().isAfter(window.end())) {
+                notices.add(new Notice(NOTICE_DAY_END_EXCEEDED, last.itemKey(), last.placeId(),
+                        LocalDateTime.of(last.visitDate(), last.endTime())));
+            }
+        }
+        return notices;
+    }
+
+    /** 머무는 시간이 규칙(15분 단위 · 15분 이상 · 12시간 이하)을 어겼다 — 400 ITINERARY_STAY_INVALID. */
+    public static class InvalidStayException extends RuntimeException {
+
+        private final int stayMinutes;
+
+        public InvalidStayException(int stayMinutes) {
+            super("머무는 시간은 " + STAY_STEP_MINUTES + "분 단위로 " + MIN_ADJUSTED_STAY_MINUTES + "분 이상 "
+                    + MAX_ADJUSTED_STAY_MINUTES + "분 이하여야 합니다: " + stayMinutes);
+            this.stayMinutes = stayMinutes;
+        }
+
+        public int stayMinutes() { return stayMinutes; }
     }
 
     /**

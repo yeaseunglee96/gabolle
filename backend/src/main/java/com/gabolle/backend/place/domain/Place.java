@@ -2,6 +2,8 @@ package com.gabolle.backend.place.domain;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -10,6 +12,9 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 /**
  * 장소 정본 한 건. setter 가 없고 만드는 길은 {@link #imported} 하나뿐이다 — 한 번 넣은 행을
@@ -30,6 +35,40 @@ public class Place {
 	/** nullable 이다. 영문 검색은 이 칸이 있는 행에만 걸린다. */
 	@Column(name = "name_en", length = 200)
 	private String nameEn;
+
+	/**
+	 * 일본어·중국어(간체·번체) 이름 — 관광공사 다국어 서비스가 번역해 둔 이름(V20260930130000, S15P21E201-1859).
+	 * 전부 nullable 이다. 관광공사가 번역한 곳은 언어마다 150곳 안팎이라 대부분의 장소는 비어 있다.
+	 */
+	@Column(name = "name_ja", length = 200)
+	private String nameJa;
+
+	@Column(name = "name_zh_hans", length = 200)
+	private String nameZhHans;
+
+	@Column(name = "name_zh_hant", length = 200)
+	private String nameZhHant;
+
+	/**
+	 * 한 줄 소개 — 언어 열쇠(ko·en·ja·zh-Hans·zh-Hant·vi)별 짧은 문장(S15P21E201-2029, V20261009220000).
+	 * 관광공사 개요를 줄이거나, 저장된 사실(분류·메뉴·소개 근거)만으로 생성한 것을 미리 담아 둔다. 없는 장소는 {@code null}.
+	 */
+	@JdbcTypeCode(SqlTypes.JSON)
+	@Column(name = "one_line", columnDefinition = "jsonb")
+	private Map<String, String> oneLine;
+
+	/**
+	 * 주소의 일본어·중국어(간체·번체) — 관광공사 다국어 서비스가 번역해 둔 주소(V20260930180000, S15P21E201-1876).
+	 * 이름과 같은 장소에만 있고 전부 nullable 이다.
+	 */
+	@Column(name = "address_ja", length = 300)
+	private String addressJa;
+
+	@Column(name = "address_zh_hans", length = 300)
+	private String addressZhHans;
+
+	@Column(name = "address_zh_hant", length = 300)
+	private String addressZhHant;
 
 	/**
 	 * 값 목록이 없는 자유 문자열이라 자바에서 검증하지 않는다. enum 을 두면 수집이 다른 값으로
@@ -237,6 +276,42 @@ public class Place {
 
 	public String getNameEn() {
 		return nameEn;
+	}
+
+	/**
+	 * 응답에 싣는 언어별 이름 — 키는 앱의 언어 코드. 비었거나 공백뿐인 칸은 넣지 않는다.
+	 * 순서가 고정이라(일·간·번) 응답을 눈으로 대조하기 쉽다.
+	 */
+	public Map<String, String> localNames() {
+		Map<String, String> names = new LinkedHashMap<>();
+		putIfPresent(names, "ja", nameJa);
+		putIfPresent(names, "zh-Hans", nameZhHans);
+		putIfPresent(names, "zh-Hant", nameZhHant);
+		return names;
+	}
+
+	/** 응답에 싣는 한 줄 소개 — 비어 있는 언어는 빠진다. 없으면 빈 지도. */
+	public Map<String, String> oneLine() {
+		Map<String, String> lines = new LinkedHashMap<>();
+		if (oneLine != null) {
+			oneLine.forEach((lang, text) -> putIfPresent(lines, lang, text));
+		}
+		return lines;
+	}
+
+	/** 응답에 싣는 언어별 주소 — {@link #localNames()} 와 같은 키·규칙. */
+	public Map<String, String> localAddresses() {
+		Map<String, String> addresses = new LinkedHashMap<>();
+		putIfPresent(addresses, "ja", addressJa);
+		putIfPresent(addresses, "zh-Hans", addressZhHans);
+		putIfPresent(addresses, "zh-Hant", addressZhHant);
+		return addresses;
+	}
+
+	private static void putIfPresent(Map<String, String> names, String language, String value) {
+		if (value != null && !value.isBlank()) {
+			names.put(language, value.trim());
+		}
 	}
 
 	public String getCategory() {

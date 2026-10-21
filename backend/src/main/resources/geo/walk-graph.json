@@ -1,6 +1,6 @@
 {
  "step": "process/walk-graph",
- "format": "GBWG v1 — 머리말 참고",
+ "format": "GBWG v2 — v1(process/walk-graph.mjs 머리말)에 길마다 그늘 한 바이트가 경사 뒤에 더해진 것. 그늘은 shade 칸 참고",
  "builtAt": "2026-09-25",
  "inputs": [
   {
@@ -50,5 +50,121 @@
   "stairsKeptAsWay": true,
   "slope": "p50Slope · 30m 이상 · 다리·터널 제외",
   "nodeKey": "위경도 소수 7자리"
+ },
+ "shade": {
+  "step": "process/walk-graph-shade",
+  "format": "GBWG v2 — 길마다 그늘 한 바이트(0~100 그림자 %, 255 모름)",
+  "builtAt": "2026-09-30",
+  "inputs": [
+   {
+    "path": "walk-graph.bin.gz",
+    "version": "v2",
+    "sha256_16": "ea6e13939df06576",
+    "baseSha256_16": "92830aca41ecea4a"
+   },
+   {
+    "path": "layers/GWANGALLI.json",
+    "sha256_16": "d82c44d2e83a6fb2"
+   },
+   {
+    "path": "layers/HAEUNDAE.json",
+    "sha256_16": "46d0cc717825ac60"
+   },
+   {
+    "path": "layers/NAMPO.json",
+    "sha256_16": "351d901962777e1d"
+   },
+   {
+    "path": "layers/SEOMYEON.json",
+    "sha256_16": "42656a969414818b"
+   },
+   {
+    "path": "layers/SONGJEONG.json",
+    "sha256_16": "8f7ca4494d729b32"
+   },
+   {
+    "path": "layers/YEONGDO.json",
+    "sha256_16": "6b3c7a8d928cdc70"
+   }
+  ],
+  "output": {
+   "path": "walk-graph.bin.gz",
+   "bytes": 4995316,
+   "sha256_16": "ea6e13939df06576"
+  },
+  "counts": {
+   "ways": 67347,
+   "withShade": 14102,
+   "shareWithShade": 0.2094,
+   "layerSegments": 18408,
+   "matchedExact": 13836,
+   "matchedTolerant": 266,
+   "layerSegmentsUnmatched": 1342,
+   "conflicts": 0,
+   "slopeAgreeShare": 0.9959
+  },
+  "rules": {
+   "shadowBasis": "건물 그림자 · 2026-07-15 · 9–18시 평균",
+   "match": "점 줄 통째 같음 → 처음·끝·점 수 같고 사이 점 3m 이내",
+   "unmatched": "모름(255) — 이웃 길 값으로 메우지 않는다"
+  }
+ },
+ "flatFloor": {
+  "step": "process/walk-graph-flat-floor",
+  "builtAt": "2026-10-09",
+  "input": {
+   "path": "walk-graph.bin.gz",
+   "sha256_16": "ea6e13939df06576"
+  },
+  "output": {
+   "path": "walk-graph.bin.gz",
+   "bytes": 4994849,
+   "sha256_16": "1e061cec40f21dee"
+  },
+  "counts": {
+   "candidates": 15039,
+   "floored": 809,
+   "missingElevation": 0
+  },
+  "rules": {
+   "range": "높낮이 폭 ≤ 5m 이면 평탄",
+   "value": "min(원래, 양끝 차÷길이, 49‰)",
+   "untouched": "계단 · 모름(-1) · 이미 초록 · 고도 못 뽑은 길",
+   "dem": "terrarium z15 + dem-clean.mjs (slope.mjs 와 같다)"
+  }
+ },
+ "dtmSlope": {
+  "step": "process/walk-graph-dtm-slope",
+  "builtAt": "2026-10-09",
+  "input": {
+   "path": "walk-graph.bin.gz",
+   "sha256_16": "1e061cec40f21dee"
+  },
+  "output": {
+   "path": "walk-graph.bin.gz",
+   "bytes": 5001432,
+   "sha256_16": "a33251f199375b5f"
+  },
+  "counts": {
+   "targets": 41541,
+   "changed": 29000,
+   "missingElevation": 11935,
+   "shortWays": {
+    "shortUnknown": 12698,
+    "filled": 9011,
+    "flat": 5604,
+    "fromNeighbors": 163,
+    "noNeighbor": 343,
+    "missingElevation": 3344
+   }
+  },
+  "rules": {
+   "elevation": "국토지리정보원 1:5,000 수치지형도 Ver2.0(2025) 등고선·표고점·해안선 → 5m DTM(process/ngii-dtm.py) → terrarium z15",
+   "slope": "10m 표본 · 기준선 50m · 절댓값 p50 · ‰",
+   "untouched": "계단 · 30m 이상 모름(-1, 다리·터널) · 고도 못 뽑은 길(원래 값)",
+   "supersedes": "flatFloor (SRTM 오차용 임시 대책 — 이 값이 덮어쓴다)",
+   "shortWays": "30m 미만 모름(-1) → 높이 차 < 0.5m 평지 · 10m 미만은 이웃 길 중앙값 · 그 밖 |끝점 높이 차|÷길이"
+  },
+  "shortWaysAddedAt": "2026-10-12 (S15P21E201-2039 후속 — 같은 단계를 다시 돌려 아는 길 경사 변화 0, 짧은 모름 길만 채움)"
  }
 }

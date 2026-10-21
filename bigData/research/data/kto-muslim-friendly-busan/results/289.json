@@ -1,0 +1,73 @@
+{
+  "newAddress": null,
+  "found": true,
+  "newTypes": [],
+  "photoCandidates": [],
+  "no": "289",
+  "nameEn": "Suhyang Babsang Builds Happiness",
+  "nameKo": "행복을 짓는 수향촌밥상",
+  "roadAddrKo": "부산광역시 사하구 다대로 592",
+  "addressMatchesPdf": true,
+  "operating": "unknown",
+  "operatingEvidence": [
+    {
+      "url": "https://www.tournews21.com/news/articleView.html?idxno=103639",
+      "date": null,
+      "note": "다대포 맛집 기사에 수향밥상 관련 검색됨, 날짜와 본문 미확인"
+    },
+    {
+      "url": "https://www.diningcode.com/profile.php?rid=ZhbStlUlDeYp",
+      "date": null,
+      "note": "다이닝코드 등록, 리뷰 날짜 미확인"
+    }
+  ],
+  "queries": [
+    "\"051-266-4726\"",
+    "수향밥상 행복을 짓다 사하구 다대로 592 갈비탕",
+    "행복을 짓는 수향촌밥상 다대포 후기 2025"
+  ],
+  "confidence": "medium",
+  "sources": [
+    "https://www.visitbusan.net/index.do?menuCd=DOM_000000201002001000&uc_seq=1517&lang_cd=ko",
+    "https://www.diningcode.com/profile.php?rid=ZhbStlUlDeYp",
+    "https://www.saha.go.kr/tour/contents.do?mId=0403050000"
+  ],
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "추어탕과 갈비탕",
+      "sources": [
+        0,
+        1
+      ]
+    },
+    {
+      "type": "현지인 지지",
+      "note": "오래전부터 입소문 난 동네 식당이라는 소개",
+      "sources": [
+        1
+      ]
+    },
+    {
+      "type": "기관 선정",
+      "note": "부산관광공사와 사하구청 소개 페이지에 실림",
+      "sources": [
+        0,
+        2
+      ]
+    }
+  ],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "전용 주차장",
+    "audience": "local",
+    "signatureDishes": [
+      "추어탕",
+      "갈비탕"
+    ],
+    "priceBand": "moderate"
+  },
+  "notes": "PDF 분류는 PORK_FREE. 상호는 수향촌밥상으로 통용. 어르신 손님이 많다는 소개가 있음. 2025~2026 날짜 근거 없어 unknown. 사진 후보 없음."
+}

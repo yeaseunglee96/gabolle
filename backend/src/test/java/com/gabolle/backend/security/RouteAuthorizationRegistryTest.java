@@ -110,10 +110,12 @@ class RouteAuthorizationRegistryTest {
 
 		// 개수를 박아 두면 하나 열 때마다 이 줄을 고치게 되고, 그 변경이 diff 에 남아 리뷰에서
 		// 보인다. 인증 없이 열린 경로가 조용히 늘어나는 것이 이 시스템에서 가장 비싼 실수다.
-		assertThat(open).hasSize(19);
+		assertThat(open).hasSize(23);
 
 		// 표를 아는 사람이 실제로 열린 것과 대조할 수 있게 목록도 고정한다
 		assertThat(routesWith(Policy.PUBLIC_TOKEN)).containsExactlyInAnyOrder(
+				"GET /api/v1/images/proxy",
+				"GET /api/v1/places/{}/photo",
 				"GET /api/v1/shares/{}",
 				"GET /api/v1/uploads/images/{}");
 	}
@@ -379,6 +381,10 @@ class RouteAuthorizationRegistryTest {
 						+ "보호는 무작위 출입증 자체다 — 서버는 해시만 들고 있고 원본은 이 응답에만 나간다");
 
 		// ── 인증 흐름 — 로그인 상태에서 부른다
+		put(m, "POST /api/v1/auth/anonymous/claim", Policy.OWNED,
+				"로그인한 사람이 이 기기의 익명 출입증으로 만든 여행을 넘겨받는다(-317). 받는 쪽은 언제나 인증 주체 "
+						+ "자신이고(requireId — 익명 세션은 못 부른다), 넘기는 쪽의 증명은 출입증 원본이다. "
+						+ "AnonymousTripJourneyFunctionalTest");
 		put(m, "POST /api/v1/auth/oauth/{}/link", Policy.OWNED,
 				"로그인 상태에서 내 계정에 소셜을 붙인다. 대상은 언제나 인증 주체 자신이라 남의 것을 지정할 자리가 없다. OAuthTwoStepSignupIntegrationTest");
 		put(m, "GET /api/v1/auth/me", Policy.OWNED,
@@ -471,7 +477,9 @@ class RouteAuthorizationRegistryTest {
 		put(m, "POST /api/v1/trips", Policy.AUTHENTICATED_ONLY,
 				"새로 만드는 것이라 기존 자원의 주인 개념이 없다. 소유자는 인증 주체로 박힌다. "
 				+ "S15P21E201-317 — 익명 세션(ROLE_ANONYMOUS)도 이 자리만은 통과한다. 만든 사람이 곧 "
-				+ "소유자가 되므로 익명이라도 남의 것을 건드릴 수 없다 — AuthenticatedUsers.requireOwner");
+				+ "소유자가 되므로 익명이라도 남의 것을 건드릴 수 없다 — AuthenticatedUsers.requireOwner. "
+				+ "그 여행 안의 조회·편집·추천·일정은 requireTripActor 로 익명 세션도 지나지만, 구성원 검사가 "
+				+ "그대로라 자기 세션이 만든 여행만 닿는다. AnonymousTripJourneyFunctionalTest");
 		// 목록은 부를 때 자원을 지목하지 않아 OWNED 가 아니다. 위험은 "남의 것을 부르면
 		// 거부되는가" 가 아니라 "남의 여행이 목록에 섞이는가" 이고, 저장소가 참여 표로 거른다.
 		put(m, "GET /api/v1/trips", Policy.AUTHENTICATED_ONLY,
@@ -488,6 +496,17 @@ class RouteAuthorizationRegistryTest {
 				"이름은 OWNER·EDITOR 만 바꾼다. 보기 전용 동행자가 바꾸면 만든 사람의 목록에서 "
 						+ "자기 여행이 다른 이름으로 보인다 — VIEWER 는 403, 비회원과 없는 여행은 "
 						+ "같은 404. TripTitleTest (-1023)");
+		for (String method : new String[] { "GET", "PUT", "DELETE" }) {
+			put(m, method + " /api/v1/trips/{}/rating", Policy.OWNED,
+					"여행 별점. 구성원만 — TripQueryService.get 을 지나 비회원과 없는 여행은 같은 404. "
+							+ "TripRatingPostgresTest.strangerRejected (-1908)");
+		}
+		for (String route : new String[] { "GET /api/v1/trips/{}/expenses", "POST /api/v1/trips/{}/expenses",
+				"DELETE /api/v1/trips/{}/expenses/{}", "PUT /api/v1/trips/{}/budget" }) {
+			put(m, route, Policy.OWNED,
+					"여행 돈. 구성원만 — TripQueryService.get 을 지나 비회원과 없는 여행은 같은 404. 남이 적은 줄 지우기·"
+							+ "보기 전용의 예산 고치기는 403. TripExpensePostgresTest (-1935)");
+		}
 		put(m, "GET /api/v1/trips/{}/itineraries", Policy.OWNED,
 				"참여자만. 비회원과 없는 여행이 같은 404. TripItineraryListIntegrationTest");
 		put(m, "GET /api/v1/trips/{}/recommendations", Policy.OWNED,
@@ -497,6 +516,9 @@ class RouteAuthorizationRegistryTest {
 				"고른 코스를 일정으로 만든다. 참여자만 — 같은 관문을 지난다. 남의 여행의 코스 번호를 내 여행 "
 						+ "주소로 보내도 404 다(코스 번호가 그 여행 것인지 따로 본다). "
 						+ "TripCourseIntegrationTest · TripCourseServiceTest (-1454)");
+		put(m, "POST /api/v1/trips/{}/itineraries/blank", Policy.OWNED,
+				"직접 짜기 빈 일정. 같은 관문(TripQueryService.get) — 비회원과 없는 여행이 같은 404, 보기 전용은 403. "
+						+ "SelfPlanItineraryServiceTest (-2018)");
 		put(m, "GET /api/v1/trips/{}/stories", Policy.OWNED,
 				"참여자만. 비회원과 없는 여행이 같은 404 이고, 참여자에게도 그 기록의 공개 범위 판정"
 						+ "(StoryVisibilityPolicy.canView)을 한 번 더 지난다 — 여행에 달렸다는 이유로 남의 "
@@ -553,6 +575,8 @@ class RouteAuthorizationRegistryTest {
 				"장소 더하기는 편집 권한자만. ItineraryAddItemIntegrationTest (-467)");
 		put(m, "POST /api/v1/itineraries/{}/days/{}/reorder", Policy.OWNED,
 				"편집 권한이 있는 참여자만. 비회원과 없는 일정이 같은 404, VIEWER 는 403. ItineraryReorderIntegrationTest");
+		put(m, "POST /api/v1/itineraries/{}/items/{}/stay", Policy.OWNED,
+				"머무는 시간 바꾸기는 편집 권한자만(requireEditor — 비회원 404, VIEWER 403). ItineraryAdjustIntegrationTest (-2017)");
 		put(m, "POST /api/v1/itineraries/{}/items/{}/lock", Policy.OWNED,
 				"고정은 편집 권한자만. ItineraryAccessIntegrationTest");
 		put(m, "DELETE /api/v1/itineraries/{}/items/{}/lock", Policy.OWNED,
@@ -631,6 +655,24 @@ class RouteAuthorizationRegistryTest {
 				"수정은 작성자만 — requireAuthor. StoryCrudIntegrationTest");
 		put(m, "DELETE /api/v1/stories/{}", Policy.OWNED,
 				"삭제는 작성자만 — requireAuthor. StoryCrudIntegrationTest");
+		// ── 루트 포스트(-2027)·장소별 루트(-2028). 공개 글만 있고, 차단·지움·탈퇴는 404 — RoutePostIntegrationTest
+		put(m, "POST /api/v1/route-posts", Policy.AUTHENTICATED_ONLY,
+				"새로 쓰는 것이다. 원본 일정은 멤버만 읽힌다 — RoutePostIntegrationTest.cannotPublishSomeoneElsesItinerary");
+		put(m, "GET /api/v1/route-posts", Policy.AUTHENTICATED_ONLY,
+				"공개 루트 목록. 차단 사이는 빠진다 — RoutePostIntegrationTest.blockedAuthorIsHidden");
+		put(m, "GET /api/v1/route-posts/{}", Policy.OTHER_USER_OK,
+				"남의 루트를 보는 것이 기능이다 — RoutePostIntegrationTest.blockedAuthorIsHidden");
+		put(m, "DELETE /api/v1/route-posts/{}", Policy.OWNED,
+				"작성자만 — RoutePostIntegrationTest.deleteOnlyByAuthor");
+		put(m, "PUT /api/v1/route-posts/{}/like", Policy.OTHER_USER_OK, "남의 루트에 좋아요. 반응 행은 요청자 것이다");
+		put(m, "DELETE /api/v1/route-posts/{}/like", Policy.OTHER_USER_OK, "요청자 자신의 좋아요만 지운다");
+		put(m, "PUT /api/v1/route-posts/{}/save", Policy.OTHER_USER_OK, "남의 루트를 내 목록에 저장");
+		put(m, "DELETE /api/v1/route-posts/{}/save", Policy.OTHER_USER_OK, "요청자 자신의 저장만 지운다");
+		put(m, "POST /api/v1/route-posts/{}/copies", Policy.OTHER_USER_OK,
+				"남의 루트를 따라 했다고 센다. 같은 사람은 한 번 — RoutePostIntegrationTest.reactionsAreIdempotent");
+		put(m, "GET /api/v1/me/saved-route-posts", Policy.OWNED, "경로에 남의 id 가 없다. 요청자 자신의 저장 목록");
+		put(m, "GET /api/v1/places/{}/route-posts", Policy.OTHER_USER_OK,
+				"장소에 들어간 공개 루트 — RoutePostIntegrationTest.routesForPlaceArePopularFirst");
 		// ── 기록 공동 작성
 		// 다섯 경로 전부 AUTHENTICATED_ONLY 다. 경로 자체에 남의 것과 내 것을 가르는 별도의 자원
 		// 식별자가 없고, storyId 는 이미 StoryService.requireVisible 의 404/403 판정 뒤에 있다.
@@ -713,6 +755,26 @@ class RouteAuthorizationRegistryTest {
 		put(m, "POST /api/v1/admin/story-reports/{}/dismiss", Policy.ADMIN_ONLY,
 				"운영자 기각. 같은 경로 규칙이 막는다. AdminModerationQueueIntegrationTest");
 
+		// ── 현지인 장소 제안 (S15P21E201-2031)
+		put(m, "POST /api/v1/place-suggestions", Policy.AUTHENTICATED_ONLY,
+				"제안한 사람은 인증에서만 읽는다 — 남의 이름으로 낼 자리가 없다. 사진은 본인이 올린 것만. PlaceSuggestionIntegrationTest");
+		put(m, "GET /api/v1/place-suggestions/duplicates", Policy.AUTHENTICATED_ONLY,
+				"이미 있는 장소 찾기. 누구에게나 같은 답이다. PlaceSuggestionIntegrationTest");
+		put(m, "GET /api/v1/place-suggestions/mine", Policy.OWNED,
+				"요청자 자신의 제안만 낸다(경로에 남의 번호를 받는 자리가 없다). PlaceSuggestionIntegrationTest");
+		put(m, "GET /api/v1/places/{}/local-pick", Policy.OTHER_USER_OK,
+				"승인된 장소를 추천한 사람의 표시 이름·이유를 보여 주는 것이 기능이다. 대기·거절 제안은 안 나온다. PlaceSuggestionIntegrationTest");
+		put(m, "GET /api/v1/admin/metrics", Policy.ADMIN_ONLY,
+				"운영 지표(MAU·DAU·재방문). /api/v1/admin/** → hasRole(ADMIN) 과 @PreAuthorize. MetricsIntegrationTest");
+		put(m, "GET /api/v1/admin/metrics/daily.csv", Policy.ADMIN_ONLY,
+				"운영 지표 하루 한 줄 CSV. 같은 경로 규칙이 막는다. MetricsIntegrationTest");
+		put(m, "GET /api/v1/admin/place-suggestions", Policy.ADMIN_ONLY,
+				"제안 검토 목록. /api/v1/admin/** → hasRole(ADMIN) 과 @PreAuthorize. PlaceSuggestionIntegrationTest");
+		put(m, "POST /api/v1/admin/place-suggestions/{}/approve", Policy.ADMIN_ONLY,
+				"승인 — 장소를 만든다. 같은 경로 규칙이 막는다. PlaceSuggestionIntegrationTest");
+		put(m, "POST /api/v1/admin/place-suggestions/{}/reject", Policy.ADMIN_ONLY,
+				"거절. 같은 경로 규칙이 막는다. PlaceSuggestionIntegrationTest");
+
 		// ── 방문 인증과 리뷰
 		put(m, "POST /api/v1/places/{}/visit-verifications", Policy.AUTHENTICATED_ONLY,
 				"주체를 인증에서만 읽고 좌표는 저장하지 않으므로 남의 인증을 대신 만들 자리가 없다. VisitVerificationIntegrationTest");
@@ -737,6 +799,10 @@ class RouteAuthorizationRegistryTest {
 				"장소는 공용 기준 데이터라 사용자별로 답이 다르지 않다. PlaceSearchIntegrationTest");
 		put(m, "GET /api/v1/places/facets", Policy.AUTHENTICATED_ONLY,
 				"갈래별 건수. 공용 기준 데이터다. PlaceFacetInterestTagIntegrationTest");
+		put(m, "GET /api/v1/places/restaurants/areas", Policy.AUTHENTICATED_ONLY,
+				"S15P21E201-2051 — 「맛집」·「카페」(kind) 갈래의 구·동 목록과 곳 수. 공용 기준 데이터라 요청자별로 답이 갈리지 않는다 — facets 와 같은 정책이다. S15P21E201-2059 부터 lat·lng 를 주면 nearestGu(가장 가까운 곳의 구)를 더하는데, 좌표는 그 계산에만 쓰고 저장·기록하지 않으며 답이 요청자가 아니라 좌표로만 정해진다. CertifiedRestaurantApiIntegrationTest");
+		put(m, "GET /api/v1/places/restaurants", Policy.AUTHENTICATED_ONLY,
+				"S15P21E201-2051 — 구·동으로 거른 맛집·카페(kind) 목록. 요청자와 무관한 공용 기준 데이터다 — 사용자 값은 받는 자리가 없다(종류·구·동·limit 뿐). CertifiedRestaurantApiIntegrationTest");
 		put(m, "GET /api/v1/places/categories", Policy.AUTHENTICATED_ONLY,
 				"적재된 place.category 값과 건수. 요청자와 무관한 공용 기준 데이터라 facets 와 같은 정책이다. PlaceCategoryServiceTest");
 		put(m, "GET /api/v1/places/condition-coverage", Policy.AUTHENTICATED_ONLY,
@@ -752,6 +818,26 @@ class RouteAuthorizationRegistryTest {
 				"숙소 후보 조회(S15P21E201-456). category 로 거른 공용 기준 데이터라 요청자별로 답이 갈리지 않는다. AccommodationQueryIntegrationTest");
 		put(m, "GET /api/v1/places/{}", Policy.AUTHENTICATED_ONLY,
 				"공용 기준 데이터. 다만 itineraryInclusion 은 요청자별로 갈리므로 그 자리는 인증 주체로만 읽는다. PlaceDetailIntegrationTest");
+		put(m, "GET /api/v1/places/{}/photo", Policy.PUBLIC_TOKEN,
+				"S15P21E201-1832 — 카드·상세 화면이 <img> 로 부르고 그 요청에는 Authorization 이 안 붙는다. 키가 UUID 라 추측 불가하고, Google 장소 번호가 저장된 공개 장소에만 302 를 준다(그 밖은 Google 을 안 부르고 404). PlacePhotoControllerTest");
+		put(m, "GET /api/v1/app/version", Policy.PRE_AUTH,
+				"S15P21E201-2048 — 앱이 켜질 때 로그인 전에 부른다(최소 지원 버전 미만이면 로그인 화면도 못 쓰게 막아야 하므로). 누구에게나 같은 공개 정보(스토어에 이미 보이는 버전·주소)만 답하고 쓰기가 없다. AppVersionControllerTest");
+		put(m, "POST /api/v1/feedback", Policy.PRE_AUTH,
+				"S15P21E201-2049 — 의견 보내기. 로그인 없이도 받는다(로그인했으면 인증 주체로만 계정을 묶는다 — 본문에 남의 번호를 받는 자리가 없다). 계정·기기·IP 별 하루 5건, 사진은 로그인한 본인이 올린 것만. FeedbackIntegrationTest");
+		put(m, "GET /api/v1/itineraries/{}/course-feedback", Policy.OWNED,
+				"S15P21E201-2020 — 내 코스 평가. 여행 회원이 아니면 404. CourseFeedbackIntegrationTest.strangerIsRejected");
+		put(m, "PUT /api/v1/itineraries/{}/course-feedback", Policy.OWNED,
+				"코스 평가 남기기·고치기. 여행 회원만, 인증 주체로만 계정을 묶는다. CourseFeedbackIntegrationTest.strangerIsRejected");
+		put(m, "DELETE /api/v1/itineraries/{}/course-feedback", Policy.OWNED,
+				"내 코스 평가 지우기 — 회원이 아니면 404. CourseFeedbackIntegrationTest.strangerIsRejected");
+		put(m, "GET /api/v1/admin/course-feedback/summary", Policy.ADMIN_ONLY,
+				"코스 만족도 집계. /api/v1/admin/** → hasRole(ADMIN) 과 @PreAuthorize. CourseFeedbackIntegrationTest.adminSummary");
+		put(m, "GET /api/v1/admin/feedback", Policy.ADMIN_ONLY,
+				"의견 목록. /api/v1/admin/** → hasRole(ADMIN) 과 @PreAuthorize. FeedbackIntegrationTest");
+		put(m, "PATCH /api/v1/admin/feedback/{}", Policy.ADMIN_ONLY,
+				"의견 상태·답변. 같은 경로 규칙이 막는다. FeedbackIntegrationTest");
+		put(m, "GET /api/v1/images/proxy", Policy.PUBLIC_TOKEN,
+				"S15P21E201-1954 — 화면이 <img> 로 불러 Authorization 이 안 붙는다. 표는 없지만 허락 호스트(www.visitbusan.net)·https·내부망 차단·사진 매직 넘버·10MB 상한을 모두 통과한 공공 사진만 내보낸다. ImageUrlGuardTest·ImageProxyServiceTest");
 		put(m, "GET /api/v1/places/{}/taxi-card", Policy.AUTHENTICATED_ONLY,
 				"장소 하나를 다른 모양으로 보여주는 것이라 주인이 없다. TaxiCardServiceIntegrationTest");
 		put(m, "GET /api/v1/festivals", Policy.AUTHENTICATED_ONLY,
@@ -809,6 +895,18 @@ class RouteAuthorizationRegistryTest {
 				"그날 환율은 누구에게나 같다 — 우리 자원이 아니라 주인이 없다. 인증을 요구하는 것은 "
 						+ "weather·transit 과 같은 이유 — 우리 인증키로 남이 대신 조회를 돌리는 것(하루 "
 						+ "1000회 한도 소진)을 막기 위해서다.");
+
+		// ── 가까운 병원·약국·경찰 (S15P21E201-1893)
+		put(m, "GET /api/v1/help-places/nearby", Policy.AUTHENTICATED_ONLY,
+				"좌표와 갈래로 답이 정해진다 — 공공 자료(심평원·OSM)라 주인이 없다. 로그인은 다른 조회와 "
+						+ "같은 문이라 요구한다(익명 세션도 된다) — 급할 때 막히지 않게 앱은 서버가 안 되면 "
+						+ "앱에 실은 자료로 물러선다(frontend app/nearby-help.tsx).");
+
+		// ── 근처 편의시설 (S15P21E201-2052)
+		put(m, "GET /api/v1/facilities/nearby", Policy.AUTHENTICATED_ONLY,
+				"좌표와 종류로 답이 정해진다 — 주차장·약국·공중화장실·물품보관함은 공공 자료라 주인이 없고 사용자 값을 받는 자리가 없다"
+						+ "(kind·lat·lng·radiusM·limit·stayMinutes·accessible·diaper 뿐). 로그인은 장소 조회와 같은 문이라 요구한다"
+						+ "(익명 세션도 된다). FacilityControllerHttpTest · FacilityNearbyIntegrationTest");
 
 		// ── AI 여행 도우미
 		put(m, "POST /api/v1/assistant/messages", Policy.AUTHENTICATED_ONLY,

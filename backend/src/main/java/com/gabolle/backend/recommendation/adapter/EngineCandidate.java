@@ -48,6 +48,17 @@ public record EngineCandidate(
 		warningCodes = copyList(warningCodes);
 	}
 
+	/**
+	 * 꼭 지켜야 하는 조건을 어겼다고 확인된 후보인가 — 이 후보는 순위에도 결과에도 못 들어간다.
+	 *
+	 * <p>🔴 <b>「빠질 후보」의 정의는 이것 하나다.</b> 결과를 조립할 때 빼는 쪽({@code CandidateAssembler})과
+	 * 그보다 앞에서 상한으로 자르는 쪽({@code BaselineRecommendationEngine})이 같은 말을 써야 한다.
+	 * 두 곳에 따로 적으면 한쪽만 고쳐지는 날, 자르기가 「남을 것」이라 믿고 지킨 후보를 조립이 버린다.
+	 */
+	public boolean hardFailed() {
+		return this.constraintVerdict == ConstraintVerdict.FAIL;
+	}
+
 	// List.copyOf · Map.copyOf 를 쓰지 않는 이유: 그것들은 null 원소·null 값을 거부하는데,
 	// 피처 값에는 "그 피처를 못 구했다" 를 뜻하는 null 이 정상적으로 들어온다.
 	private static <T> List<T> copyList(List<T> source) {

@@ -58,4 +58,34 @@ public class ActorNames {
 		}
 		return names;
 	}
+
+	/**
+	 * 사람마다 앱 언어 — 폰 알림을 그 사람 언어로 보내려고(S15P21E201-1864). 값이 없는 사람은 빠진다(부르는 쪽이 한국어로 본다).
+	 */
+	public Map<String, String> languagesOf(Collection<String> userIds) {
+		Map<String, String> languages = new HashMap<>();
+		if (userIds == null || userIds.isEmpty()) {
+			return languages;
+		}
+		// 🔴 언어는 문구를 고르는 데만 쓴다 — 번호가 이상한 한 사람 때문에 알림이 통째로 안 나가면 안 된다. 못 읽는 번호는 건너뛴다.
+		List<UUID> ids = userIds.stream().filter(Objects::nonNull).distinct().map(ActorNames::uuidOrNull).filter(Objects::nonNull).toList();
+		if (ids.isEmpty()) {
+			return languages;
+		}
+		for (AppUser user : this.appUserRepository.findAllById(ids)) {
+			if (user.getLanguage() != null) {
+				languages.put(user.getUserId().toString(), user.getLanguage());
+			}
+		}
+		return languages;
+	}
+
+	private static UUID uuidOrNull(String raw) {
+		try {
+			return UUID.fromString(raw);
+		}
+		catch (IllegalArgumentException invalid) {
+			return null;
+		}
+	}
 }

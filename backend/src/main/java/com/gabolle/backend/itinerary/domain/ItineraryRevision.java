@@ -70,7 +70,7 @@ public final class ItineraryRevision {
      * 되돌리기와, 편집이 항목 배치를 안 건드리는 경우가 이것을 쓴다.
      */
     public static Draft copyOf(ItineraryContent base, String newVersionId, Instant now) {
-        return new Draft(copyItems(base.items(), newVersionId, now, null, false),
+        return new Draft(copyItems(base.items(), newVersionId, now, null, false, null),
                 copyLegs(base.legs(), newVersionId, now),
                 copyExclusions(base.exclusions(), newVersionId));
     }
@@ -87,6 +87,14 @@ public final class ItineraryRevision {
      */
     public static Draft setLocked(ItineraryContent base, String newVersionId,
                                   String itemKey, boolean locked, Instant now) {
+        return setLocked(base, newVersionId, itemKey, locked, null, now);
+    }
+
+    /**
+     * 고정 방식까지 정해 고정한다(S15P21E201-2017). {@code mode} 가 {@code null} 이면 순서 고정, 풀 때는 무시한다.
+     */
+    public static Draft setLocked(ItineraryContent base, String newVersionId,
+                                  String itemKey, boolean locked, ItineraryItem.LockMode mode, Instant now) {
 
         if (itemKey == null || itemKey.isBlank()) {
             throw new ItemNotFoundException(itemKey);
@@ -95,7 +103,7 @@ public final class ItineraryRevision {
         if (!found) {
             throw new ItemNotFoundException(itemKey);
         }
-        return new Draft(copyItems(base.items(), newVersionId, now, itemKey, locked),
+        return new Draft(copyItems(base.items(), newVersionId, now, itemKey, locked, locked ? mode : null),
                 copyLegs(base.legs(), newVersionId, now),
                 copyExclusions(base.exclusions(), newVersionId));
     }
@@ -116,6 +124,16 @@ public final class ItineraryRevision {
      */
     public static Draft withAddedItem(ItineraryContent base, String newVersionId, String placeId,
                                       int dayIndex, LocalDate visitDate, Instant now) {
+        return withAddedItem(base, newVersionId, placeId, dayIndex, visitDate, null, now);
+    }
+
+    /**
+     * 고른 자리에 끼워 넣는다(S15P21E201-2017). {@code position} 은 그날 안의 순번(1부터)이고, 그 자리와 뒤 곳들의 순번이
+     * 하나씩 밀린다. {@code null} 이거나 그날 곳 수보다 크면 맨 끝이다 — 범위 밖 숫자 하나로 「더하기 실패」를 내지 않는다.
+     * 시각은 여기서도 정하지 않는다 — 부르는 쪽이 구간을 다시 만든 뒤 {@link #withRetimedDay} 로 매긴다.
+     */
+    public static Draft withAddedItem(ItineraryContent base, String newVersionId, String placeId,
+                                      int dayIndex, LocalDate visitDate, Integer position, Instant now) {
 
         if (dayIndex < 0) {
             throw new DayIndexOutOfRangeException(dayIndex);
@@ -124,7 +142,7 @@ public final class ItineraryRevision {
             throw new IllegalArgumentException("더할 장소가 없습니다: placeId=" + placeId);
         }
 
-        List<ItineraryItem> copied = copyItems(base.items(), newVersionId, now, null, false);
+        List<ItineraryItem> copied = copyItems(base.items(), newVersionId, now, null, false, null);
 
         // sequence 는 그 날 안에서만 1부터 센다(ck_itinerary_item_sequence). 다른 날의 항목을 세면
         //    새 항목이 엉뚱한 순번을 갖고, UNIQUE 제약이 있는 날에는 충돌한다.
@@ -134,7 +152,12 @@ public final class ItineraryRevision {
                 .max()
                 .orElse(0) + 1;
 
-        List<ItineraryItem> withAdded = new ArrayList<>(copied);
+        int seat = (position == null || position < 1 || position > nextSequence) ? nextSequence : position;
+        List<ItineraryItem> withAdded = new ArrayList<>(copied.size() + 1);
+        for (ItineraryItem item : copied) {
+            withAdded.add(item.dayIndex() == dayIndex && item.sequence() >= seat
+                    ? withSequence(item, item.sequence() + 1) : item);
+        }
         withAdded.add(new ItineraryItem(
                 UUID.randomUUID().toString(),
                 newVersionId,
@@ -142,7 +165,7 @@ public final class ItineraryRevision {
                 UUID.randomUUID().toString(),
                 dayIndex,
                 visitDate,
-                nextSequence,
+                seat,
                 placeId,
                 null,
                 null,
@@ -224,10 +247,11 @@ public final class ItineraryRevision {
                     moved.reasonCodes(),
                     moved.warningCodes(),
                     moved.sourceRequestId(),
-                    now));
+                    now,
+                    moved.lockMode()));
         }
 
-        List<ItineraryItem> others = copyItems(base.items(), newVersionId, now, null, false).stream()
+        List<ItineraryItem> others = copyItems(base.items(), newVersionId, now, null, false, null).stream()
                 .filter((item) -> item.dayIndex() != dayIndex)
                 .toList();
 
@@ -262,7 +286,7 @@ public final class ItineraryRevision {
             throw new DayIndexOutOfRangeException(dayIndex);
         }
 
-        List<ItineraryItem> copied = copyItems(base.items(), newVersionId, now, null, false);
+        List<ItineraryItem> copied = copyItems(base.items(), newVersionId, now, null, false, null);
 
         List<ItineraryItem> replanned = new ArrayList<>(copied.size());
         for (ItineraryItem item : copied) {
@@ -295,11 +319,42 @@ public final class ItineraryRevision {
                     item.reasonCodes(),
                     item.warningCodes(),
                     item.sourceRequestId(),
-                    now));
+                    now,
+                    item.lockMode()));
         }
 
         return new Draft(replanned, copyLegs(base.legs(), newVersionId, now),
                 copyExclusions(base.exclusions(), newVersionId));
+    }
+
+    /**
+     * 그날 곳들의 시각을 새로 매긴 복사본(S15P21E201-2017 — 머무는 시간 바꾸기·끼워 넣기 뒤).
+     * {@link #withReplannedDay} 와 같되, 시각을 모르던 곳({@code UNKNOWN})에 시각이 생기면 어림({@code ESTIMATED})으로
+     * 올린다 — 시각이 있는데 「모른다」로 남으면 화면이 그 시각을 안 믿는다. 지도에 없는 곳은 그대로 둔다.
+     */
+    public static Draft withRetimedDay(ItineraryContent base, String newVersionId, int dayIndex,
+            Map<String, LocalTime> newStartTimeByItemKey, Map<String, LocalTime> newEndTimeByItemKey, Instant now) {
+        Draft replanned = withReplannedDay(base, newVersionId, dayIndex, newStartTimeByItemKey, newEndTimeByItemKey,
+                now);
+        List<ItineraryItem> items = new ArrayList<>(replanned.items().size());
+        for (ItineraryItem item : replanned.items()) {
+            boolean promote = item.dayIndex() == dayIndex && item.startTime() != null
+                    && item.dataStatus() == ItineraryItem.DataStatus.UNKNOWN
+                    && newStartTimeByItemKey.containsKey(item.itemKey());
+            items.add(promote ? new ItineraryItem(item.itineraryItemId(), item.itineraryVersionId(), item.itemKey(),
+                    item.dayIndex(), item.visitDate(), item.sequence(), item.placeId(), item.startTime(),
+                    item.endTime(), item.stayMinutes(), item.locked(), item.estimatedCostKrw(),
+                    ItineraryItem.DataStatus.ESTIMATED, item.reasonCodes(), item.warningCodes(),
+                    item.sourceRequestId(), item.createdAt(), item.lockMode()) : item);
+        }
+        return new Draft(items, replanned.legs(), replanned.exclusions());
+    }
+
+    private static ItineraryItem withSequence(ItineraryItem item, int sequence) {
+        return new ItineraryItem(item.itineraryItemId(), item.itineraryVersionId(), item.itemKey(), item.dayIndex(),
+                item.visitDate(), sequence, item.placeId(), item.startTime(), item.endTime(), item.stayMinutes(),
+                item.locked(), item.estimatedCostKrw(), item.dataStatus(), item.reasonCodes(), item.warningCodes(),
+                item.sourceRequestId(), item.createdAt(), item.lockMode());
     }
 
     private static void requireSameSet(List<ItineraryItem> dayItems, List<String> dayOrder, int dayIndex) {
@@ -373,11 +428,15 @@ public final class ItineraryRevision {
      *     항목만 {@code locked} 로 바꾼다
      */
     private static List<ItineraryItem> copyItems(List<ItineraryItem> items, String newVersionId,
-                                                 Instant now, String lockedItemKey, boolean locked) {
+                                                 Instant now, String lockedItemKey, boolean locked,
+                                                 ItineraryItem.LockMode mode) {
 
         List<ItineraryItem> copied = new ArrayList<>(items.size());
         for (ItineraryItem item : items) {
-            boolean nextLocked = item.itemKey().equals(lockedItemKey) ? locked : item.locked();
+            boolean target = item.itemKey().equals(lockedItemKey);
+            boolean nextLocked = target ? locked : item.locked();
+            // 고정 방식도 물려준다 — 빠뜨리면 시각 고정이 다른 편집 한 번에 순서 고정으로 조용히 바뀐다.
+            ItineraryItem.LockMode nextMode = target ? mode : item.lockMode();
             copied.add(new ItineraryItem(
                     UUID.randomUUID().toString(),
                     newVersionId,
@@ -396,7 +455,8 @@ public final class ItineraryRevision {
                     item.reasonCodes(),
                     item.warningCodes(),
                     item.sourceRequestId(),
-                    now));
+                    now,
+                    nextLocked ? nextMode : null));
         }
         return copied;
     }
@@ -448,7 +508,7 @@ public final class ItineraryRevision {
                     // 뒤의 판은 같은 구간인데도 지도 길 선이 점선이 되고 교통비 줄이 사라졌다. 여기는 구간 하나를 같은
                     // 출발 곳·도착 곳·수단 그대로 옮기는 자리라 그 길과 요금이 여전히 참이다. 쌍이 바뀌는 편집(빼기·
                     // 하루 다시 짜기·그날 순서 바꾸기)은 이 복사를 안 쓰고 구간을 새로 잰다 — 다른 쌍의 길을 옮길 일이 없다.
-                    leg.fareKrw(), leg.path(),
+                    leg.fareKrw(), leg.path(), leg.pieces(),
                     // 보정 전 이동 분은 반드시 넘긴다 — 흘리면 보정 계산이 고친 값을 어림으로 읽어 배율이 겹쳐
                     // 곱해진다 (S15P21E201-1700).
                     leg.uncalibratedDurationMin(),

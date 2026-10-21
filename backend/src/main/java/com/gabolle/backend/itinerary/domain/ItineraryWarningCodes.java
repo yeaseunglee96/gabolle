@@ -46,6 +46,15 @@ public final class ItineraryWarningCodes {
      */
     public static final String DAY_REGION_MIXED = "DAY_REGION_MIXED";
 
+    /**
+     * 사용자가 「꼭 가고 싶은 곳」으로 고른 장소 중 일정에 못 들어간 것이 있다 (S15P21E201-1971).
+     *
+     * <p>꼭 가는 곳은 점수만 올려 줄 뿐 자리를 보장하지 않는다 — 하루 자리·밥 때·영업시간에 밀리면 빠진다.
+     * 그때 <b>조용히 빼지 않는다.</b> 사용자는 「꼭」이라고 고른 곳이 왜 없는지 모른다. 어느 곳인지는 판의
+     * 항목과 고른 목록({@code trip_seed_place})을 견주면 나오므로 서버는 코드만 낸다.
+     */
+    public static final String MUST_VISIT_NOT_PLACED = "MUST_VISIT_NOT_PLACED";
+
     private ItineraryWarningCodes() {
     }
 }

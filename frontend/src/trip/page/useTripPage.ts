@@ -3,8 +3,8 @@
 // 🔴 둘이 따로 부르면 두 화면이 서로 다른 숫자를 말하는 날이 온다(한쪽만 고치고 끝나기 때문이다).
 //    그래서 «무엇을 불러와서 어떻게 세는가» 는 여기 한 벌만 두고, 화면은 그리기만 한다.
 //    1단계 때 TripPageDesktop 안에 있던 것을 그대로 옮겼다 — 옮기면서 바꾼 것은 아래 🔴 둘뿐이다.
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { useRouter } from 'expo-router';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { useAuth } from '@/auth/AuthProvider';
@@ -13,17 +13,20 @@ import { useI18n } from '@/i18n';
 import { formatDayHeading } from '@/i18n/datetime';
 import { txf } from '@/i18n/format';
 import { useCourseRoutePaths } from '@/map/courseRoutePaths';
+import { routeLegendOf } from '@/map/routeGrading';
 import { loadItinerary, loadItineraryPace, type ItineraryDto, type ItineraryItemDto, type ItineraryPaceDto } from '@/plan/itinerary';
 import { summarizeItineraryBudget } from '@/plan/itineraryBudget';
 import { totalTravelMinutes } from '@/plan/itinerarySummary';
 import { loadPlacePhotos, type PlacePhoto } from '@/plan/placePhotos';
+import { initialDayIndex } from '@/trip/openDay';
+import { useOptionalPlanDraft } from '@/plan/PlanProvider';
 import { canConfirmCourse, ensureCourseItinerary, type TripCourse } from '@/plan/tripCourses';
 import { loadTripBudget } from '@/trip/tripBudget';
 import { humanTripTitle, tripNameOrDates, shouldAskTripName, wasTripNameAsked } from '@/trip/tripNaming';
 import { invalidateTripLists, loadTrips } from '@/trip/trips';
 
 import { itineraryFirstPage, loadTripPageCourses, type TripPageCourses, type TripPageSource } from './tripPageData';
-import { dayMap, dayRoutes, formatManwon, returnRoute, returnTrip, startTrip } from './tripPageModel';
+import { dayMap, dayRoutes, formatManwon, itineraryLegs, returnRoute, returnTrip, routeGradingOf, startTrip, walkIntoStopIds } from './tripPageModel';
 
 export type TripItinerary = { id: string; value: ItineraryDto | null; message: string | null };
 
@@ -112,9 +115,30 @@ export function useTripPage(source: TripPageSource) {
     return () => { alive = false; };
   }, [course?.itineraryId, course?.id, course?.preview, accessToken, itineraryNonce]);
 
+  // 🔴 일정 편집 화면(trips/[id]/itinerary)에서 순서를 바꾸고 돌아오면, 이 화면은 이미 받은 일정이라며 다시 받지
+  //    않아 옛 순서·옛 길 안내가 앱을 다시 켤 때까지 남았다(S15P21E201-1984, 폴드 점검). 처음 열 때는 위에서 받으니
+  //    건너뛰고, 다른 화면에 갔다가 돌아올 때마다 같은 일정을 한 번 더 받는다 — 같은 번호면 지금 것을 비우지 않아 깜박이지 않는다.
+  const focusedOnce = useRef(false);
+  // 시험의 expo-router 흉내에는 useFocusEffect 가 없는 것이 많다 — 없으면 건너뛴다(앱에는 늘 있다).
+  (typeof useFocusEffect === 'function' ? useFocusEffect : () => {})(useCallback(() => {
+    if (!focusedOnce.current) { focusedOnce.current = true; return; }
+    shownItineraryId.current = null;
+    setItineraryNonce((n) => n + 1);
+  }, []));
+
   const loaded = itinerary?.value ?? null;
+  /** 직접 짠 여행 — 화면이 코스 칩·「코스 A 확정」·코스 바꾸기를 안 그린다(S15P21E201-2018). */
+  const selfPlanned = (page?.state === 'ready' && page.selfPlanned) || loaded?.origin === 'SELF';
   // 다른 여행을 열면 1일차부터 본다.
-  useEffect(() => { setDayIndex(0); }, [sourceKey]);
+  useEffect(() => { setDayIndex(0); openedDayFor.current = null; }, [sourceKey]);
+  // 🔴 여행 중이면 오늘 칸을 연다(S15P21E201-1941) — 셋째 날에 열어도 1일차가 보였다. 여행마다 처음 한 번만.
+  //    그 뒤 사람이 고른 날·코스를 바꿔도 다시 끌어오지 않는다.
+  const openedDayFor = useRef<string | null>(null);
+  useEffect(() => {
+    if (!loaded || openedDayFor.current === sourceKey) return;
+    openedDayFor.current = sourceKey;
+    setDayIndex(initialDayIndex(loaded.days, undefined));
+  }, [loaded, sourceKey]);
   // 🔴 코스(A/B/C)만 바꿀 때는 보던 날을 그대로 둔다 (S15P21E201-1813) — 2일차를 보다 코스를 바꿨는데
   //    1일차로 튀면 「같은 날을 비교」할 수 없다. 새 코스가 더 짧으면 마지막 날로 맞춘다.
   const dayCount = loaded?.days.length ?? 0;
@@ -165,19 +189,35 @@ export function useTripPage(source: TripPageSource) {
   );
   // 들어오는 구간이 걷기인 정차지 — 일정 항목의 walkingMeters 가 있는 곳(백엔드: 그 구간이 도보가 아니면 null).
   // 걷는 구간만 걷기로 받아 경사 조각을 칠한다(S15P21E201-1658). 스위치(courseRoutePaths 의 WALK_SLOPE_ROUTES)가 꺼져 있으면 안 쓴다.
-  const walkInto = useMemo(
-    () => new Set((loaded?.days ?? []).flatMap((day) => day.items).filter((item) => item.walkingMeters != null).map((item) => item.id)),
-    [loaded],
-  );
-  const legs = useCourseRoutePaths(legDays, accessToken, { walkInto });
+  // 걷는 날의 돌아가는 구간도 걷기로 받는다(S15P21E201-1899) — 이동수단은 tripPageModel 의 walkIntoStopIds 에 까닭이 있다.
+  const walkInto = useMemo(() => walkIntoStopIds(loaded?.days ?? []), [loaded]);
+  // 🔴 휠체어·유아차·계단 피하기 여행이면 계단을 피하는 길로 묻는다 — 안 그러면 일정은 계단 없는 길로 짜 놓고
+  //    지도에는 계단 길을 그린다. 서버가 stepFree 를 안 보내면(옛 서버) 전처럼 보통 길이다.
+  const stepFree = loaded?.stepFree === true;
+  // 하루 시작 구간도 첫 항목에 실려 온 조각으로 칠한다 — 대중교통 여행의 걸은 출발 구간이 남색으로 남던 것(S15P21E201-2044).
+  // 일정 응답에 경사 조각 길(travelPath + travelPieces)이 실려 온 구간은 길을 다시 묻지 않고 그것으로 칠한다.
+  // 옛 서버(칸 없음)면 빈 객체라 전처럼 전부 받아 온다.
+  const known = useMemo(() => itineraryLegs(items, map, dayIndex + 1, dayStart), [items, map, dayIndex, dayStart]);
+  const legs = useCourseRoutePaths(legDays, accessToken, { walkInto, stepFree, known });
+  // 🔴 걷는 길을 무엇으로 칠하나 — 사용자가 고른 «경사 피하기»·«그늘 우선» 이다(S15P21E201-1896). 서버가 알려 준 값이 먼저이고,
+  //    옛 서버(칸 없음)일 때만 기기의 초안으로 대신한다. 둘 다 안 골랐으면 경로는 자기 색(남색) 한 가지다.
+  //    원시값(불리언 둘)으로 메모한다 — 초안 객체가 다른 화면 입력으로 바뀌어도 지도가 다시 그려지지 않게.
+  const planDraft = useOptionalPlanDraft();
+  const chosen = routeGradingOf(loaded, planDraft);
+  const gradeSlope = chosen.slope;
+  const gradeShade = chosen.shade;
+  const grading = useMemo(() => ({ slope: gradeSlope, shade: gradeShade }), [gradeSlope, gradeShade]);
   const routes = useMemo(
     () => [
-      ...(start ? [returnRoute(start, color.brand.navy, legs)] : []),
-      ...dayRoutes(map, dayIndex + 1, color.brand.navy, legs),
-      ...(back ? [returnRoute(back, color.brand.navy, legs)] : []),
+      // 하루 시작·돌아가는 구간도 정차지 사이 선과 같은 조건으로 칠한다 — 걷기로 받은 조각이 있을 때(S15P21E201-1899).
+      ...(start ? [returnRoute(start, color.brand.navy, legs, grading)] : []),
+      ...dayRoutes(map, dayIndex + 1, color.brand.navy, legs, grading),
+      ...(back ? [returnRoute(back, color.brand.navy, legs, grading)] : []),
     ],
-    [map, dayIndex, legs, back, start],
+    [map, dayIndex, legs, back, start, grading],
   );
+  // 범례 — 조각 색으로 칠한 선이 하나라도 있을 때만(routeGrading.ts). 조건을 안 골랐거나 칠할 조각이 없으면 null.
+  const routeLegend = useMemo(() => routeLegendOf(routes), [routes]);
   const points = useMemo(() => {
     const anchorLabel = (kind: 'LODGING' | 'ORIGIN') => (kind === 'LODGING' ? tx('숙소', 'Stay') : tx('출발지', 'Start'));
     // 숙소에서 나와 숙소로 돌아가는 날은 두 표식이 한 자리다 — 하나만 찍는다.
@@ -235,7 +275,7 @@ export function useTripPage(source: TripPageSource) {
       const [trips, alreadyAsked] = await Promise.all([loadTrips(accessToken), wasTripNameAsked(tripId)]);
       const currentTitle = trips.state === 'success' ? trips.trips.find((trip) => trip.tripId === tripId)?.title : null;
       // 코스를 고른 직후에만 이름 묻기가 열린 채로 들어간다 — recommendations.tsx 와 같은 규칙.
-      if (shouldAskTripName({ title: currentTitle, alreadyAsked })) { router.push(`${path}?name=1`); return; }
+      if (shouldAskTripName({ title: currentTitle, alreadyAsked })) { router.replace(`${path}?name=1`); return; }
     } catch {
       // 물어볼지 정하다 실패하면 묻지 않고 지나간다. 일정을 여는 길을 막지 않는다.
     } finally {
@@ -243,14 +283,16 @@ export function useTripPage(source: TripPageSource) {
     }
     // 같은 일정이면 주소가 같다 — 옮기지 않고 확정 표시만 켠다.
     if (source.kind === 'itinerary' && source.itineraryId === id) { setConfirmed(true); return; }
-    router.push(path);
+    // 🔴 push 가 아니라 replace 다(S15P21E201-1872). 폰의 「내 일정 보기」는 이 훅(TripPageMobile)을 쓰므로
+    //    push 면 「코스 A로 확정」이 있는 확정 전 화면이 뒤에 남아 뒤로 가기(하드웨어 포함)에 다시 나온다.
+    router.replace(path);
   };
 
   return {
-    page, load, courses, course, courseIndex, setCourseIndex, confirmed, setConfirmed, tripId,
+    page, load, courses, course, courseIndex, setCourseIndex, confirmed, setConfirmed, tripId, selfPlanned,
     itinerary, setItinerary, loaded, reloadItinerary: () => { shownItineraryId.current = null; setItineraryNonce((n) => n + 1); },
     dayIndex, setDayIndex, items, selectedId, setSelectedId, photos, pace, reloadPace: () => setPaceNonce((n) => n + 1),
-    map, routes, points, anyEstimatedLine, allItems, travelTotal, budget, atRisk, allEstimated,
+    map, routes, routeLegend, points, anyEstimatedLine, allItems, travelTotal, budget, atRisk, allEstimated,
     title, headSub, confirm, confirming,
   };
 }

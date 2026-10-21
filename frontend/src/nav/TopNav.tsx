@@ -1,4 +1,4 @@
-import { Image, Pressable, StyleSheet, View } from 'react-native';
+import { Animated, Image, Pressable, StyleSheet, View, Platform } from 'react-native';
 import { usePathname, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/auth/AuthProvider';
@@ -7,6 +7,8 @@ import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { TopNavWeather } from '@/home/HomeBlocks';
 import { useHomeWeather } from '@/home/useHomeData';
+import { SearchPillButton } from '@/home/StickySearchPill';
+import { searchCollapse, useSearchHandle } from '@/home/stickySearchStore';
 import { useLayout } from '@/layout/useLayout';
 import { useI18n } from '@/i18n';
 import { LANGUAGE_CODES, LANGUAGE_OPTIONS } from '@/i18n/languages';
@@ -25,6 +27,7 @@ const FLAG_IMAGES: Record<LanguageCode, ReturnType<typeof require>> = {
   ja: require('../../assets/flags/jp.png'),
   'zh-Hans': require('../../assets/flags/cn.png'),
   'zh-Hant': require('../../assets/flags/tw.png'),
+  vi: require('../../assets/flags/vn.png'),
 };
 
 // 넓은 화면의 단 하나의 상단 바다 에서 모양을, -970 에서 범위를, -994 에서
@@ -67,14 +70,23 @@ export function useTopNavShown() {
 
 /** 폰 TabBar 의 활성 표식과 같은 모양 — 5×5 점. */
 function ActiveMarker() {
-  return <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.marker} />;
+  // 칸 양끝에 붙인 감싸개가 점을 가운데에 세운다. 퍼센트(left: '50%')는 웹과 앱(Yoga)이 기준 폭을 다르게 잡아
+  // 앱에서 패딩 절반만큼 왼쪽으로 밀렸다(S15P21E201-2000).
+  return (
+    <View testID="topnav-active-marker" pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.markerRow}>
+      <View style={styles.marker} />
+    </View>
+  );
 }
 
 export function TopNav() {
-  const { kind } = useLayout();
+  const { kind, width } = useLayout();
   const router = useRouter();
   const pathname = usePathname();
   const { tx, language } = useI18n();
+  // 웹 홈을 내리면 가운데 칸(홈·피드·내 여행)이 흐려지고 같은 자리에 검색 알약이 커지며 나온다(S15P21E201-1931) — 에어비앤비처럼
+  // 큰 검색창이 위로 접혀 올라온 것으로 보이게. 진행도는 홈이 스크롤에 맞춰 searchCollapse 에 적는다.
+  const search = useSearchHandle();
   const { accessToken, ready, user } = useAuth();
   const { mobility, setPreferences } = useOnboardingPreferences();
   const signedOut = ready && !accessToken;
@@ -94,6 +106,23 @@ export function TopNav() {
   // 위쪽 안전 영역은 이 컴포넌트가 직접 두른다. 전에는 랜딩 파일이 두르고 있었는데, 이제
   // 바가 모든 화면에 뜨므로 그 처리도 같이 따라다녀야 한다 — 안 그러면 노치 있는 기기를
   // 가로로 눕혔을 때 바가 노치 밑에 깔린다. 배경색을 안전 영역까지 칠해야 틈이 안 뜬다.
+  const morphSearch = search.active && pathname === '/';
+  const capsule = (
+    <View style={styles.capsule}>
+      {/* 앱은 replace — 메뉴를 오갈 때마다 화면이 쌓여 사진 메모리가 찼다(S15P21E201-1975). 웹은 브라우저 뒤로 가기를 위해 push. */}
+      {LINKS.map((item) => {
+        const paths = [item.path, ...item.extra];
+        const active = !planActive && paths.some((path) => pathname === path || (path !== '/' && pathname.startsWith(`${path}/`)));
+        return (
+          <Pressable key={item.key} accessibilityRole="link" accessibilityState={{ selected: active }} onPress={() => (Platform.OS === 'web' ? router.push(item.path) : router.replace(item.path))} style={styles.capsuleItem}>
+            <Text weight={active ? 'bold' : 'medium'} color={active ? color.brand.navy : color.text.body} style={styles.noUnderline}>{tx(item.labelKo, item.labelEn)}</Text>
+            {active ? <ActiveMarker /> : null}
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+
   return <SafeAreaView edges={['top']} style={styles.safeArea}>
     {/* ── 1층 · 유틸 바 (높이 36) — 언어와 계정. 이동이 아니다. ───────────────── */}
     <View style={styles.utilBar}>
@@ -142,23 +171,54 @@ export function TopNav() {
     <View style={styles.nav}>
       <BrandLogoLink href="/" imageStyle={styles.logo} inTopNav />
 
-      <View style={styles.capsule}>
-        {LINKS.map((item) => {
-          const paths = [item.path, ...item.extra];
-          const active = !planActive && paths.some((path) => pathname === path || (path !== '/' && pathname.startsWith(`${path}/`)));
-          return (
-            <Pressable key={item.key} accessibilityRole="link" accessibilityState={{ selected: active }} onPress={() => router.push(item.path)} style={styles.capsuleItem}>
-              <Text weight={active ? 'bold' : 'medium'} color={active ? color.brand.navy : color.text.body} style={styles.noUnderline}>{tx(item.labelKo, item.labelEn)}</Text>
-              {active ? <ActiveMarker /> : null}
-            </Pressable>
-          );
-        })}
-      </View>
+      {morphSearch && width >= KEEP_MENU_FROM ? (
+        // 🔴 넓으면(1200 이상) 메뉴를 없애지 않는다 — ㉖ 시안. 내린 뒤에도 「피드」로 바로 간다(사용자 확인 2026-10-02).
+        //    가운데 메뉴는 흐려지고, 같은 메뉴가 로고 옆에 나타나며, 알약은 그 사이 빈 가운데에 선다.
+        <>
+          <Animated.View pointerEvents={search.collapsed ? 'auto' : 'none'} accessibilityElementsHidden={!search.collapsed} importantForAccessibility={search.collapsed ? 'auto' : 'no-hide-descendants'} style={[styles.menuBeside, { opacity: searchCollapse.interpolate({ inputRange: [0.5, 1], outputRange: [0, 1], extrapolate: 'clamp' }) }]}>
+            {capsule}
+          </Animated.View>
+          <View style={styles.pillCenter} pointerEvents="box-none">
+            <Animated.View
+              pointerEvents={search.collapsed ? 'box-none' : 'none'}
+              accessibilityElementsHidden={!search.collapsed}
+              importantForAccessibility={search.collapsed ? 'auto' : 'no-hide-descendants'}
+              style={{
+                opacity: searchCollapse.interpolate({ inputRange: [0.4, 1], outputRange: [0, 1], extrapolate: 'clamp' }),
+                transform: [{ scale: searchCollapse.interpolate({ inputRange: [0, 1], outputRange: [1.12, 1] }) }, { translateY: searchCollapse.interpolate({ inputRange: [0, 1], outputRange: [6, 0] }) }],
+              }}
+            >
+              {search.expanded ? null : <SearchPillButton narrow={width < 1360} labels={search.labels} onPress={() => search.open?.()} />}
+            </Animated.View>
+          </View>
+          <Animated.View pointerEvents={search.collapsed ? 'none' : 'box-none'} accessibilityElementsHidden={search.collapsed} style={[styles.menuCentered, { opacity: searchCollapse.interpolate({ inputRange: [0, 0.5], outputRange: [1, 0], extrapolate: 'clamp' }) }]}>
+            {capsule}
+          </Animated.View>
+        </>
+      ) : morphSearch ? (
+        <View style={styles.centerSlot}>
+          <Animated.View pointerEvents={search.collapsed ? 'none' : 'auto'} accessibilityElementsHidden={search.collapsed} style={{ opacity: searchCollapse.interpolate({ inputRange: [0, 0.5], outputRange: [1, 0], extrapolate: 'clamp' }) }}>
+            {capsule}
+          </Animated.View>
+          <Animated.View
+            pointerEvents={search.collapsed ? 'box-none' : 'none'}
+            accessibilityElementsHidden={!search.collapsed}
+            importantForAccessibility={search.collapsed ? 'auto' : 'no-hide-descendants'}
+            style={[styles.pillSlot, width < 1100 && styles.pillSlotNarrow, {
+              opacity: searchCollapse.interpolate({ inputRange: [0.4, 1], outputRange: [0, 1], extrapolate: 'clamp' }),
+              // 처음엔 크게(큰 검색창에서 줄어든 것처럼) 아래에서, 다 접히면 제자리 크기로
+              transform: [{ scale: searchCollapse.interpolate({ inputRange: [0, 1], outputRange: [1.12, 1] }) }, { translateY: searchCollapse.interpolate({ inputRange: [0, 1], outputRange: [6, 0] }) }],
+            }]}
+          >
+            {search.expanded ? null : <SearchPillButton narrow={width < 1100} labels={search.labels} onPress={() => search.open?.()} />}
+          </Animated.View>
+        </View>
+      ) : capsule}
 
       {/* 날씨는 CTA «왼쪽»에 붙는다. 날씨가 없으면 TopNavWeather 가 아무것도 안 그려서
           자리가 저절로 접힌다 — 빈 칸을 남겨 두지 않는다. */}
       <View style={styles.navRight}>
-        <TopNavWeather forecast={weather} />
+        <TopNavWeather forecast={weather} compact={width < 1000} />
         <Pressable accessibilityRole="link" accessibilityState={{ selected: planActive }} onPress={() => router.push('/plan')} style={({ pressed }) => [styles.cta, pressed && styles.ctaPressed]}>
           {/* 한 줄로 묶는다. 옆에 날씨가 서면서 좁아져 「여행 / 만들기」로 접혔다. */}
           <Text weight="bold" color={color.action.outline} numberOfLines={1} style={styles.noUnderline}>{tx('여행 만들기', 'Plan a trip')}</Text>
@@ -169,6 +229,8 @@ export function TopNav() {
   </SafeAreaView>;
 }
 
+/** 이 폭부터 홈을 내려도 메뉴를 남긴다 — 로고 · 메뉴 · 알약 · 날씨 · CTA 가 한 줄에 들어가는 폭 */
+const KEEP_MENU_FROM = 1200;
 const UTIL_HEIGHT = 36;
 const NAV_HEIGHT = 60;
 const CTA_HEIGHT = 40;
@@ -188,8 +250,9 @@ const styles = StyleSheet.create({
   utilDivider: { width: 1, height: 14, backgroundColor: color.surface.field },
 
   // 국기 다섯 칸. 안 고른 것은 옅게 둬서 고른 언어가 눈에 띈다.
-  utilFlagDivider: { width: 1, height: 14, backgroundColor: color.surface.field, marginRight: spacing[2] },
-  utilFlagTouch: { height: UTIL_HEIGHT, width: 30, alignItems: 'center', justifyContent: 'center', opacity: 0.55 },
+  utilFlagDivider: { width: 1, height: 14, backgroundColor: color.surface.field },
+  // 손가락으로 누르는 탭(데스크톱 판)도 있다 — 44 아래면 옆 국기를 잘못 누른다(S15P21E201-1952).
+  utilFlagTouch: { height: UTIL_HEIGHT, width: 44, alignItems: 'center', justifyContent: 'center', opacity: 0.55 },
   utilFlagTouchSelected: { opacity: 1 },
   utilFlagImage: { width: 20, height: 14, borderRadius: 2 },
 
@@ -200,6 +263,16 @@ const styles = StyleSheet.create({
   // 가운데 칸들 — 알약 바탕도 흰 카드도 없다. 「지금 여기」는 검은 글자와 밑의 점이 말한다.
   // 바탕으로 말하면 「고른 것」이 되고, 이 배색에서 고른 것은 색이 아니라 굵기와 점으로 뜬다.
   capsule: { flexDirection: 'row', alignItems: 'center', gap: spacing[1], padding: spacing[1] },
+  // 가운데 칸과 알약이 같은 자리를 나눠 쓴다 — 알약은 그 위에 겹쳐 가운데에 선다(폭이 칸보다 넓어도 가운데 기준)
+  centerSlot: { alignItems: 'center', justifyContent: 'center' },
+  // 넓은 화면 홈의 세 겹(KEEP_MENU_FROM) — 로고 옆 메뉴 · 가운데 알약 · 접히기 전 가운데 메뉴(겹쳐 그린다)
+  menuBeside: { marginLeft: spacing[6] },
+  pillCenter: { flex: 1, minWidth: 0, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[4] },
+  menuCentered: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, alignItems: 'center', justifyContent: 'center' },
+  pillSlot: { position: 'absolute', top: 0, bottom: 0, left: -240, right: -240, alignItems: 'center', justifyContent: 'center' },
+  // 🔴 좁으면 양옆으로 덜 넓힌다 — 768 폭에서 이 칸(보이지 않아도 자리는 차지한다)이 화면 오른쪽 끝을 넘어 페이지에
+  //    가로 스크롤이 9~48px 생겼다(2026-10-02 전체 점검, 세로 아이패드 미니). 좁을 때의 알약은 「인원」이 빠져 메뉴 폭 안팎이다.
+  pillSlotNarrow: { left: -80, right: -80 },
   capsuleItem: { height: CTA_HEIGHT, paddingHorizontal: spacing[4] + spacing[1], borderRadius: radius.full, alignItems: 'center', justifyContent: 'center' },
 
   // 날씨와 CTA 를 한 덩어리로 묶는다. 2층이 space-between 이라 이 덩어리가 오른쪽 끝을 잡는다.
@@ -208,8 +281,9 @@ const styles = StyleSheet.create({
   cta: { height: CTA_HEIGHT, paddingHorizontal: spacing[4], borderRadius: radius.md, borderWidth: 1, borderColor: color.action.outline, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center' },
   ctaPressed: { opacity: 0.88 },
 
-  // 절대배치라 alignSelf 는 믿지 않는다 — 폭(5)의 절반을 왼쪽으로 당겨 가운데를 맞춘다.
-  marker: { position: 'absolute', bottom: CTA_MARKER_DROP, left: '50%', marginLeft: -2.5, width: 5, height: 5, borderRadius: radius.full, backgroundColor: color.state.dot },
+  // 점은 칸 바닥(바 바닥)에 선다. 감싸개가 칸 폭 전체를 차지하고 가운데 정렬해서 웹·앱이 같은 자리에 찍는다.
+  markerRow: { position: 'absolute', left: 0, right: 0, bottom: CTA_MARKER_DROP, alignItems: 'center' },
+  marker: { width: 5, height: 5, borderRadius: radius.full, backgroundColor: color.state.dot },
 
   // 웹에서 Pressable 안의 글자에 기본 밑줄이 붙는 경우가 있어 명시적으로 끈다.
   noUnderline: { textDecorationLine: 'none' },

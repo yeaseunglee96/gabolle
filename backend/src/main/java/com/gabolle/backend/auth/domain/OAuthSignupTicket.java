@@ -64,7 +64,8 @@ public class OAuthSignupTicket {
 	@Column(name = "display_name", length = 50)
 	private String displayName;
 
-	@Column(length = 2)
+	/** provider 가 준 언어를 LanguageNormalizer 로 맞춘 값({@code ZH-HANS} 등). 열은 {@code VARCHAR(10)} 이다(V20260917300000). */
+	@Column(length = 10)
 	private String language;
 
 	/** {@link Kind#LINK} 일 때만. 붙일 기존 계정. */

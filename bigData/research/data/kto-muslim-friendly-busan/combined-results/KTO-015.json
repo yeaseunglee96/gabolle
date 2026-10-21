@@ -1,0 +1,73 @@
+{
+  "id": "KTO-015",
+  "name": "카파도키아",
+  "cat": "터키음식",
+  "attempts": 1,
+  "geminiTokens": 80628,
+  "researchedAt": "2026-09-30T00:26:03.556Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "별도의 웨이팅이나 대기열에 대한 특별한 혼잡 언급은 확인되지 않음"
+  },
+  "descriptors": {
+    "audience": "이국적인 미식 탐방객, 무슬림 방문객 및 가족/연인 단위 손님",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "케밥",
+      "램시시 케밥",
+      "치킨 케밥",
+      "피데"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:30~21:30 (라스트 오더 20:30, 매주 화요일 정기 휴무)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "한국이슬람교 부산성원 바로 옆에 있어 무슬림 방문객뿐만 아니라 이색적인 터키 요리를 찾는 국내 방문객들도 많이 찾는 명소로 소개됨"
+  },
+  "menuDiversity": {
+    "dishCount": null,
+    "found": true
+  },
+  "notes": "부산 금정구 남산동 한국이슬람교 부산성원 인근에 위치한 터키 요리 전문점 카파도키아로, 터키 현지인 조리사가 직접 만드는 할랄 푸드 케밥과 피데로 잘 알려져 있습니다.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "남산동에서 터키 여행을 온 듯한 느낌을 주는 이색적인 터키 음식 전문점입니다. 할랄 재료를 사용하여 무슬림 방문객은 물론 다양한 배경의 손님들이 편안하게 음식을 즐길 수 있는 공간입니다. 대표 메뉴: 케밥, 양고기 요리 등. 도시철도 1호선 두실역 8번 출구에서 도보로 약 6분 거리입니다. 한국 이슬람교 부산 성원 주차장을 이용할 수 있습니다. 운영 시간: 매일 11:30~21:30 (라스트 오더 20:30)",
+      "url": "https://www.visitbusan.net"
+    }
+  ],
+  "sources": [
+    "https://www.visitbusan.net",
+    "https://www.siksinhot.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "터키 현지인 요리사가 조리하는 정통 할랄 케밥과 피데를 맛볼 수 있는 부산의 대표 터키 음식점",
+      "sources": [
+        0
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "한국이슬람교 부산성원 인근에 위치하여 이국적인 터키 문화와 분위기를 경험할 수 있음",
+      "sources": [
+        0
+      ],
+      "type": "운영·접근 편의"
+    }
+  ]
+}

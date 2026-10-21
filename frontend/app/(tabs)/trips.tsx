@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
-import { ActivityIndicator, Image, Modal, Pressable, StyleSheet, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Modal, Pressable, StyleSheet, View } from 'react-native';
+import { AppImage } from '@/components/AppImage';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
@@ -14,12 +15,18 @@ import { GabolleMascot } from '@/components/DongbaekMascot';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import { useLayout } from '@/layout/useLayout';
+import { isAtLeast } from '@/layout/breakpoints';
 import { deleteTrip, loadTrips, resolveTripItinerary, type TripsLoadResult, type TripSummaryDto } from '@/trip/trips';
 import { humanTripTitle, tripDatesLabel, tripNameOrDates } from '@/trip/tripNaming';
 import { leaveTrip } from '@/trip/collaboration';
 import { TripNameSheet } from '@/trip/TripNameSheet';
+import { TripActionSheet } from '@/trip/TripActionSheet';
+import { TripRatingStars } from '@/trip/TripRatingStars';
+import { stopNameForLanguage } from '@/discovery/romanize';
 import { enCount, enPlural, txf } from '@/i18n/format';
 import { localizeMessage } from '@/i18n/messages';
+import { localDateKey } from '@/plan/tripProgress';
+import { TripWeatherCard } from '@/trip/TripWeatherPanel';
 
 /** 보관소에서 이 목록을 찾는 열쇠. 사람이 바뀌면 남의 목록을 보면 안 되므로 사용자 id 를 넣는다. */
 const TRIPS_KEY = (userId: string | undefined) => ['trips', userId ?? 'anonymous'] as const;
@@ -34,14 +41,56 @@ function cardTitle(trip: TripSummaryDto, tx: (ko: string, en: string) => string,
   return tripNameOrDates(trip, tx, locale);
 }
 
+/**
+ * 여행을 «언제»로 나눈다 — 지금 여행 중 · 다가오는 · 지난 · 일정을 못 만든(날짜가 지난 PLANNING).
+ * 날짜가 안 지난 PLANNING 은 다가오는 쪽에 「일정 준비 중」 표시로 둔다 — 곧 만들어질 수 있다.
+ */
+export function splitTrips(trips: TripSummaryDto[], now: Date = new Date()) {
+  const live: TripSummaryDto[] = []; const upcoming: TripSummaryDto[] = []; const past: TripSummaryDto[] = []; const failed: TripSummaryDto[] = [];
+  const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  for (const trip of trips) {
+    if (trip.status === 'PLANNING') {
+      ((trip.endDate ?? trip.startDate) && (trip.endDate ?? trip.startDate)! < todayKey ? failed : upcoming).push(trip);
+      continue;
+    }
+    const status = effectiveTripStatus(trip, now);
+    (status === 'IN_PROGRESS' ? live : status === 'COMPLETED' ? past : upcoming).push(trip);
+  }
+  const byStart = (a: TripSummaryDto, b: TripSummaryDto) => (a.startDate ?? '9999').localeCompare(b.startDate ?? '9999');
+  live.sort((a, b) => byStart(b, a));
+  upcoming.sort(byStart);
+  past.sort((a, b) => (b.endDate ?? b.startDate ?? '').localeCompare(a.endDate ?? a.startDate ?? ''));
+  return { live, upcoming, past, failed };
+}
+
+/** 별점을 매길 수 있는 여행 — 끝났고(COMPLETED) 일정이 있었던 것. 일정을 못 만든 PLANNING 은 다녀온 여행이 아니다. */
+export function ended(trip: TripSummaryDto, now: Date = new Date()) {
+  return trip.status !== 'PLANNING' && effectiveTripStatus(trip, now) === 'COMPLETED';
+}
+
+/** 「내일」 · 「D-9」 — 다가오는 여행의 오른쪽 표. 이틀 안이면 진하게. 지난·진행 중이면 null. */
+export function ddayLabel(trip: Pick<TripSummaryDto, 'startDate'>, tx: (ko: string, en: string) => string, now: Date = new Date()): { text: string; soon: boolean } | null {
+  if (!trip.startDate) return null;
+  const start = new Date(`${trip.startDate}T00:00:00`);
+  if (Number.isNaN(start.getTime())) return null;
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const days = Math.round((start.getTime() - today.getTime()) / 86400000);
+  if (days < 0) return null;
+  if (days === 0) return { text: tx('오늘', 'Today'), soon: true };
+  if (days === 1) return { text: tx('내일', 'Tomorrow'), soon: true };
+  return { text: `D-${days}`, soon: false };
+}
+
 export default function Trips() {
   const router = useRouter();
   const { open } = useLocalSearchParams<{ open?: string }>();
-  const { tx, locale } = useI18n();
-  const { accessToken, user } = useAuth();
+  const { tx, locale, language } = useI18n();
+  const { accessToken, user, ready: authReady } = useAuth();
   // 넓은 화면은 최대 1200 폭의 3열 카드 격자다(시안 docs/design_handoff_my_trips, S15P21E201-1587).
   // 전에는 카드 한 장이 1440 폭 전체로 늘어진 한 줄 목록이었다.
-  const { desktop } = useLayout();
+  const { desktop, width: screenWidth } = useLayout();
+  // 좁은 데스크톱(갤럭시 탭 세로 753)에서 3열이면 카드 제목·칩이 두세 줄로 꺾인다 — 2열로 (S15P21E201-1947).
+  const twoColumns = desktop && !isAtLeast(screenWidth, 'lg');
   const queryClient = useQueryClient();
   const [openingTripId, setOpeningTripId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState('');
@@ -57,8 +106,10 @@ export default function Trips() {
   // 조용히 다시 불러오면서 이전 값을 계속 보여준다.
   const tripsQuery = useQuery({
     queryKey: TRIPS_KEY(user?.userId),
-    queryFn: () => loadTrips(accessToken as string),
-    enabled: Boolean(accessToken),
+    // 비회원도 부른다 — 서버가 이 기기의 출입증으로 만든 여행을 준다(S15P21E201-317). 인증을 다 읽기 전에 부르면
+    // 로그인한 사람도 한 번은 비회원 목록(빈 목록)을 받으므로 그때까지만 기다린다.
+    queryFn: () => loadTrips(accessToken),
+    enabled: authReady,
   });
   const result: TripsLoadResult = tripsQuery.data ?? { state: 'success', trips: [] };
   const loading = tripsQuery.isPending;
@@ -86,13 +137,13 @@ export default function Trips() {
   };
 
   const confirmRemove = async () => {
-    if (!confirmTarget || !accessToken) return;
+    if (!confirmTarget) return;
     const trip = confirmTarget;
     setConfirmTarget(null);
     setRemovingTripId(trip.tripId);
     const outcome = trip.role === 'OWNER'
       ? await deleteTrip(trip.tripId, accessToken)
-      : user?.userId
+      : user?.userId && accessToken
         ? await leaveTrip(trip.tripId, user.userId, accessToken).then(() => ({ state: 'success' as const })).catch((error) => ({ state: 'error' as const, message: error instanceof Error ? error.message : tx('여행에서 나가지 못했어요.', "Couldn't leave the trip.") }))
         : { state: 'error' as const, message: tx('로그인이 필요해요.', 'Please sign in.') };
     setRemovingTripId(null);
@@ -109,26 +160,63 @@ export default function Trips() {
   };
 
   const trips = result.state === 'success' ? result.trips : [];
+  const [showPast, setShowPast] = useState(false);
+  const [showFailed, setShowFailed] = useState(false);
+  const sections = splitTrips(trips);
+  // 🔴 날씨·준비물로 왔는데 고를 것이 하나뿐이면 고르게 하지 않는다 — 홈의 날씨를 누르면 여행 목록이 먼저 떠서
+  //    「날씨를 눌렀는데 내 여행이 나온다」였다(사용자 지적 2026-10-02). 지금 여행 중이면 그 여행, 아니면 다가오는
+  //    여행이 하나일 때 그 여행으로 바로 간다. 둘 이상이면 고르는 화면 그대로.
+  const prepareTarget = open === 'prepare' && result.state === 'success' && !loading
+    ? sections.live[0] ?? (sections.upcoming.filter((trip) => trip.status !== 'PLANNING').length === 1 ? sections.upcoming.find((trip) => trip.status !== 'PLANNING') : undefined)
+    : undefined;
+  // 고를 여행이 없으면 「골라주세요」가 아니라 오늘 날씨를 제목으로 — 고를 것이 없는데 고르라고 하지 않는다
+  const weatherOnly = open === 'prepare' && (!accessToken || (!loading && result.state === 'success' && trips.length === 0));
+  useEffect(() => {
+    // 🔴 replace 였다 — 탭 화면을 바꿔치기해 돌아갈 곳이 없어 날씨·준비물에서 뒤로 단추·스와이프가 안 먹었다(S15P21E201-1998).
+    //    open 을 먼저 지워 돌아왔을 때 다시 넘어가지 않게 하고, push 로 쌓는다.
+    if (prepareTarget) { router.setParams({ open: undefined }); router.push(`/${prepareTarget.tripId}/prepare`); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prepareTarget?.tripId]);
+  const menuTrip = menuTripId ? trips.find((item) => item.tripId === menuTripId) ?? null : null;
 
-  return <View style={styles.shell}><Screen scroll wide withTabBar style={[styles.canvas, desktop && styles.canvasDesktop]}>
-    {/* 🔴 폰은 헤더 위 여백을 따로 안 준다 — Screen 이 이미 24 를 주고, 헤더의 24 가 겹쳐 48 이 비어 있었다(시안 변경 3).
-        헤더의 행동은 「새 여행」 하나다(시안 변경 2). */}
-    <View style={[styles.header, desktop && styles.headerDesktop]}><View style={styles.headerCopy}><Eyebrow>{open === 'prepare' ? tx('날씨·준비물', 'Weather & packing') : tx('여행 목록', 'My trips')}</Eyebrow><Text variant="display" weight="bold" style={styles.title}>{open === 'prepare' ? tx('확인할 여행을 골라주세요', 'Choose a trip to check') : tx('내 여행', 'My trips')}</Text><Text color={color.text.body}>{open === 'prepare' ? tx('여행 카드를 누르면 출발일 예보와 준비물을 보여드려요.', 'Tap a trip to see its departure forecast and packing tips.') : tx('내가 만들었거나 초대받은 여행이에요.', "Trips you've created or been invited to.")}</Text></View><View style={styles.headerActions}><Button label={tx('새 여행', 'New trip')} variant="outline" onPress={() => router.push('/plan')} containerStyle={styles.newTrip} /></View></View>
+  // 첫 방문지 — 이름 없는 여행은 제목이 날짜뿐이라 같은 날짜 여행 둘을 못 가렸다. 이름을 지어 붙이지 않고(1738) 아래 줄에 적는다.
+  const firstStop = (trip: TripSummaryDto) => {
+    // 영어 이름이 없으면 한글만 나왔다(「From 민락어민활어직판장」) — 일정 카드와 같은 규칙으로 읽는 법을 붙인다(S15P21E201-1867).
+    const name = trip.firstStopNameKo ? stopNameForLanguage(trip.firstStopNameKo, trip.firstStopNameEn, language) : trip.firstStopNameEn;
+    return name ? txf(tx, '%s부터', 'From %s', name) : null;
+  };
 
-    {!accessToken ? <View style={styles.state}><Text weight="bold">{tx('비회원으로 여행 만들기 화면을 둘러볼 수 있어요.', 'You can browse the trip planner as a guest.')}</Text><Text color={color.text.body}>{tx('내 여행을 저장하고 다시 보려면 로그인해 주세요.', 'Sign in to save and revisit your trips.')}</Text>{/* 🔴 「여행 만들기 둘러보기」를 뺐다 (S15P21E201-1795). 바로 위 헤더의 「새 여행」이
-        같은 /plan 으로 가서, 비회원 화면에만 같은 일을 하는 단추가 둘이었다. 헤더는 로그인
-        여부와 상관없이 늘 그려지므로 둘이 «동시에» 보였다. 이 카드가 할 일은 로그인 유도다
-        — 문구도 「저장하고 다시 보려면 로그인해 주세요」 이다. */}<Button label={tx('로그인', 'Sign in')} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/trips' } })} containerStyle={styles.emptyCta} /></View> : null}
 
-    {feedback ? <Pressable accessibilityRole="button" accessibilityLabel={tx('안내 닫기', 'Dismiss notice')} accessibilityLiveRegion="polite" onPress={() => setFeedback('')} style={styles.feedback}><Text variant="caption" weight="bold" color={color.text.onAction}>{feedback}</Text><Text variant="caption" color={color.text.onAction}>{tx('닫기', 'Close')}</Text></Pressable> : null}
+  // 작은 줄 — 사진(있으면) · 제목 · 날짜 · 첫 방문지 · 「내일」·「D-9」. 이름·삭제는 ⋯ 안에.
+  const row = (trip: TripSummaryDto) => {
+    const dday = ddayLabel(trip, tx);
+    const pending = trip.status === 'PLANNING';
+    const sub = [humanTripTitle(trip.title) ? dateLabel(trip, tx, locale) : null, firstStop(trip), txf(tx, '%s명', '%s ' + enPlural(trip.partySize, 'traveler', 'travelers'), trip.partySize), trip.role !== 'OWNER' ? tx('초대받은 여행', 'Invited trip') : null].filter(Boolean).join(' · ');
+    const rated = ended(trip) && Boolean(accessToken);
+    return <View key={trip.tripId} style={rated ? styles.rowWithRating : undefined}>
+      <View style={[styles.row, rated && styles.rowNoBorder]}>
+        <Pressable accessibilityRole="button" accessibilityState={{ busy: openingTripId === trip.tripId }} accessibilityLabel={txf(tx, '%s 여행 열기', 'Open trip %s', cardTitle(trip, tx, locale))} disabled={openingTripId === trip.tripId || removingTripId === trip.tripId} onPress={() => void openTrip(trip)} style={({ pressed }) => [styles.rowMain, pressed && styles.cardPressed]}>
+          <RowThumb uri={trip.coverImageUrl} />
+          <View style={styles.rowCopy}>
+            {/* 🔴 D-day 표는 제목 줄이 아니라 아래 줄 맨 앞 — 오른쪽에 두니 날짜 제목 「… – 10월 3일 (토)」의 끝이 잘리거나 「(토)」만 둘째 줄로 떨어졌다. */}
+            <Text weight="bold" numberOfLines={2}>{cardTitle(trip, tx, locale)}</Text>
+            <View style={styles.rowSub}>
+              {pending ? <View style={styles.statusPillPending}><Text variant="micro" weight="bold" color={color.state.danger} numberOfLines={1}>{tx('일정 준비 중', 'Itinerary pending')}</Text></View> : dday ? <View style={[styles.ddayChip, dday.soon && styles.ddayChipSoon]}><Text variant="micro" weight="bold" color={dday.soon ? color.text.onAction : color.text.heading} numberOfLines={1}>{dday.text}</Text></View> : null}
+              <Text variant="caption" color={color.text.muted} numberOfLines={1} style={styles.rowSubText}>{sub}</Text>
+            </View>
+          </View>
+          {openingTripId === trip.tripId ? <ActivityIndicator color={color.action.primary} /> : null}
+        </Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel={tx('더 보기', 'More')} accessibilityState={{ expanded: menuTripId === trip.tripId }} onPress={() => setMenuTripId((open) => (open === trip.tripId ? null : trip.tripId))} style={({ pressed }) => [styles.moreButton, pressed && styles.removeButtonPressed]}>
+          <Text variant="title" color={color.text.muted}>⋯</Text>
+        </Pressable>
+      </View>
+      {/* 끝난 여행에만 별점 줄(S15P21E201-1908). 줄 Pressable 의 형제라 별을 눌러도 여행이 안 열린다. */}
+      {rated && accessToken ? <View style={styles.rowRating}><TripRatingStars tripId={trip.tripId} accessToken={accessToken} /></View> : null}
+    </View>;
+  };
 
-    {accessToken && loading ? <View accessibilityLiveRegion="polite" style={styles.state}><ActivityIndicator color={color.action.primary} /><Text weight="bold">{tx('내 여행을 불러오고 있어요', 'Loading your trips')}</Text></View> : null}
-
-    {accessToken && !loading && result.state !== 'success' ? <View style={styles.state}><GabolleMascot state="sad" style={styles.sadMascot} /><Text weight="bold">{result.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : tx('내 여행을 불러오지 못했어요', 'Could not load your trips')}</Text><Text color={color.text.body}>{localizeMessage(tx, result.message)}</Text><Button compact label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void reload()} /></View> : null}
-
-    {accessToken && !loading && result.state === 'success' && trips.length === 0 ? <View style={styles.empty}><GabolleMascot state="open" style={styles.emptyMascot} /><Text variant="title" weight="bold">{tx('아직 만든 여행이 없어요', 'No trips yet')}</Text><Text color={color.text.body} style={styles.center}>{tx('여행을 만들면 이곳에 보여드려요.', "Once you create a trip, it'll show up here.")}</Text><Button label={tx('첫 여행 만들기', 'Create your first trip')} onPress={() => router.push('/plan')} containerStyle={styles.emptyCta} /></View> : null}
-
-    {accessToken && !loading && result.state === 'success' && trips.length > 0 ? <View style={[styles.list, desktop && styles.grid]}>{trips.map((trip) => <View key={trip.tripId} style={desktop ? styles.gridSlot : undefined}><View style={[styles.card, desktop && styles.cardInGrid]}><Pressable accessibilityRole="button" accessibilityState={{ busy: openingTripId === trip.tripId }} accessibilityLabel={open === 'prepare' ? txf(tx, '%s 날씨와 준비물 보기', 'View weather and packing for %s', cardTitle(trip, tx, locale)) : txf(tx, '%s 여행 열기', 'Open trip %s', cardTitle(trip, tx, locale))} disabled={openingTripId === trip.tripId || removingTripId === trip.tripId} onPress={() => void openTrip(trip)} style={({ pressed }) => [styles.cardBody, pressed && styles.cardPressed]}>
+  const bigCard = (trip: TripSummaryDto) => <View key={trip.tripId} style={desktop ? [styles.gridSlot, twoColumns && styles.gridSlotTwo] : undefined}><View style={[styles.card, desktop && styles.cardInGrid]}><Pressable accessibilityRole="button" accessibilityState={{ busy: openingTripId === trip.tripId }} accessibilityLabel={open === 'prepare' ? txf(tx, '%s 날씨와 준비물 보기', 'View weather and packing for %s', cardTitle(trip, tx, locale)) : txf(tx, '%s 여행 열기', 'Open trip %s', cardTitle(trip, tx, locale))} disabled={openingTripId === trip.tripId || removingTripId === trip.tripId} onPress={() => void openTrip(trip)} style={({ pressed }) => [styles.cardBody, pressed && styles.cardPressed]}>
       <TripCover uri={trip.coverImageUrl} />
       <View style={styles.cardTop}><View style={styles.cardCopy}><Text variant="title" weight="bold">{cardTitle(trip, tx, locale)}</Text>{humanTripTitle(trip.title) ? <Text variant="caption" color={color.text.muted}>{dateLabel(trip, tx, locale)}</Text> : null}{trip.role !== 'OWNER' ? <Text variant="caption" color={color.text.muted}>{tx('초대받은 여행', 'Invited trip')}</Text> : null}</View>{openingTripId === trip.tripId ? <ActivityIndicator color={color.action.primary} /> : <Text variant="title" color={color.text.muted}>›</Text>}</View>
       <View style={styles.meta}>
@@ -144,6 +232,7 @@ export default function Trips() {
       </View>
       </Pressable>
       {/* 🔴 행동 단추는 카드 Pressable 의 «형제»다. 안에 넣으면 웹에서 <button> 속 <button> 이 되어(RN-web 은 button 역할을 진짜 button 으로 그린다) 안쪽 단추가 안 눌리거나 둘 다 눌린다. */}
+      {ended(trip) && accessToken ? <View style={styles.cardRating}><TripRatingStars tripId={trip.tripId} accessToken={accessToken} /></View> : null}
       <View style={styles.cardActions}>
       {/* VIEWER 만 이름을 못 바꾼다. 서버가 그렇게 정했다(TripTitleService) — OWNER 뿐
           아니라 EDITOR 도 바꿀 수 있다. 여기서 더 좁히면 있는 권한을 화면이 숨기게 된다.
@@ -166,22 +255,79 @@ export default function Trips() {
         <Text variant="title" color={color.text.muted}>⋯</Text>
       </Pressable>
       </View>
-      {menuTripId === trip.tripId ? (
-        <View style={styles.cardMenu}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={trip.role === 'OWNER' ? tx('여행 삭제', 'Delete trip') : tx('여행에서 나가기', 'Leave trip')}
-            accessibilityState={{ busy: removingTripId === trip.tripId, disabled: removingTripId === trip.tripId }}
-            disabled={removingTripId === trip.tripId}
-            onPress={(event) => { event.stopPropagation(); setMenuTripId(null); setConfirmTarget(trip); }}
-            style={({ pressed }) => [styles.cardMenuItem, pressed && styles.removeButtonPressed]}
-          >
-            <Text variant="caption" weight="bold" color={color.state.danger}>{removingTripId === trip.tripId ? tx('처리 중…', 'Working…') : trip.role === 'OWNER' ? tx('여행 삭제', 'Delete trip') : tx('여행에서 나가기', 'Leave trip')}</Text>
-          </Pressable>
-        </View>
-      ) : null}
-    </View></View>)}</View> : null}
-  </Screen><TabBar active="map" />
+    </View></View>;
+
+  return <View style={styles.shell}><Screen scroll wide withTabBar style={[styles.canvas, desktop && styles.canvasDesktop]}>
+    {/* 🔴 폰은 헤더 위 여백을 따로 안 준다 — Screen 이 이미 24 를 주고, 헤더의 24 가 겹쳐 48 이 비어 있었다(시안 변경 3).
+        헤더의 행동은 「새 여행」 하나다(시안 변경 2). */}
+    <View style={[styles.header, desktop && styles.headerDesktop]}><View style={styles.headerCopy}><Eyebrow>{open === 'prepare' ? tx('날씨·준비물', 'Weather & packing') : tx('여행 목록', 'My trips')}</Eyebrow><Text variant="display" weight="bold" style={styles.title}>{weatherOnly ? tx('오늘 부산 날씨', 'Busan today') : open === 'prepare' ? tx('확인할 여행을 골라주세요', 'Choose a trip to check') : tx('내 여행', 'My trips')}</Text><Text color={color.text.body}>{weatherOnly ? tx('여행을 만들면 출발일 예보와 준비물도 챙겨드려요.', 'Make a trip and we will also show its departure forecast and packing tips.') : open === 'prepare' ? tx('여행 카드를 누르면 출발일 예보와 준비물을 보여드려요.', 'Tap a trip to see its departure forecast and packing tips.') : tx('내가 만들었거나 초대받은 여행이에요.', "Trips you've created or been invited to.")}</Text></View><View style={styles.headerActions}>{/* 🔴 폭을 96 으로 박으면 일본어 「新しい旅行」이 두 줄로 꺾였다(5개 언어 점검 2026-09-29) — 최소 폭만 둔다. */}<Button label={tx('새 여행', 'New trip')} variant="outline" onPress={() => router.push('/plan')} containerStyle={styles.newTrip} /></View></View>
+
+    {!accessToken ? <View style={styles.state}><Text weight="bold">{tx('로그인하지 않고 만든 여행은 이 기기에만 있어요.', 'Trips made without signing in live only on this device.')}</Text><Text color={color.text.body}>{tx('30일 넘게 쓰지 않으면 지워질 수 있어요. 로그인하면 계정으로 옮겨져 어느 기기에서든 볼 수 있어요.', 'They may be deleted after 30 days without use. Sign in to move them to your account and open them on any device.')}</Text>{/* 🔴 「여행 만들기 둘러보기」를 뺐다 (S15P21E201-1795). 바로 위 헤더의 「새 여행」이
+        같은 /plan 으로 가서, 비회원 화면에만 같은 일을 하는 단추가 둘이었다. 헤더는 로그인
+        여부와 상관없이 늘 그려지므로 둘이 «동시에» 보였다. 이 카드가 할 일은 로그인 유도다
+        — 문구도 「저장하고 다시 보려면 로그인해 주세요」 이다. */}<Button label={tx('로그인', 'Sign in')} onPress={() => router.push({ pathname: '/sign-in', params: { returnTo: '/trips' } })} containerStyle={styles.emptyCta} /></View> : null}
+
+    {feedback ? <Pressable accessibilityRole="button" accessibilityLabel={tx('안내 닫기', 'Dismiss notice')} accessibilityLiveRegion="polite" onPress={() => setFeedback('')} style={styles.feedback}><Text variant="caption" weight="bold" color={color.text.onAction}>{feedback}</Text><Text variant="caption" color={color.text.onAction}>{tx('닫기', 'Close')}</Text></Pressable> : null}
+
+    {authReady && loading ? <View accessibilityLiveRegion="polite" style={styles.state}><ActivityIndicator color={color.action.primary} /><Text weight="bold">{tx('내 여행을 불러오고 있어요', 'Loading your trips')}</Text></View> : null}
+
+    {authReady && !loading && result.state !== 'success' ? <View style={styles.state}><GabolleMascot state="sad" style={styles.sadMascot} /><Text weight="bold">{result.state === 'offline' ? tx('인터넷 연결을 확인해 주세요', 'Please check your internet connection') : tx('내 여행을 불러오지 못했어요', 'Could not load your trips')}</Text><Text color={color.text.body}>{localizeMessage(tx, result.message)}</Text><Button compact label={tx('다시 시도', 'Try again')} variant="tertiary" onPress={() => void reload()} /></View> : null}
+
+    {/* 날씨를 보러 왔는데 여행이 없으면 — 오늘 부산 날씨를 바로(고를 여행이 없어 날씨에 못 닿던 것) */}
+    {weatherOnly ? <TripWeatherCard date={localDateKey(new Date())} /> : null}
+
+    {authReady && !loading && result.state === 'success' && trips.length === 0 ? <View style={styles.empty}><GabolleMascot state="open" style={styles.emptyMascot} /><Text variant="title" weight="bold">{tx('아직 만든 여행이 없어요', 'No trips yet')}</Text><Text color={color.text.body} style={styles.center}>{tx('여행을 만들면 이곳에 보여드려요.', "Once you create a trip, it'll show up here.")}</Text><Button label={tx('첫 여행 만들기', 'Create your first trip')} onPress={() => router.push('/plan')} containerStyle={styles.emptyCta} /></View> : null}
+
+    {authReady && !loading && result.state === 'success' && trips.length > 0 ? <View style={styles.sections}>
+      {/* 🔴 여행을 «언제»로 나눈다(UI 캔버스 ⑥) — 전에는 만든 순서로 같은 큰 카드가 이어져 한 화면에 1.5개였고,
+          진행 중·예정·지난 여행이 섞였다(실계정 31개). 지금 여행 중인 것만 크게, 나머지는 작은 줄로(폰). */}
+      {sections.live.length ? <View style={styles.section}>
+        <Text variant="caption" weight="bold" color={color.text.eyebrow}>{tx('지금 여행 중', 'On a trip now')}</Text>
+        <View style={[styles.list, desktop && styles.grid]}>{(desktop ? sections.live : sections.live.slice(0, 1)).map(bigCard)}</View>
+        {!desktop && sections.live.length > 1 ? <>
+          <Text variant="caption" color={color.text.muted}>{tx('그 밖에 진행 중인 여행', 'Other trips in progress')}</Text>
+          <View style={styles.rows}>{sections.live.slice(1).map(row)}</View>
+        </> : null}
+      </View> : null}
+      {sections.upcoming.length ? <View style={styles.section}>
+        <Text variant="caption" weight="bold" color={color.text.eyebrow}>{txf(tx, '다가오는 여행 %s', 'Upcoming %s', String(sections.upcoming.length))}</Text>
+        {desktop ? <View style={[styles.list, styles.grid]}>{sections.upcoming.map(bigCard)}</View> : <View style={styles.rows}>{sections.upcoming.map(row)}</View>}
+      </View> : null}
+      {sections.past.length ? <View style={styles.section}>
+        <Pressable accessibilityRole="button" accessibilityState={{ expanded: showPast }} onPress={() => setShowPast((v) => !v)} style={styles.foldHead}>
+          <Text variant="caption" weight="bold" color={color.text.eyebrow}>{txf(tx, '지난 여행 %s', 'Past trips %s', String(sections.past.length))}</Text>
+          <Text variant="caption" weight="bold" color={color.text.muted}>{showPast ? tx('접기', 'Hide') : tx('펼치기', 'Show')}</Text>
+        </Pressable>
+        {showPast ? (desktop ? <View style={[styles.list, styles.grid]}>{sections.past.map(bigCard)}</View> : <View style={styles.rows}>{sections.past.map(row)}</View>) : null}
+      </View> : null}
+      {sections.failed.length ? <View style={styles.section}>
+        <Pressable accessibilityRole="button" accessibilityState={{ expanded: showFailed }} onPress={() => setShowFailed((v) => !v)} style={styles.foldHead}>
+          <Text variant="caption" weight="bold" color={color.text.eyebrow}>{txf(tx, '일정을 만들지 못한 여행 %s', 'Trips without an itinerary %s', String(sections.failed.length))}</Text>
+          <Text variant="caption" weight="bold" color={color.text.muted}>{showFailed ? tx('접기', 'Hide') : tx('펼치기', 'Show')}</Text>
+        </Pressable>
+        {showFailed ? <>
+          <Text variant="caption" color={color.text.body}>{tx('날짜가 지났는데 일정이 만들어지지 않은 여행이에요. ⋯ 에서 지우고 새로 만들어 주세요.', 'These trips passed their dates without an itinerary. Delete them from ⋯ and start a new one.')}</Text>
+          <View style={styles.rows}>{sections.failed.map(row)}</View>
+        </> : null}
+      </View> : null}
+    </View> : null}
+  </Screen>
+    {/* 🔴 안내는 목록 맨 위에만 있어서, 아래쪽 여행을 누르면 화면 밖에 떠 「눌러도 안 열린다」로 보였다(S15P21E201-1904, 팀원 보고).
+        탭바 바로 위에 한 번 더 띄운다. */}
+    {feedback ? <Pressable accessibilityRole="button" accessibilityLabel={tx('안내 닫기', 'Dismiss notice')} onPress={() => setFeedback('')} style={[styles.feedback, styles.feedbackFloat]}><Text variant="caption" weight="bold" color={color.text.onAction} style={styles.feedbackText}>{feedback}</Text><Text variant="caption" color={color.text.onAction}>{tx('닫기', 'Close')}</Text></Pressable> : null}
+    <TabBar active="map" />
+
+  {/* ⋯ 메뉴 — 목록 사이에 끼우지 않고 아래 시트로(S15P21E201-1867). 어느 여행인지 제목으로 말한다. */}
+  {menuTrip ? <TripActionSheet
+    title={cardTitle(menuTrip, tx, locale)}
+    subtitle={humanTripTitle(menuTrip.title) ? dateLabel(menuTrip, tx, locale) : firstStop(menuTrip)}
+    tx={tx}
+    onClose={() => setMenuTripId(null)}
+    actions={[
+      ...(menuTrip.role !== 'VIEWER' ? [{ key: 'name', label: menuTrip.title?.trim() ? tx('이름 바꾸기', 'Rename') : tx('이름 붙이기', 'Name it'), onPress: () => { setMenuTripId(null); setNaming(menuTrip); } }] : []),
+      { key: 'remove', danger: true, disabled: removingTripId === menuTrip.tripId, label: removingTripId === menuTrip.tripId ? tx('처리 중…', 'Working…') : menuTrip.role === 'OWNER' ? tx('여행 삭제', 'Delete trip') : tx('여행에서 나가기', 'Leave trip'), onPress: () => { setMenuTripId(null); setConfirmTarget(menuTrip); } },
+    ]}
+  /> : null}
 
   {naming ? <TripNameSheet
     tripId={naming.tripId}
@@ -227,8 +373,44 @@ export default function Trips() {
  */
 function TripCover({ uri }: { uri: string | null }) {
   const { desktop } = useLayout();
-  if (!uri) return desktop ? <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.cover, styles.coverDesktop, styles.coverBlank]} /> : null;
-  return <Image source={{ uri }} resizeMode="cover" accessibilityLabel="" style={[styles.cover, desktop && styles.coverDesktop]} />;
+  const { uri: loadable, attempt } = useLoadableUri(uri);
+  if (!loadable) return desktop ? <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.cover, styles.coverDesktop, styles.coverBlank]} /> : null;
+  return <AppImage retries={0} key={attempt} source={{ uri: loadable }} resizeMode="cover" accessibilityLabel="" onError={() => markBroken(loadable)} style={[styles.cover, desktop && styles.coverDesktop]} />;
+}
+
+/** 작은 줄의 사진 — 없거나 못 불러오면 연한 빈 판. */
+function RowThumb({ uri }: { uri: string | null }) {
+  const { uri: loadable, attempt } = useLoadableUri(uri);
+  if (!loadable) return <View style={[styles.rowThumb, styles.rowThumbBlank]} />;
+  return <AppImage retries={0} key={attempt} source={{ uri: loadable }} resizeMode="cover" accessibilityLabel="" onError={() => markBroken(loadable)} style={styles.rowThumb} />;
+}
+
+/**
+ * 못 불러온 사진은 사진이 없는 것과 같게 그린다 (S15P21E201-1940).
+ * 🔴 www.visitbusan.net 은 TLS 인증서 중간 고리를 안 보내서 안드로이드에서만 사진을 못 받는다(웹은 받는다).
+ *    Image 배경색만 남은 회색 판이 「지금 여행 중」 카드에 떴다. 한 번 실패한 주소는 화면을 다시 그려도 다시 안 부른다.
+ */
+// 🔴 한 번 실패는 다시 불러 본다 — 두 번 실패해야 빈 판(S15P21E201-1967). 전에는 한 번의 실패로 앱을 끌 때까지
+//    그 주소를 안 불러서, 탭을 돌리고 언어를 바꾼 뒤 멀쩡한 커버가 회색 판으로 남았다(서버 사진은 그때도 200).
+const MAX_FAILURES = 2;
+const failures = new Map<string, number>();
+const brokenListeners = new Set<() => void>();
+function markBroken(uri: string) {
+  const count = failures.get(uri) ?? 0;
+  if (count >= MAX_FAILURES) return;
+  failures.set(uri, count + 1);
+  brokenListeners.forEach((listener) => listener());
+}
+/** 불러도 되는 주소와 몇 번째 시도인지 — 시도가 바뀌면 사진 칸을 새로 만들어 다시 부른다. */
+function useLoadableUri(uri: string | null): { uri: string | null; attempt: number } {
+  const [, bump] = useState(0);
+  useEffect(() => {
+    const listener = () => bump((n) => n + 1);
+    brokenListeners.add(listener);
+    return () => { brokenListeners.delete(listener); };
+  }, []);
+  const attempt = uri ? failures.get(uri) ?? 0 : 0;
+  return { uri: uri && attempt < MAX_FAILURES ? uri : null, attempt };
 }
 
 const styles = StyleSheet.create({
@@ -238,20 +420,40 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: spacing[3] },
   // 넓은 화면은 윗줄 메뉴 아래라 24 를 그대로 두고, 「새 여행」을 제목 덩어리 바닥에 맞춘다(시안).
   headerDesktop: { marginTop: spacing[6], alignItems: 'flex-end' },
-  headerCopy: { flex: 1, minWidth: 0 }, title: { marginTop: spacing[1], marginBottom: spacing[2] }, headerActions: { gap: spacing[2] }, newTrip: { width: 96, minHeight: 48, flexShrink: 0 },
+  headerCopy: { flex: 1, minWidth: 0 }, title: { marginTop: spacing[1], marginBottom: spacing[2] }, headerActions: { gap: spacing[2] }, newTrip: { width: undefined, minWidth: 96, minHeight: 48, flexShrink: 0 },
+  feedbackFloat: { position: 'absolute', left: spacing[4], right: spacing[4], bottom: 120, marginTop: 0, paddingVertical: spacing[3], zIndex: 10 },
+  feedbackText: { flex: 1 },
   feedback: { minHeight: 48, marginTop: spacing[4], paddingHorizontal: spacing[4], borderRadius: radius.md, backgroundColor: color.brand.navy, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing[3] }, state: { minHeight: 220, alignItems: 'center', justifyContent: 'center', gap: spacing[3] }, sadMascot: { width: 96, height: 96 }, emptyMascot: { width: 110, height: 110 },
   empty: { minHeight: 320, marginTop: spacing[6], padding: spacing[6], borderRadius: radius.lg, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center', gap: spacing[3] }, emptyMark: { width: 68, height: 68, borderRadius: radius.full, backgroundColor: color.surface.tint, alignItems: 'center', justifyContent: 'center' }, emptyIcon: { width: 32, height: 32, tintColor: color.text.muted }, center: { maxWidth: 300, textAlign: 'center' }, emptyCta: { minWidth: 180, marginTop: spacing[2] },
   cover: { width: '100%', height: 132, borderRadius: radius.md, backgroundColor: color.surface.soft },
   coverDesktop: { height: 160 }, coverBlank: { backgroundColor: color.surface.tint },
-  list: { marginTop: spacing[6], gap: spacing[3] },
+  list: { gap: spacing[3] },
+  sections: { marginTop: spacing[6], gap: spacing[6] },
+  section: { gap: spacing[3] },
+  foldHead: { minHeight: 36, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  rows: { borderRadius: radius.lg, backgroundColor: color.surface.card, overflow: 'hidden' },
+  row: { flexDirection: 'row', alignItems: 'center', paddingLeft: spacing[3], borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: color.surface.border },
+  rowMain: { flex: 1, minWidth: 0, minHeight: 72, flexDirection: 'row', alignItems: 'center', gap: spacing[3], paddingVertical: spacing[3] },
+  rowThumb: { width: 48, height: 48, borderRadius: radius.md },
+  rowThumbBlank: { backgroundColor: color.surface.tint },
+  rowCopy: { flex: 1, minWidth: 0, gap: 4 },
+  rowSub: { flexDirection: 'row', alignItems: 'center', gap: spacing[2], minWidth: 0 },
+  rowSubText: { flexShrink: 1 },
+  ddayChip: { paddingHorizontal: spacing[2], paddingVertical: 2, borderRadius: radius.full, backgroundColor: color.surface.soft },
+  ddayChipSoon: { backgroundColor: color.action.secondary },
   // 3열 격자 — 칸 사이 16 은 칸마다 사방 8 로 내고, 바깥 8 은 음수 여백으로 거둔다(퍼센트 폭에서 gap 을 빼는 계산이 RN 에 없다).
   // 한 줄의 칸은 줄 높이만큼 늘어나고(stretch), 카드가 칸을 채워 같은 줄 카드 높이가 같다.
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 0, marginTop: spacing[6] - spacing[2], marginHorizontal: -spacing[2], marginBottom: -spacing[2] },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 0, marginTop: -spacing[2], marginHorizontal: -spacing[2], marginBottom: -spacing[2] },
   gridSlot: { width: '33.3333%', padding: spacing[2] },
+  gridSlotTwo: { width: '50%' },
   // 행동 줄(이름 바꾸기 / ⋯)이 늘 카드 바닥에 붙는다.
   cardInGrid: { flex: 1, justifyContent: 'space-between' }, cardBody: { gap: spacing[3] }, card: { padding: spacing[4], borderRadius: radius.lg, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card, gap: spacing[3], shadowColor: color.brand.navy, shadowOpacity: 0.06, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 2 }, cardPressed: { opacity: 0.72, transform: [{ scale: 0.99 }] }, cardTop: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] }, cardCopy: { flex: 1, gap: spacing[1] }, meta: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing[2] }, metaPill: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.surface.soft },
   statusPillLive: { flexDirection: 'row', alignItems: 'center', gap: spacing[1] }, liveDot: { width: 6, height: 6, borderRadius: radius.full, backgroundColor: color.state.success },
   statusPillPending: { paddingHorizontal: spacing[3], paddingVertical: spacing[1], borderRadius: radius.full, backgroundColor: color.state.dangerBg, borderWidth: 1, borderColor: color.state.danger },
+  cardRating: { paddingHorizontal: spacing[4], paddingBottom: spacing[2] },
+  rowRating: { paddingLeft: spacing[3] + 48 + spacing[3], paddingBottom: spacing[2] },
+  rowNoBorder: { borderBottomWidth: 0 },
+  rowWithRating: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: color.surface.border },
   cardActions: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: spacing[2] },
   removeButton: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[3] }, moreButton: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full }, cardMenu: { alignSelf: 'flex-end', borderRadius: radius.md, borderWidth: 1, borderColor: color.surface.field, backgroundColor: color.surface.card }, cardMenuItem: { minHeight: 44, justifyContent: 'center', paddingHorizontal: spacing[4] }, removeButtonPressed: { opacity: 0.6 },
   modalBackdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(25,25,25,0.62)' },

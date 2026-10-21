@@ -12,7 +12,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.MinIOContainer;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
 import com.gabolle.backend.story.storage.S3FileStorage;
@@ -60,16 +61,18 @@ class S3FileStorageTest {
 		} else {
 			Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable(),
 					"MinIO 를 못 구한다 — " + ENDPOINT_KEY + " 를 주거나 도커를 켜십시오");
-			// 도커 허브가 minio/minio 공개 배포를 접어서 quay.io 에서 받는다. 같은 판을 다른 창고에서
-			// 받는 것뿐이라 태그는 그대로다. asCompatibleSubstituteFor 가 없으면 Testcontainers 가
-			// 모르는 이미지 이름이라며 거부한다.
-			MinIOContainer container = new MinIOContainer(
-					DockerImageName.parse("quay.io/minio/minio:RELEASE.2024-10-13T13-34-11Z")
-						.asCompatibleSubstituteFor("minio/minio"));
+			// 🔴 minio/minio(도커 허브)도 quay.io/minio/minio 도 공개 배포가 내려갔다(2026-10-21, S15P21E201-2074).
+			//    같은 판(2024-10-13)을 담은 bitnamilegacy 이미지를 쓴다. MinIOContainer 는 「server /data」 명령을
+			//    붙이는데 bitnami 이미지는 자기 시작 스크립트로 뜨므로 일반 컨테이너로 띄운다.
+			accessKey = "gabolle";
+			secretKey = "gabolle_test_minio";
+			GenericContainer<?> container = new GenericContainer<>(DockerImageName.parse("bitnamilegacy/minio:2024.10.13"))
+				.withEnv("MINIO_ROOT_USER", accessKey)
+				.withEnv("MINIO_ROOT_PASSWORD", secretKey)
+				.withExposedPorts(9000)
+				.waitingFor(Wait.forHttp("/minio/health/live").forPort(9000));
 			container.start();
-			endpoint = container.getS3URL();
-			accessKey = container.getUserName();
-			secretKey = container.getPassword();
+			endpoint = "http://" + container.getHost() + ":" + container.getMappedPort(9000);
 		}
 		try (MinioClient client = MinioClient.builder()
 				.endpoint(endpoint)

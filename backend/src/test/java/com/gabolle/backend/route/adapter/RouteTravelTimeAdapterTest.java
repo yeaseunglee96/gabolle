@@ -34,6 +34,19 @@ class RouteTravelTimeAdapterTest {
 	}
 
 	@Test
+	@DisplayName("🔴 계단을 피하는 길을 물으면 경로 질문에 그대로 싣는다 — 옛 모양으로 물으면 보통 길이다")
+	void stepFreeIsCarriedIntoTheQuery() {
+		when(this.routeQueryService.find(any())).thenReturn(leg(false));
+		ArgumentCaptor<RouteQuery> asked = ArgumentCaptor.forClass(RouteQuery.class);
+
+		this.adapter.between(35.1587, 129.1604, 35.1796, 129.0756, "WALK", true);
+		this.adapter.between(35.1587, 129.1604, 35.1796, 129.0756, "WALK");
+
+		verify(this.routeQueryService, org.mockito.Mockito.times(2)).find(asked.capture());
+		assertThat(asked.getAllValues()).extracting(RouteQuery::stepFree).containsExactly(true, false);
+	}
+
+	@Test
 	@DisplayName("실제 경로를 받으면 VERIFIED 로 옮긴다")
 	void realRouteBecomesVerified() {
 		when(this.routeQueryService.find(any())).thenReturn(leg(false));

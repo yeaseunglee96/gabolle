@@ -6,6 +6,11 @@ import { singleFileFormData } from '@/api/multipart';
 import { txf } from '@/i18n/format';
 import type { StoryPlaceSnapshot } from '@/social/regionSearch';
 import { decodeHtmlText } from '@/social/htmlText';
+import { localNameFor, type LocalNames } from '@/discovery/localNames';
+import { romanizeKorean } from '@/discovery/romanize';
+import { resolveTextLanguage } from '@/i18n/languages';
+import type { LocalAddresses } from '@/discovery/localAddress';
+import type { LanguageCode } from '@/i18n/languages';
 
 export type StoryVisibility = 'PUBLIC' | 'FOLLOWERS' | 'PRIVATE';
 /** MINE 은 화면만의 갈래다 — 서버 피드에는 없고 내 프로필 기록 목록(loadUserStories)으로 채운다. */
@@ -31,7 +36,8 @@ export type StoryDto = {
   author: { id: string; displayName: string; avatarUrl?: string | null };
   body: string;
   region?: string | null;
-  place?: { id: string; name: string; lat: number | null; lng: number | null } | null;
+  /** nameEn·addressEn — 서버가 영문 값이 있을 때만 싣는다(S15P21E201-1189, NON_NULL). 화면에 그릴 이름은 storyPlaceName. */
+  place?: { id: string; name: string; lat: number | null; lng: number | null; address?: string | null; nameEn?: string; addressEn?: string; localNames?: LocalNames; localAddresses?: LocalAddresses } | null;
   tripId?: string | null;
   images: Array<{ url: string; position: number }>;
   visibility: StoryVisibility;
@@ -104,7 +110,7 @@ export function storyMetricLabels(
     labels.push(tx(`조회 ${story.viewCount}`, `${story.viewCount} views`));
   }
   if (typeof story.linkCopyCount === 'number') {
-    labels.push(tx(`인용 ${story.linkCopyCount}`, `${story.linkCopyCount} quotes`));
+    labels.push(tx(`인용 ${story.linkCopyCount}`, story.linkCopyCount === 1 ? '1 quote' : `${story.linkCopyCount} quotes`));
   }
   return labels;
 }
@@ -145,12 +151,24 @@ export async function getStoryReplies(storyId: string, accessToken: string | nul
 }
 
 /** 글(또는 댓글 — 같은 표라 같은 경로다) 본문을 고친다 — PATCH /api/v1/stories/{id}. */
-export async function updateStory(id: string, body: string, accessToken: string | null): Promise<StoryMutationResult> {
+/**
+ * 기록 고치기 — PATCH 는 없는 칸을 「안 바꾼다」로 읽는다(StoryUpdateRequest).
+ * 공개 범위는 작성자만 바꿀 수 있다(서버가 공동 작성자의 visibility 를 거절한다) — 부르는 쪽이 작성자일 때만 싣는다.
+ * 지역·장소는 공동 작성자도 고칠 수 있다(StoryService.update). 빈 지역("")은 지역을 지운다, clearPlace 는 장소 연결을 끊는다.
+ * 🔴 바뀐 것만 싣는다 — 서버는 없는 칸을 «그대로 두기»로 읽는다.
+ */
+export async function updateStory(id: string, body: string, accessToken: string | null, changes: { visibility?: StoryVisibility; region?: string; placeId?: string; clearPlace?: boolean } = {}): Promise<StoryMutationResult> {
   try {
     const story = withDisplayImageUrls(await apiRequest<StoryDto>(`/api/v1/stories/${encodeURIComponent(id)}`, {
       method: 'PATCH',
       accessToken,
-      body: { body },
+      body: {
+        body,
+        ...(changes.visibility ? { visibility: changes.visibility } : {}),
+        ...(changes.region !== undefined ? { region: changes.region } : {}),
+        ...(changes.placeId ? { placeId: changes.placeId } : {}),
+        ...(changes.clearPlace ? { clearPlace: true } : {}),
+      },
     }));
     storyCache.set(story.id, story);
     return { state: 'success', story };
@@ -163,10 +181,32 @@ export async function deleteStory(id: string, accessToken: string | null): Promi
   try {
     await apiRequest<void>(`/api/v1/stories/${encodeURIComponent(id)}`, { method: 'DELETE', accessToken });
     storyCache.delete(id);
+    // 마이페이지 「기록 N」 숫자도 다시 센다(S15P21E201-1909).
+    void defaultQueryClient.invalidateQueries({ queryKey: ['user-profile'] });
+    // 🔴 마이페이지 기록 격자(['me','stories'])와 「내 피드」도 — 안 버리면 지운 글이 격자에 남았다(실기기 10/2, S15P21E201-1910).
+    void defaultQueryClient.invalidateQueries({ queryKey: ['me', 'stories'] });
+    void defaultQueryClient.invalidateQueries({ predicate: (query) => query.queryKey[0] === FEED_QUERY_PREFIX[0] });
     return { state: 'success' };
   } catch (error) {
     return failure(error);
   }
+}
+
+/**
+ * 기록에 달린 장소 이름을 화면 언어로.
+ * 🔴 서버는 9/17부터 영어 이름(nameEn)을 실어 보냈는데 앱이 한국어 이름만 그려서, 영어·일본어·중국어 화면의
+ *    추억 지도 칩·기록 카드 제목이 전부 한국어였다(사용자 지적 2026-09-30).
+ *    한국어는 그대로, 영어는 nameEn, 일본어·중국어는 관광공사 번역 이름(localNames, S15P21E201-1859) → 앱 번역표 → nameEn → 한국어.
+ */
+export function storyPlaceName(place: { name: string; nameEn?: string | null; localNames?: LocalNames }, tx: (ko: string, en: string) => string, language: LanguageCode): string {
+  const shown = localNameFor(place.localNames, language) ?? tx(place.name, place.nameEn?.trim() || place.name);
+  // 🔴 번역도 영어 이름도 없으면 외국어 화면에 한국어만 떴다 — 피드의 「포토오브제 서면점」(사용자 지적 2026-10-02).
+  //    그때는 간판과 같은 한글에 읽는 법을 붙인다(일정 카드의 stopNameForLanguage 와 같은 규칙).
+  if (shown === place.name && resolveTextLanguage(language) !== 'ko') {
+    const reading = romanizeKorean(place.name);
+    if (reading) return `${place.name} (${reading})`;
+  }
+  return shown;
 }
 
 export function relativeStoryTime(iso: string, tx: (ko: string, en: string) => string) {
@@ -223,6 +263,8 @@ export function resetFeedAfterPost(client: QueryClient = defaultQueryClient) {
   return Promise.all([
     client.resetQueries({ predicate: (query) => query.queryKey[0] === FEED_QUERY_PREFIX[0] && query.queryKey[1] === 'MINE' }),
     client.resetQueries({ queryKey: ['me', 'stories'] }),
+    // 🔴 마이페이지 「기록 N」 숫자는 프로필(['user-profile', …])에서 온다 — 이것을 안 버려서 글을 올려도 숫자가 그대로였다(실기기 10/1, S15P21E201-1909).
+    client.invalidateQueries({ queryKey: ['user-profile'] }),
     // 다른 갈래(전체·추천)는 새 글이 한 줄 끼는 것뿐이라 옛 목록을 두고 다시 불러온다.
     client.invalidateQueries({ predicate: (query) => query.queryKey[0] === FEED_QUERY_PREFIX[0] && query.queryKey[1] !== 'MINE' }),
   ]);
@@ -339,7 +381,8 @@ export async function uploadStoryVideo(
     const query = typeof asset.durationSec === 'number' ? `?durationSec=${Math.round(asset.durationSec)}` : '';
     const dto = await apiRequest<{ videoId: string; videoUrl: string; contentType: string; byteSize: number; durationSec?: number }>(
       `/api/v1/uploads/story-video${query}`,
-      { method: 'POST', accessToken, body: formData },
+      // 영상도 12초 기본 제한에 걸린다 — 업로드는 길게 기다린다(S15P21E201-1904).
+      { method: 'POST', accessToken, body: formData, timeoutMs: UPLOAD_TIMEOUT_MS },
     );
     return { state: 'success', videoUrl: dto.videoUrl, byteSize: dto.byteSize };
   } catch (error) {
@@ -350,6 +393,7 @@ export async function uploadStoryVideo(
   }
 }
 
+export const UPLOAD_TIMEOUT_MS = 60_000;
 export async function uploadStoryImage(asset: ImagePickResult, accessToken: string | null): Promise<ImageUploadResult> {
   try {
     const name = asset.fileName ?? `story-${Date.now()}.jpg`;
@@ -361,6 +405,8 @@ export async function uploadStoryImage(asset: ImagePickResult, accessToken: stri
       method: 'POST',
       accessToken,
       body: formData,
+      // 🔴 기본 12초 제한에 걸려 모바일 망에서 「서버 응답이 늦어」로 실패했다(S15P21E201-1904, 커버·댓글 사진).
+      timeoutMs: UPLOAD_TIMEOUT_MS,
     });
     return { state: 'success', imageUrl: dto.imageUrl };
   } catch (error) {
@@ -385,6 +431,9 @@ export type UserProfileDto = {
   blockedByUser?: boolean;
   /** 프로필 사진(S15P21E201-1821). 서버는 늘 보내지만 안 골랐으면 null — 그때는 첫 글자를 그린다. */
   avatarUrl?: string | null;
+  /** 배경 사진 — 프로필 맨 위에 깔리는 큰 사진(S15P21E201-1841). 서버 배포 전에는 칸이 없고, 안 골랐거나
+   *  이 사람이 나를 차단했으면 null. 둘 다 화면이 기본 사진을 깐다. */
+  coverUrl?: string | null;
 };
 
 export type ProfileLoadResult = { state: 'success'; profile: UserProfileDto } | FeedFailure;
@@ -392,8 +441,15 @@ export type ProfileLoadResult = { state: 'success'; profile: UserProfileDto } | 
 export async function getUserProfile(userId: string, accessToken: string | null): Promise<ProfileLoadResult> {
   try {
     const profile = await apiRequest<UserProfileDto>(`/api/v1/users/${encodeURIComponent(userId)}/profile`, { accessToken });
-    // 기록의 작성자 사진과 같은 저장소 주소라 같은 방식으로 풀어 쓴다(S15P21E201-1821).
-    return { state: 'success', profile: profile.avatarUrl ? { ...profile, avatarUrl: resolveStoryImageUrl(profile.avatarUrl) } : profile };
+    // 기록의 작성자 사진과 같은 저장소 주소라 같은 방식으로 풀어 쓴다(S15P21E201-1821). 배경 사진도 같다(-1842).
+    return {
+      state: 'success',
+      profile: {
+        ...profile,
+        ...(profile.avatarUrl ? { avatarUrl: resolveStoryImageUrl(profile.avatarUrl) } : {}),
+        ...(profile.coverUrl ? { coverUrl: resolveStoryImageUrl(profile.coverUrl) } : {}),
+      },
+    };
   } catch (error) {
     return failure(error);
   }

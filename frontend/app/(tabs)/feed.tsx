@@ -2,7 +2,8 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AuthorAvatar } from '@/social/AuthorAvatar';
-import { ActivityIndicator, Animated, Easing, Image, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Animated, Easing, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { AppImage } from '@/components/AppImage';
 import Svg, { Path, Rect } from 'react-native-svg';
 import * as Clipboard from 'expo-clipboard';
 import * as Location from 'expo-location';
@@ -33,7 +34,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { RouteMap } from '@/map/RouteMap';
 
-import { createStory, feedQueryKey, loadFeed, loadSavedStoryIds, loadUserStories, recordStoryLinkCopy, relativeStoryTime, reportStory, setFollowing, setStoryReaction, setStorySaved, storyShareUrl, VISIBILITY_LABEL, type FeedLoadResult, type FeedScope, type FeedSort, type StoryDto, type StoryReportReason, type StoryVisibility } from '@/social/stories';
+import { createStory, feedQueryKey, loadFeed, loadSavedStoryIds, loadUserStories, recordStoryLinkCopy, relativeStoryTime, reportStory, setFollowing, setStoryReaction, setStorySaved, storyShareUrl, VISIBILITY_LABEL, type FeedLoadResult, type FeedScope, type FeedSort, type StoryDto, type StoryReportReason, type StoryVisibility, storyPlaceName } from '@/social/stories';
 import type { StoryPlaceSnapshot } from '@/social/regionSearch';
 import { shouldPromptSignIn } from '@/social/signInPrompt';
 import { applyReaction, nextReaction, StoryReactionRow } from '@/social/StoryReactionRow';
@@ -47,6 +48,7 @@ import { useStoryVideo } from '@/social/useStoryVideo';
 import { txf } from '@/i18n/format';
 import { localizeMessage } from '@/i18n/messages';
 import { regionText } from '@/social/districtNames';
+import { RouteFeedSection } from '@/routepost/RouteFeedSection';
 
 /**
  * 추억 지도는 핀만 — 기록 사이에 선을 긋지 않는다(사용자 요청 2026-09-24, S15P21E201-1576).
@@ -66,7 +68,8 @@ const BODY_MAX = 500;
 /** 사진 장수에 따라 칸을 다르게 쓴다 — 한 장은 넓게, 여러 장은 정사각으로 나눈다. */
 // — 사진을 가로로 줄 세우던 것을 장수·방향에 따른 배치로 바꾼다.
 // 배치 규칙은 @/social/photoGrid 한 곳에 있고, 작성 미리보기·글 상세도 같은 것을 쓴다.
-type FeedTab = 'HOT' | 'FOR_YOU' | 'MINE';
+// 'ROUTES' — 루트 포스트(여행 경로 자체를 올린 글, S15P21E201-2027). 기록과 카드 모양·정렬이 달라 탭을 따로 둔다.
+type FeedTab = 'HOT' | 'FOR_YOU' | 'MINE' | 'ROUTES';
 
 function StoryImages({ images, compact }: { images: StoryDto['images']; compact: boolean }) {
   const { tx } = useI18n();
@@ -131,12 +134,12 @@ function StoryCard({ story, compact, rank = null, showUnfollow, unfollowBusy, sa
   onReact: (reaction: 'LIKE' | 'DISLIKE') => void;
   onQuote: () => void;
 }) {
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
   const hasPhoto = (story.images?.length ?? 0) > 0;
   const courseLink = findCourseLink(story.body);
 
   // 제목은 장소 이름이다. 장소가 없으면 「OO의 기록」 — 비워 두지 않는다(시안 「자주 틀리는 것」 5번).
-  const title = story.place?.name ?? txf(tx, '%s의 기록', "%s's record", story.author.displayName);
+  const title = (story.place ? storyPlaceName(story.place, tx, language) : null) ?? txf(tx, '%s의 기록', "%s's record", story.author.displayName);
 
   const medal = rank ? RANK_COLOR[rank] : undefined;
 
@@ -208,7 +211,7 @@ function StoryCard({ story, compact, rank = null, showUnfollow, unfollowBusy, sa
           0 을 하드코딩해 그리지 않는다. 모르는 것을 아는 척하는 것이라, 서버가 칸을 주는 날
  자연히 나타나게 둔다의 백엔드 몫). 지금은 시각과 지역만 말한다. */}
       <Text variant="caption" color={color.text.muted}>
-        {relativeStoryTime(story.createdAt, tx)}{story.region ? ` · ${regionText(story.region, tx)}` : ''}
+        {relativeStoryTime(story.createdAt, tx)}{story.region ? ` · ${regionText(story.region, tx, story.place ? { ko: story.place.name, shown: storyPlaceName(story.place, tx, language) } : null)}` : ''}
       </Text>
     </Pressable>
 
@@ -352,7 +355,7 @@ function InlineCompose({ onPosted }: { onPosted: () => void }) {
 
     <View style={styles.composeTools}>
       <Pressable accessibilityRole="button" accessibilityLabel={tx('사진 추가', 'Add photo')} disabled={!canAddMore} onPress={() => void addImage()} style={[styles.toolButton, !canAddMore && styles.busy]}>
-        <Image source={require('../../assets/icons/common/camera.png')} resizeMode="contain" accessibilityLabel="" style={styles.toolIcon} />
+        <AppImage source={require('../../assets/icons/common/camera.png')} resizeMode="contain" accessibilityLabel="" style={styles.toolIcon} />
         <Text variant="body" color={color.text.body}>{tx(`사진 ${images.length}/3`, `Photos ${images.length}/3`)}</Text>
       </Pressable>
       {/* 🔴 동영상은 사진 세 장 자리를 먹지 않는다 — 서버가 따로 보관한다. 그래서
@@ -380,7 +383,7 @@ function InlineCompose({ onPosted }: { onPosted: () => void }) {
         </Text>
       </Pressable>}
       <Pressable accessibilityRole="button" accessibilityLabel={tx('지역 적기', 'Add a region')} accessibilityState={{ expanded: regionOpen }} onPress={() => setRegionOpen((open) => !open)} style={[styles.toolButton, regionOpen && styles.toolButtonOn]}>
-        <Image source={require('../../assets/icons/common/pin.png')} resizeMode="contain" accessibilityLabel="" style={styles.toolIcon} />
+        <AppImage source={require('../../assets/icons/common/pin.png')} resizeMode="contain" accessibilityLabel="" style={styles.toolIcon} />
         <Text variant="body" color={color.text.body}>{region.trim() || tx('지역', 'Region')}</Text>
       </Pressable>
       <Pressable accessibilityRole="button" accessibilityLabel={tx('공개 범위 바꾸기', 'Change visibility')} onPress={cycleVisibility} style={styles.toolButton}>
@@ -404,7 +407,7 @@ function MemoryMap({ items, onOpenStory, sheet = false, onCollapse }: {
   sheet?: boolean;
   onCollapse?: () => void;
 }) {
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
   // 시트 안에서는 지도가 남는 높이를 다 쓴다. 그런데 지도는 높이를 숫자로 받으므로
   // 자리를 재서 넘긴다 — 시트 높이에서 빼는 산수를 적어 두면 안쪽 여백을 고칠 때마다
   // 그 식이 조용히 틀어진다.
@@ -414,7 +417,7 @@ function MemoryMap({ items, onOpenStory, sheet = false, onCollapse }: {
     .map((story, index) => ({
       id: story.id,
       number: index + 1,
-      name: story.place?.name ?? (story.region ? regionText(story.region, tx) : null) ?? tx('기록', 'Record'),
+      name: (story.place ? storyPlaceName(story.place, tx, language) : null) ?? (story.region ? regionText(story.region, tx) : null) ?? tx('기록', 'Record'),
       latitude: story.place?.lat as number,
       longitude: story.place?.lng as number,
     }));
@@ -424,6 +427,9 @@ function MemoryMap({ items, onOpenStory, sheet = false, onCollapse }: {
   // 목록에서 어디를 보는지 고를 수가 없었다.
   const [selected, setSelected] = useState<string | null>(null);
   const current = selected && stops.some((stop) => stop.id === selected) ? selected : stops[0]?.id ?? null;
+  // 🔴 지도 점도 이름표와 같다(S15P21E201-1906) — 첫 누름은 고르기(그 점이 커지고 지도가 그쪽으로 다가간다), 고른 점을 다시 누르면 그 기록으로.
+  //    전에는 점을 누르면 바로 글로 넘어가 지도에서 무엇을 눌렀는지 볼 틈이 없었다(팀원 보고).
+  const pick = (id: string) => (id === current ? onOpenStory(id) : setSelected(id));
 
   if (!stops.length) return null;
 
@@ -468,7 +474,7 @@ function MemoryMap({ items, onOpenStory, sheet = false, onCollapse }: {
 
       <View style={styles.sheetMap} onLayout={(event) => setMapHeight(Math.round(event.nativeEvent.layout.height))}>
         {mapHeight > 0
-          ? <RouteMap stops={stops} selectedId={current ?? stops[0].id} onSelect={onOpenStory} routes={NO_ROUTES} height={mapHeight} />
+          ? <RouteMap stops={stops} selectedId={current ?? stops[0].id} onSelect={pick} focusSelected routes={NO_ROUTES} height={mapHeight} />
           : null}
       </View>
 
@@ -491,7 +497,7 @@ function MemoryMap({ items, onOpenStory, sheet = false, onCollapse }: {
   return <View style={styles.mapPanel}>
     <Eyebrow>{tx('추억 지도', 'Memory map')}</Eyebrow>
     <View style={styles.mapCard}>
-      <RouteMap stops={stops} selectedId={current ?? stops[0].id} onSelect={onOpenStory} routes={NO_ROUTES} height={360} />
+      <RouteMap stops={stops} selectedId={current ?? stops[0].id} onSelect={pick} focusSelected routes={NO_ROUTES} height={360} />
     </View>
 
     {/* 장소 라벨 — 누르면 지도에서 그 핀이 골라지고, 한 번 더 누르면 그 기록으로 간다.
@@ -512,7 +518,7 @@ function EmptyState({ scope, signedIn, compact, onSeeAll, onWrite }: {
   const mine = scope === 'MINE';
   return <View style={[styles.emptyCard, compact && styles.emptyCardCompact]}>
     {/* 「없어요」에는 >.< 표정, 「모으고 있어요」에는 기본 표정(S15P21E201-1430). */}
-    <Image
+    <AppImage
       source={mine || following ? require('../../assets/mascot/dongbaek-thinking.png') : require('../../assets/mascot/dongbaek-idle.png')}
       resizeMode="contain"
       accessibilityLabel={tx('동백 마스코트', 'Dongbaek mascot')}
@@ -538,6 +544,10 @@ function EmptyState({ scope, signedIn, compact, onSeeAll, onWrite }: {
   </View>;
 }
 
+// 🔴 떠 있는 단추 줄의 키(단추 48 + 탭바와의 틈). Screen 에 이만큼 더 비우라고 넘긴다 — 안 넘기면
+//    목록 끝 카드의 좋아요·인용 줄이 「지도 표시하기」 밑에 깔려 누를 수 없다 (S15P21E201-1870).
+export const FEED_FAB_DOCK_HEIGHT = 48 + spacing[4];
+
 export default function Feed() {
   const router = useRouter();
   const { accessToken, user } = useAuth();
@@ -556,6 +566,13 @@ export default function Feed() {
   //    실시간 인기 = 서버 인기순(1368) + 1·2·3위 배지 + 「전체 / 내 근처」. 맞춤 추천 = FOR_YOU(팔로잉은 그 안의 갈래).
   //    내 피드 = 내 기록 — 비었으면 02c 동백이.
   const [tab, setTab] = useState<FeedTab>('HOT');
+  // 폰 탭 줄이 옆으로 밀릴 때 고른 탭을 화면 안으로 데려온다(S15P21E201-2027).
+  const tabScroll = useRef<ScrollView>(null);
+  const tabX = useRef<Partial<Record<FeedTab, number>>>({});
+  useEffect(() => {
+    const x = tabX.current[tab];
+    if (x != null) tabScroll.current?.scrollTo({ x: Math.max(0, x - 24), animated: true });
+  }, [tab]);
   const [followingOnly, setFollowingOnly] = useState(false);
   const [area, setArea] = useState<'ALL' | 'NEAR'>('ALL');
   const [here, setHere] = useState<{ latitude: number; longitude: number } | null | 'denied'>(null);
@@ -619,7 +636,7 @@ export default function Feed() {
     // 「내 기록」은 서버 피드가 아니라 내 프로필의 기록 목록이다 — 피드 API 에 MINE 갈래가 없다.
     queryFn: () => (scope === 'MINE' ? loadUserStories(user?.userId ?? '', accessToken) : loadFeed({ scope, sort, accessToken })),
     // 손님의 「내 피드」는 부를 것이 없다 — 로그인 안내만 그린다.
-    enabled: !(scope === 'MINE' && !user),
+    enabled: !(scope === 'MINE' && !user) && tab !== 'ROUTES',
   });
   // 탭에 30초 이상(staleTime) 자리를 비웠다 돌아오면 다시 불러온다 — 남이 올린 새 글이
   // 탭을 나갔다 들어오는 것만으로는 영영 안 보이던 것을 고친다(S15P21E201-1509). isStale
@@ -728,6 +745,15 @@ export default function Feed() {
   };
 
   // 시안 4 의 탭 — 글자 아래 붉은 점이 「지금 여기」다. 셋 다 손님도 누를 수 있다(내 피드는 로그인 안내를 그린다).
+  const tabRow = () => (
+    <View accessibilityRole="tablist" style={[styles.tabs, compact && styles.tabsPhone]}>
+      {tabButton('HOT', tx('실시간 인기', 'Trending'))}
+      {tabButton('FOR_YOU', tx('맞춤 추천', 'For you'))}
+      {/* 「내 피드」는 시안 4 의 02c — 마이페이지 기록 탭과 같은 목록이지만, 피드에서 「내 것도 여기 있다」를 확인하는 자리(S15P21E201-1431). */}
+      {tabButton('MINE', tx('내 피드', 'My feed'))}
+      {tabButton('ROUTES', tx('루트', 'Routes'))}
+    </View>
+  );
   const tabButton = (target: FeedTab, label: string) => {
     const selected = tab === target;
     return <Pressable
@@ -735,6 +761,7 @@ export default function Feed() {
       accessibilityRole="tab"
       accessibilityState={{ selected }}
       onPress={() => setTab(target)}
+      onLayout={(e) => { tabX.current[target] = e.nativeEvent.layout.x; }}
       style={styles.tab}
     >
       <Text variant={compact ? 'body' : 'title'} weight={selected ? 'bold' : 'medium'} color={selected ? color.text.heading : color.text.muted}>{label}</Text>
@@ -767,12 +794,13 @@ export default function Feed() {
     {/* 폰에서는 이 칸이 내용 폭만 차지해 밑줄이 「내 피드」 뒤에서 끊겼다(S15P21E201-1806).
         폰만 전체 폭으로 편다 — 넓은 화면은 옆에 지도가 있어 지금 그대로가 맞다. */}
     <View style={[styles.headerActions, compact && styles.headerActionsPhone]}>
-      <View accessibilityRole="tablist" style={[styles.tabs, compact && styles.tabsPhone]}>
-        {tabButton('HOT', tx('실시간 인기', 'Trending'))}
-        {tabButton('FOR_YOU', tx('맞춤 추천', 'For you'))}
-        {/* 「내 피드」는 시안 4 의 02c — 마이페이지 기록 탭과 같은 목록이지만, 피드에서 「내 것도 여기 있다」를 확인하는 자리(S15P21E201-1431). */}
-        {tabButton('MINE', tx('내 피드', 'My feed'))}
-      </View>
+      {/* 폰에서는 탭 줄을 옆으로 밀 수 있게 감싼다 — 일본어·베트남어는 네 칸이 폭을 넘어
+          「루트」가 화면 밖으로 밀려 누를 수 없었다(S15P21E201-2027). 넓은 화면은 그대로. */}
+      {compact ? (
+        <ScrollView ref={tabScroll} horizontal showsHorizontalScrollIndicator={false} style={styles.tabsScroll} contentContainerStyle={styles.tabsScrollContent}>
+          {tabRow()}
+        </ScrollView>
+      ) : tabRow()}
       {/* 폰의 글쓰기 진입은 아래 떠 있는 단추(FAB)로 옮겼다 (시안 5번).
           여기 남겨 두면 같은 행동이 한 화면에 두 자리에 있게 된다. composeEntryFor 의
           'headerButton' 은 이제 「폰이다」를 뜻하고, 그 자리를 FAB 가 맡는다.
@@ -792,7 +820,8 @@ export default function Feed() {
   // 탭 아래 한 줄 — 왼쪽은 기준, 오른쪽은 갈래. 시안 4 02a 의 「최근 1시간 반응 기준 · 전체/내 근처」 자리.
   const subRow = tab === 'HOT' ? (
     <View style={styles.subRow}>
-      <Text variant="caption" color={color.text.muted} style={styles.subRowText}>{area === 'NEAR' && here === 'denied' ? tx('위치 권한이 없어 전체로 보여드려요', 'No location permission — showing all') : area === 'NEAR' && !here ? tx('내 위치 찾는 중…', 'Finding your location…') : tx('좋아요 많은 순 · 같으면 최신순', 'Most liked · newest first among ties')}</Text>
+      {/* 정렬 설명 줄(「좋아요 많은 순 · 같으면 최신순」)은 뺐다 — 사용자 지적(S15P21E201-1998). 위치 상태만 알린다. */}
+      <Text variant="caption" color={color.text.muted} style={styles.subRowText}>{area === 'NEAR' && here === 'denied' ? tx('위치 권한이 없어 전체로 보여드려요', 'No location permission — showing all') : area === 'NEAR' && !here ? tx('내 위치 찾는 중…', 'Finding your location…') : ''}</Text>
       <View accessibilityRole="radiogroup" style={styles.areaChips}>
         {chip(area === 'ALL', tx('전체', 'All'), () => setArea('ALL'))}
         {chip(area === 'NEAR', tx('내 근처', 'Near me'), () => setArea('NEAR'))}
@@ -800,14 +829,17 @@ export default function Feed() {
     </View>
   ) : tab === 'FOR_YOU' ? (
     <View style={styles.subRow}>
-      <Text variant="caption" color={color.text.muted} style={styles.subRowText}>{followingOnly ? tx('팔로우한 사람들의 기록', 'Records from people you follow') : tx('팔로우한 사람 먼저, 없으면 인기순', 'People you follow first; popular ones otherwise')}</Text>
+      <Text variant="caption" color={color.text.muted} style={styles.subRowText}>{''}</Text>
       <View accessibilityRole="radiogroup" style={styles.areaChips}>
         {chip(!followingOnly, tx('추천', 'For you'), () => setFollowingOnly(false))}
         {chip(followingOnly, tx('팔로잉만', 'Following only'), () => setFollowingOnly(true), !signedIn)}
       </View>
     </View>
   ) : null;
-  const feedColumn = <View style={styles.feedColumn}>
+  const feedColumn = tab === 'ROUTES' ? <View style={styles.feedColumn}>
+    {header}
+    <RouteFeedSection compact={compact} />
+  </View> : <View style={styles.feedColumn}>
     {header}
     {subRow}
     {fellBackToPopular ? (
@@ -892,7 +924,10 @@ export default function Feed() {
   </View>;
 
   // 「이 피드에 나온 장소」 목록을 뺐다.
-  const aside = <View style={styles.aside}>
+  // 🔴 지도 칸 폭을 화면에 맞춘다 — 480 으로 박으면 폴드를 펼쳐 가로로 든 화면(795)에서 기록 칸이 270 남짓으로
+  //    짓눌려 「내 피드」 탭이 잘렸다(반응형 점검 2026-10-02). 넓은 PC 에서는 그대로 480.
+  const asideWidth = width >= 1180 ? 480 : width >= 1024 ? 400 : 300;
+  const aside = <View style={[styles.aside, { width: asideWidth }]}>
     <MemoryMap items={items} onOpenStory={(id) => router.push(`/feed/${id}`)} />
   </View>;
 
@@ -902,7 +937,7 @@ export default function Feed() {
         좁은 칸 안에서 또 나뉘어 양쪽 다 짓눌린다 — Screen 주석이 경고하는
         바로 그 고장이고, tsc 는 잡지 못한다(폭이 좁은 것은 문법 오류가 아니다).
     */}
-    <Screen scroll withTabBar wide={wide}>
+    <Screen scroll withTabBar wide={wide} floatingDockHeight={composeEntry === 'headerButton' ? FEED_FAB_DOCK_HEIGHT : 0}>
       {wide
         ? <View style={styles.wideGrid}>{feedColumn}{aside}</View>
         : <>
@@ -1039,6 +1074,8 @@ const styles = StyleSheet.create({
   // 넓은 화면은 붙은 세그먼트, 폰은 떨어진 칩.
   headerActionsPhone: { width: '100%', alignSelf: 'stretch', justifyContent: 'flex-start' },
   tabsPhone: { flexGrow: 1 },
+  tabsScroll: { alignSelf: 'stretch', flexGrow: 1 },
+  tabsScrollContent: { flexGrow: 1 },
   tabs: { flexDirection: 'row', gap: spacing[6], borderBottomWidth: 1, borderBottomColor: color.surface.field, alignSelf: 'stretch' },
   tab: { minHeight: 46, alignItems: 'center', justifyContent: 'center', gap: 2, paddingHorizontal: spacing[1] },
   tabDot: { width: 5, height: 5, borderRadius: radius.full, backgroundColor: color.action.outline },

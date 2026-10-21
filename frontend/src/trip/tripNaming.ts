@@ -2,6 +2,7 @@
 
 import { formatDayHeading } from '@/i18n/datetime';
 import { apiRequest, ApiClientError } from '@/api/client';
+import type { LanguageCode } from '@/i18n/languages';
 
 /** 이름 길이 상한. 서버의 `Trip.TITLE_MAX_LENGTH` 와 같은 값이어야 한다. */
 export const TRIP_TITLE_MAX_LENGTH = 60;
@@ -56,11 +57,13 @@ function failure(error: unknown): TripNamingFailure {
 export async function loadTripNameSuggestions(
   tripId: string,
   accessToken: string | null,
+  language?: LanguageCode,
 ): Promise<TripNameSuggestionsResult> {
   try {
     const dto = await apiRequest<TripNameSuggestionsDto>(
       `/api/v1/trips/${encodeURIComponent(tripId)}/name-suggestions`,
-      { method: 'POST', accessToken },
+      // 🔴 앱 전체 Accept-Language 는 ko/en 뿐이라 일본어·중국어 화면에 영어 이름 틀이 나왔다 — 고른 언어 그대로 보낸다(S15P21E201-1916).
+      { method: 'POST', accessToken, headers: language ? { 'Accept-Language': language } : undefined },
     );
     // 모양이 어긋나면 화면을 죽이지 말고 안내로 떨어뜨린다. 부르는 쪽이 곧바로 개수를
     // 세므로 여기서 안 막으면 화면이 통째로 안 열린다 와 같은 자리다).
@@ -93,12 +96,18 @@ export type TripNameStep = {
   discardedCount: number;
 };
 
+/** 「2026-10-21 ~ 2026-10-21」처럼 시작과 끝이 같은 날짜 범위를 한 날짜로 줄인다. 다른 글자는 그대로 둔다. */
+export function collapseSameDayRange(text: string): string {
+  return text.replace(/([0-9]{4}-[0-9]{2}-[0-9]{2})\s*[~–-]\s*\1(?![0-9])/g, '$1');
+}
+
 /** 후보를 받아 온 결과로 화면이 어느 자리에 서는지 정한다 */
 export function planNameStep(result: TripNameSuggestionsResult): TripNameStep {
   if (result.state !== 'success') {
     return { step: 'empty', suggestions: [], source: 'TEMPLATE', discardedCount: 0 };
   }
-  const shown = result.suggestions.slice(0, MAX_SHOWN_SUGGESTIONS);
+  // 🔴 당일 여행에 「2026-10-21 ~ 2026-10-21」 후보가 왔다(S15P21E201-1987) — 같은 날짜 두 번은 한 번만. 겹치면 한 번만 보인다.
+  const shown = [...new Set(result.suggestions.map(collapseSameDayRange))].slice(0, MAX_SHOWN_SUGGESTIONS);
   return {
     step: shown.length > 0 ? 'suggestions' : 'empty',
     suggestions: shown,
@@ -214,7 +223,12 @@ export function tripDatesLabel(startDate: string | null | undefined, endDate: st
   if (!startDate) return null;
   const start = formatDayHeading(startDate, locale) ?? startDate;
   const end = endDate && endDate !== startDate ? (formatDayHeading(endDate, locale) ?? endDate) : null;
-  return end ? `${start} – ${end}` : start;
+  // 🔴 대시 뒤는 끊기지 않는 빈칸(U+00A0)이다(S15P21E201-1986) — 좁은 화면에서 「10월 10일 (토) –」 / 「10월 12일 (월)」처럼
+  //    대시를 앞줄 끝에 남기고 꺾였다. 이제 꺾이면 「10월 10일 (토)」 / 「– 10월 12일 (월)」이 된다.
+  // 🔴 날짜 덩어리 안의 빈칸도 끊기지 않는 빈칸이다(S15P21E201-1988) — 큰 글씨에서 「10월 10일 (토) – 10월」 / 「12일 (월)」로
+  //    날짜 중간이 꺾였다. 이제 꺾일 수 있는 자리는 대시 앞 한 곳뿐이다.
+  const keep = (text: string) => text.replace(/ /g, '\u00A0');
+  return end ? `${keep(start)} –\u00A0${keep(end)}` : keep(start);
 }
 
 /**

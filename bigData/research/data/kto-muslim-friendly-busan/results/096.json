@@ -1,0 +1,68 @@
+{
+  "no": "096",
+  "nameEn": "Wonjo Halmae Bokguk",
+  "nameKo": "원조할매복국",
+  "roadAddrKo": "부산 해운대구 달맞이길62번길 1",
+  "addressMatchesPdf": true,
+  "operating": "unknown",
+  "operatingEvidence": [
+    {
+      "url": "https://www.diningcode.com/profile.php?rid=eLOeeHyYNCVz",
+      "date": null,
+      "note": "'최근 후기'와 영업시간이 실려 있으나 날짜 미확인"
+    }
+  ],
+  "newAddress": null,
+  "queries": [
+    "\"051-742-2789\"",
+    "원조할매복국 해운대 달맞이길 후기",
+    "원조할매복국 달맞이길62번길 1 2025 방문 블로그"
+  ],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=eLOeeHyYNCVz",
+    "https://www.siksinhot.com/P/325581",
+    "https://triple.guide/restaurants/5d6da64f-d93b-433a-ba62-ee28f7efbc22"
+  ],
+  "whyPeopleGo": [
+    {
+      "type": "대물림",
+      "note": "어머니 레시피를 아들이 이어받아 운영한다고 소개됨",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "복지리·복매운탕(까치복·밀복)",
+      "sources": [
+        0,
+        1
+      ]
+    },
+    {
+      "type": "맛 묘사",
+      "note": "깔끔하고 시원한 국물",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": 2,
+    "queueing": null,
+    "parking": "있음(다이닝코드)",
+    "audience": "mixed",
+    "signatureDishes": [
+      "복지리",
+      "복매운탕",
+      "복껍데기 무침"
+    ],
+    "priceBand": "moderate"
+  },
+  "photoCandidates": [],
+  "notes": "동명 유사 상호(박옥희할매집원조복국)가 미포에 따로 있어 혼동 주의. 주소는 PDF와 일치."
+}

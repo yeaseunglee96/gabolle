@@ -1,11 +1,13 @@
 import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 
+import { proxyPublicPhotos } from './publicPhotoProxy';
+
 export const API_BASE_URL = (process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:8080').replace(/\/$/, '');
 // 서버가 초대 응답에 주는 건 token·acceptPath(서버 API 경로)뿐이다 — 앱 화면 주소는 앱이
 // 스스로 조립해야 한다(TripInviteResponse·StoryInviteResponse 공통 계약). oauth.ts의
 // CALLBACK_BASE_URL과 같은 값이라 같은 환경변수를 그대로 쓴다 — 이 웹앱이 실제로 떠 있는 자리다.
-export const APP_WEB_BASE_URL = (process.env.EXPO_PUBLIC_OAUTH_CALLBACK_BASE_URL ?? 'https://j15e201.p.ssafy.io').replace(/\/$/, '');
+export const APP_WEB_BASE_URL = (process.env.EXPO_PUBLIC_OAUTH_CALLBACK_BASE_URL ?? 'https://gabolle.kr').replace(/\/$/, '');
 const configuredTimeout = Number(process.env.EXPO_PUBLIC_API_TIMEOUT_MS ?? 12000);
 const API_TIMEOUT_MS = Number.isFinite(configuredTimeout) && configuredTimeout > 0 ? configuredTimeout : 12000;
 let apiLanguage: 'ko' | 'en' = 'ko';
@@ -66,10 +68,15 @@ export function isServerError(error: unknown): boolean {
   return error instanceof ApiClientError && isServerErrorStatus(error.status);
 }
 
-function serverErrorMessage(status: number): string {
+/**
+ * 🔴 «지금 서버가 바쁘다» — S15P21E201-2060. 서버가 5xx 나 429(너무 많은 요청)로 답했을 때 사람에게 하는 말이다.
+ * 사람이 할 일은 «잠시 뒤 다시»뿐이고, 그 원인은 사용자의 인터넷이 아니다 — 「인터넷 연결을 확인해 주세요」(offline 화면)가 아니라 이 말이다.
+ * 한국어 원문이 번역표의 열쇠다(src/i18n/messages.ts — 화면은 localizeMessage 를 거쳐 여섯 언어로 그린다).
+ */
+function serverBusyMessage(): string {
   return apiLanguage === 'en'
-    ? `The server could not handle this just now. Please try again shortly. (HTTP ${status})`
-    : `서버가 잠시 응답하지 못했어요. 잠시 후 다시 시도해 주세요. (HTTP ${status})`;
+    ? 'The server is busy right now. Please try again shortly.'
+    : '서버가 잠시 바빠요. 잠시 후 다시 시도해 주세요.';
 }
 
 /**
@@ -148,6 +155,36 @@ async function probeApiReachable(): Promise<boolean> {
   }
 }
 
+/** 같은 순간에 여러 요청이 실패해도 서버를 한 번만 두드린다. */
+let answerProbe: Promise<boolean> | null = null;
+
+/**
+ * 웹에서 fetch 가 던진 뒤, 서버가 «대답은 했는지»를 본다 — S15P21E201-2060.
+ *
+ * `mode: 'no-cors'` 요청은 응답 내용을 못 읽는 대신(불투명 응답) **어떤 응답이든 오면 성공으로 끝난다.** CORS 머리 없는 503·429 도
+ * 여기서는 성공이다. 진짜로 못 닿았을 때(오프라인·DNS 실패·연결 거부·시간 초과)만 던진다. 응답 내용은 안 본다.
+ * 브라우저가 «오프라인»이라고 알면 물을 필요도 없다. 앱(iOS·안드로이드)에는 CORS 가 없어 5xx 가 그대로 읽히므로 이 길을 안 탄다.
+ */
+function serverAnsweredWithoutBrowserAccess(): Promise<boolean> {
+  if (Platform.OS !== 'web') return Promise.resolve(false);
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) return Promise.resolve(false);
+  if (!answerProbe) {
+    answerProbe = (async () => {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), RECOVERY_PROBE_TIMEOUT_MS);
+      try {
+        await fetch(`${API_BASE_URL}${RECOVERY_PROBE_PATH}`, { method: 'GET', mode: 'no-cors', cache: 'no-store', signal: controller.signal });
+        return true;
+      } catch {
+        return false;
+      } finally {
+        clearTimeout(timer);
+      }
+    })().finally(() => { answerProbe = null; });
+  }
+  return answerProbe;
+}
+
 function setApiUnavailable(next: boolean) {
   if (apiUnavailable === next) return;
   apiUnavailable = next;
@@ -160,6 +197,7 @@ function setApiUnavailable(next: boolean) {
 export function __resetApiAvailabilityForTests() {
   stopRecoveryProbe();
   apiUnavailable = false;
+  answerProbe = null;
 }
 
 export function subscribeApiAvailability(listener: ApiAvailabilityListener) {
@@ -222,6 +260,42 @@ async function requestAnonymousSessionToken(): Promise<string | null> {
   }
 }
 
+/**
+ * 지금 출입증을 버린다 — 다음 요청이 새 출입증을 받는다.
+ *
+ * 로그인해서 이 기기의 비회원 여행을 계정으로 넘긴 뒤(서버는 그 출입증을 지운다)와 로그아웃할 때 부른다.
+ * 안 버리면 같은 기기에서 다음 사람이 비회원으로 만든 여행이 앞사람 출입증에 쌓인다.
+ */
+export async function resetAnonymousSession(): Promise<void> {
+  anonymousSessionToken = null;
+  anonymousSessionPromise = null;
+  try {
+    if (Platform.OS === 'web') {
+      if (typeof localStorage !== 'undefined') localStorage.removeItem(ANONYMOUS_SESSION_STORAGE_KEY);
+      return;
+    }
+    await SecureStore.deleteItemAsync(ANONYMOUS_SESSION_STORAGE_KEY);
+  } catch {
+    // 지우지 못해도 메모리는 비웠다. 다음 실행에 옛 출입증을 다시 읽으면 서버가 모르는 값이라
+    // 아래 performRequest 의 401 처리가 버리고 새로 받는다.
+  }
+}
+
+/** {@link apiRequest} 를 안 거치는 요청(진행률 스트림)이 같은 출입증을 싣게 한다. */
+export function getAnonymousSessionToken(): Promise<string | null> {
+  return ensureAnonymousSessionToken();
+}
+
+async function errorCodeOf(response: Response): Promise<string> {
+  if (typeof response.clone !== 'function') return '';
+  try {
+    const envelope = (await response.clone().json()) as ApiEnvelope<unknown>;
+    return envelope.error?.code ?? '';
+  } catch {
+    return '';
+  }
+}
+
 async function ensureAnonymousSessionToken(): Promise<string | null> {
   if (anonymousSessionToken) return anonymousSessionToken;
   if (!anonymousSessionPromise) {
@@ -269,16 +343,92 @@ export function setUnauthorizedHandler(handler: (() => void) | null) { unauthori
 
 // 액세스 토큰이 만료돼 401 을 받으면, 로그아웃시키기 전에 이 핸들러로 한 번 갱신을 시도한다.
 // 여러 요청이 동시에 401 을 받아도 갱신은 한 번만 나가도록 진행 중인 시도를 공유한다.
+// 핸들러는 실패를 삼키지 않고 던진다 — 서버가 세션을 거절한 것(401)과 잠깐 못 닿은 것을
+// 아래 refreshSession 이 갈라 봐야 하기 때문이다.
 type RefreshHandler = () => Promise<string | null>;
 let refreshHandler: RefreshHandler | null = null;
 export function setRefreshHandler(handler: RefreshHandler | null) { refreshHandler = handler; }
 let refreshInFlight: Promise<string | null> | null = null;
-function refreshAccessToken(): Promise<string | null> {
+function runRefresh(): Promise<string | null> {
   if (!refreshHandler) return Promise.resolve(null);
   if (!refreshInFlight) {
-    refreshInFlight = refreshHandler().catch(() => null).finally(() => { refreshInFlight = null; });
+    refreshInFlight = refreshHandler().finally(() => { refreshInFlight = null; });
   }
   return refreshInFlight;
+}
+function refreshAccessToken(): Promise<string | null> {
+  return runRefresh().catch(() => null);
+}
+
+type RefreshOutcome = { kind: 'refreshed'; token: string } | { kind: 'rejected' } | { kind: 'failed' };
+
+/** 서버가 「이 세션은 끝났다」고 답한 것(401)만 거절로 본다. 통신 실패·5xx·nginx 의 503 은 세션 문제가 아니다. */
+async function refreshSession(): Promise<RefreshOutcome> {
+  try {
+    const token = await runRefresh();
+    return token ? { kind: 'refreshed', token } : { kind: 'failed' };
+  } catch (error) {
+    return error instanceof ApiClientError && error.status === 401 ? { kind: 'rejected' } : { kind: 'failed' };
+  }
+}
+
+/**
+ * 지금 쥐고 있는 접속 표(access token)와, 그것이 **이 기기 시계로** 언제 끝나는지.
+ *
+ * 🔴 왜 401 을 기다리지 않고 미리 갱신하나 — 서버는 끝난 접속 표를 401 로 거절하지 않고, 같이 실려 간
+ * 익명 출입증(X-Session-Token)으로 받아 준다. 그래서 장소·글·축제처럼 비회원도 보는 화면은 표가 끝난
+ * 뒤에도 200 이 오고, 갱신이 안 일어나고, 로그인 유지 시간(서버의 refresh-token-ttl, 2시간)도 안
+ * 밀린다. 그렇게 둘러보다 2시간이 지나면 다음 「저장」·「여행 만들기」에서 로그인 화면으로 튕겼다 —
+ * 「쓰는 중에 로그아웃된다」는 신고가 이것이었다(2026-10-01 nginx 기록으로 확인).
+ *
+ * 끝나는 시각을 JWT 의 exp 로 읽지 않는 이유 — exp 는 서버 시계다. 폰 시계가 몇 분 어긋나 있으면
+ * 매 요청마다 갱신하거나 끝날 때까지 안 한다. 「받은 순간 + expiresIn」은 기기 시계 하나로만 잰다.
+ */
+let currentAccess: { token: string; expiresAt: number } | null = null;
+/**
+ * 바로 앞의 접속 표. 갱신 직후에는 화면이 아직 다시 그려지지 않아 옛 표를 들고 요청한다 — 그 표는
+ * 끝났거나 곧 끝나므로, 들고 온 것이 이것이면 새 표로 바꿔 보낸다. 로그아웃하면 같이 지운다.
+ */
+let previousAccessToken: string | null = null;
+
+/** 접속 표가 이만큼 남았으면 다음 요청 앞에서 먼저 갱신한다. 응답이 오가는 동안 끝나지 않을 만큼이면 된다. */
+export const ACCESS_TOKEN_REFRESH_MARGIN_MS = 60_000;
+
+/** 새 접속 표를 받을 때마다 부른다. 로그아웃하면 null. 수명을 모르면 기록하지 않는다 — 그때는 401 뒤 갱신만 남는다. */
+export function trackAccessToken(token: string | null, expiresInSeconds?: number) {
+  previousAccessToken = token ? currentAccess?.token ?? null : null;
+  currentAccess = token && expiresInSeconds && expiresInSeconds > 0
+    ? { token, expiresAt: Date.now() + expiresInSeconds * 1000 }
+    : null;
+}
+
+function isExpiringSoon(token: string | null | undefined): token is string {
+  return !!token && currentAccess?.token === token && Date.now() >= currentAccess.expiresAt - ACCESS_TOKEN_REFRESH_MARGIN_MS;
+}
+
+function sessionEndedMessage() {
+  return apiLanguage === 'en' ? 'Your sign-in has expired. Please sign in again.' : '로그인이 끝났어요. 다시 로그인해 주세요.';
+}
+
+/** 서버가 세션을 거절했다. 한꺼번에 여러 요청이 같은 답을 받아도 로그아웃은 한 번만 일으킨다. */
+function endSession(token: string) {
+  if (currentAccess?.token !== token) return;
+  currentAccess = null;
+  unauthorizedHandler?.();
+}
+
+/**
+ * 앱이 다시 앞에 왔을 때 부른다. 표가 끝났거나 곧 끝나면 지금 갱신한다.
+ *
+ * 세션이 이미 끝났으면 돌아온 그 자리에서 로그인 화면으로 보낸다 — 둘러보다가 「저장」을 누르는
+ * 순간에 튕기는 것보다 낫다. 갱신이 통신 문제로 실패하면 아무것도 하지 않는다. 막 깨어난 폰은
+ * 망이 아직 안 붙어 있는 일이 흔하고, 그것은 세션이 끝난 것이 아니다.
+ */
+export async function refreshIfExpiring(): Promise<void> {
+  const token = currentAccess?.token;
+  if (!isExpiringSoon(token)) return;
+  const outcome = await refreshSession();
+  if (outcome.kind === 'rejected') endSession(token);
 }
 
 /**
@@ -297,8 +447,24 @@ function isSafeToRetryMethod(method: string | undefined): boolean {
   return upper === 'GET' || upper === 'HEAD';
 }
 
-export function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  return performRequest<T>(path, options, false);
+export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  return performRequest<T>(path, await withFreshAccessToken(options), false);
+}
+
+/** 들고 가는 접속 표가 곧 끝나면 보내기 전에 갱신한다. 왜 401 을 기다리지 않는지는 currentAccess 에 있다. */
+async function withFreshAccessToken(options: RequestOptions): Promise<RequestOptions> {
+  if (options.skipUnauthorizedHandling || !options.accessToken) return options;
+  const accessToken = options.accessToken === previousAccessToken && currentAccess ? currentAccess.token : options.accessToken;
+  if (!isExpiringSoon(accessToken)) return accessToken === options.accessToken ? options : { ...options, accessToken };
+  const outcome = await refreshSession();
+  if (outcome.kind === 'refreshed') return { ...options, accessToken: outcome.token };
+  if (outcome.kind === 'rejected') {
+    endSession(accessToken);
+    throw new ApiClientError(sessionEndedMessage(), 'SESSION_EXPIRED', 401);
+  }
+  // 갱신이 통신 문제로 실패했다 — 지금 표로 그대로 보낸다. 아직 몇십 초 남았을 수 있고,
+  // 이미 끝났으면 401 을 받는 자리(performRequest)가 한 번 더 갱신을 시도한다.
+  return { ...options, accessToken };
 }
 
 async function performRequest<T>(path: string, options: RequestOptions, isRetry: boolean, rateLimitAttempt = 0): Promise<T> {
@@ -339,6 +505,13 @@ async function performRequest<T>(path: string, options: RequestOptions, isRetry:
     if (requestOptions.signal?.aborted) {
       throw new ApiClientError('요청을 취소했어요.', REQUEST_CANCELLED_CODE, 0);
     }
+    // 🔴 웹에서 fetch 가 던졌다고 «인터넷이 끊겼다»는 뜻이 아니다 — S15P21E201-2060. 서버 앞단(nginx)이 요청이 몰려 503·429 로 막으면
+    //    그 응답에는 CORS 머리(다른 출처 페이지에 응답을 넘겨도 된다는 표시)가 없어서, 브라우저는 응답을 앱에 안 넘기고 fetch 를
+    //    통신 실패와 똑같이 던진다. 그래서 서버는 대답했는데(운영 점검에서 503·429 가 찍혔다) 화면은 「인터넷 연결을 확인해 주세요」였다.
+    //    서버가 대답은 했는지를 따로 본 뒤, 했으면 «바쁨»으로 말한다. 끊김 띠(setApiUnavailable)도 올리지 않는다 — 서버는 살아 있다.
+    if (await serverAnsweredWithoutBrowserAccess()) {
+      throw new ApiClientError(serverBusyMessage(), SERVER_ERROR_CODE, 503);
+    }
     setApiUnavailable(true);
     // 원인을 버리지 않는다. 자세한 이유는 ApiUnavailableError 참고.
     throw new ApiUnavailableError(undefined, describeThrown(error));
@@ -373,6 +546,14 @@ async function performRequest<T>(path: string, options: RequestOptions, isRetry:
       const refreshedToken = await refreshAccessToken();
       if (refreshedToken) return performRequest<T>(path, { ...options, accessToken: refreshedToken }, true);
     }
+    // 회원 토큰 없이 실어 간 출입증을 서버가 모른다 — 오래 안 써서 정리 배치가 지웠거나, 이 기기에서
+    // 로그인하며 넘긴 뒤 지우지 못한 옛 값이다. 그대로 두면 이 기기는 비회원 여행을 영영 못 만든다.
+    // 서버는 이때 신원을 아예 못 채워 AUTHENTICATION_REQUIRED 를 주고, 살아 있는 출입증으로 회원 전용
+    // 경로를 부른 것은 INVALID_AUTHENTICATION 이라 둘이 갈린다. 버린 출입증의 여행은 이미 없다.
+    if (!accessToken && sessionToken && !isRetry && (await errorCodeOf(response)) === 'AUTHENTICATION_REQUIRED') {
+      await resetAnonymousSession();
+      return performRequest<T>(path, options, true, rateLimitAttempt);
+    }
     // — 회원 토큰 없이 부른 요청의 401 은 "세션이 끊겼다"가 아니라 "이 경로는
     // 로그인이 필요하다"는 뜻이다. 서버가 익명 출입증에 401 을 주는 자리가 여럿인데, 그것을
     // 전부 세션 만료로 읽어 로그인 화면으로 튕기면 로그인한 적 없는 사람이 화면을 보기도 전에
@@ -386,8 +567,10 @@ async function performRequest<T>(path: string, options: RequestOptions, isRetry:
   if (!isJson) {
     // 5xx 의 HTML 본문(nginx 의 502 안내 쪽)을 "예상하지 못한 응답" 으로 부르지 않는다.
     // 그 이름이 화면에서 "아직 만들지 않은 기능" 으로 번역되는 것이 이 버그였다.
-    if (serverSideFailure) {
-      throw new ApiClientError(serverErrorMessage(response.status), SERVER_ERROR_CODE, response.status);
+    // 🔴 429(너무 많은 요청)도 같다 — 우리 봉투가 아니라 서버 앞단이 주는 안내라 본문이 JSON 이 아니다. 전에는 「예상하지 못한 서버
+    //    응답이에요. (HTTP 429)」로 나갔다(S15P21E201-2060). 우리 앱이 봉투로 준 429(로그인 시도 한도 등)는 아래 JSON 길이라 그 문장 그대로다.
+    if (serverSideFailure || response.status === 429) {
+      throw new ApiClientError(serverBusyMessage(), SERVER_ERROR_CODE, response.status);
     }
     throw new ApiClientError(`예상하지 못한 서버 응답이에요. (HTTP ${response.status})`, 'INVALID_RESPONSE', response.status);
   }
@@ -406,5 +589,6 @@ async function performRequest<T>(path: string, options: RequestOptions, isRetry:
       envelope.data,
     );
   }
-  return envelope.data;
+  // 안드로이드가 못 받는 공공 사진 주소를 서버 프록시 주소로 바꾼다(S15P21E201-1955).
+  return proxyPublicPhotos(envelope.data, API_BASE_URL);
 }

@@ -1,6 +1,7 @@
 package com.gabolle.backend.story;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -183,5 +184,27 @@ class FollowIntegrationTest {
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.data.storyCount").value(3))
 				.andExpect(jsonPath("$.data.me").value(true));
+	}
+
+	@Test
+	@DisplayName("🔴 남의 프로필에도 그 사람이 고른 배경 사진이 온다 — 안 고른 사람과 나를 차단한 사람은 null")
+	void profileCarriesCoverPhoto() throws Exception {
+		String cover = StoryFixture.IMAGE_BASE + "/2026/09/cover.webp";
+		this.jdbc.update("UPDATE app_user SET cover_url = ? WHERE user_id = ?", cover, this.target);
+
+		this.mockMvc.perform(get("/api/v1/users/{id}/profile", this.target).principal(StoryFixture.as(this.me)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.coverUrl").value(cover));
+		this.mockMvc.perform(get("/api/v1/users/{id}/profile", this.third).principal(StoryFixture.as(this.me)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.coverUrl").value(nullValue()));
+
+		// 상대가 나를 차단하면 숫자처럼 사진 주소도 비워 보낸다
+		this.mockMvc.perform(put("/api/v1/users/{id}/block", this.me).principal(StoryFixture.as(this.target)))
+				.andExpect(status().isOk());
+		this.mockMvc.perform(get("/api/v1/users/{id}/profile", this.target).principal(StoryFixture.as(this.me)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.blockedByUser").value(true))
+				.andExpect(jsonPath("$.data.coverUrl").value(nullValue()));
 	}
 }

@@ -69,7 +69,9 @@ public class LocalMenuReader {
 	}
 
 	public GmsMenuReader.Result read(byte[] jpeg, String language) {
-		String lang = (language != null && LANGUAGES.contains(language)) ? language : "ko";
+		// 베트남어(vi) 사전은 이 컨테이너에 없다 — 빈 칸보다 영어 이름이 읽히므로 영어로 묻는다(S15P21E201-2004).
+		String asked = "vi".equals(language) ? "en" : language;
+		String lang = (asked != null && LANGUAGES.contains(asked)) ? asked : "ko";
 		long started = System.nanoTime();
 		byte[] raw;
 		try {

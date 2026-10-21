@@ -2,6 +2,7 @@ package com.gabolle.backend.place.api;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -54,7 +55,9 @@ public record FestivalResponse(List<FestivalItem> items, int count, boolean hasM
 			LocalDate startDate,
 			LocalDate endDate,
 			PriceLevel priceLevel,
-			List<LocalDate> overlapDates) {
+			List<LocalDate> overlapDates,
+			/** 일본어·중국어 이름 — PlaceSummaryResponse.localNames 와 같다(S15P21E201-1859). 비면 칸째 빠진다. */
+			@JsonInclude(JsonInclude.Include.NON_EMPTY) Map<String, String> localNames) {
 	}
 
 	/**

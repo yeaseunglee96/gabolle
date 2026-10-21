@@ -108,8 +108,9 @@ public class FollowService {
 		boolean me = viewer != null && viewer.equals(target);
 		boolean blockedByUser = viewer != null && !me && this.userBlockRepository.isBlockedBy(target, viewer);
 		if (blockedByUser) {
+			// 배경 사진도 비운다 — 화면은 가려도 응답에 주소가 남는다. 숫자와 같은 이유다.
 			return new UserProfileResponse(target.toString(), user.getDisplayName(), 0L, 0L, 0L, false, false,
-					user.getAvatarUrl(), this.userBlockRepository.hasBlocked(viewer, target), true);
+					user.getAvatarUrl(), null, this.userBlockRepository.hasBlocked(viewer, target), true);
 		}
 		boolean following = viewer != null && !me
 				&& this.userFollowRepository.existsByKey(new UserFollow.Key(viewer, target));
@@ -119,7 +120,7 @@ public class FollowService {
 		return new UserProfileResponse(target.toString(), user.getDisplayName(),
 				this.userFollowRepository.countByKeyFolloweeUserId(target),
 				this.userFollowRepository.countByKeyFollowerUserId(target), stories, following, me,
-				user.getAvatarUrl(), blocked, false);
+				user.getAvatarUrl(), user.getCoverUrl(), blocked, false);
 	}
 
 	/**

@@ -82,17 +82,17 @@ class AuthTokenServiceTest {
 	}
 
 	/**
-	 * 손 놓고 2시간이 지나면 풀린다. 재는 것은 둘이다 — 설정 없이 띄웠을 때의 기본값이
-	 * 2시간인 것과, 갱신할 때마다 만료가 그 시점 기준으로 다시 밀리는 것. 뒤의 것이 없으면
+	 * 손 놓고 2일이 지나면 풀린다(S15P21E201-1978, 전에는 2시간). 재는 것은 둘이다 — 설정 없이 띄웠을 때의 기본값이
+	 * 2일인 것과, 갱신할 때마다 만료가 그 시점 기준으로 다시 밀리는 것. 뒤의 것이 없으면
 	 * 이 값은 손 놓은 시간이 아니라 로그인한 뒤 총 시간이 되어 쓰는 도중에 튕긴다.
 	 */
 	@Test
-	void refreshPushesSessionExpiryToTwoHoursFromNow() {
-		assertThat(new AuthProperties().getRefreshTokenTtl()).isEqualTo(java.time.Duration.ofHours(2));
+	void refreshPushesSessionExpiryToTwoDaysFromNow() {
+		assertThat(new AuthProperties().getRefreshTokenTtl()).isEqualTo(java.time.Duration.ofDays(2));
 
 		String rawToken = "current-refresh-token";
 		String currentHash = tokenGenerator.hash(rawToken);
-		// 만료가 5분밖에 안 남은 세션 — 갱신하면 2시간으로 다시 밀려야 한다
+		// 만료가 5분밖에 안 남은 세션 — 갱신하면 2일로 다시 밀려야 한다
 		AuthSession session = AuthSession.issue(user, UUID.randomUUID(), currentHash, "device-1", now.plusSeconds(300));
 		AuthRefreshToken history = AuthRefreshToken.issue(session, currentHash, now.plusSeconds(300));
 		when(refreshTokenRepository.findByTokenHash(currentHash)).thenReturn(Optional.of(history));
@@ -106,7 +106,7 @@ class AuthTokenServiceTest {
 
 		service.refresh(rawToken, "device-1");
 
-		assertThat(session.getExpiresAt()).isEqualTo(now.plus(java.time.Duration.ofHours(2)));
+		assertThat(session.getExpiresAt()).isEqualTo(now.plus(java.time.Duration.ofDays(2)));
 	}
 
 	/**

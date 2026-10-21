@@ -47,6 +47,11 @@ class WalkGraphTest {
 				{ new int[] { 0, 3, 2 }, false, -1 },
 				{ new int[] { 4, 5 }, false, 10 },
 		};
+		return graph(nodes, ways);
+	}
+
+	/** 점과 길로 GBWG v1 파일을 써서 읽힌다. 길은 {@code { 점 번호들, 계단, 경사 천분율 }} 이다. */
+	private static WalkGraph graph(double[][] nodes, Object[][] ways) throws IOException {
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 		try (DataOutputStream out = new DataOutputStream(new GZIPOutputStream(bytes))) {
 			out.writeBytes("GBWG");
@@ -141,5 +146,113 @@ class WalkGraphTest {
 
 		assertThat(planar / haversine).isBetween(0.995, 1.005);
 		assertThat(List.of(planar)).isNotEmpty();
+	}
+
+	// ── 계단·급경사를 피하는 길(stepFree) ──────────────────────────────────────
+
+	private static boolean anyStairs(WalkGraph.Route route) {
+		return route.pieces().stream().anyMatch(RouteLeg.Piece::stairs);
+	}
+
+	@Test
+	@DisplayName("보통 길은 전과 같다 — 짧은 계단 길(A-B-C 약 200m)을 탄다")
+	void defaultTakesShortStairs() throws IOException {
+		WalkGraph.Route route = sample().route(A[0], A[1], C[0], C[1], false).orElseThrow();
+
+		assertThat(anyStairs(route)).isTrue();
+		assertThat(route.meters()).isBetween(190.0, 215.0);
+	}
+
+	@Test
+	@DisplayName("🔴 계단 피하는 찾기가 점 수 상한에 걸리면 빈 값이 아니라 가장 짧은 길을 내고 「못 들어줬다」고 적는다")
+	void stepFreeFallsBackToShortestWhenBudgetRunsOut() throws IOException {
+		// 상한 2. 보통 찾기는 A·B 두 점만 확정하고 C 에 닿는다. 피하는 찾기는 계단(B-C)이 비싸 D 까지 확정해야 해서
+		// 상한을 넘는다. 예전에는 여기서 빈 값 → 직선 어림으로 떨어져 길 모양도 계단 표시도 사라졌다.
+		WalkGraph tight = sample().withMaxSettled(2);
+
+		WalkGraph.Route route = tight.route(A[0], A[1], C[0], C[1], true).orElseThrow();
+
+		assertThat(route.stepFreeHonored()).as("계단을 피해 달라는 부탁을 못 들어줬다").isFalse();
+		assertThat(anyStairs(route)).as("대신 낸 길의 계단이 조각에 칠해진다").isTrue();
+		assertThat(route.meters()).isBetween(190.0, 215.0);
+		assertThat(tight.route(A[0], A[1], C[0], C[1], false).orElseThrow().stepFreeHonored())
+				.as("부탁이 없던 보통 길은 늘 참").isTrue();
+	}
+
+	@Test
+	@DisplayName("걷기 답에 계단 피하기를 들어줬는지가 실린다 — 부탁이 없었으면 null")
+	void providerCarriesStepFreeHonored() throws IOException {
+		WalkGraphRouteProvider provider = new WalkGraphRouteProvider(new com.gabolle.backend.route.config.RouteProperties());
+		WalkGraph.Route fallback = sample().withMaxSettled(2).route(A[0], A[1], C[0], C[1], true).orElseThrow();
+		WalkGraph.Route plain = sample().route(A[0], A[1], C[0], C[1], false).orElseThrow();
+
+		assertThat(provider.legOf(fallback, true).stepFreeHonored()).isFalse();
+		assertThat(provider.legOf(plain, false).stepFreeHonored()).isNull();
+		assertThat(com.gabolle.backend.route.presentation.dto.RouteDirectionsResponse
+				.from(provider.legOf(fallback, true)).stepFreeHonored()).isFalse();
+	}
+
+	@Test
+	@DisplayName("🔴 계단을 피하는 길은 더 길어도 계단 없는 A-D-C 로 돌아간다 — 거리는 치른 값이 아니라 실제 길이다")
+	void stepFreeTakesLongerDetour() throws IOException {
+		WalkGraph.Route route = sample().route(A[0], A[1], C[0], C[1], true).orElseThrow();
+
+		assertThat(anyStairs(route)).as("휠체어에 계단을 내지 않는다").isFalse();
+		assertThat(route.stepFreeHonored()).isTrue();
+		assertThat(route.path()).hasSize(5); // 출발 · A · D · C · 도착
+		assertThat(route.path().get(2)).as("D 를 지난다").containsExactly(D[1], D[0]);
+		// A-D·D-C 는 각각 약 149m. 계단 배수(×25)가 섞였다면 수천 m 가 된다.
+		assertThat(route.meters()).isBetween(280.0, 320.0);
+	}
+
+	@Test
+	@DisplayName("🔴 계단 말고 이을 길이 없으면 계단 길이라도 낸다 — 경로가 사라지면 계단이 있는지조차 안 보인다")
+	void stepFreeStillUsesStairsWhenOnlyWay() throws IOException {
+		double[] p = { 35.2000, 129.0000 };
+		double[] q = { 35.2000, 129.0011 };
+		double[] r = { 35.2000, 129.0022 };
+		WalkGraph graph = graph(new double[][] { p, q, r }, new Object[][] {
+				{ new int[] { 0, 1 }, false, 10 },
+				{ new int[] { 1, 2 }, true, -1 },
+		});
+
+		WalkGraph.Route route = graph.route(p[0], p[1], r[0], r[1], true).orElseThrow();
+
+		assertThat(anyStairs(route)).as("계단 표시가 조각에 남는다").isTrue();
+		assertThat(route.meters()).isBetween(190.0, 215.0);
+	}
+
+	@Test
+	@DisplayName("🔴 계단을 피하는 길은 4배 안쪽의 평지 길이 있으면 8.33% 넘는 가파른 길을 피한다")
+	void stepFreeAvoidsSteepWay() throws IOException {
+		// A-B-C 한 길이 120‰(12%) 로 가파르다(약 200m). A-D-C 는 경사 30‰ 평지(약 298m) — 4배(800m) 안쪽이다.
+		WalkGraph graph = graph(new double[][] { A, B, C, D }, new Object[][] {
+				{ new int[] { 0, 1, 2 }, false, 120 },
+				{ new int[] { 0, 3, 2 }, false, 30 },
+		});
+
+		WalkGraph.Route plain = graph.route(A[0], A[1], C[0], C[1], false).orElseThrow();
+		WalkGraph.Route stepFree = graph.route(A[0], A[1], C[0], C[1], true).orElseThrow();
+
+		assertThat(plain.pieces()).anyMatch((piece) -> Double.valueOf(12.0).equals(piece.slopePercent()));
+		assertThat(stepFree.pieces()).noneMatch((piece) -> Double.valueOf(12.0).equals(piece.slopePercent()));
+		assertThat(stepFree.path().get(2)).as("D 를 지난다").containsExactly(D[1], D[0]);
+	}
+
+	@Test
+	@DisplayName("🔴 같은 두 점을 잇는 길이 둘이면 조각에도 찾기가 고른 쪽이 실린다 — 계단 옆 경사로")
+	void parallelEdgeReportsTheOneSearched() throws IOException {
+		double[] x = { 35.3000, 129.0000 };
+		double[] y = { 35.3000, 129.0011 };
+		// 둘은 길이가 같다. 먼저 적힌 쪽이 계단이다.
+		WalkGraph graph = graph(new double[][] { x, y }, new Object[][] {
+				{ new int[] { 0, 1 }, true, -1 },
+				{ new int[] { 0, 1 }, false, 40 },
+		});
+
+		WalkGraph.Route route = graph.route(x[0], x[1], y[0], y[1], true).orElseThrow();
+
+		assertThat(anyStairs(route)).isFalse();
+		assertThat(route.pieces()).anyMatch((piece) -> Double.valueOf(4.0).equals(piece.slopePercent()));
 	}
 }

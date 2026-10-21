@@ -261,6 +261,49 @@ class BaselineCandidateScorerTest {
 	}
 
 	@Test
+	@DisplayName("🔴 「되도록」이면 재 봐서 못 간다고 나온 곳도 빼지 않고 경고 ACCESS_VERIFIED_UNAVAILABLE 만 단다 — 경사와 같은 규칙")
+	void 되도록이면_검증된_접근불가도_경고만() {
+		TripConstraint wheelchair = mobility("WHEELCHAIR", TripConstraint.Severity.SOFT);
+		PlaceCandidateResponse.Candidate candidate = candidate(
+				List.of(tag("ACCESSIBILITY_TAG", "WHEELCHAIR", "VERIFIED", "false")));
+
+		EngineCandidate result = score(candidate, null, List.of(wheelchair));
+		EngineCandidate verified = score(
+				candidate(List.of(tag("ACCESSIBILITY_TAG", "WHEELCHAIR", "VERIFIED", "true"))), null,
+				List.of(wheelchair));
+
+		assertThat(result.constraintVerdict()).isNotEqualTo(ConstraintVerdict.FAIL);
+		assertThat(result.violations()).isEmpty();
+		assertThat(result.warningCodes()).containsOnlyOnce("ACCESS_VERIFIED_UNAVAILABLE");
+		assertThat(result.preRankScore()).as("못 간다고 나온 곳은 갈 수 있는 곳보다 뒤로 밀린다")
+				.isLessThan(verified.preRankScore());
+	}
+
+	@Test
+	@DisplayName("「되도록」 휠체어·유아차를 같이 고르고 둘 다 못 간다고 나와도 경고는 한 번만 붙는다")
+	void 되도록_검증된_접근불가_경고는_한번만() {
+		PlaceCandidateResponse.Candidate candidate = candidate(List.of(
+				tag("ACCESSIBILITY_TAG", "WHEELCHAIR", "VERIFIED", "false"),
+				tag("ACCESSIBILITY_TAG", "STROLLER", "VERIFIED", "false")));
+
+		EngineCandidate result = score(candidate, null, List.of(
+				mobility("WHEELCHAIR", TripConstraint.Severity.SOFT),
+				mobility("STROLLER", TripConstraint.Severity.SOFT)));
+
+		assertThat(result.warningCodes()).containsOnlyOnce("ACCESS_VERIFIED_UNAVAILABLE");
+	}
+
+	@Test
+	@DisplayName("🔴 휠체어·유아차를 같이 골라도 「접근성 미확인」 경고는 한 번만 붙는다 — 화면에 두 줄 뜨던 것")
+	void 미확인_경고는_조건이_둘이어도_한번만() {
+		EngineCandidate result = score(candidate(List.of()), null, List.of(
+				mobility("WHEELCHAIR", TripConstraint.Severity.HARD),
+				mobility("STROLLER", TripConstraint.Severity.SOFT)));
+
+		assertThat(result.warningCodes()).containsOnlyOnce("ACCESSIBILITY_UNVERIFIED");
+	}
+
+	@Test
 	@DisplayName("🔴 MOBILITY 미확인은 FAIL 이 아니라 경고다 — S15P21E201-540")
 	void 이동제약_미확인은_FAIL이_아니라_경고다() {
 		TripConstraint stroller = mobility("STROLLER", TripConstraint.Severity.SOFT);
@@ -320,6 +363,28 @@ class BaselineCandidateScorerTest {
 
 		assertThat(result.constraintVerdict()).isNotEqualTo(ConstraintVerdict.FAIL);
 		assertThat(result.warningCodes()).contains("ACCESSIBILITY_UNVERIFIED").doesNotContain("SLOPE_OVER_LIMIT");
+	}
+
+	@Test
+	@DisplayName("🔴 큰 짐은 경사로만 가른다 — 표식이 생길 수 없어 「미확인」 경고를 붙이지 않는다")
+	void 큰_짐은_미확인_경고_없이_경사만() {
+		// 완만하면 통과하고 경고가 하나도 없다 — 전에는 거의 모든 곳에 ACCESSIBILITY_UNVERIFIED 가 붙었다.
+		EngineCandidate flat = score(candidateOf("NATURE_WALK", List.of(slope(2.8))), null,
+				List.of(mobility("HEAVY_LUGGAGE", TripConstraint.Severity.HARD)));
+		assertThat(flat.constraintVerdict()).isNotEqualTo(ConstraintVerdict.FAIL);
+		assertThat(flat.warningCodes()).doesNotContain("ACCESSIBILITY_UNVERIFIED", "SLOPE_OVER_LIMIT");
+
+		// 경사를 모르면 아무것도 안 붙는다 — 모르는 것을 「가파르다」로도 「확인 안 됨」으로도 바꾸지 않는다.
+		EngineCandidate unknown = score(candidateOf("NATURE_WALK", List.of()), null,
+				List.of(mobility("HEAVY_LUGGAGE", TripConstraint.Severity.HARD)));
+		assertThat(unknown.constraintVerdict()).isNotEqualTo(ConstraintVerdict.FAIL);
+		assertThat(unknown.warningCodes()).doesNotContain("ACCESSIBILITY_UNVERIFIED");
+
+		// 「되도록」이면 가팔라도 빼지 않고 경사 경고만 — 휠체어·유아차와 같은 규칙이다.
+		EngineCandidate soft = score(candidateOf("NATURE_WALK", List.of(slope(16.0))), null,
+				List.of(mobility("HEAVY_LUGGAGE", TripConstraint.Severity.SOFT)));
+		assertThat(soft.constraintVerdict()).isNotEqualTo(ConstraintVerdict.FAIL);
+		assertThat(soft.warningCodes()).contains("SLOPE_OVER_LIMIT").doesNotContain("ACCESSIBILITY_UNVERIFIED");
 	}
 
 	@Test

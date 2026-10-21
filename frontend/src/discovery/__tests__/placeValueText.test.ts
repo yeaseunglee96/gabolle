@@ -1,5 +1,5 @@
 // 장소 상세가 서버 값을 사람이 읽는 말로 옮기는가 — S15P21E201-1202.
-import { formatFeatureSlot, formatOpeningHoursValue, formatSlopePercent } from '../places';
+import { formatFeatureSlot, formatOpeningHoursValue, formatSlopePercent, knownAccessText } from '../places';
 import type { Place } from '../places';
 
 const tx = (ko: string) => ko;
@@ -23,7 +23,7 @@ function placeWith(featureType: string, value: unknown, evidenceStatus = 'ESTIMA
 describe('경사도 — JSON 을 화면에 내보내지 않는다', () => {
   it('🔴 서버가 객체로 줘도 사람이 읽는 값이 나간다', () => {
     const text = formatSlopePercent(placeWith('SLOPE_PERCENT', SLOPE_VALUE), tx);
-    expect(text).toBe('2.7% (추정)');
+    expect(text).toBe('완만해요 (추정)');
   });
 
   it('🔴 어떤 모양이 와도 중괄호가 화면에 안 나간다', () => {
@@ -34,8 +34,8 @@ describe('경사도 — JSON 을 화면에 내보내지 않는다', () => {
     }
   });
 
-  it('숫자로 오면 예전처럼 % 를 붙인다', () => {
-    expect(formatSlopePercent(placeWith('SLOPE_PERCENT', 3.5), tx)).toBe('3.5% (추정)');
+  it('🔴 숫자로 와도 % 숫자 없이 말로만 낸다 (S15P21E201-2023)', () => {
+    expect(formatSlopePercent(placeWith('SLOPE_PERCENT', 3.5), tx)).toBe('완만해요 (추정)');
   });
 
   it('못 읽는 모양이면 JSON 이 아니라 문장으로 물러선다', () => {
@@ -44,7 +44,32 @@ describe('경사도 — JSON 을 화면에 내보내지 않는다', () => {
   });
 });
 
+describe('경사 — 숫자 없이 말로만(지도 경사 색과 같은 문턱)', () => {
+  it('5% 미만은 완만 · 8.33% 까지는 조금 가파름 · 그 위는 가파름', () => {
+    expect(formatSlopePercent(placeWith('SLOPE_PERCENT', 4.9, 'VERIFIED'), tx)).toBe('완만해요');
+    expect(formatSlopePercent(placeWith('SLOPE_PERCENT', 8.33, 'VERIFIED'), tx)).toBe('조금 가파라요');
+    expect(formatSlopePercent(placeWith('SLOPE_PERCENT', 12, 'VERIFIED'), tx)).toBe('가파라요');
+  });
+});
+
 describe('영업시간 — 서버가 읽었다고 한 것을 화면도 읽는다', () => {
+  it('🔴 이어진 요일의 같은 시간은 한 덩어리로, 쉬는 날(closedDays)은 따로 말한다 — 운영 국제시장 응답', () => {
+    const day = [['09:00', '20:00']];
+    const value = { byDay: { mon: day, tue: day, wed: day, thu: day, fri: day, sat: day, sun: [] }, closedDays: ['sun'], status: 'PARSED' };
+    expect(formatOpeningHoursValue(value, tx)).toBe('월–토 09:00~20:00\n일요일 휴무');
+  });
+
+  it('둘만 이어지면 가운뎃점, 끊기면 따로', () => {
+    const a = [['10:00', '18:00']]; const b = [['11:00', '15:00']];
+    const value = { byDay: { mon: a, tue: a, thu: a, sat: b, sun: b } };
+    expect(formatOpeningHoursValue(value, tx)).toBe('월·화 10:00~18:00 · 목 10:00~18:00 · 토·일 11:00~15:00');
+  });
+
+  it('closedDays 가 없으면 쉬는 날 줄도 없다 — 모르는 것을 지어내지 않는다', () => {
+    const day = [['09:00', '20:00']];
+    expect(formatOpeningHoursValue({ byDay: { mon: day, tue: day, wed: day } }, tx)).toBe('월–수 09:00~20:00');
+  });
+
   it('🔴 일곱 요일이 같으면 「매일」 한 줄로 묶는다', () => {
     expect(formatOpeningHoursValue(HOURS_VALUE, tx)).toBe('매일 10:00~20:00');
   });
@@ -68,5 +93,19 @@ describe('영업시간 — 서버가 읽었다고 한 것을 화면도 읽는다
     const shown = formatFeatureSlot({ value: HOURS_VALUE, evidenceStatus: 'ESTIMATED' } as never, tx) ?? '';
     expect(shown).toBe('매일 10:00~20:00 (추정)');
     expect(shown).not.toContain('{');
+  });
+});
+
+describe('장소 화면의 계단·경사 — 확인한 것만 보인다 (2026-10-17)', () => {
+  it('확인했거나 추정한 값은 보인다', () => {
+    expect(knownAccessText(placeWith('STAIRS_PRESENT', false, 'VERIFIED'), 'STAIRS_PRESENT', tx)).toBe('계단 없음');
+    expect(knownAccessText(placeWith('STAIRS_PRESENT', true), 'STAIRS_PRESENT', tx)).toContain('계단 있음');
+    expect(knownAccessText(placeWith('SLOPE_PERCENT', SLOPE_VALUE), 'SLOPE_PERCENT', tx)).toBeTruthy();
+  });
+  it('🔴 확인 못 한 장소는 줄을 그리지 않는다 — 「아직 확인하지 않았어요」를 반복하지 않는다', () => {
+    expect(knownAccessText(placeWith('STAIRS_PRESENT', null, 'NOT_COLLECTED'), 'STAIRS_PRESENT', tx)).toBeNull();
+    expect(knownAccessText(placeWith('STAIRS_PRESENT', null, 'UNKNOWN'), 'STAIRS_PRESENT', tx)).toBeNull();
+    expect(knownAccessText(placeWith('SLOPE_PERCENT', 'garbage'), 'SLOPE_PERCENT', tx)).toBeNull();
+    expect(knownAccessText({ features: [] } as unknown as Place, 'SLOPE_PERCENT', tx)).toBeNull();
   });
 });

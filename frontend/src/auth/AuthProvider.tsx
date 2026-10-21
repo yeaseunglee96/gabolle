@@ -1,10 +1,13 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { getCurrentLanguage } from '@/i18n/languages';
 import { pickLanguage } from '@/i18n/pick';
-import { Platform } from 'react-native';
+import { AppState, Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import { useRouter } from 'expo-router';
-import { setRefreshHandler, setUnauthorizedHandler } from '@/api/client';
+import { refreshIfExpiring, resetAnonymousSession, setRefreshHandler, setUnauthorizedHandler, trackAccessToken } from '@/api/client';
+import { queryClient } from '@/api/queryClient';
+import { invalidateTripLists } from '@/trip/trips';
+import { handOverGuestTrips } from './guestHandover';
 import { deleteMe, getMe, login, logoutMobileSession, logoutWebSession, refreshMobileSession, refreshWebSession, updateMe, type AuthTokens, type AuthUser, type SignupLanguage, type UpdateMeInput } from './authApi';
 import { clearFirstRunMarks } from '@/onboarding/firstRun';
 import { useOnboardingPreferences } from '@/onboarding/OnboardingPreferences';
@@ -16,6 +19,12 @@ import { registerPushToken, unregisterPushToken } from '@/notifications/pushToke
 const tx = (ko: string, en: string) => pickLanguage(getCurrentLanguage(), { ko, en });
 
 const REFRESH_TOKEN_KEY = 'gabolle.refresh-token';
+// 로그인을 «방금 마쳤을 때»만 부른다(앱을 다시 켜서 세션을 되살릴 때는 안 부른다). 이 기기에서 비회원으로 만든 여행을
+// 계정으로 넘기고, 넘긴 것이 있으면 여행 목록을 다시 읽게 한다 — 목록 키에 사용자가 없는 곳(홈)이 있어서다.
+async function afterSignIn(accessToken: string) {
+  const claimed = await handOverGuestTrips(accessToken);
+  if (claimed > 0) void invalidateTripLists(queryClient);
+}
 type AuthContextValue = { accessToken: string | null; user: AuthUser | null; ready: boolean; signIn: (email: string, password: string) => Promise<void>; acceptTokens: (tokens: AuthTokens) => Promise<void>; updateProfile: (input: UpdateMeInput) => Promise<void>; deleteAccount: (confirmation: string) => Promise<void>; clearSession: () => void; signOut: () => Promise<void> };
 const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -28,8 +37,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const setRefreshToken = (value: string | null) => { refreshTokenRef.current = value; setRefreshTokenState(value); };
   const [user, setUser] = useState<AuthUser | null>(null);
   const [ready, setReady] = useState(false);
+  // 접속 표는 언제나 이 함수로 바꾼다 — 끝나는 시각을 api/client 가 알아야 요청 앞에서 미리 갱신한다.
+  const applyAccess = (tokens: AuthTokens) => {
+    setAccessToken(tokens.accessToken);
+    trackAccessToken(tokens.accessToken, tokens.expiresIn);
+  };
   const clearSession = () => {
     setAccessToken(null);
+    trackAccessToken(null);
     setRefreshToken(null);
     setUser(null);
     if (Platform.OS !== 'web') void SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
@@ -40,28 +55,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
   useEffect(() => {
     setUnauthorizedHandler(() => { clearSession(); router.replace('/sign-in'); });
+    // 실패를 여기서 삼키지 않는다 — 서버의 거절(401)과 잠깐 못 닿은 것을 api/client 가 갈라 본다.
     setRefreshHandler(async () => {
-      try {
-        if (Platform.OS === 'web') {
-          const tokens = await refreshWebSession();
-          setAccessToken(tokens.accessToken);
-          applyUser(tokens.user);
-          return tokens.accessToken;
-        }
-        // 가둔 값이 아니라 지금 값을 본다. 앱을 다시 켠 직후처럼 ref 가 아직 비어 있을
-        // 수 있으니, 그때는 저장소를 한 번 읽어 본다 — 있는 표를 없다고 답하지 않기 위해서다.
-        // (여기는 web 이 위에서 이미 돌아간 뒤라 기기 저장소만 본다)
-        const current = refreshTokenRef.current ?? await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
-        if (!current) return null;
-        const tokens = await refreshMobileSession(current);
-        setAccessToken(tokens.accessToken);
-        setRefreshToken(tokens.refreshToken);
+      if (Platform.OS === 'web') {
+        const tokens = await refreshWebSession();
+        applyAccess(tokens);
         applyUser(tokens.user);
-        if (tokens.refreshToken) await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, tokens.refreshToken);
         return tokens.accessToken;
-      } catch {
-        return null;
       }
+      // 가둔 값이 아니라 지금 값을 본다. 앱을 다시 켠 직후처럼 ref 가 아직 비어 있을
+      // 수 있으니, 그때는 저장소를 한 번 읽어 본다 — 있는 표를 없다고 답하지 않기 위해서다.
+      // (여기는 web 이 위에서 이미 돌아간 뒤라 기기 저장소만 본다)
+      const current = refreshTokenRef.current ?? await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
+      if (!current) return null;
+      const tokens = await refreshMobileSession(current);
+      applyAccess(tokens);
+      setRefreshToken(tokens.refreshToken);
+      applyUser(tokens.user);
+      if (tokens.refreshToken) await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, tokens.refreshToken);
+      return tokens.accessToken;
     });
     return () => { setUnauthorizedHandler(null); setRefreshHandler(null); };
     // refreshToken 을 의존성에 두지 않는다 — 값이 바뀔 때마다 등록을 풀었다 다시 거는
@@ -74,7 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (Platform.OS === 'web') {
           const tokens = await refreshWebSession();
           const currentUser = await getMe(tokens.accessToken);
-          if (active) { setAccessToken(tokens.accessToken); applyUser(currentUser); }
+          if (active) { applyAccess(tokens); applyUser(currentUser); }
           return;
         }
         const tokens = await restoreMobileAuth({
@@ -84,7 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }, refreshMobileSession);
         if (!tokens) return;
         if (active) {
-          setAccessToken(tokens.accessToken);
+          applyAccess(tokens);
           setRefreshToken(tokens.refreshToken);
           applyUser(tokens.user);
         }
@@ -98,6 +110,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     void restore();
     return () => { active = false; };
   }, []);
+  // 앱(웹은 탭)이 다시 앞에 오면 접속 표를 본다. 폰은 뒤에 있는 동안 타이머가 멈추고, 돌아와서 처음
+  // 보는 화면이 공개 화면이면 끝난 표가 익명으로 통과해 갱신이 안 일어난다 — 그래서 여기서 직접 본다.
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (state) => { if (state === 'active') void refreshIfExpiring(); });
+    return () => subscription.remove();
+  }, []);
   // 푸시 토큰 — 로그인한 사용자 한 명당 한 번(S15P21E201-1429). 권한이 없으면 조용히 건너뛰고, 권한을 나중에 켜면
   //    설정 「알림」에서 돌아올 때 다시 시도한다. 실패는 로그인에 아무 영향이 없다.
   const pushRegisteredFor = useRef<string | null>(null);
@@ -109,13 +127,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [accessToken, user?.userId]);
 
   const value = useMemo<AuthContextValue>(() => ({ accessToken, user, ready, clearSession,
-    signIn: async (email, password) => { const tokens = await login(email, password); const currentUser = await getMe(tokens.accessToken); setAccessToken(tokens.accessToken); setRefreshToken(tokens.refreshToken); applyUser(currentUser); if (Platform.OS !== 'web' && tokens.refreshToken) await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, tokens.refreshToken); },
-    acceptTokens: async (tokens) => { const currentUser = await getMe(tokens.accessToken); setAccessToken(tokens.accessToken); setRefreshToken(tokens.refreshToken); applyUser(currentUser); if (Platform.OS !== 'web' && tokens.refreshToken) await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, tokens.refreshToken); },
+    signIn: async (email, password) => { const tokens = await login(email, password); const currentUser = await getMe(tokens.accessToken); applyAccess(tokens); setRefreshToken(tokens.refreshToken); applyUser(currentUser); if (Platform.OS !== 'web' && tokens.refreshToken) await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, tokens.refreshToken); await afterSignIn(tokens.accessToken); },
+    acceptTokens: async (tokens) => { const currentUser = await getMe(tokens.accessToken); applyAccess(tokens); setRefreshToken(tokens.refreshToken); applyUser(currentUser); if (Platform.OS !== 'web' && tokens.refreshToken) await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, tokens.refreshToken); await afterSignIn(tokens.accessToken); },
     updateProfile: async (input) => { if (!accessToken) throw new Error(tx('로그인이 필요합니다.', 'Please sign in.')); const currentUser = await updateMe(accessToken, input); applyUser(currentUser); },
-    deleteAccount: async (confirmation) => { if (!accessToken) throw new Error(tx('로그인이 필요합니다.', 'Please sign in.')); await deleteMe(accessToken, confirmation); await clearSavedTrips(); await clearFirstRunMarks(); preferences.reset(); clearSession(); router.replace('/'); },
+    deleteAccount: async (confirmation) => { if (!accessToken) throw new Error(tx('로그인이 필요합니다.', 'Please sign in.')); await deleteMe(accessToken, confirmation); await clearSavedTrips(); await clearFirstRunMarks(); await resetAnonymousSession(); preferences.reset(); clearSession(); router.replace('/'); },
     // 로그아웃해도 이 기기에 남는 것들을 정리한다 — 안 그러면 같은 기기에서 다음 사람이
     // 로그인했을 때 앞사람의 여행 목록·언어·이동 성향이 그대로 보인다.
-    signOut: async () => { pushRegisteredFor.current = null; await unregisterPushToken(accessToken); try { if (Platform.OS === 'web') await logoutWebSession(); else if (refreshToken) await logoutMobileSession(refreshToken); } finally { await clearSavedTrips(); await clearFirstRunMarks(); preferences.reset(); clearSession(); router.replace('/sign-in'); } },
+    signOut: async () => { pushRegisteredFor.current = null; await unregisterPushToken(accessToken); try { if (Platform.OS === 'web') await logoutWebSession(); else if (refreshToken) await logoutMobileSession(refreshToken); } finally { await clearSavedTrips(); await clearFirstRunMarks(); await resetAnonymousSession(); preferences.reset(); clearSession(); router.replace('/sign-in'); } },
   }), [accessToken, preferences, ready, refreshToken, router, user]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

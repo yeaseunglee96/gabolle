@@ -110,7 +110,11 @@ public record PreferenceAlignmentWeights(
 	 * 비어 있어 못 구한 차원만큼 기여가 줄어드는데, 그것은 데이터가 없다는 이유로 그 장소를
 	 * 깎는 것이라 취향이 안 맞아서 깎이는 것과 구별되지 않는다.
 	 *
-	 * @param alignments 취향 코드 → 정렬도(0~1). 채점기가 값을 구한 차원만 담는다.
+	 * <p>🔴 다만 <b>사용자가 답한 축인데 장소 값만 없으면</b> 채점기가 빼지 않고 중간값을 채워 넘긴다
+	 * ({@code BaselineCandidateScorer.applyAlignmentDimension}). 빼고 다시 정규화하면 자료가 없는 곳이
+	 * 평균적인 곳을 이기기 때문이다. 여기서 빠지는 것은 사용자가 안 본 축뿐이다.
+	 *
+	 * @param alignments 취향 코드 → 정렬도(0~1). 채점기가 값을 구했거나 중간값으로 채운 차원만 담는다.
 	 *     {@code null} 값이 든 항목은 못 구한 것으로 보고 건너뛴다
 	 * @return 가중평균, 또는 낼 근거가 없으면 {@code null}
 	 */

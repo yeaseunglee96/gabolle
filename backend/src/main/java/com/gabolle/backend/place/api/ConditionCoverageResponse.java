@@ -23,7 +23,9 @@ public record ConditionCoverageResponse(List<Condition> conditions) {
 	 * @param code 사용자 문항 코드. 예: {@code ALLERGY}·{@code SLOPE_PREFERENCE}
 	 * @param features 이 문항이 보는 장소 표식들. <b>여럿일 수 있다</b> — {@code MOBILITY} 는
 	 *     접근성과 계단 둘을 본다. 뭉치지 않고 갈라서 주는 이유는 지금 접근성은 102곳인데
-	 *     계단은 0곳이라, 합치면 「이동 조건 자료 있음」이 되어 계단 쪽 거짓말을 덮기 때문이다
+	 *     계단은 0곳이라, 합치면 「이동 조건 자료 있음」이 되어 계단 쪽 거짓말을 덮기 때문이다.
+	 *     {@code MOBILITY} 에는 맨 뒤에 {@code SLOPE_PERCENT}(장소 경사)도 실린다 — 대조표에는 없지만 채점기가 접근성
+	 *     표식이 없는 곳을 경사로 가르므로 그것도 판정 자료다({@code ConditionCoverageService.SCORER_ONLY_FEATURES})
 	 */
 	public record Condition(String kind, String code, List<Feature> features) {
 	}

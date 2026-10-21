@@ -33,6 +33,14 @@ export type TripPassData = {
   url: string | null;
   /** 바코드 아래 한 줄. */
   validText: string;
+  /**
+   * 첫·마지막 일정 — 「09:30 해운대 바다 산책 → 17:30 광안리 노을」(UI 캔버스 ⑤-6).
+   * 🔴 전에는 「출발 09:30 → 도착 부산 17:30」이라 17:30 에 부산에 «도착»하는 것처럼 읽혔다. 둘 다 있을 때만 채운다.
+   */
+  firstStop: { time: string | null; name: string } | null;
+  lastStop: { time: string | null; name: string } | null;
+  /** 「이 조건을 지켜서 만들었어요」 — 부르는 쪽이 넘긴 조건 이름. 없으면 빈 배열이고 화면이 칸을 안 그린다. */
+  conditions: string[];
 };
 
 const WEEKDAY_KO = ['일', '월', '화', '수', '목', '금', '토'];
@@ -63,6 +71,9 @@ function formatTime(value: string | null | undefined): string | null {
   const date = parseDate(value);
   // 날짜만 있는 값(길이 10)에서 시각을 만들지 않는다. 00:00 이 출발 시각인 척한다.
   if (!date || !value || value.length === 10) return null;
+  // 🔴 기기 시간대로 옮기지 않는다 — 문자열의 벽시계(여행지 시각)를 그대로 쓴다(S15P21E201-2043).
+  const wall = /^\d{4}-\d{2}-\d{2}T(\d{2}):(\d{2})/.exec(value);
+  if (wall) return `${wall[1]}:${wall[2]}`;
   return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
 }
 
@@ -113,6 +124,8 @@ export type TripPassInput = {
   language: LanguageCode;
   /** 장소별 영어 이름 — 영어 화면에서 첫·마지막 일정 이름에 쓴다(S15P21E201-1735). 모르면 로마자. */
   nameEnByPlaceId?: Record<string, string | null | undefined>;
+  /** 일정을 만들 때 지킨 조건 이름(화면 언어). 확인 표와 같은 값이다. */
+  conditions?: string[];
 };
 
 export function buildTripPass(input: TripPassInput): TripPassData {
@@ -159,7 +172,11 @@ export function buildTripPass(input: TripPassInput): TripPassData {
 
   const firstTitle = allItems[0]?.title?.trim();
   const firstStopName = firstTitle ? stopNameForLanguage(firstTitle, input.nameEnByPlaceId?.[allItems[0].placeId], input.language) : undefined;
-  if (firstStopName) fields.push({ key: tx('첫 일정', 'First stop'), value: firstStopName, wide: true });
+  const lastItem = allItems.length > 1 ? allItems.at(-1) : undefined;
+  const lastTitle = lastItem?.title?.trim();
+  const lastStopName = lastItem && lastTitle ? stopNameForLanguage(lastTitle, input.nameEnByPlaceId?.[lastItem.placeId], input.language) : undefined;
+  // 첫·마지막 일정이 둘 다 있으면 앞면 위 줄에 크게 적으므로 칸에서는 뺀다(같은 말을 두 번 하지 않는다).
+  if (firstStopName && !lastStopName) fields.push({ key: tx('첫 일정', 'First stop'), value: firstStopName, wide: true });
 
   const modeKey = (input.transport ?? '').toUpperCase();
   const modeLabel = MODE_LABEL[modeKey];
@@ -179,6 +196,9 @@ export function buildTripPass(input: TripPassInput): TripPassData {
     validText: dateRange
       ? txf(tx, '이 승차권은 %s 여행에만 쓸 수 있어요', 'Valid for %s', dateRange)
       : tx('가볼래 여행 승차권', 'GABOLLE trip pass'),
+    firstStop: firstStopName && lastStopName ? { time: formatTime(allItems[0]?.startsAt), name: firstStopName } : null,
+    lastStop: firstStopName && lastStopName ? { time: formatTime(lastItem?.startsAt), name: lastStopName } : null,
+    conditions: (input.conditions ?? []).filter(Boolean),
   };
 }
 

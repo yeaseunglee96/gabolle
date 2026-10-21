@@ -25,7 +25,7 @@ import com.gabolle.backend.route.domain.TravelMode;
  * 업체가 없어 늘 직선 × 배수 어림이었다. 오픈스트리트맵 걷는 길로 서버 안에서 찾는다. 일정 조립의 걷는 시간도 같은
  * 창구({@code RouteQueryService})를 거치므로 같이 바뀐다 — 지도에 그린 길과 일정 시간이 같은 길에서 나온다.
  *
- * <p>그래프는 자원 {@value #RESOURCE}({@code bigData/process/walk-graph.mjs} 가 만든다, 옆의 {@code walk-graph.json}
+ * <p>그래프는 자원 {@value #RESOURCE}({@code bigData/process/walk-graph.mjs} 가 만들고 {@code walk-graph-shade.mjs} 가 그늘을 붙인다, 옆의 {@code walk-graph.json}
  * 에 입력 해시가 있다)에서 읽는다. <b>기동을 늦추지 않게</b> 기동이 끝난 뒤 뒤에서 읽고, 그 전에 온 질문은 읽기가 끝날
  * 때까지 기다린다. 파일이 없거나 깨졌으면 한 번 경고를 남기고 빈 값을 준다 — 그러면 지금처럼 직선 어림으로 떨어진다.
  *
@@ -68,18 +68,25 @@ public class WalkGraphRouteProvider implements RouteProviderPort {
 		if (loaded == null) {
 			return Optional.empty();
 		}
-		return loaded.route(query.originLat(), query.originLng(), query.destLat(), query.destLng())
-				.map(this::legOf);
+		// 계단·급경사를 피하는 길을 원하면 그 비용으로 찾는다 — WalkGraph.route 의 stepFree 설명 참고.
+		return loaded.route(query.originLat(), query.originLng(), query.destLat(), query.destLng(), query.stepFree())
+				.map(route -> legOf(route, query.stepFree()));
 	}
 
-	private RouteLeg legOf(WalkGraph.Route route) {
+	RouteLeg legOf(WalkGraph.Route route, boolean stepFreeAsked) {
 		int distanceM = (int) Math.round(route.meters());
 		double speedKmh = this.properties.getWalkSpeedKmh() > 0 ? this.properties.getWalkSpeedKmh() : 4;
 		int durationMin = Math.max(1, (int) Math.round(distanceM / (speedKmh * 1000.0 / 60.0)));
+		if (stepFreeAsked && !route.stepFreeHonored()) {
+			// 좌표를 남기지 않는다. 자주 뜨면 점 수 상한(WalkGraph.MAX_SETTLED)을 다시 봐야 한다는 신호다.
+			log.info("계단 피하는 길을 못 찾아 가장 짧은 길로 답한다 — {}m", distanceM);
+		}
 		return new RouteLeg(TravelMode.WALK, distanceM, durationMin,
 				null, null, null, // 걷는 데는 요금·통행료·환승이 없다
 				false, null, RouteLeg.PROVIDER_WALK_GRAPH,
-				route.path(), List.of(), null, route.pieces());
+				route.path(), List.of(), null, route.pieces(),
+				// 부탁이 없었으면 null — 「들어줬다」도 「못 들어줬다」도 아니다.
+				stepFreeAsked ? Boolean.valueOf(route.stepFreeHonored()) : null);
 	}
 
 	/** 기동이 끝나면 뒤에서 읽기 시작한다 — 첫 걷기 질문이 읽기를 기다리지 않게. */
@@ -110,8 +117,8 @@ public class WalkGraphRouteProvider implements RouteProviderPort {
 			return null;
 		}
 		long usedAfter = runtime.totalMemory() - runtime.freeMemory();
-		log.info("보행 그래프를 읽었다 — 점 {} · 길 {} · 한 덩어리 점 {} · {}ms · 힙 증가 약 {}MB",
-				this.graph.nodeCount(), this.graph.wayCount(), this.graph.mainNodeCount(),
+		log.info("보행 그래프를 읽었다 — 점 {} · 길 {} · 그늘 있는 길 {} · 한 덩어리 점 {} · {}ms · 힙 증가 약 {}MB",
+				this.graph.nodeCount(), this.graph.wayCount(), this.graph.shadedWayCount(), this.graph.mainNodeCount(),
 				(System.nanoTime() - startedAt) / 1_000_000, Math.max(0, (usedAfter - usedBefore) / 1_000_000));
 		return this.graph;
 	}

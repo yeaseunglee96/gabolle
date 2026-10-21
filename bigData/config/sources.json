@@ -147,6 +147,20 @@
       "note": "산복도로 경사 판정의 근거. terrain-tiles 30m 를 이걸로 교체한다."
     },
     {
+      "id": "ngii-topo-5000",
+      "name": "국토지리정보원 1:5,000 수치지형도 Ver2.0 (2025 제작)",
+      "//2026-10-09": "5m DEM 대신 이것을 받았다. 189도엽(목록: gabolle-archive/ngii-topo-busan/manifest.csv). zip 안은 NGI 가 아니라 SHP 였다(도엽 35913025 는 폴더가 한 겹 더 있다). 좌표계 Korea_2000_East_Belt_2010(EPSG:5187). 등고선 N3L_F0010000(주곡선·계곡선, 칸 등고수치) · 표고점 N3P_F0020000(칸 수치) · 해안선 N3L_E0080000 을 TIN 으로 이어 5m 지면 고도(DTM — 건물을 뺀 맨땅 높이)를 만든다. 같은 날 공개DEM 5장(35816·35909·35910·35913·35914)도 다시 재 보니 90m · EPSG:5179 였다(위 ngii-dem 의 5186 기록과 다르다).",
+      "gives": [
+        "걷는 길 경사 (walk-graph.bin.gz)"
+      ],
+      "license": "국토지리정보원 공간정보 — 출처 표기(앱 「공공데이터 출처」 8절). 공공누리 유형은 메타 xml 에 적혀 있지 않아 확인하지 못했다",
+      "auth": "login",
+      "applyUrl": "https://map.ngii.go.kr/",
+      "script": "process/ngii-dtm.py → process/walk-graph-dtm-slope.mjs",
+      "status": "받음 (2026-10-09, 사람이 내려받음)",
+      "note": "부산 밖(김해·양산 등) 길은 도엽이 없어 SRTM 값이 남는다."
+    },
+    {
       "id": "mapillary",
       "name": "Mapillary 거리 이미지",
       "gives": [

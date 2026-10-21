@@ -122,6 +122,36 @@ class ItineraryQueryServiceTest {
 	}
 
 	@Test
+	@DisplayName("items[] 는 장소의 영어·일본어·중국어 이름을 싣는다 — 다른 언어 화면이 한국어만 보이지 않게(S15P21E201-1937)")
+	void itemCarriesLocalNames() {
+		stubTripMembership(threeDayTrip());
+		when(this.place.getNameEn()).thenReturn("Haeundae Beach");
+		when(this.place.localNames()).thenReturn(Map.of("ja", "海雲台海水浴場", "zh-Hans", "海云台海水浴场"));
+		String itineraryId = seedItinerary(1,
+				List.of(itemOf("itemkey_" + UUID.randomUUID(), 0, LocalDate.of(2026, 9, 10), 1, null, null)));
+
+		ItineraryDetailResponse.Item item = this.service.getDetail(itineraryId, this.requesterId).days().get(0).items().get(0);
+
+		assertThat(item.title()).isEqualTo("해운대 해수욕장");
+		assertThat(item.nameEn()).isEqualTo("Haeundae Beach");
+		assertThat(item.localNames()).containsEntry("ja", "海雲台海水浴場").containsEntry("zh-Hans", "海云台海水浴场");
+	}
+
+	@Test
+	@DisplayName("items[] 는 장소의 한 줄 소개를 언어별로 싣는다 — 코스 카드가 이름 밑에 그린다(S15P21E201-2029)")
+	void itemCarriesOneLine() {
+		stubTripMembership(threeDayTrip());
+		when(this.place.oneLine()).thenReturn(Map.of("ko", "광안대교가 정면으로 보이는 백사장", "en", "Sandy beach facing Gwangan Bridge"));
+		String itineraryId = seedItinerary(1,
+				List.of(itemOf("itemkey_" + UUID.randomUUID(), 0, LocalDate.of(2026, 9, 10), 1, null, null)));
+
+		ItineraryDetailResponse.Item item = this.service.getDetail(itineraryId, this.requesterId).days().get(0).items().get(0);
+
+		assertThat(item.oneLine()).containsEntry("ko", "광안대교가 정면으로 보이는 백사장")
+				.containsEntry("en", "Sandy beach facing Gwangan Bridge");
+	}
+
+	@Test
 	@DisplayName("items[].id 는 item_key 다 — PK 가 아니다")
 	void itemIdIsItemKey() {
 		stubTripMembership(threeDayTrip());
@@ -174,6 +204,31 @@ class ItineraryQueryServiceTest {
 
 		assertThatThrownBy(() -> this.service.getDetail("itn_broken", this.requesterId))
 				.isInstanceOf(IllegalStateException.class);
+	}
+
+	@Test
+	@DisplayName("🔴 S15P21E201-2018 — 직접 짜기로 만든 일정은 origin=SELF, 고친 뒤에도 그대로다 — 화면이 코스 확정 표시를 숨긴다")
+	void selfPlannedItineraryCarriesSelfOrigin() {
+		stubTripMembership(threeDayTrip());
+		String itineraryId = "itn_" + UUID.randomUUID();
+		this.itineraryRepository.create(new Itinerary(itineraryId, this.tripId, 1),
+				new ItineraryVersion(UUID.randomUUID().toString(), itineraryId, 1, null,
+						ItineraryVersion.Operation.CREATE, this.requesterId, "self_plan", null, Instant.now()),
+				List.of(), List.of());
+		assertThat(this.service.getDetail(itineraryId, this.requesterId).origin()).isEqualTo("SELF");
+
+		this.itineraryRepository.appendVersion(new ItineraryVersion(UUID.randomUUID().toString(), itineraryId, 2, 1,
+				ItineraryVersion.Operation.ADD_ITEM, this.requesterId, "req_edit_1", null, Instant.now()),
+				List.of(), List.of(), List.of());
+		assertThat(this.service.getDetail(itineraryId, this.requesterId).origin()).isEqualTo("SELF");
+	}
+
+	@Test
+	@DisplayName("S15P21E201-2018 — 추천이 만든 일정은 origin=RECOMMENDATION")
+	void recommendedItineraryCarriesRecommendationOrigin() {
+		stubTripMembership(threeDayTrip());
+		String itineraryId = seedItinerary(1, List.of());
+		assertThat(this.service.getDetail(itineraryId, this.requesterId).origin()).isEqualTo("RECOMMENDATION");
 	}
 
 	@Test
@@ -362,6 +417,47 @@ class ItineraryQueryServiceTest {
 		assertThat(this.service.getDetail(itineraryId, this.requesterId).partySize()).isEqualTo(3);
 	}
 
+	/** 이동수단을 지정해 여행을 만든다 — travelModes 말고는 {@link #threeDayTrip()} 과 같다. */
+	private Trip tripWithModes(String... modes) {
+		return new Trip(this.tripId, this.requesterId, LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 12),
+				null, null, null, 1, null, "Asia/Seoul", modes, null, null, Instant.now());
+	}
+
+	/**
+	 * S15P21E201-2061 — 자동차로 만든 여행의 구간이 전부 「대중교통 · 이동 5분 · 4,800원」으로 보였다. 구간 요금은 대중교통
+	 * (교통카드)에도 자동차(택시비 + 통행료)에도 채워져서 요금만으로는 수단을 못 가르는데, 일정 응답에 여행의 수단이 없어서
+	 * 화면이 요금만 보고 「대중교통」이라 적었다. 응답이 여행이 고른 수단을 그대로 싣는다.
+	 */
+	@Test
+	@DisplayName("🔴 S15P21E201-2061 — 일정 응답이 여행이 고른 이동수단을 그대로 싣는다 — 자동차는 PRIVATE_CAR")
+	void detailCarriesTravelModes() {
+		stubTripMembership(tripWithModes("PRIVATE_CAR"));
+		String itineraryId = seedItinerary(1, List.of());
+
+		assertThat(this.service.getDetail(itineraryId, this.requesterId).travelModes()).containsExactly("PRIVATE_CAR");
+	}
+
+	@Test
+	@DisplayName("S15P21E201-2061 — 대중교통은 BUS·SUBWAY, 도보는 WALK 로 — 고른 순서를 지킨다")
+	void detailCarriesTransitAndWalkModes() {
+		stubTripMembership(tripWithModes("BUS", "SUBWAY"));
+		String transitId = seedItinerary(1, List.of());
+		assertThat(this.service.getDetail(transitId, this.requesterId).travelModes()).containsExactly("BUS", "SUBWAY");
+
+		stubTripMembership(tripWithModes("WALK"));
+		String walkId = seedItinerary(1, List.of());
+		assertThat(this.service.getDetail(walkId, this.requesterId).travelModes()).containsExactly("WALK");
+	}
+
+	@Test
+	@DisplayName("🔴 S15P21E201-2061 — 이동수단을 안 고른 여행은 null 이 아니라 빈 배열 — 화면이 수단 이름을 지어 붙이지 않는다")
+	void detailTravelModesIsEmptyNotNullWhenNotChosen() {
+		stubTripMembership(threeDayTrip());
+		String itineraryId = seedItinerary(1, List.of());
+
+		assertThat(this.service.getDetail(itineraryId, this.requesterId).travelModes()).isNotNull().isEmpty();
+	}
+
 	// ── 비용 × 인원 (S15P21E201-1579) ─────────────────────────────────────
 
 	/** 대표 메뉴가 한 그릇 15,000원인 장소 하나를 첫날에 둔 일정을, 인원만 바꿔 연다. */
@@ -462,6 +558,113 @@ class ItineraryQueryServiceTest {
 		assertThat(days.get(0).start().lat()).isEqualTo(35.1152);
 		assertThat(days.get(1).start().kind()).isEqualTo("LODGING");
 		assertThat(days.get(1).start().label()).isEqualTo("해운대");
+	}
+
+	// ── 걷는 길의 경사·계단 조각과 계단 피하기 ───────────────────────────────
+
+	@Test
+	@DisplayName("🔴 들어오는 구간의 경사·계단 조각이 travelPieces 로 실리고, 휠체어 여행이면 판 수준 stepFree 가 참이다")
+	void itemCarriesTravelPiecesAndDetailCarriesStepFree() {
+		@SuppressWarnings("unchecked")
+		ObjectProvider<TravelTimePort> noRoutes = mock(ObjectProvider.class);
+		ItineraryLegPlanner planner = new ItineraryLegPlanner(this.placeRepository, noRoutes);
+		com.gabolle.backend.trip.domain.TripRepository trips = mock(com.gabolle.backend.trip.domain.TripRepository.class);
+		when(trips.findLatestConstraintSnapshotId(this.tripId)).thenReturn(java.util.Optional.of("cs_1"));
+		when(trips.findConstraintsBySnapshotId("cs_1")).thenReturn(List.of(new com.gabolle.backend.trip.domain.TripConstraint(
+				UUID.randomUUID().toString(), this.tripId, "MOBILITY", "WHEELCHAIR",
+				com.gabolle.backend.trip.domain.TripConstraint.Severity.HARD, "EXCLUDES", "true", null,
+				com.gabolle.backend.trip.domain.TripConstraint.EvidenceStatus.VERIFIED,
+				com.gabolle.backend.trip.domain.TripConstraint.AnswerStatus.SELECTED,
+				com.gabolle.backend.trip.domain.PersonalizationScope.TRIP, null)));
+		planner.setTripRepository(trips);
+		ItineraryQueryService withPlanner = new ItineraryQueryService(this.itineraryRepository, this.itineraryAccess,
+				this.placeRepository, this.recommendationJobRepository, mock(ActorNames.class),
+				new FakeItineraryItemActualRepository(), placeIds -> Map.of(), planner);
+		stubTripMembership(threeDayTrip());
+		String itineraryId = "itn_" + UUID.randomUUID();
+		ItineraryVersion v = new ItineraryVersion(UUID.randomUUID().toString(), itineraryId, 1, null,
+				ItineraryVersion.Operation.CREATE, this.requesterId, "req_1", null, Instant.now());
+		com.gabolle.backend.itinerary.domain.ItineraryLeg leg = new com.gabolle.backend.itinerary.domain.ItineraryLeg(
+				UUID.randomUUID().toString(), v.itineraryVersionId(), 0, 1, null, this.placeId.toString(), "WALK",
+				300, 5, 300, null, null, ItineraryItem.DataStatus.VERIFIED, null,
+				List.of(new double[] { 129.1590, 35.1580 }, new double[] { 129.1600, 35.1585 },
+						new double[] { 129.1604, 35.1587 }),
+				List.of(new com.gabolle.backend.itinerary.domain.ItineraryLeg.Piece(0, 1, 9.5, false),
+						new com.gabolle.backend.itinerary.domain.ItineraryLeg.Piece(1, 2, null, true)),
+				null, Instant.now());
+		this.itineraryRepository.create(new Itinerary(itineraryId, this.tripId, 1), v,
+				List.of(itemOf("item_1", 0, LocalDate.of(2026, 9, 10), 1, null, null)), List.of(leg));
+
+		ItineraryDetailResponse detail = withPlanner.getDetail(itineraryId, this.requesterId);
+		ItineraryDetailResponse.Item item = detail.days().get(0).items().get(0);
+
+		assertThat(detail.stepFree()).as("휠체어를 고른 여행 — 앱이 /routes?stepFree=true 로 묻는다").isTrue();
+		assertThat(item.travelPath()).hasSize(3);
+		assertThat(item.travelPieces()).containsExactly(
+				new ItineraryDetailResponse.Piece(0, 1, 9.5, false),
+				new ItineraryDetailResponse.Piece(1, 2, null, true));
+	}
+
+	@Test
+	@DisplayName("🔴 고른 경사·그늘 조건이 판 수준 slopeAvoid·shadePrefer 로, 조각의 그늘이 travelPieces 의 shade 로 실린다 (S15P21E201-1895)")
+	void detailCarriesChosenPaintConditionsAndPieceShade() {
+		@SuppressWarnings("unchecked")
+		ObjectProvider<TravelTimePort> noRoutes = mock(ObjectProvider.class);
+		ItineraryLegPlanner planner = new ItineraryLegPlanner(this.placeRepository, noRoutes);
+		com.gabolle.backend.trip.domain.TripRepository trips = mock(com.gabolle.backend.trip.domain.TripRepository.class);
+		when(trips.findLatestSnapshot(this.tripId)).thenReturn(java.util.Optional.of(
+				new com.gabolle.backend.trip.domain.PreferenceSnapshot("snap_1", this.tripId, 1,
+						List.of(new com.gabolle.backend.trip.domain.PreferenceSnapshot.PreferenceAnswer(
+										"SLOPE_PREFERENCE", "\"AVOID\"",
+										com.gabolle.backend.trip.domain.PreferenceSnapshot.AnswerStatus.SELECTED),
+								new com.gabolle.backend.trip.domain.PreferenceSnapshot.PreferenceAnswer(
+										"SHADE_PREFERENCE", "\"PREFER\"",
+										com.gabolle.backend.trip.domain.PreferenceSnapshot.AnswerStatus.SELECTED)),
+						com.gabolle.backend.trip.domain.PersonalizationScope.TRIP, List.of(), Instant.now())));
+		planner.setTripRepository(trips);
+		ItineraryQueryService withPlanner = new ItineraryQueryService(this.itineraryRepository, this.itineraryAccess,
+				this.placeRepository, this.recommendationJobRepository, mock(ActorNames.class),
+				new FakeItineraryItemActualRepository(), placeIds -> Map.of(), planner);
+		stubTripMembership(threeDayTrip());
+		String itineraryId = "itn_" + UUID.randomUUID();
+		ItineraryVersion v = new ItineraryVersion(UUID.randomUUID().toString(), itineraryId, 1, null,
+				ItineraryVersion.Operation.CREATE, this.requesterId, "req_1", null, Instant.now());
+		com.gabolle.backend.itinerary.domain.ItineraryLeg leg = new com.gabolle.backend.itinerary.domain.ItineraryLeg(
+				UUID.randomUUID().toString(), v.itineraryVersionId(), 0, 1, null, this.placeId.toString(), "WALK",
+				300, 5, 300, null, null, ItineraryItem.DataStatus.VERIFIED, null,
+				List.of(new double[] { 129.1590, 35.1580 }, new double[] { 129.1600, 35.1585 },
+						new double[] { 129.1604, 35.1587 }),
+				List.of(new com.gabolle.backend.itinerary.domain.ItineraryLeg.Piece(0, 1, 9.5, false, 0.4),
+						new com.gabolle.backend.itinerary.domain.ItineraryLeg.Piece(1, 2, null, true, null)),
+				null, Instant.now());
+		this.itineraryRepository.create(new Itinerary(itineraryId, this.tripId, 1), v,
+				List.of(itemOf("item_1", 0, LocalDate.of(2026, 9, 10), 1, null, null)), List.of(leg));
+
+		ItineraryDetailResponse detail = withPlanner.getDetail(itineraryId, this.requesterId);
+		ItineraryDetailResponse.Item item = detail.days().get(0).items().get(0);
+
+		assertThat(detail.slopeAvoid()).as("경사 「피하고 싶어요」를 골랐다").isTrue();
+		assertThat(detail.shadePrefer()).as("「그늘길 우선」을 골랐다").isTrue();
+		assertThat(detail.stepFree()).as("이동 제약은 고르지 않았다 — 경사 선호와 별개다").isFalse();
+		assertThat(item.travelPieces()).containsExactly(
+				new ItineraryDetailResponse.Piece(0, 1, 9.5, false, 0.4),
+				new ItineraryDetailResponse.Piece(1, 2, null, true, null));
+	}
+
+	@Test
+	@DisplayName("구간이 없거나 이동 조건을 못 읽으면 travelPieces 는 null, stepFree 는 거짓이다")
+	void noPiecesAndNoStepFreeByDefault() {
+		stubTripMembership(threeDayTrip());
+		String itineraryId = seedItinerary(1,
+				List.of(itemOf("item_1", 0, LocalDate.of(2026, 9, 10), 1, null, null)));
+
+		ItineraryDetailResponse detail = this.service.getDetail(itineraryId, this.requesterId);
+
+		assertThat(detail.stepFree()).isFalse();
+		assertThat(detail.days().get(0).items().get(0).travelPieces()).isNull();
+		// 조건을 못 읽으면 아무것도 안 골랐다고 본다 — 지도는 단색 선으로 남는다 (S15P21E201-1895).
+		assertThat(detail.slopeAvoid()).isFalse();
+		assertThat(detail.shadePrefer()).isFalse();
 	}
 
 	private String seedItinerary(int version, List<ItineraryItem> items) {

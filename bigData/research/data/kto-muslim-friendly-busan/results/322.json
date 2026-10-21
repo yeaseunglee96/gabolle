@@ -1,0 +1,66 @@
+{
+  "no": "322",
+  "nameEn": "Hurgsiru",
+  "nameKo": "흙시루",
+  "roadAddrKo": "부산 기장군 기장읍 차성로451번길 28",
+  "addressMatchesPdf": true,
+  "operating": "unknown",
+  "operatingEvidence": [
+    {
+      "url": "https://www.tripadvisor.com/Restaurant_Review-g297884-d7266435-Reviews-Heuksiroo-Busan.html",
+      "date": "2016-05",
+      "note": "최근 리뷰가 2016년, 운영 상태 표기만 있음"
+    },
+    {
+      "url": "https://www.diningcode.com/profile.php?rid=lFYYijR3uh82",
+      "date": null,
+      "note": "목록에 현재 영업시간·메뉴 가격 있으나 후기 날짜 미확인"
+    }
+  ],
+  "newAddress": null,
+  "queries": [
+    "\"051-722-1377\"",
+    "Hurgsiru Gijang Busan duck restaurant 흙시루",
+    "기장 흙시루 오리 후기 2025"
+  ],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=lFYYijR3uh82",
+    "https://www.tripadvisor.com/Restaurant_Review-g297884-d7266435-Reviews-Heuksiroo-Busan.html",
+    "https://www.wherehalal.com/outlets/hurgsiru"
+  ],
+  "whyPeopleGo": [
+    {
+      "type": "분위기·전망",
+      "note": "초가·동굴·기와집 등 전통 가옥에서 먹는 한정식 체험",
+      "sources": [
+        1
+      ]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "단호박 오리, 녹두오리탕, 소갈비찜",
+      "sources": [
+        0,
+        1
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "넓은 주차장 무료",
+    "audience": "mixed",
+    "signatureDishes": [
+      "단호박 오리",
+      "녹두오리탕",
+      "소갈비찜"
+    ],
+    "priceBand": "moderate"
+  },
+  "photoCandidates": [],
+  "notes": "영업 중 근거 날짜 미확보. 정기 휴무 요일이 출처마다 다름(목·일 / 월)."
+}

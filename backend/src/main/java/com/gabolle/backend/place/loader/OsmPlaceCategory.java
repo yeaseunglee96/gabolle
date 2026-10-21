@@ -41,7 +41,6 @@ public final class OsmPlaceCategory {
 			Map.entry("attraction", "CULTURE_TEMPLE"),
 			Map.entry("museum", "CULTURE_TEMPLE"),
 			Map.entry("gallery", "CULTURE_TEMPLE"),
-			Map.entry("artwork", "CULTURE_TEMPLE"),
 			Map.entry("viewpoint", "NATURE_WALK"));
 
 	/** {@code shop} 태그 → 갈래. 빵집만 받는다 — 나머지 가게는 여행 후보가 아니다. */
@@ -79,6 +78,9 @@ public final class OsmPlaceCategory {
 		if (tags == null || tags.isEmpty()) {
 			return null;
 		}
+		if (isNotATravelPlace(tags)) {
+			return null;
+		}
 		String category = lookup(BY_TOURISM, tags.get("tourism"));
 		if (category == null) {
 			category = lookup(BY_NATURAL, tags.get("natural"));
@@ -96,6 +98,32 @@ public final class OsmPlaceCategory {
 			category = "CULTURE_TEMPLE";
 		}
 		return category;
+	}
+
+	/**
+	 * 갈래가 붙더라도 여행 장소로 받지 않는 것 (S15P21E201-2038). 운영에서 실제로 추천됐다가 지운 것들이다.
+	 * <ul>
+	 * <li>조형물·동상({@code tourism=artwork}) — 들러서 시간을 보낼 곳이 아니라 길가의 조각 하나다.
+	 * 이 태그는 위 표에서도 뺐다. 여기 한 번 더 적는 것은 다른 태그({@code historic})와 같이 붙어 들어오는 것을 막으려고다.
+	 * <li>기념비({@code historic=memorial·monument}) — 같은 까닭.
+	 * <li>교회·성당({@code place_of_worship} 가운데 기독교이거나 이름에 교회·성당) — 동네 예배당이다. 절은 받는다.
+	 * <li>이름이 「나무」로 끝나는 점 — 보호수 한 그루를 전망대로 올려 둔 것이다.
+	 * </ul>
+	 */
+	static boolean isNotATravelPlace(Map<String, String> tags) {
+		if ("artwork".equals(tags.get("tourism"))) {
+			return true;
+		}
+		String historic = tags.get("historic");
+		if ("memorial".equals(historic) || "monument".equals(historic)) {
+			return true;
+		}
+		String name = tags.getOrDefault("name:ko", tags.getOrDefault("name", "")).strip();
+		if ("place_of_worship".equals(tags.get("amenity"))
+				&& ("christian".equals(tags.get("religion")) || name.contains("교회") || name.contains("성당"))) {
+			return true;
+		}
+		return name.endsWith("나무") || "tree".equals(tags.get("natural"));
 	}
 
 	private static String lookup(Map<String, String> table, String value) {

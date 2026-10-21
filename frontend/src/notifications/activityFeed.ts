@@ -104,3 +104,77 @@ export function hasUnseen(items: ActivityNotice[], seenAt: string | null): boole
   if (!items.length) return false;
   return seenAt ? items[0].at > seenAt : true;
 }
+
+// ── 묶기(UI 캔버스 ⑦) ─────────────────────────────────────────────────────
+//
+// 🔴 동행이 장소를 빼고·고정하고·또 빼면 알림이 세 줄로 따로 쌓였고, 한 줄 한 줄이 「장소가 빠졌어요」라
+//    무엇이 얼마나 바뀌었는지 모아 보기 어려웠다. 같은 여행·같은 사람·가까운 시각(1시간)의 변경은 한 장으로 묶는다.
+//    일정이 새로 만들어진 것(CREATE)은 묶지 않는다 — 여행마다 한 번이고 그 자체가 소식이다.
+
+/** 한 장으로 묶는 시간 폭 — 한 번 앉아서 고치는 동안의 변경. */
+const GROUP_WINDOW_MS = 60 * 60 * 1000;
+
+export type NoticeGroup = {
+  id: string;
+  /** 가장 최근 알림 — 제목·시각·이동은 이것을 따른다. */
+  latest: ActivityNotice;
+  /** 묶인 알림 전부(최신 먼저). */
+  items: ActivityNotice[];
+};
+
+export function groupNotices(items: ActivityNotice[]): NoticeGroup[] {
+  const groups: NoticeGroup[] = [];
+  for (const item of items) {
+    const last = groups[groups.length - 1];
+    const sameWho = (a: ActivityNotice, b: ActivityNotice) => a.isMe === b.isMe && (a.isMe || a.actorName === b.actorName);
+    const oldest = last?.items[last.items.length - 1];
+    if (
+      last && oldest && item.operation !== 'CREATE' && last.latest.operation !== 'CREATE'
+      && last.latest.tripId === item.tripId && sameWho(last.latest, item)
+      && Math.abs(Date.parse(oldest.at) - Date.parse(item.at)) <= GROUP_WINDOW_MS
+    ) {
+      last.items.push(item);
+      continue;
+    }
+    groups.push({ id: item.id, latest: item, items: [item] });
+  }
+  return groups;
+}
+
+/** 묶음 안의 변경을 종류별로 센다 — 「장소 2곳을 뺐어요 · 1곳을 고정했어요」. */
+export function groupLines(group: NoticeGroup, tx: (ko: string, en: string) => string): { kind: NoticeKind; text: string }[] {
+  const count = new Map<NoticeKind, number>();
+  for (const item of group.items) count.set(noticeKind(item.operation), (count.get(noticeKind(item.operation)) ?? 0) + 1);
+  const order: NoticeKind[] = ['remove', 'lock', 'add', 'reorder', 'replan', 'revert', 'change'];
+  return order.filter((kind) => count.has(kind)).map((kind) => {
+    const n = String(count.get(kind));
+    switch (kind) {
+      case 'remove': return { kind, text: txf(tx, '장소 %s곳을 뺐어요', n === '1' ? 'Removed %s stop' : 'Removed %s stops', n) };
+      case 'lock': return { kind, text: txf(tx, '장소 %s곳을 고정했어요', n === '1' ? 'Pinned %s stop' : 'Pinned %s stops', n) };
+      case 'add': return { kind, text: txf(tx, '장소 %s곳을 더했어요', n === '1' ? 'Added %s stop' : 'Added %s stops', n) };
+      case 'reorder': return { kind, text: tx('순서를 바꿨어요', 'Reordered the stops') };
+      case 'replan': return { kind, text: tx('남은 일정을 다시 계획했어요', 'Replanned the rest of the day') };
+      case 'revert': return { kind, text: tx('변경을 되돌렸어요', 'Undid a change') };
+      default: return { kind, text: tx('일정을 바꿨어요', 'Changed the itinerary') };
+    }
+  });
+}
+
+export type NoticeKind = 'created' | 'lock' | 'remove' | 'add' | 'reorder' | 'replan' | 'revert' | 'change';
+
+/** 알림 종류 → 아이콘 종류(NoticeIcon). */
+export function noticeKind(operation: TripActivityOperation): NoticeKind {
+  switch (operation) {
+    case 'CREATE': return 'created';
+    case 'LOCK_ITEM': return 'lock';
+    case 'REMOVE_ITEM': return 'remove';
+    case 'ADD_ITEM':
+    case 'REPLACE_ITEM': return 'add';
+    case 'REORDER': return 'reorder';
+    case 'REGENERATE':
+    case 'REGENERATE_DAY':
+    case 'REPLAN_DAY': return 'replan';
+    case 'REVERT': return 'revert';
+    default: return 'change';
+  }
+}

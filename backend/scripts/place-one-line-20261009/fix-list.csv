@@ -1,0 +1,585 @@
+﻿place_id,name_ko,lang,action,why,before,after
+0035e709-dcd0-3840-9e0a-57ec7c66fdd3,Gallery Playlist,ko,drop,장소가 갤러리인데 문화·역사·사찰로만 표기되어 실제 장소 유형과 맞지 않음,문화·역사·사찰,
+0035e709-dcd0-3840-9e0a-57ec7c66fdd3,Gallery Playlist,en,drop,Same as ko,"Culture, history, and temple",
+0035e709-dcd0-3840-9e0a-57ec7c66fdd3,Gallery Playlist,ja,drop,Same as ko,文化・歴史・寺院,
+0035e709-dcd0-3840-9e0a-57ec7c66fdd3,Gallery Playlist,zh-Hans,drop,Same as ko,文化·历史·寺庙,
+0035e709-dcd0-3840-9e0a-57ec7c66fdd3,Gallery Playlist,zh-Hant,drop,Same as ko,文化·歷史·寺廟,
+0035e709-dcd0-3840-9e0a-57ec7c66fdd3,Gallery Playlist,vi,drop,Same as ko,"Văn hóa, lịch sử và chùa chiền",
+0035e709-dcd0-3840-9e0a-57ec7c66fdd3,Gallery Playlist,ko,drop,규칙:분류 이름뿐(GENERIC),문화·역사·사찰,
+027a8687-75f1-3a90-81fb-264635ba890d,조셉,ko,fix,"경양식은 서양식 식사이지만, facts에는 칵테일 바임이 명확. 칵테일과 위스키 바임을 강조해야 함.",맞춤형 칵테일과 위스키 셀렉션 경양식,맞춤형 칵테일과 위스키 바
+027a8687-75f1-3a90-81fb-264635ba890d,조셉,en,fix,ko fix에 맞춰 수정,Western-style restaurant with custom cocktails and whiskey selection,Custom cocktail and whiskey bar
+027a8687-75f1-3a90-81fb-264635ba890d,조셉,ja,fix,ko fix에 맞춰 수정,カスタムカクテルとウイスキーセレクションの洋食店,カスタムカクテルとウイスキーバー
+027a8687-75f1-3a90-81fb-264635ba890d,조셉,zh-Hans,fix,ko fix에 맞춰 수정,提供定制鸡尾酒和威士忌精选的西餐厅,定制鸡尾酒和威士忌酒吧
+027a8687-75f1-3a90-81fb-264635ba890d,조셉,zh-Hant,fix,ko fix에 맞춰 수정,提供定製雞尾酒和威士忌精選的西餐廳,定製雞尾酒和威士忌酒吧
+027a8687-75f1-3a90-81fb-264635ba890d,조셉,vi,fix,ko fix에 맞춰 수정,Nhà hàng phong cách Tây với cocktail tùy chỉnh và lựa chọn whiskey,Quán bar cocktail tùy chỉnh và whiskey
+037221a4-2bc1-32d4-94da-6e096586aad1,카마와루,ko,fix,"업종은 일식 회/초밥이지만, 방문 이유에 따르면 YBD 프리미엄 돼지고기 저온 조리가 주요 특징임. 회/초밥과 돼지고기 저온 조리의 조합이 어색하므로, 'YBD 프리미엄 돼지고기 저온 조리 전문점'으로 수정.",YBD 프리미엄 돼지고기 저온 조리 일식 회 초밥,YBD 프리미엄 돼지고기 저온 조리 전문점
+037221a4-2bc1-32d4-94da-6e096586aad1,카마와루,en,fix,ko에 맞춰 수정.,Japanese raw fish and sushi with low-temperature cooked YBD premium pork,Low-temperature cooked YBD premium pork specialty restaurant
+037221a4-2bc1-32d4-94da-6e096586aad1,카마와루,ja,fix,ko에 맞춰 수정.,YBDプレミアム豚肉の低温調理を使った和食の刺身と寿司,YBDプレミアム豚肉の低温調理専門店
+037221a4-2bc1-32d4-94da-6e096586aad1,카마와루,zh-Hans,fix,ko에 맞춰 수정.,使用YBD高级猪肉低温烹饪的日式生鱼片和寿司,YBD高级猪肉低温烹饪专门店
+037221a4-2bc1-32d4-94da-6e096586aad1,카마와루,zh-Hant,fix,ko에 맞춰 수정.,使用YBD高級豬肉低溫烹飪的日式生魚片和壽司,YBD高級豬肉低溫烹飪專門店
+037221a4-2bc1-32d4-94da-6e096586aad1,카마와루,vi,fix,ko에 맞춰 수정.,Sashimi và sushi Nhật Bản với thịt heo YBD cao cấp nấu nhiệt độ thấp,Nhà hàng chuyên thịt heo YBD cao cấp nấu nhiệt độ thấp
+037eb5f4-cf18-3400-8e16-76d698c630e3,구로마쯔,ko,fix,초밥집이 아니라 철판구이 코스가 주력임. 초밥 언급은 facts에 없음.,광안대교 오션뷰와 불쇼 철판 코스 일식 초밥집,오션뷰와 불쇼 철판 코스 일식 레스토랑
+037eb5f4-cf18-3400-8e16-76d698c630e3,구로마쯔,en,fix,ko fix에 맞춰 수정,Sushi restaurant with ocean view and teppanyaki fire show,Japanese teppanyaki restaurant with ocean view and fire show
+037eb5f4-cf18-3400-8e16-76d698c630e3,구로마쯔,ja,fix,ko fix에 맞춰 수정,広安大橋の海景と炎の鉄板コース寿司店,オーシャンビューと炎の鉄板コースの和食レストラン
+037eb5f4-cf18-3400-8e16-76d698c630e3,구로마쯔,zh-Hans,fix,ko fix에 맞춰 수정,广安大桥海景与铁板烧火焰秀寿司店,海景与铁板烧火焰秀日式餐厅
+037eb5f4-cf18-3400-8e16-76d698c630e3,구로마쯔,zh-Hant,fix,ko fix에 맞춰 수정,廣安大橋海景與鐵板燒火焰秀壽司店,海景與鐵板燒火焰秀日式餐廳
+037eb5f4-cf18-3400-8e16-76d698c630e3,구로마쯔,vi,fix,ko fix에 맞춰 수정,Quán sushi có view biển và biểu diễn lửa teppanyaki,Nhà hàng Nhật teppanyaki có view biển và biểu diễn lửa
+0557ff4e-3c9c-3e11-943d-8076a5b4b2e8,피코스텐,ko,fix,"업종은 피자이나, 방문 이유와 메뉴에 피자 언급이 없고 커피와 디저트(치즈 케이크)가 중심임. 따라서 카페로 고쳐야 함.",핸드드립 커피와 수준 높은 치즈 케이크 디저트,핸드드립 커피와 치즈 케이크 내는 디저트 카페
+0557ff4e-3c9c-3e11-943d-8076a5b4b2e8,피코스텐,en,fix,ko에 맞춰 dessert cafe로 수정,Hand drip coffee and high-quality cheese cake desserts,Dessert cafe with hand drip coffee and cheese cake
+0557ff4e-3c9c-3e11-943d-8076a5b4b2e8,피코스텐,ja,fix,ko에 맞춰デザートカフェに修正,ハンドドリップコーヒーと高品質チーズケーキデザート,ハンドドリップコーヒーとチーズケーキのデザートカフェ
+0557ff4e-3c9c-3e11-943d-8076a5b4b2e8,피코스텐,zh-Hans,fix,ko에 맞춰甜品咖啡馆,手冲咖啡与高品质芝士蛋糕甜点,提供手冲咖啡和芝士蛋糕的甜品咖啡馆
+0557ff4e-3c9c-3e11-943d-8076a5b4b2e8,피코스텐,zh-Hant,fix,ko에 맞춰甜品咖啡館,手沖咖啡與高品質芝士蛋糕甜點,提供手沖咖啡和芝士蛋糕的甜品咖啡館
+0557ff4e-3c9c-3e11-943d-8076a5b4b2e8,피코스텐,vi,fix,ko에 맞춰 quán cà phê tráng miệng,Cà phê pha tay và bánh phô mai chất lượng cao,Quán cà phê tráng miệng với cà phê pha tay và bánh phô mai
+06d328c8-4889-3831-992e-55a9adca5c4f,문탠로드,ko,fix,장소 이름 중복 제거,달빛 아래 걷는 해운대구 문탠로드 산책로,달빛을 받으며 바다를 보며 걷는 숲속 산책로
+06d328c8-4889-3831-992e-55a9adca5c4f,문탠로드,en,fix,ko 수정 반영(이름 반복 제거),Moonlight walking trail in Haeundae called Moon Tan Road,Forest walking trail by the sea under the moonlight
+06d328c8-4889-3831-992e-55a9adca5c4f,문탠로드,ja,fix,ko 수정 반영(이름 반복 제거),ヘウンデ区の月明かりの散歩道ムーンタンロード,月明かりを浴びて海を眺めながら歩く森の散歩道
+06d328c8-4889-3831-992e-55a9adca5c4f,문탠로드,zh-Hans,fix,ko 수정 반영(이름 반복 제거),海云台区月光下的散步道文坦路,沐浴月光眺望大海漫步的森林散步道
+06d328c8-4889-3831-992e-55a9adca5c4f,문탠로드,zh-Hant,fix,ko 수정 반영(이름 반복 제거),海雲臺區月光下的散步道文坦路,沐浴月光眺望大海漫步的森林散步道
+06d328c8-4889-3831-992e-55a9adca5c4f,문탠로드,vi,fix,ko 수정 반영(이름 반복 제거),Lối đi bộ dưới ánh trăng Moon Tan Road ở Haeundae,Lối đi bộ trong rừng dưới ánh trăng ngắm biển
+0ad38272-7a35-3498-991b-5b80563c8f4f,원갤러리,ko,fix,"사찰이 아닌 갤러리로 보이나, facts에 정보가 없어 구체화 불가. 업종/방문 이유 등 추가 정보 없음. '문화·역사·사찰'은 너무 포괄적이므로 '문화 공간'으로 수정.",해운대구의 문화·역사·사찰,해운대구의 문화 공간
+0ad38272-7a35-3498-991b-5b80563c8f4f,원갤러리,en,fix,ko fix에 맞춰 수정,"Cultural, historical, and temple site in Haeundae-gu",Cultural space in Haeundae-gu
+0ad38272-7a35-3498-991b-5b80563c8f4f,원갤러리,ja,fix,ko fix에 맞춰 수정,海雲台区の文化・歴史・寺院,海雲台区の文化空間
+0ad38272-7a35-3498-991b-5b80563c8f4f,원갤러리,zh-Hans,fix,ko fix에 맞춰 수정,海云台区的文化·历史·寺庙,海云台区的文化空间
+0ad38272-7a35-3498-991b-5b80563c8f4f,원갤러리,zh-Hant,fix,ko fix에 맞춰 수정,海雲台區的文化·歷史·寺廟,海雲台區的文化空間
+0ad38272-7a35-3498-991b-5b80563c8f4f,원갤러리,vi,fix,ko fix에 맞춰 수정,"Địa điểm văn hóa, lịch sử, chùa ở Haeundae-gu",Không gian văn hóa ở Haeundae-gu
+0adddc25-4811-3063-9d8f-a58180f595d2,거북이금고,ko,fix,공공업종 분류(회/초밥)와 달리 돈까스와 카레 전문점임,제주 흑돼지 돈까스와 수제 카레 일식 회/초밥,제주 흑돼지 돈까스와 수제 카레 전문점
+0adddc25-4811-3063-9d8f-a58180f595d2,거북이금고,en,fix,공공업종 오분류(회/초밥) 수정,Japanese sashimi restaurant with Jeju black pork tonkatsu and handmade curry,Restaurant serving Jeju black pork tonkatsu and handmade curry
+0adddc25-4811-3063-9d8f-a58180f595d2,거북이금고,ja,fix,공공업종 오분류(회/초밥) 수정,済州黒豚のとんかつと手作りカレーの和食寿司店,済州黒豚のとんかつと手作りカレーの専門店
+0adddc25-4811-3063-9d8f-a58180f595d2,거북이금고,zh-Hans,fix,공공업종 오분류(회/초밥) 수정,济州黑猪炸猪排和手工咖喱日式生鱼片店,济州黑猪炸猪排和手工咖喱专门店
+0adddc25-4811-3063-9d8f-a58180f595d2,거북이금고,zh-Hant,fix,공공업종 오분류(회/초밥) 수정,濟州黑豬炸豬排和手工咖哩日式生魚片店,濟州黑豬炸豬排和手工咖哩專門店
+0adddc25-4811-3063-9d8f-a58180f595d2,거북이금고,vi,fix,공공업종 오분류(회/초밥) 수정,Nhà hàng sashimi Nhật với tonkatsu heo đen Jeju và cà ri tự làm,Quán chuyên tonkatsu heo đen Jeju và cà ri tự làm
+0f616a69-8f4d-3b76-af16-e3323e98c8fa,초량 근대역사 갤러리,ko,fix,facts에 사찰이 아닌 전시공간임이 명확하므로 잘못된 분류,동구의 문화 역사 사찰,동구의 근대 역사 전시 공간
+0f616a69-8f4d-3b76-af16-e3323e98c8fa,초량 근대역사 갤러리,en,fix,ko의 fix에 맞춰 동일하게 수정,Cultural and historical temple in Dong-gu,Modern history exhibition space in Dong-gu
+0f616a69-8f4d-3b76-af16-e3323e98c8fa,초량 근대역사 갤러리,ja,fix,ko의 fix에 맞춰 동일하게 수정,東区の文化・歴史・寺院,東区の近代歴史展示スペース
+0f616a69-8f4d-3b76-af16-e3323e98c8fa,초량 근대역사 갤러리,zh-Hans,fix,ko의 fix에 맞춰 동일하게 수정,东区的文化历史寺庙,东区的近代历史展览空间
+0f616a69-8f4d-3b76-af16-e3323e98c8fa,초량 근대역사 갤러리,zh-Hant,fix,ko의 fix에 맞춰 동일하게 수정,東區的文化歷史寺廟,東區的近代歷史展覽空間
+0f616a69-8f4d-3b76-af16-e3323e98c8fa,초량 근대역사 갤러리,vi,fix,ko의 fix에 맞춰 동일하게 수정,Chùa văn hóa lịch sử tại Dong-gu,Không gian triển lãm lịch sử hiện đại tại Dong-gu
+148d72d0-4748-43b0-a650-000126080001,송정해수욕장,ko,fix,장소 이름 반복,가족 휴양지로 인기 있는 해운대구 송정해수욕장,부드러운 모래와 완만한 경사의 가족 휴양 해변
+148d72d0-4748-43b0-a650-000126080001,송정해수욕장,en,fix,ko 수정에 맞춤,Family-friendly beach in Haeundae-gu with soft sand and gentle slope,Family-friendly beach with soft sand and gentle slope
+148d72d0-4748-43b0-a650-000126080001,송정해수욕장,ja,fix,ko 수정에 맞춤,家族向けの海雲台区ソンジョン海水浴場,柔らかな砂と遠浅の海が広がる家族向け海水浴場
+148d72d0-4748-43b0-a650-000126080001,송정해수욕장,zh-Hans,fix,ko 수정에 맞춤,海云台区适合家庭的松亭海水浴场,沙质细腻坡度平缓的家庭休闲海滩
+148d72d0-4748-43b0-a650-000126080001,송정해수욕장,zh-Hant,fix,ko 수정에 맞춤,海雲台區適合家庭的松亭海水浴場,沙質細膩坡度平緩的家庭休閒海灘
+148d72d0-4748-43b0-a650-000126080001,송정해수욕장,vi,fix,ko 수정에 맞춤,Bãi biển Songjeong thân thiện với gia đình tại Haeundae,Bãi biển nghỉ dưỡng cho gia đình với cát mịn và bờ thoai thoải
+17498549-757e-3b15-a565-18a169133f4a,오반장밥과고기,ja,fix,생갈매기살 오역(マグメギサル),蒸し卵・キムチ・もやし焼きと生マグメギサルの豚肉焼肉店,蒸し卵・キムチ・もやし焼きと生カルメギサルの豚肉焼肉店
+17498549-757e-3b15-a565-18a169133f4a,오반장밥과고기,vi,fix,갈매기살을 삼겹살(ba chỉ)로 오역,"Quán nướng thịt heo với trứng hấp, kimchi, giá đỗ nướng và thịt ba chỉ tươi","Quán nướng thịt heo với trứng hấp, kimchi, giá đỗ nướng và cơ hoành heo tươi"
+17d8585a-4fbf-3762-bb3d-487bf5828dd3,임화랑,ko,drop,"facts에 사찰임을 뒷받침할 정보가 부족하고, 문화·역사·사찰이라는 분류만으로는 구체적 설명이 불가",해운대구의 문화 역사 사찰,
+17d8585a-4fbf-3762-bb3d-487bf5828dd3,임화랑,en,drop,ko가 drop이므로 같이 drop,Cultural historical temple in Haeundae-gu,
+17d8585a-4fbf-3762-bb3d-487bf5828dd3,임화랑,ja,drop,ko가 drop이므로 같이 drop,海雲台区の文化歴史寺院,
+17d8585a-4fbf-3762-bb3d-487bf5828dd3,임화랑,zh-Hans,drop,ko가 drop이므로 같이 drop,海云台区的文化历史寺庙,
+17d8585a-4fbf-3762-bb3d-487bf5828dd3,임화랑,zh-Hant,drop,ko가 drop이므로 같이 drop,海雲台區的文化歷史寺廟,
+17d8585a-4fbf-3762-bb3d-487bf5828dd3,임화랑,vi,drop,ko가 drop이므로 같이 drop,Chùa lịch sử văn hóa ở quận Haeundae,
+1a7cb7a9-ea63-37d4-a016-a69fe9350d85,우뚝,ko,fix,뼈해장국과 감자탕 전문 식당으로 메뉴 특징을 살린 설명 필요,24시간 아침 식사와 해장 가능한 해운대구 백반집,24시간 뼈해장국과 감자탕을 즐길 수 있는 식당
+1a7cb7a9-ea63-37d4-a016-a69fe9350d85,우뚝,en,fix,ko 수정 반영,24-hour Korean set meal restaurant in Haeundae-gu serving breakfast and hangover soup,24-hour restaurant serving pork backbone soup and gamjatang
+1a7cb7a9-ea63-37d4-a016-a69fe9350d85,우뚝,ja,fix,ko 수정 반영,24時間朝食と二日酔い対応のヘウンデ区定食店,24時間ピョヘジャングクとカムジャタンが楽しめる食堂
+1a7cb7a9-ea63-37d4-a016-a69fe9350d85,우뚝,zh-Hans,fix,ko 수정 반영,海云台区24小时供应早餐和解酒汤的韩式套餐店,24小时供应排骨醒酒汤和土豆汤的餐厅
+1a7cb7a9-ea63-37d4-a016-a69fe9350d85,우뚝,zh-Hant,fix,ko 수정 반영,海雲臺區24小時供應早餐和解酒湯的韓式套餐店,24小時供應排骨醒酒湯和馬鈴薯湯的餐廳
+1a7cb7a9-ea63-37d4-a016-a69fe9350d85,우뚝,vi,fix,ko 수정 반영,Quán cơm Hàn Quốc mở 24 giờ phục vụ bữa sáng và món giải rượu,Nhà hàng mở 24 giờ phục vụ canh giải rượu xương heo và gamjatang
+1c2ab2d3-11a3-37be-a209-fc8688f5512b,싱싱뽈락회 해운대,en,fix,"pollack은 오역, greenling 또는 rockfish로 수정 필요. 나머지는 ok.",Japanese sashimi restaurant with wild pollack sekko and special soybean paste sauce,Japanese sashimi restaurant with wild greenling sekko and special soybean paste sauce
+1c2ab2d3-11a3-37be-a209-fc8688f5512b,싱싱뽈락회 해운대,ja,fix,ポラックは誤訳、アイナメ（クジメ）やグリーンリング等が正しい。,天然ポラックセッコシと特製味噌だれの和食刺身店,天然アイナメセッコシと特製味噌だれの和食刺身店
+1c2ab2d3-11a3-37be-a209-fc8688f5512b,싱싱뽈락회 해운대,zh-Hans,fix,"鲈鱼(Sea bass)은 오역, 应为青鳕鱼或绿鳕鱼。",天然鲈鱼生鱼片和特制味噌酱的日式刺身店,天然青鳕鱼生鱼片和特制味噌酱的日式刺身店
+1c2ab2d3-11a3-37be-a209-fc8688f5512b,싱싱뽈락회 해운대,zh-Hant,fix,鱸魚(Sea bass)為誤譯，應為青鱈魚或綠鱈魚。,天然鱸魚生魚片和特製味噌醬的日式刺身店,天然青鱈魚生魚片和特製味噌醬的日式刺身店
+1c2ab2d3-11a3-37be-a209-fc8688f5512b,싱싱뽈락회 해운대,vi,fix,"pollack은 오역, cá pollack이 아니라 cá greenling(쥐노래미)임.",Quán sashimi Nhật với cá pollack tự nhiên và sốt tương đậu đặc biệt,Quán sashimi Nhật với cá greenling tự nhiên và sốt tương đậu đặc biệt
+1c9421d7-eca9-360b-90f7-da645c1f78b4,보광사,ko,drop,facts에 사찰임을 뒷받침하는 정보가 없음,해운대구의 문화 역사 사찰,
+1c9421d7-eca9-360b-90f7-da645c1f78b4,보광사,en,drop,ko가 drop이므로 동일,Cultural and historical temple in Haeundae-gu,
+1c9421d7-eca9-360b-90f7-da645c1f78b4,보광사,ja,drop,ko가 drop이므로 동일,ヘウンデ区の文化・歴史・寺院,
+1c9421d7-eca9-360b-90f7-da645c1f78b4,보광사,zh-Hans,drop,ko가 drop이므로 동일,海云台区的文化历史寺庙,
+1c9421d7-eca9-360b-90f7-da645c1f78b4,보광사,zh-Hant,drop,ko가 drop이므로 동일,海雲台區的文化歷史寺廟,
+1c9421d7-eca9-360b-90f7-da645c1f78b4,보광사,vi,drop,ko가 drop이므로 동일,Chùa văn hóa lịch sử tại Haeundae-gu,
+1cc4e345-cb55-3ec5-af0b-851a4a6800c8,타워갤러리,ko,drop,facts에 문화·역사·사찰이라는 분류 외에 실제 장소 성격에 대한 정보가 없음.,중구의 문화 역사 사찰,
+1cc4e345-cb55-3ec5-af0b-851a4a6800c8,타워갤러리,en,drop,ko에 맞춰 drop,Cultural and historical site in Jung-gu,
+1cc4e345-cb55-3ec5-af0b-851a4a6800c8,타워갤러리,ja,drop,ko에 맞춰 drop,中区の文化・歴史・寺院,
+1cc4e345-cb55-3ec5-af0b-851a4a6800c8,타워갤러리,zh-Hans,drop,ko에 맞춰 drop,中区的文化历史寺庙,
+1cc4e345-cb55-3ec5-af0b-851a4a6800c8,타워갤러리,zh-Hant,drop,ko에 맞춰 drop,中區的文化歷史寺廟,
+1cc4e345-cb55-3ec5-af0b-851a4a6800c8,타워갤러리,vi,drop,ko에 맞춰 drop,Địa điểm văn hóa lịch sử tại Jung-gu,
+20b3803b-ab2d-31b7-a4ce-7dd9f691fb06,제스터,ko,fix,푸딩 케이크와 커피 메뉴를 판매하는 주택 개조 카페이나 공공분류 경양식 표기로 인해 경양식 카페로 오기재됨,야외 테이블과 푸딩 케이크를 내는 경양식 카페,야외 테이블과 푸딩 케이크가 있는 디저트 카페
+20b3803b-ab2d-31b7-a4ce-7dd9f691fb06,제스터,en,fix,ko 수정 반영(경양식 카페 대신 디저트 카페),Western-style cafe with outdoor tables serving pudding cake,Dessert cafe with outdoor tables serving pudding cake
+20b3803b-ab2d-31b7-a4ce-7dd9f691fb06,제스터,ja,fix,ko 수정 반영(경양식 카페 대신 디저트 카페),屋外席とプリンケーキの洋食カフェ,屋外席とプリンケーキのあるデザートカフェ
+20b3803b-ab2d-31b7-a4ce-7dd9f691fb06,제스터,zh-Hans,fix,ko 수정 반영(경양식 카페 대신 디저트 카페),设有户外座位并供应布丁蛋糕的西餐咖啡厅,设有户外座位并供应布丁蛋糕的甜点咖啡厅
+20b3803b-ab2d-31b7-a4ce-7dd9f691fb06,제스터,zh-Hant,fix,ko 수정 반영(경양식 카페 대신 디저트 카페),設有戶外座位並供應布丁蛋糕的西餐咖啡廳,設有戶外座位並供應布丁蛋糕的甜點咖啡廳
+20b3803b-ab2d-31b7-a4ce-7dd9f691fb06,제스터,vi,fix,ko 수정 반영(경양식 카페 대신 디저트 카페),Quán cà phê kiểu Tây có bàn ngoài trời phục vụ bánh pudding,Quán cà phê tráng miệng có bàn ngoài trời phục vụ bánh pudding
+2147ab3b-2f78-3cf4-b97f-f75dec54c362,기도터,ko,drop,facts에 사찰임을 뒷받침하는 정보가 없음,해운대구의 문화 역사 사찰,
+2147ab3b-2f78-3cf4-b97f-f75dec54c362,기도터,en,drop,ko가 drop이므로 동일,Cultural and historical temple in Haeundae-gu,
+2147ab3b-2f78-3cf4-b97f-f75dec54c362,기도터,ja,drop,ko가 drop이므로 동일,ヘウンデ区の文化・歴史・寺院,
+2147ab3b-2f78-3cf4-b97f-f75dec54c362,기도터,zh-Hans,drop,ko가 drop이므로 동일,海云台区的文化历史寺庙,
+2147ab3b-2f78-3cf4-b97f-f75dec54c362,기도터,zh-Hant,drop,ko가 drop이므로 동일,海雲台區的文化歷史寺廟,
+2147ab3b-2f78-3cf4-b97f-f75dec54c362,기도터,vi,drop,ko가 drop이므로 동일,Chùa văn hóa lịch sử tại Haeundae-gu,
+21b68826-0791-335e-8a00-efc61a00d6c9,마담에뽀끄,ko,fix,"오션뷰, 인기 등은 facts에 없으므로 제외해야 함",광안리 오션뷰 경양식 스테이크 크림파스타 라자냐,스테이크 크림파스타 라자냐 제공 경양식
+21b68826-0791-335e-8a00-efc61a00d6c9,마담에뽀끄,en,fix,"오션뷰, 인기 등은 facts에 없으므로 제외해야 함",Western-style restaurant with ocean view serving steak cream pasta and lasagna,Western-style restaurant serving steak cream pasta and lasagna
+21b68826-0791-335e-8a00-efc61a00d6c9,마담에뽀끄,ja,fix,"오션뷰, 인기 등은 facts에 없으므로 제외해야 함",広安里のオーシャンビュー洋食店 ステーキクリームパスタとラザニア,ステーキクリームパスタとラザニアを提供する洋食店
+21b68826-0791-335e-8a00-efc61a00d6c9,마담에뽀끄,zh-Hans,fix,"오션뷰, 인기 등은 facts에 없으므로 제외해야 함",广安里海景西餐厅 提供牛排奶油意面和千层面,提供牛排奶油意面和千层面的西餐厅
+21b68826-0791-335e-8a00-efc61a00d6c9,마담에뽀끄,zh-Hant,fix,"오션뷰, 인기 등은 facts에 없으므로 제외해야 함",廣安里海景西餐廳 提供牛排奶油義大利麵和千層麵,提供牛排奶油義大利麵和千層麵的西餐廳
+21b68826-0791-335e-8a00-efc61a00d6c9,마담에뽀끄,vi,fix,"오션뷰, 인기 등은 facts에 없으므로 제외해야 함",Nhà hàng phong cách Tây có view biển Gwangalli phục vụ steak kem mì và lasagna,Nhà hàng phong cách Tây phục vụ steak kem mì và lasagna
+277b438c-3207-3ca2-aa77-ff6b54ab44ae,거대갈비,ko,fix,"돼지고기구이 업종이나 한우(소고기)만 언급, 돼지고기구이집 아님. 한우 숯불구이와 고급 서비스만 남겨야 함.",최상급 1++ 한우 숯불구이와 고급 접대 서비스 맛집,최상급 1++ 한우 숯불구이와 고급 접대 서비스
+277b438c-3207-3ca2-aa77-ff6b54ab44ae,거대갈비,en,fix,ko에 맞춰 수정,Premium 1++ Korean beef charcoal grill with high-end service,Premium 1++ Korean beef charcoal grill and high-end service
+277b438c-3207-3ca2-aa77-ff6b54ab44ae,거대갈비,ja,fix,ko에 맞춰 수정,最高級1++韓牛炭火焼と高級接待サービスの名店,最高級1++韓牛炭火焼と高級接待サービス
+277b438c-3207-3ca2-aa77-ff6b54ab44ae,거대갈비,zh-Hans,fix,ko에 맞춰 수정,顶级1++韩牛炭火烤肉与高端接待服务名店,顶级1++韩牛炭火烤肉与高端接待服务
+277b438c-3207-3ca2-aa77-ff6b54ab44ae,거대갈비,zh-Hant,fix,ko에 맞춰 수정,頂級1++韓牛炭火烤肉與高端接待服務名店,頂級1++韓牛炭火烤肉與高端接待服務
+277b438c-3207-3ca2-aa77-ff6b54ab44ae,거대갈비,vi,fix,ko에 맞춰 수정,Quán nướng thịt bò Hàn 1++ cao cấp với dịch vụ sang trọng,Thịt bò Hàn 1++ nướng than cao cấp và dịch vụ sang trọng
+288a581f-cf9c-3997-8029-5cb8561a5989,본앤브레드,ko,fix,경양식집이 아니라 한우 오마카세 및 스테이크 전문점임. '한우 오마카세와 스테이크 전문점'으로 수정,최고급 한우 오마카세와 스테이크 경양식집,한우 오마카세와 스테이크 전문점
+288a581f-cf9c-3997-8029-5cb8561a5989,본앤브레드,en,fix,"ko fix에 맞춰 Western-style restaurant 삭제, Korean beef omakase and steak restaurant",Premium Korean beef omakase and steak Western-style restaurant,Korean beef omakase and steak restaurant
+288a581f-cf9c-3997-8029-5cb8561a5989,본앤브레드,ja,fix,ko fix에 맞춰洋食店 삭제、韓牛オマカセとステーキ専門店,最高級韓牛のオマカセとステーキを提供する洋食店,韓牛オマカセとステーキ専門店
+288a581f-cf9c-3997-8029-5cb8561a5989,본앤브레드,zh-Hans,fix,ko fix에 맞춰西餐厅 삭제，韩牛寿司和牛排专门店,供应顶级韩牛寿司和牛排的西餐厅,韩牛寿司和牛排专门店
+288a581f-cf9c-3997-8029-5cb8561a5989,본앤브레드,zh-Hant,fix,ko fix에 맞춰西餐廳 삭제，韓牛壽司和牛排專門店,供應頂級韓牛壽司和牛排的西餐廳,韓牛壽司和牛排專門店
+288a581f-cf9c-3997-8029-5cb8561a5989,본앤브레드,vi,fix,"ko fix에 맞춰 nhà hàng phong cách Tây 삭제, nhà hàng chuyên omakase và bít tết bò Hàn",Nhà hàng phong cách Tây phục vụ omakase và bít tết bò Hàn cao cấp,Nhà hàng chuyên omakase và bít tết bò Hàn
+29a9a218-a14b-3396-ba99-033a3a15ff82,이태리상점,ko,fix,화덕 피자와 비스큐 파스타를 선보이는 이탈리안 식당을 경양식집으로 표현,화덕 나폴리식 피자와 비스큐 링귀니 파스타 경양식집,화덕 나폴리식 피자와 비스큐 링귀니 파스타를 내는 이탈리안 식당
+29a9a218-a14b-3396-ba99-033a3a15ff82,이태리상점,en,fix,ko 수정 반영(경양식집 대신 이탈리안 식당),Western-style restaurant with wood-fired Neapolitan pizza and bisque linguine pasta,Italian restaurant with wood-fired Neapolitan pizza and bisque linguine pasta
+29a9a218-a14b-3396-ba99-033a3a15ff82,이태리상점,ja,fix,ko 수정 반영(경양식집 대신 이탈리안 식당),薪窯ナポリピザとビスクリングイネパスタの洋食店,薪窯ナポリピザとビスクリングイネパスタのイタリア料理店
+29a9a218-a14b-3396-ba99-033a3a15ff82,이태리상점,zh-Hans,fix,ko 수정 반영(경양식집 대신 이탈리안 식당),提供柴火那不勒斯披萨和浓汤意面西餐厅,供应那不勒斯烤炉披萨和浓汤扁面条的意式餐厅
+29a9a218-a14b-3396-ba99-033a3a15ff82,이태리상점,zh-Hant,fix,ko 수정 반영(경양식집 대신 이탈리안 식당),提供柴火那不勒斯披薩和濃湯義大利麵西餐廳,供應拿坡里烤爐披薩和濃湯扁麵條的義式餐廳
+29a9a218-a14b-3396-ba99-033a3a15ff82,이태리상점,vi,fix,ko 수정 반영(경양식집 대신 이탈리안 식당),Nhà hàng kiểu Tây với pizza Napoli nướng củi và mì linguine sốt bisque,Nhà hàng Ý với pizza Napoli lò nướng và mì linguine sốt bisque
+2c56463e-6ffc-3b8d-bc15-ec52f88a7483,광안리언양불고기부산집,en,fix,Same as ko,30-year-old traditional restaurant specializing in Eonyang bulgogi with Korean beef,30-year-old traditional Korean beef Eonyang bulgogi restaurant
+2c56463e-6ffc-3b8d-bc15-ec52f88a7483,광안리언양불고기부산집,ja,fix,Same as ko,30年の伝統を持つ韓牛専門の言陽プルコギ店,30年の伝統を持つ韓牛専門の言陽プルコギ店
+2c56463e-6ffc-3b8d-bc15-ec52f88a7483,광안리언양불고기부산집,zh-Hans,fix,Same as ko,30年传统的韩牛言阳烤肉专门店,30年传统的韩牛言阳烤肉专门店
+2c56463e-6ffc-3b8d-bc15-ec52f88a7483,광안리언양불고기부산집,zh-Hant,fix,Same as ko,30年傳統的韓牛言陽烤肉專門店,30年傳統的韓牛言陽烤肉專門店
+2c56463e-6ffc-3b8d-bc15-ec52f88a7483,광안리언양불고기부산집,vi,fix,Same as ko,Quán thịt bò Hàn Quốc truyền thống 30 năm chuyên món bulgogi Eonyang,Quán thịt bò Hàn Quốc truyền thống 30 năm chuyên món bulgogi Eonyang
+30406178-93be-3278-af06-ce09c08d4d11,해금강곰장어,ko,fix,구워 먹는 곰장어 식당을 횟집으로 표기함,이연복 셰프 극찬 신선한 곰장어 횟집,이연복 셰프가 극찬한 신선한 곰장어구이 전문점
+30406178-93be-3278-af06-ce09c08d4d11,해금강곰장어,en,fix,곰장어 구이 전문점을 sashimi로 오역함,Fresh hagfish sashimi praised by Chef Lee Yeon-bok,Fresh grilled hagfish restaurant praised by Chef Lee Yeon-bok
+30406178-93be-3278-af06-ce09c08d4d11,해금강곰장어,ja,fix,곰장어 구이 전문점을 刺身店으로 오역함,イ・ヨンボクシェフ絶賛の新鮮なヌタウナギの刺身店,イ・ヨンボクシェフが絶賛した新鮮なヌタウナギ焼き専門店
+30406178-93be-3278-af06-ce09c08d4d11,해금강곰장어,zh-Hans,fix,곰장어 구이 전문점을 刺身店으로 오역함,李延福厨师赞誉的新鲜盲鳗刺身店,李延福主厨赞誉的新鲜烤盲鳗专门店
+30406178-93be-3278-af06-ce09c08d4d11,해금강곰장어,zh-Hant,fix,곰장어 구이 전문점을 刺身店으로 오역함,李延福廚師讚譽的新鮮盲鰻刺身店,李延福主廚讚譽的新鮮烤盲鰻專門店
+30406178-93be-3278-af06-ce09c08d4d11,해금강곰장어,vi,fix,곰장어 구이 전문점을 sashimi 식당으로 오역함,Quán sashimi hagfish tươi được đầu bếp Lee Yeon-bok khen ngợi,Quán lươn biển nướng tươi ngon được đầu bếp Lee Yeon-bok khen ngợi
+33994ebe-c860-3171-b8d4-d7fbe5e5ac2d,피카소화랑,ko,fix,"피카소화랑은 화랑(갤러리)인데 사찰로 잘못 표기됨. facts에 문화·역사·사찰로 분류되어 있으나, 이름과 업종상 화랑임이 명확하므로 '문화 예술 전시 공간'으로 수정.",해운대구의 문화 역사 사찰,해운대구의 문화 예술 전시 공간
+33994ebe-c860-3171-b8d4-d7fbe5e5ac2d,피카소화랑,en,fix,ko에 맞춰 수정,"Cultural, historical, and temple site in Haeundae-gu",Cultural and art exhibition space in Haeundae-gu
+33994ebe-c860-3171-b8d4-d7fbe5e5ac2d,피카소화랑,ja,fix,ko에 맞춰 수정,海雲台区の文化・歴史・寺院,海雲台区の文化芸術展示空間
+33994ebe-c860-3171-b8d4-d7fbe5e5ac2d,피카소화랑,zh-Hans,fix,ko에 맞춰 수정,海云台区文化历史寺庙,海云台区文化艺术展览空间
+33994ebe-c860-3171-b8d4-d7fbe5e5ac2d,피카소화랑,zh-Hant,fix,ko에 맞춰 수정,海雲台區文化歷史寺廟,海雲台區文化藝術展覽空間
+33994ebe-c860-3171-b8d4-d7fbe5e5ac2d,피카소화랑,vi,fix,ko에 맞춰 수정,"Địa điểm văn hóa, lịch sử, chùa ở Haeundae-gu",Không gian triển lãm văn hóa nghệ thuật ở Haeundae-gu
+35e24fbd-128a-3045-8fbc-c6c7caf1f8e2,번하우스광안리점,ko,fix,"경양식은 서양식이지만, 방문 이유에 '영국 감성'이 명확히 있으므로 '영국 감성'을 강조해야 함. '경양식'은 업종이지만, 실제로는 수제 번과 롤 도넛을 내는 영국 감성의 디저트 중심임.",수제 번과 롤 도넛 내는 영국 감성 경양식,수제 번과 롤 도넛 내는 영국 감성 디저트 카페
+35e24fbd-128a-3045-8fbc-c6c7caf1f8e2,번하우스광안리점,en,fix,ko에 맞춰 영국 감성 디저트 카페로 수정,Western-style dining with handmade buns and roll donuts,British-style dessert cafe with handmade buns and roll donuts
+35e24fbd-128a-3045-8fbc-c6c7caf1f8e2,번하우스광안리점,ja,fix,ko에 맞춰 영국感デザートカフェに修正,手作りバンズとロールドーナツの英国風洋食店,手作りバンズとロールドーナツの英国風デザートカフェ
+35e24fbd-128a-3045-8fbc-c6c7caf1f8e2,번하우스광안리점,zh-Hans,fix,ko에 맞춰英式甜品咖啡馆,提供手工面包和卷甜甜圈的英式西餐厅,提供手工面包和卷甜甜圈的英式甜品咖啡馆
+35e24fbd-128a-3045-8fbc-c6c7caf1f8e2,번하우스광안리점,zh-Hant,fix,ko에 맞춰英式甜品咖啡館,提供手工麵包和卷甜甜圈的英式西餐廳,提供手工麵包和卷甜甜圈的英式甜品咖啡館
+35e24fbd-128a-3045-8fbc-c6c7caf1f8e2,번하우스광안리점,vi,fix,ko에 맞춰 quán cà phê tráng miệng phong cách Anh,Nhà hàng kiểu Tây với bánh mì và bánh rán cuộn thủ công,Quán cà phê tráng miệng kiểu Anh với bánh mì và bánh rán cuộn thủ công
+36a5765f-0209-328d-8662-32774e05d85e,우나쥬,ko,fix,"30년 경력, 나고야식 히츠마부시 전문점은 맞으나, 업종이 '일식 회/초밥'으로 히츠마부시(장어덮밥)와 직접적 관련이 없음. facts에 따르면 히츠마부시가 주력임을 강조해야 하며, '일식 회/초밥집'은 부적절. '히츠마부시 전문점'으로 수정.",30년 경력 나고야식 히츠마부시 전문 일식 회/초밥집,30년 경력 나고야식 히츠마부시 전문점
+36a5765f-0209-328d-8662-32774e05d85e,우나쥬,en,fix,ko에 맞춰 수정,Japanese seafood restaurant specializing in 30-year Nagoya-style hitsumabushi,Nagoya-style hitsumabushi specialty restaurant with 30 years of experience
+36a5765f-0209-328d-8662-32774e05d85e,우나쥬,ja,fix,ko에 맞춰 수정,30年の名古屋式ひつまぶし専門の和食海鮮店,30年の名古屋式ひつまぶし専門店
+36a5765f-0209-328d-8662-32774e05d85e,우나쥬,zh-Hans,fix,ko에 맞춰 수정,30年经验名古屋风味烤鳗鱼饭日式海鲜店,30年经验名古屋风味烤鳗鱼饭专门店
+36a5765f-0209-328d-8662-32774e05d85e,우나쥬,zh-Hant,fix,ko에 맞춰 수정,30年經驗名古屋風味烤鰻魚飯日式海鮮店,30年經驗名古屋風味烤鰻魚飯專門店
+36a5765f-0209-328d-8662-32774e05d85e,우나쥬,vi,fix,ko에 맞춰 수정,Nhà hàng hải sản Nhật Bản chuyên món hitsumabushi kiểu Nagoya 30 năm kinh nghiệm,Nhà hàng chuyên hitsumabushi kiểu Nagoya 30 năm kinh nghiệm
+39537d8a-e6e9-3941-a0c8-2834c8e8e937,글로벌양상국,en,drop,규칙:PORK_AS_BEEF,Pork grill specializing in charcoal-grilled Korean beef large intestines,
+3bea8d8c-a362-3f99-9b57-b2d5ff9f9129,일번지자갈치산곰장어,ko,fix,곰장어 구이 전문점을 횟집으로 표기함,연탄불 초벌구이 산곰장어와 늦게까지 영업하는 횟집,연탄불 초벌구이 산곰장어를 파는 심야 영업 식당
+3bea8d8c-a362-3f99-9b57-b2d5ff9f9129,일번지자갈치산곰장어,en,fix,곰장어 구이 전문점을 생선회(raw fish) 식당으로 오역함,Raw fish restaurant with charcoal pre-grilled fresh hagfish open late,Charcoal pre-grilled fresh hagfish restaurant open late
+3bea8d8c-a362-3f99-9b57-b2d5ff9f9129,일번지자갈치산곰장어,ja,fix,곰장어 구이 전문점을 刺身店으로 오역함,炭火で下焼きした新鮮な山ヌタウナギを提供し深夜まで営業する刺身店,炭火で下焼きした活ヌタウナギを提供する深夜営業の店
+3bea8d8c-a362-3f99-9b57-b2d5ff9f9129,일번지자갈치산곰장어,zh-Hans,fix,곰장어 구이 전문점을 生鱼片店으로 오역함,提供炭火初烤新鲜山盲鳗并营业至深夜的生鱼片店,提供炭火初烤鲜活盲鳗的深夜营业餐厅
+3bea8d8c-a362-3f99-9b57-b2d5ff9f9129,일번지자갈치산곰장어,zh-Hant,fix,곰장어 구이 전문점을 生魚片店으로 오역함,提供炭火初烤新鮮山盲鰻並營業至深夜的生魚片店,提供炭火初烤鮮活盲鰻的深夜營業餐廳
+3bea8d8c-a362-3f99-9b57-b2d5ff9f9129,일번지자갈치산곰장어,vi,fix,곰장어 구이 전문점을 sashimi 식당으로 오역함,Quán sashimi phục vụ hagfish nướng sơ than và mở cửa đến khuya,Nhà hàng lươn biển nướng sơ than mở cửa đến khuya
+4177b535-7390-3062-946c-116be92c0e9a,진미언양불고기,ko,fix,facts에 따르면 한우 생고기(소고기) 불고기 전문점임. 돼지고기 불고기라는 내용은 없음.,언양식 숯불 돼지고기 불고기 전문점,언양식 한우 숯불 불고기 전문점
+4177b535-7390-3062-946c-116be92c0e9a,진미언양불고기,en,fix,ko fix에 맞춰 수정 필요,Eonyang-style charcoal grilled pork bulgogi restaurant,Eonyang-style Hanwoo charcoal grilled bulgogi restaurant
+4177b535-7390-3062-946c-116be92c0e9a,진미언양불고기,ja,fix,ko fix에 맞춰 수정 필요,言陽式炭火焼き豚肉プルコギ専門店,言陽式韓牛炭火焼きプルコギ専門店
+4177b535-7390-3062-946c-116be92c0e9a,진미언양불고기,zh-Hans,fix,ko fix에 맞춰 수정 필요,言阳式炭火烤猪肉烤肉店,言阳式韩牛炭火烤肉店
+4177b535-7390-3062-946c-116be92c0e9a,진미언양불고기,zh-Hant,fix,ko fix에 맞춰 수정 필요,言陽式炭火烤豬肉烤肉店,言陽式韓牛炭火烤肉店
+4177b535-7390-3062-946c-116be92c0e9a,진미언양불고기,vi,fix,ko fix에 맞춰 수정 필요,Quán thịt lợn nướng than kiểu Eonyang,Quán thịt bò Hanwoo nướng than kiểu Eonyang
+43e6ce27-9838-3208-b957-b6d329b5a769,바다산곰장어,ko,fix,곰장어 구이 전문점인데 횟집으로 표기됨,연탄 초벌로 잡내 제거한 신선한 곰장어 전문 횟집,연탄 초벌로 잡내를 잡은 신선한 곰장어 전문점
+43e6ce27-9838-3208-b957-b6d329b5a769,바다산곰장어,en,fix,연탄을 charcoal(참숯)로 오역하고 횟집(raw fish)으로 번역함,Raw fish restaurant specializing in fresh hagfish pre-grilled over charcoal,Restaurant specializing in fresh hagfish pre-grilled over briquettes
+43e6ce27-9838-3208-b957-b6d329b5a769,바다산곰장어,ja,fix,연탄을 炭火(숯불)로 오역하고 刺身店(횟집)으로 번역함,炭火で下焼きし臭みを取った新鮮なヌタウナギ専門の刺身店,練炭で下焼きし臭みを取った新鮮なヌタウナギ専門店
+43e6ce27-9838-3208-b957-b6d329b5a769,바다산곰장어,zh-Hans,fix,연탄을 炭火(숯불)로 오역하고 生鱼片店(횟집)으로 번역함,通过炭火初烤去腥的新鲜盲鳗专门生鱼片店,通过煤球初烤去腥的新鲜盲鳗专门店
+43e6ce27-9838-3208-b957-b6d329b5a769,바다산곰장어,zh-Hant,fix,연탄을 炭火(숯불)로 오역하고 生魚片店(횟집)으로 번역함,通過炭火初烤去腥的新鮮盲鰻專門生魚片店,透過煤球初烤去腥的新鮮盲鰻專門店
+43e6ce27-9838-3208-b957-b6d329b5a769,바다산곰장어,vi,fix,연탄 오역 및 sashimi 전문점으로 잘못 표기됨,Quán sashimi chuyên hagfish tươi được nướng sơ qua than,Quán chuyên hagfish tươi được nướng sơ qua than tổ ong để khử mùi
+4551f0e0-f458-3f99-a5d9-a4ac40868584,문토스트,ko,fix,"맛집, 명소, 유명세 등 평가·역사·분위기 표현이 facts에 없음. 메뉴와 음료만 남겨야 함.",모짜렐라 치즈 토스트와 다양한 음료를 즐길 수 있는 맛집,모짜렐라 치즈 토스트와 다양한 음료 전문점
+4551f0e0-f458-3f99-a5d9-a4ac40868584,문토스트,en,fix,ko에 맞춰 수정,Famous for mozzarella cheese toast and various beverages,Mozzarella cheese toast and various beverages specialty shop
+4551f0e0-f458-3f99-a5d9-a4ac40868584,문토스트,ja,fix,ko에 맞춰 수정,モッツァレラチーズトーストと多彩な飲み物の名店,モッツァレラチーズトーストと多彩な飲み物専門店
+4551f0e0-f458-3f99-a5d9-a4ac40868584,문토스트,zh-Hans,fix,ko에 맞춰 수정,以莫扎里拉芝士吐司和多样饮品著称的美食店,莫扎里拉芝士吐司和多样饮品专门店
+4551f0e0-f458-3f99-a5d9-a4ac40868584,문토스트,zh-Hant,fix,ko에 맞춰 수정,以莫札瑞拉起司吐司與多樣飲品著稱的美食店,莫札瑞拉起司吐司與多樣飲品專門店
+4551f0e0-f458-3f99-a5d9-a4ac40868584,문토스트,vi,fix,ko에 맞춰 수정,Quán nổi tiếng với bánh mì phô mai mozzarella và đồ uống đa dạng,Quán chuyên bánh mì phô mai mozzarella và đồ uống đa dạng
+47d7473d-3f13-3cdb-a82d-0788a687bdb5,우이,en,drop,규칙:PORK_AS_BEEF,Pork barbecue restaurant with private rooms serving Korean beef course meals,
+48e610e3-b8ef-323c-8b6a-6d13c11bdbbd,Busan X the SKY,ko,drop,고친 문장이 형식 검사에 걸림,해운대구의 문화·역사·사찰,
+48e610e3-b8ef-323c-8b6a-6d13c11bdbbd,Busan X the SKY,en,drop,ko가 drop/fix이므로 맞춰서 drop,"Cultural, historical, and temple site in Haeundae-gu",
+48e610e3-b8ef-323c-8b6a-6d13c11bdbbd,Busan X the SKY,ja,drop,ko가 drop/fix이므로 맞춰서 drop,海雲台区の文化・歴史・寺院,
+48e610e3-b8ef-323c-8b6a-6d13c11bdbbd,Busan X the SKY,zh-Hans,drop,ko가 drop/fix이므로 맞춰서 drop,海云台区的文化历史寺庙,
+48e610e3-b8ef-323c-8b6a-6d13c11bdbbd,Busan X the SKY,zh-Hant,drop,ko가 drop/fix이므로 맞춰서 drop,海雲台區的文化歷史寺廟,
+48e610e3-b8ef-323c-8b6a-6d13c11bdbbd,Busan X the SKY,vi,drop,ko가 drop/fix이므로 맞춰서 drop,"Địa điểm văn hóa, lịch sử và chùa tại quận Haeundae",
+4b08cc56-f5b6-3acd-a36e-f16e67182986,헬로인디아알와하,ko,fix,업종은 베트남식이지만 실제로는 인도·레바논 할랄 요리 전문점임을 facts에서 명확히 밝힘,해운대 구남로 중심가 인도·레바논 할랄 요리 전문점,인도 레바논 할랄 요리 전문 해운대 구남로 음식점
+4b08cc56-f5b6-3acd-a36e-f16e67182986,헬로인디아알와하,en,fix,Match fixed ko,"Indian and Lebanese halal cuisine restaurant in central Gunam-ro, Haeundae","Indian and Lebanese halal cuisine restaurant on Gunam-ro, Haeundae"
+4b08cc56-f5b6-3acd-a36e-f16e67182986,헬로인디아알와하,ja,fix,Match fixed ko,海雲台区グナムロ中心のインド・レバノンハラール料理店,インド・レバノンハラール料理専門の海雲台グナムロ飲食店
+4b08cc56-f5b6-3acd-a36e-f16e67182986,헬로인디아알와하,zh-Hans,fix,Match fixed ko,海云台区旧南路中心印度和黎巴嫩清真料理店,海云台旧南路印度黎巴嫩清真料理专门餐厅
+4b08cc56-f5b6-3acd-a36e-f16e67182986,헬로인디아알와하,zh-Hant,fix,Match fixed ko,海雲台區舊南路中心印度和黎巴嫩清真料理店,海雲台舊南路印度黎巴嫩清真料理專門餐廳
+4b08cc56-f5b6-3acd-a36e-f16e67182986,헬로인디아알와하,vi,fix,Match fixed ko,"Nhà hàng ẩm thực halal Ấn Độ và Lebanon tại trung tâm Gunam-ro, Haeundae","Nhà hàng chuyên ẩm thực halal Ấn Độ và Lebanon trên đường Gunam-ro, Haeundae"
+4fb0dee1-9946-3716-b666-d5ae2ff4d78c,코너스톤,ko,fix,"facts에는 '수제 칵테일을 즐길 수 있는 심야 데이트 장소'만 있고, 경양식(서양식 식사) 언급 없음. '심야 칵테일 바'로 수정 필요.",수제 칵테일 즐기는 심야 경양식,수제 칵테일 즐기는 심야 바
+4fb0dee1-9946-3716-b666-d5ae2ff4d78c,코너스톤,en,fix,ko fix에 맞춰 동일 의미로 수정,Late-night western-style dining with craft cocktails,Late-night bar with craft cocktails
+4fb0dee1-9946-3716-b666-d5ae2ff4d78c,코너스톤,ja,fix,ko fix에 맞춰 동일 의미로 수정,クラフトカクテルが楽しめる深夜の洋食店,クラフトカクテルが楽しめる深夜のバー
+4fb0dee1-9946-3716-b666-d5ae2ff4d78c,코너스톤,zh-Hans,fix,ko fix에 맞춰 동일 의미로 수정,享用手工鸡尾酒的深夜西餐厅,享用手工鸡尾酒的深夜酒吧
+4fb0dee1-9946-3716-b666-d5ae2ff4d78c,코너스톤,zh-Hant,fix,ko fix에 맞춰 동일 의미로 수정,享用手工雞尾酒的深夜西餐廳,享用手工雞尾酒的深夜酒吧
+4fb0dee1-9946-3716-b666-d5ae2ff4d78c,코너스톤,vi,fix,ko fix에 맞춰 동일 의미로 수정,Nhà hàng kiểu Tây đêm với cocktail thủ công,Quán bar đêm với cocktail thủ công
+53493eeb-ca7b-30a3-b9f8-d1c675a6095f,마린갤러리,ko,drop,"facts에 '사찰' 관련 정보가 없음. '마린갤러리'는 이름상 갤러리로 보이며, facts에 문화·역사 관련 정보도 없음.",해운대구의 문화 역사 사찰,
+53493eeb-ca7b-30a3-b9f8-d1c675a6095f,마린갤러리,en,drop,ko가 drop이므로 같이 drop.,"Cultural, historical, and temple site in Haeundae-gu",
+53493eeb-ca7b-30a3-b9f8-d1c675a6095f,마린갤러리,ja,drop,ko가 drop이므로 같이 drop.,海雲台区の文化・歴史・寺院,
+53493eeb-ca7b-30a3-b9f8-d1c675a6095f,마린갤러리,zh-Hans,drop,ko가 drop이므로 같이 drop.,海云台区的文化历史寺庙,
+53493eeb-ca7b-30a3-b9f8-d1c675a6095f,마린갤러리,zh-Hant,drop,ko가 drop이므로 같이 drop.,海雲台區的文化歷史寺廟,
+53493eeb-ca7b-30a3-b9f8-d1c675a6095f,마린갤러리,vi,drop,ko가 drop이므로 같이 drop.,"Di tích văn hóa, lịch sử và chùa tại Haeundae-gu",
+56c49d77-f658-35b4-928e-f0ebd1f5194e,이카,ko,fix,튀김이 오징어 남은 부위임을 명확히 해야 함,활오징어회와 튀김 제공하는 시그니처 일식 회/초밥,활오징어회와 오징어튀김 제공 일식 회/초밥
+56c49d77-f658-35b4-928e-f0ebd1f5194e,이카,en,fix,튀김이 오징어임을 명확히 해야 함,Signature Japanese sashimi and sushi with fresh squid and fried parts,Japanese sashimi and sushi with fresh squid sashimi and fried squid
+56c49d77-f658-35b4-928e-f0ebd1f5194e,이카,ja,fix,튀김이 오징어임을 명확히 해야 함,新鮮なイカ刺身と揚げ物を提供する和食店,新鮮なイカ刺身とイカの揚げ物を提供する和食店
+56c49d77-f658-35b4-928e-f0ebd1f5194e,이카,zh-Hans,fix,튀김이 오징어임을 명확히 해야 함,提供新鲜鱿鱼生鱼片及炸物的日式生鱼片店,提供新鲜鱿鱼生鱼片及鱿鱼炸物的日式生鱼片店
+56c49d77-f658-35b4-928e-f0ebd1f5194e,이카,zh-Hant,fix,튀김이鱿鱼임을 명확히 해야 함,提供新鮮魷魚生魚片及炸物的日式生魚片店,提供新鮮魷魚生魚片及魷魚炸物的日式生魚片店
+56c49d77-f658-35b4-928e-f0ebd1f5194e,이카,vi,fix,튀김이 오징어임을 명확히 해야 함,Nhà hàng sashimi và sushi Nhật đặc trưng với mực tươi và món chiên,Nhà hàng sashimi và sushi Nhật với sashimi mực tươi và mực chiên
+57bfae67-ab1b-305a-8dbb-8d41401d37b1,오엘스에스프레소바,ko,fix,"메뉴에 일식 면 요리가 없고, 에스프레소 등 커피류와 브라우니만 있음. 카페임을 강조해야 함.",에스프레소 등 일식 면 요리 해운대구 카페,에스프레소와 브라우니 해운대구 카페
+57bfae67-ab1b-305a-8dbb-8d41401d37b1,오엘스에스프레소바,en,fix,ko에 맞춰 수정,Haeundae Japanese-style cafe serving espresso and noodle dishes,Haeundae cafe with espresso and brownies
+57bfae67-ab1b-305a-8dbb-8d41401d37b1,오엘스에스프레소바,ja,fix,ko에 맞춰 수정,ヘウンデ区のエスプレッソなど和風麺料理カフェ,ヘウンデ区のエスプレッソとブラウニーのカフェ
+57bfae67-ab1b-305a-8dbb-8d41401d37b1,오엘스에스프레소바,zh-Hans,fix,ko에 맞춰 수정,海云台区供应浓缩咖啡及日式面食的咖啡馆,海云台区供应浓缩咖啡和布朗尼的咖啡馆
+57bfae67-ab1b-305a-8dbb-8d41401d37b1,오엘스에스프레소바,zh-Hant,fix,ko에 맞춰 수정,海雲臺區供應濃縮咖啡及日式麵食的咖啡館,海雲臺區供應濃縮咖啡和布朗尼的咖啡館
+57bfae67-ab1b-305a-8dbb-8d41401d37b1,오엘스에스프레소바,vi,fix,ko에 맞춰 수정,Quán cà phê kiểu Nhật tại Haeundae phục vụ espresso và món mì,Quán cà phê Haeundae với espresso và brownie
+58966d35-0dfb-355c-abf4-ae951fa6436f,한다솥,ko,fix,공공 업종 분류는 횟집이나 실제 방문 이유는 화덕 생선구이와 솥밥 전문 식당,500도 화덕 생선구이와 정갈한 솥밥을 내는 횟집,500도 화덕 생선구이와 정갈한 솥밥 음식점
+58966d35-0dfb-355c-abf4-ae951fa6436f,한다솥,en,fix,ko 수정 반영 (횟집 대신 일반 식당/생선구이 솥밥집),Seafood restaurant serving fish grilled at 500°C and neat pot rice,Restaurant serving fish grilled in a 500°C oven and pot rice
+58966d35-0dfb-355c-abf4-ae951fa6436f,한다솥,ja,fix,ko 수정 반영,500度の窯で焼く魚と整った釜飯の海鮮店,500度の窯焼き魚と整った釜飯の店
+58966d35-0dfb-355c-abf4-ae951fa6436f,한다솥,zh-Hans,fix,ko 수정 반영,提供500度烤鱼和整洁锅饭的海鲜店,提供500度烤鱼和整洁锅饭的餐厅
+58966d35-0dfb-355c-abf4-ae951fa6436f,한다솥,zh-Hant,fix,ko 수정 반영,提供500度烤魚和整潔鍋飯的海鮮店,提供500度烤魚和整潔鍋飯的餐廳
+58966d35-0dfb-355c-abf4-ae951fa6436f,한다솥,vi,fix,ko 수정 반영,Quán hải sản nướng cá 500 độ và cơm niêu gọn gàng,Nhà hàng nướng cá lò 500 độ và cơm niêu gọn gàng
+5c4e2adb-8374-3912-9fc6-cead90e83717,초량상회,ko,fix,"횟집이지만 생선구이 정식 제공이 주요 방문 이유로, '횟집' 대신 '생선구이 정식집'으로 바로잡음",이른 아침 생선구이 정식 제공하는 친절한 횟집,이른 아침 생선구이 정식 제공하는 식당
+5c4e2adb-8374-3912-9fc6-cead90e83717,초량상회,en,fix,ko fix에 맞춰 수정,Friendly sashimi restaurant serving early morning grilled fish set,Restaurant serving early morning grilled fish set
+5c4e2adb-8374-3912-9fc6-cead90e83717,초량상회,ja,fix,ko fix에 맞춰 수정,早朝に焼き魚定食を提供する親切な刺身店,早朝に焼き魚定食を提供する食堂
+5c4e2adb-8374-3912-9fc6-cead90e83717,초량상회,zh-Hans,fix,ko fix에 맞춰 수정,提供清晨烤鱼套餐的亲切生鱼片店,提供清晨烤鱼套餐的餐厅
+5c4e2adb-8374-3912-9fc6-cead90e83717,초량상회,zh-Hant,fix,ko fix에 맞춰 수정,提供清晨烤魚套餐的親切生魚片店,提供清晨烤魚套餐的餐廳
+5c4e2adb-8374-3912-9fc6-cead90e83717,초량상회,vi,fix,ko fix에 맞춰 수정,Quán sashimi thân thiện phục vụ set cá nướng sáng sớm,Nhà hàng phục vụ set cá nướng sáng sớm
+5dbe668a-5e81-3100-b377-a0ce64e1b003,서진섭돼지국밥,ko,fix,"업종 분류는 백반/한정식이나, 음식 종류와 이름 모두 돼지국밥임. '중구의 돼지국밥집'으로 수정.",중구의 돼지국밥 전문 백반집,중구의 돼지국밥집
+5dbe668a-5e81-3100-b377-a0ce64e1b003,서진섭돼지국밥,en,fix,Same as ko,Pork rice soup restaurant in Jung-gu,Pork soup restaurant in Jung-gu
+5dbe668a-5e81-3100-b377-a0ce64e1b003,서진섭돼지국밥,ja,fix,Same as ko,中区の豚肉ご飯スープ専門店,中区の豚肉スープ店
+5dbe668a-5e81-3100-b377-a0ce64e1b003,서진섭돼지국밥,zh-Hans,fix,Same as ko,中区的猪肉汤饭专门店,中区的猪肉汤专门店
+5dbe668a-5e81-3100-b377-a0ce64e1b003,서진섭돼지국밥,zh-Hant,fix,Same as ko,中區的豬肉湯飯專門店,中區的豬肉湯專門店
+5dbe668a-5e81-3100-b377-a0ce64e1b003,서진섭돼지국밥,vi,fix,Same as ko,Quán súp cơm thịt heo ở Jung-gu,Quán súp thịt heo ở Jung-gu
+5f18ef0a-26a0-3653-aafd-acd34faa75b5,미우,en,drop,규칙:PORK_AS_BEEF,Pork grill restaurant with premium Korean pork and beef charcoal grill and group rooms,
+5f2fbb63-e913-3adf-80b8-0e5332b4406e,신센,en,fix,ko fix에 맞춰 수정,20-year-old Japanese-style crispy and tender pork cutlet restaurant,Japanese pork cutlet specialty restaurant with 20 years of tradition
+5f2fbb63-e913-3adf-80b8-0e5332b4406e,신센,ja,fix,ko fix에 맞춰 수정,20年の伝統を持つサクサクで柔らかい和風とんかつ専門店,20年の伝統を持つサクサクで柔らかい和風とんかつ専門店
+5f2fbb63-e913-3adf-80b8-0e5332b4406e,신센,zh-Hans,fix,ko fix에 맞춰 수정,拥有20年传统的酥脆嫩滑日式炸猪排专门店,拥有20年传统的酥脆嫩滑日式炸猪排专门店
+5f2fbb63-e913-3adf-80b8-0e5332b4406e,신센,zh-Hant,fix,ko fix에 맞춰 수정,擁有20年傳統的酥脆嫩滑日式炸豬排專門店,擁有20年傳統的酥脆嫩滑日式炸豬排專門店
+5f2fbb63-e913-3adf-80b8-0e5332b4406e,신센,vi,fix,ko fix에 맞춰 수정,Quán cắt thịt chiên kiểu Nhật giòn và mềm truyền thống 20 năm,Quán cốt lết heo kiểu Nhật truyền thống 20 năm giòn và mềm
+621b7acd-e5e1-3343-941a-bb0699465a54,[해파랑길] 2코스,ko,fix,장소 이름 중복 제거,해파랑길 2코스 16.3km 숲길과 해안 걷기 길,16.3km 숲길과 해안 걷기 길
+621b7acd-e5e1-3343-941a-bb0699465a54,[해파랑길] 2코스,en,fix,ko 수정 반영(이름 반복 제거),Haeparang Trail course 2 with 16.3km forest and coastal walking path,16.3km forest and coastal walking path
+621b7acd-e5e1-3343-941a-bb0699465a54,[해파랑길] 2코스,ja,fix,ko 수정 반영(이름 반복 제거),ヘパランギル第2コース16.3kmの森林と海岸の散歩道,16.3kmの森林と海岸の散歩道
+621b7acd-e5e1-3343-941a-bb0699465a54,[해파랑길] 2코스,zh-Hans,fix,ko 수정 반영(이름 반복 제거),海蓝路第二段16.3公里森林与海岸步道,16.3公里的森林与海岸步道
+621b7acd-e5e1-3343-941a-bb0699465a54,[해파랑길] 2코스,zh-Hant,fix,ko 수정 반영(이름 반복 제거),海藍路第二段16.3公里森林與海岸步道,16.3公里的森林與海岸步道
+621b7acd-e5e1-3343-941a-bb0699465a54,[해파랑길] 2코스,vi,fix,ko 수정 반영(이름 반복 제거),Đường đi bộ Haeparang 2 với 16.3km đường rừng và ven biển,Đường đi bộ ven biển và đường rừng dài 16.3km
+65863ed2-70a3-3718-9141-2fb8b322775e,최장호갤러리,ko,fix,갤러리는 사찰이 아니므로 잘못된 분류. facts에 장소명과 구만 있으므로 '해운대구의 갤러리'로 수정.,해운대구의 문화 역사 사찰,해운대구의 갤러리
+65863ed2-70a3-3718-9141-2fb8b322775e,최장호갤러리,en,fix,Same as ko,"Cultural, historical, and temple site in Haeundae-gu",Gallery in Haeundae-gu
+65863ed2-70a3-3718-9141-2fb8b322775e,최장호갤러리,ja,fix,Same as ko,海雲台区の文化・歴史・寺院,海雲台区のギャラリー
+65863ed2-70a3-3718-9141-2fb8b322775e,최장호갤러리,zh-Hans,fix,Same as ko,海云台区的文化历史寺庙,海云台区的画廊
+65863ed2-70a3-3718-9141-2fb8b322775e,최장호갤러리,zh-Hant,fix,Same as ko,海雲台區的文化歷史寺廟,海雲台區的畫廊
+65863ed2-70a3-3718-9141-2fb8b322775e,최장호갤러리,vi,fix,Same as ko,"Địa điểm văn hóa, lịch sử và chùa ở Haeundae-gu",Phòng trưng bày ở quận Haeundae
+6919dae4-4086-3ed7-8fd8-20e7ebffbec2,고운사진미술관,ko,drop,"미술관이지만 사진미술관임을 명시하지 않고, 문화·역사 미술관이라는 설명은 facts에 없음",해운대구의 문화 역사 미술관,
+6919dae4-4086-3ed7-8fd8-20e7ebffbec2,고운사진미술관,en,drop,Same as ko,Cultural and historical art museum in Haeundae-gu,
+6919dae4-4086-3ed7-8fd8-20e7ebffbec2,고운사진미술관,ja,drop,Same as ko,ヘウンデ区の文化歴史美術館,
+6919dae4-4086-3ed7-8fd8-20e7ebffbec2,고운사진미술관,zh-Hans,drop,Same as ko,海云台区的文化历史美术馆,
+6919dae4-4086-3ed7-8fd8-20e7ebffbec2,고운사진미술관,zh-Hant,drop,Same as ko,海雲台區的文化歷史美術館,
+6919dae4-4086-3ed7-8fd8-20e7ebffbec2,고운사진미술관,vi,drop,Same as ko,Bảo tàng nghệ thuật văn hóa lịch sử ở Haeundae-gu,
+693997eb-2072-323e-a53f-2eab8466dde0,원조언양불고기,en,fix,Korean beef 명확히 표기 필요,Grilled Korean beef bulgogi and aged kimchi stew restaurant,Charcoal-grilled Korean beef bulgogi and aged kimchi stew restaurant
+693997eb-2072-323e-a53f-2eab8466dde0,원조언양불고기,vi,fix,"bo nướng than là charcoal-grilled, beef 명확히 표기 필요",Nhà hàng bulgogi bò nướng than và canh kimchi chua lâu năm,Nhà hàng bulgogi bò nướng than và canh kimchi chua lâu năm
+69849388-8853-3b90-aec6-a67e3218aff3,해염,ko,fix,"소금붕어빵과 해염커피 등 특색 있는 메뉴가 facts에 있으나, '아늑한 분위기'는 분위기 평가로 facts에 없음. '커피'는 해염커피로 구체화 필요.",아늑한 분위기 소금붕어빵·커피 베이커리 카페,소금붕어빵 해염커피 등 디저트 베이커리 카페
+69849388-8853-3b90-aec6-a67e3218aff3,해염,en,fix,"ko의 수정에 맞춰 'cozy' 등 분위기 표현 제거, 'salted fish-shaped bread'와 'Hae-yeom coffee' 등 구체적 메뉴 언급 필요.",Cozy bakery cafe with salted fish-shaped bread and coffee,Bakery cafe with salted fish-shaped bread and Hae-yeom coffee
+69849388-8853-3b90-aec6-a67e3218aff3,해염,ja,fix,"ko의 수정에 맞춰 '居心地の良い' 등 분위기 표현 제거, '塩味たい焼き'와 'ヘヨムコーヒー' 등 구체적 메뉴 언급 필요.",居心地の良い塩味たい焼きとコーヒーのベーカリーカフェ,塩味たい焼きとヘヨムコーヒーなどのベーカリーカフェ
+69849388-8853-3b90-aec6-a67e3218aff3,해염,zh-Hans,fix,"ko의 수정에 맞춰 '舒适氛围' 등 분위기 표현 제거, '盐味鲷鱼烧'와 '海盐咖啡' 등 구체적 메뉴 언급 필요.",舒适氛围盐味鲷鱼烧与咖啡面包店咖啡馆,盐味鲷鱼烧海盐咖啡等甜品面包店咖啡馆
+69849388-8853-3b90-aec6-a67e3218aff3,해염,zh-Hant,fix,"ko의 수정에 맞춰 '舒適氛圍' 등 분위기 표현 제거, '鹽味鯛魚燒'와 '海鹽咖啡' 등 구체적 메뉴 언급 필요.",舒適氛圍鹽味鯛魚燒與咖啡麵包店咖啡館,鹽味鯛魚燒海鹽咖啡等甜品麵包店咖啡館
+69849388-8853-3b90-aec6-a67e3218aff3,해염,vi,fix,"ko의 수정에 맞춰 'ấm cúng' 등 분위기 표현 제거, 'bánh cá mặn'과 'cà phê Hae-yeom' 등 구체적 메뉴 언급 필요.",Quán cà phê tiệm bánh ấm cúng với bánh cá mặn và cà phê,Tiệm bánh cà phê với bánh cá mặn và cà phê Hae-yeom
+6c627f10-dc30-39a0-81e5-65181a82b4de,해주면옥,zh-Hant,fix,번체 표기 오류(冷面→冷麵),可同時享用冷面和王排骨湯的海雲台冷面店,可同時享用冷麵和王排骨湯的海雲台冷麵店
+6cd3a803-b204-344d-8828-48bcd20a8328,한월횟집,ko,fix,횟집이지만 주력 메뉴가 모듬생선구이와 갈치조림임. '생선구이와 갈치조림 전문 노포'로 수정,40년 전통 모듬생선구이와 갈치조림 노포 횟집,생선구이와 갈치조림 전문 노포
+6cd3a803-b204-344d-8828-48bcd20a8328,한월횟집,en,fix,"ko fix에 맞춰 raw fish restaurant 삭제, grilled fish and braised cutlassfish old restaurant",40-year-old traditional raw fish restaurant with assorted grilled fish and braised cutlassfish,Old restaurant specializing in grilled fish and braised cutlassfish
+6cd3a803-b204-344d-8828-48bcd20a8328,한월횟집,ja,fix,ko fix에 맞춰刺身店 삭제、焼き魚とタチウオ煮付け専門の老舗,40年の伝統を持つ刺身店で盛り合わせ焼き魚とタチウオの煮付けを提供,焼き魚とタチウオ煮付け専門の老舗
+6cd3a803-b204-344d-8828-48bcd20a8328,한월횟집,zh-Hans,fix,ko fix에 맞춰生鱼片店 삭제，主打烤鱼和带鱼炖菜的老店,40年传统的生鱼片店，供应多样烤鱼和带鱼炖菜,主打烤鱼和带鱼炖菜的老店
+6cd3a803-b204-344d-8828-48bcd20a8328,한월횟집,zh-Hant,fix,ko fix에 맞춰生魚片店 삭제，主打烤魚和帶魚燉菜的老店,40年傳統的生魚片店，供應多樣烤魚和帶魚燉菜,主打烤魚和帶魚燉菜的老店
+6cd3a803-b204-344d-8828-48bcd20a8328,한월횟집,vi,fix,"ko fix에 맞춰 nhà hàng sashimi 삭제, quán lâu năm chuyên cá nướng và cá đao kho",Nhà hàng sashimi truyền thống 40 năm với cá nướng tổng hợp và cá đao kho,Quán lâu năm chuyên cá nướng và cá đao kho
+6fe9770e-aa78-3977-9bf3-4a4e462fd9ea,광안아구찜,ko,fix,해물찜 전문점이므로 구이집이 아니라 찜집이어야 함,광안리 인근 해물찜 전문 해산물 구이집,광안리 인근 해물찜 전문 해산물 찜집
+6fe9770e-aa78-3977-9bf3-4a4e462fd9ea,광안아구찜,en,fix,ko fix에 맞춰 수정,Seafood grill specializing in spicy braised monkfish near Gwangalli,Seafood restaurant specializing in braised seafood near Gwangalli
+6fe9770e-aa78-3977-9bf3-4a4e462fd9ea,광안아구찜,ja,fix,ko fix에 맞춰 수정,広安里近くの辛いあんこう蒸し専門海鮮焼き店,広安里近くの海鮮蒸し専門店
+6fe9770e-aa78-3977-9bf3-4a4e462fd9ea,광안아구찜,zh-Hans,fix,ko fix에 맞춰 수정,广安里附近辣味炖安康鱼海鲜烤店,广安里附近海鲜炖菜专门店
+6fe9770e-aa78-3977-9bf3-4a4e462fd9ea,광안아구찜,zh-Hant,fix,ko fix에 맞춰 수정,廣安里附近辣味燉安康魚海鮮烤店,廣安里附近海鮮燉菜專門店
+6fe9770e-aa78-3977-9bf3-4a4e462fd9ea,광안아구찜,vi,fix,ko fix에 맞춰 수정,Quán nướng hải sản chuyên món cá bơn hầm cay gần Gwangalli,Quán chuyên hải sản hầm gần Gwangalli
+7055360f-1d5d-3e1d-9fda-3bc0b5390fea,요미우돈교자해리단길,ko,fix,우동·교자 전문 식당이나 잘못된 업종 분류(회/초밥) 사용,넓적우동과 교자 내는 해운대구 일식 회/초밥,넓적우동과 교자를 선보이는 해운대구 일식당
+7055360f-1d5d-3e1d-9fda-3bc0b5390fea,요미우돈교자해리단길,en,fix,ko 수정 반영 및 초밥/회 오역 수정,Japanese sashimi restaurant in Haeundae serving wide udon and gyoza,Japanese restaurant in Haeundae serving wide udon and gyoza
+7055360f-1d5d-3e1d-9fda-3bc0b5390fea,요미우돈교자해리단길,ja,fix,ko 수정 반영 및 초밥 오역 수정,ヘウンデ区の幅広いうどんと餃子の和食寿司店,ヘウンデ区の幅広いうどんと餃子を提供する和食店
+7055360f-1d5d-3e1d-9fda-3bc0b5390fea,요미우돈교자해리단길,zh-Hans,fix,ko 수정 반영 및 刺身 오역 수정,海云台提供宽乌冬和饺子的日式刺身店,海云台区提供宽乌冬面和饺子的日式餐厅
+7055360f-1d5d-3e1d-9fda-3bc0b5390fea,요미우돈교자해리단길,zh-Hant,fix,ko 수정 반영 및 刺身 오역 수정,海雲臺提供寬烏冬和餃子的日式刺身店,海雲臺區提供寬烏冬麵和餃子的日式餐廳
+7055360f-1d5d-3e1d-9fda-3bc0b5390fea,요미우돈교자해리단길,vi,fix,ko 수정 반영 및 sashimi 오역 수정,Nhà hàng sashimi Nhật Bản tại Haeundae với udon rộng và gyoza,Nhà hàng Nhật Bản tại Haeundae phục vụ mì udon dẹt và gyoza
+74fc7efe-fe48-33a3-b328-463b46b2c8bd,테타라운지바,ko,fix,공공 분류 '경양식' 대신 실제 매장 특성인 라운지 바로 수정,해운대 바다 오션뷰와 주류 및 캘리포니아롤 제공 경양식,해운대 오션뷰와 주류 및 캘리포니아롤이 있는 라운지 바
+74fc7efe-fe48-33a3-b328-463b46b2c8bd,테타라운지바,en,fix,ko 수정 반영,"Western-style restaurant in Haeundae with ocean view, drinks, and California rolls","Lounge bar in Haeundae with ocean views, drinks, and California rolls"
+74fc7efe-fe48-33a3-b328-463b46b2c8bd,테타라운지바,ja,fix,ko 수정 반영,ヘウンデ区の海の眺めと酒類、カリフォルニアロール提供の洋食店,ヘウンデの海を望む景色とお酒、カリフォルニアロールを楽しめるラウンジバー
+74fc7efe-fe48-33a3-b328-463b46b2c8bd,테타라운지바,zh-Hans,fix,ko 수정 반영,海云台海景及酒类加加州卷的西餐厅,拥有海云台海景、酒类与加州卷的酒廊酒吧
+74fc7efe-fe48-33a3-b328-463b46b2c8bd,테타라운지바,zh-Hant,fix,ko 수정 반영,海雲臺海景及酒類加加州卷的西餐廳,擁有海雲臺海景、酒類與加州卷的酒廊酒吧
+74fc7efe-fe48-33a3-b328-463b46b2c8bd,테타라운지바,vi,fix,ko 수정 반영,"Nhà hàng kiểu Tây Haeundae với view biển, đồ uống và California roll","Quán lounge bar tại Haeundae có view biển, đồ uống và California roll"
+751db127-c4ec-33a7-895e-7f284af77450,주천조각보박물관,ko,fix,사실상 박물관인데 사찰로 오기됨. facts에 박물관 외 정보 없음.,해운대구의 문화 역사 사찰,해운대구의 조각보 박물관
+751db127-c4ec-33a7-895e-7f284af77450,주천조각보박물관,en,fix,박물관임을 반영,Cultural historical temple in Haeundae-gu,Jogakbo museum in Haeundae-gu
+751db127-c4ec-33a7-895e-7f284af77450,주천조각보박물관,ja,fix,박물관임을 반영,ヘウンデ区の文化歴史寺院,ヘウンデ区のチョガッポ博物館
+751db127-c4ec-33a7-895e-7f284af77450,주천조각보박물관,zh-Hans,fix,박물관임을 반영,海云台区的文化历史寺庙,海云台区的拼布博物馆
+751db127-c4ec-33a7-895e-7f284af77450,주천조각보박물관,zh-Hant,fix,박물관임을 반영,海雲臺區的文化歷史寺廟,海雲臺區的拼布博物館
+751db127-c4ec-33a7-895e-7f284af77450,주천조각보박물관,vi,fix,박물관임을 반영,Đền lịch sử văn hóa quận Haeundae,Bảo tàng Jogakbo ở quận Haeundae
+79aab100-5c5e-33ea-a4a6-c1b1dd6948b1,거대숯불구이,ko,fix,한우 구이 전문점인데 공공업종 분류 표기로 인해 '돼지고기 구이집'이라고 오기,1++ 한우 숯불구이와 프라이빗 룸 돼지고기 구이집,1++ 암소 한우 숯불구이와 프라이빗 룸 고깃집
+79aab100-5c5e-33ea-a4a6-c1b1dd6948b1,거대숯불구이,en,fix,pork 오역 수정,Premium Korean beef charcoal grill with private rooms pork barbecue,Korean beef charcoal grill restaurant with private dining rooms
+79aab100-5c5e-33ea-a4a6-c1b1dd6948b1,거대숯불구이,ja,fix,돼지고기 오역 수정,1++韓牛炭火焼きと個室の豚肉焼肉店,1++韓牛炭火焼きと個室完備の焼肉店
+79aab100-5c5e-33ea-a4a6-c1b1dd6948b1,거대숯불구이,zh-Hans,fix,돼지고기 오역 수정,1++韩牛炭火烤肉和包间猪肉烤肉店,提供1++韩牛炭火烤肉与包间的烤肉店
+79aab100-5c5e-33ea-a4a6-c1b1dd6948b1,거대숯불구이,zh-Hant,fix,돼지고기 오역 수정,1++韓牛炭火烤肉和包廂豬肉烤肉店,提供1++韓牛炭火烤肉與包廂的烤肉店
+79aab100-5c5e-33ea-a4a6-c1b1dd6948b1,거대숯불구이,vi,fix,thịt heo 오역 수정,Quán nướng thịt heo và bò Hàn cao cấp có phòng riêng,Quán nướng thịt bò Hàn cao cấp có phòng riêng
+7f836fca-3b79-3173-bc1f-10ee64a1a022,듀플릿,ko,fix,"백반·한정식집이 아니라 브런치·디저트가 주력임. 업종 분류와 실제 방문 이유가 다르므로, 브런치·디저트 카페로 고쳐야 함.",유럽풍 정원과 감성 브런치 즐기는 수영구 백반·한정식집,유럽풍 정원과 브런치·디저트 카페
+7f836fca-3b79-3173-bc1f-10ee64a1a022,듀플릿,en,fix,Same as ko.,Korean set meal restaurant in Suyeong with European garden and brunch,European garden and brunch dessert cafe
+7f836fca-3b79-3173-bc1f-10ee64a1a022,듀플릿,ja,fix,Same as ko.,ヨーロッパ風庭園と感性的なブランチのある寿永区定食店,ヨーロッパ風庭園とブランチ・デザートカフェ
+7f836fca-3b79-3173-bc1f-10ee64a1a022,듀플릿,zh-Hans,fix,Same as ko.,拥有欧式花园和特色早午餐的水营区韩定食店,欧式花园与早午餐甜品咖啡馆
+7f836fca-3b79-3173-bc1f-10ee64a1a022,듀플릿,zh-Hant,fix,Same as ko.,擁有歐式花園和特色早午餐的水營區韓定食店,歐式花園與早午餐甜品咖啡館
+7f836fca-3b79-3173-bc1f-10ee64a1a022,듀플릿,vi,fix,Same as ko.,Quán cơm phần Hàn Quốc ở Suyeong với vườn kiểu châu Âu và brunch cảm xúc,Quán cafe brunch và tráng miệng vườn châu Âu
+817670a9-1c15-3ce2-bad6-1c1eef7b8d72,사계,en,fix,ko 줄의 언양불고기가 누락됨,Charcoal-grilled premium Korean beef restaurant,Charcoal-grilled Eonyang bulgogi restaurant
+817670a9-1c15-3ce2-bad6-1c1eef7b8d72,사계,ja,fix,ko 줄의 언양불고기가 누락됨,炭火直火焼きの高級韓牛専門店,炭火直火焼き彦陽プルコギ専門店
+817670a9-1c15-3ce2-bad6-1c1eef7b8d72,사계,zh-Hans,fix,ko 줄의 언양불고기가 누락됨,炭火直烤高级韩牛专门店,炭火直烤彦阳烤牛肉专门店
+817670a9-1c15-3ce2-bad6-1c1eef7b8d72,사계,zh-Hant,fix,ko 줄의 언양불고기가 누락됨,炭火直烤高級韓牛專門店,炭火直烤彥陽烤牛肉專門店
+817670a9-1c15-3ce2-bad6-1c1eef7b8d72,사계,vi,fix,ko 줄의 언양불고기가 누락됨,Nhà hàng thịt bò Hàn Quốc nướng than hoa cao cấp,Nhà hàng bulgogi Eonyang nướng than hoa
+854d97e5-7fc4-3652-a7d9-3e4238ba6ddf,섬진강,ko,fix,"경양식집은 서양식 레스토랑을 의미하나, facts에는 모둠회, 시래기 매운탕 등 한식 횟집임이 명확히 드러남",해운대구의 경양식집,해운대구의 모둠회 한식 횟집
+854d97e5-7fc4-3652-a7d9-3e4238ba6ddf,섬진강,en,fix,Western-style restaurant is incorrect; facts show it is a Korean raw fish restaurant,Western-style restaurant in Haeundae-gu,Korean raw fish restaurant in Haeundae-gu
+854d97e5-7fc4-3652-a7d9-3e4238ba6ddf,섬진강,ja,fix,洋食店は誤り。事実情報から韓国式刺身店であることが明確,ヘウンデ区の洋食店,ヘウンデ区の韓国式刺身店
+854d97e5-7fc4-3652-a7d9-3e4238ba6ddf,섬진강,zh-Hans,fix,西餐厅不符，事实为韩式生鱼片餐厅,海云台区的西餐厅,海云台区的韩式生鱼片餐厅
+854d97e5-7fc4-3652-a7d9-3e4238ba6ddf,섬진강,zh-Hant,fix,西餐廳不符，事實為韓式生魚片餐廳,海雲臺區的西餐廳,海雲台區的韓式生魚片餐廳
+854d97e5-7fc4-3652-a7d9-3e4238ba6ddf,섬진강,vi,fix,"Nhà hàng phong cách phương Tây không đúng, thực tế là nhà hàng cá sống kiểu Hàn",Nhà hàng phong cách phương Tây ở quận Haeundae,Nhà hàng cá sống kiểu Hàn ở quận Haeundae
+86ffc729-5b68-33bc-b134-1bfbadf0bfc1,소연옥해리단길점,ko,fix,공공업종 분류(회/초밥)와 달리 규카츠와 연어덮밥 전문 일식당임,규카츠와 연어덮밥 세트 구성의 해운대구 일식 회/초밥,규카츠와 연어덮밥 세트가 있는 일식당
+86ffc729-5b68-33bc-b134-1bfbadf0bfc1,소연옥해리단길점,en,fix,공공업종 오분류(회/초밥) 수정,Japanese sashimi restaurant in Haeundae with gyukatsu and salmon rice bowl sets,Japanese restaurant offering gyukatsu and salmon rice bowl sets
+86ffc729-5b68-33bc-b134-1bfbadf0bfc1,소연옥해리단길점,ja,fix,공공업종 오분류(회/초밥) 수정,ヘウンデ区の牛カツとサーモン丼セットの和食寿司店,牛カツとサーモン丼セットが楽しめる日本料理店
+86ffc729-5b68-33bc-b134-1bfbadf0bfc1,소연옥해리단길점,zh-Hans,fix,공공업종 오분류(회/초밥) 수정,海云台区提供牛排炸肉和三文鱼盖饭套餐的日式刺身店,提供炸牛排和三文鱼盖饭套餐的日式餐厅
+86ffc729-5b68-33bc-b134-1bfbadf0bfc1,소연옥해리단길점,zh-Hant,fix,공공업종 오분류(회/초밥) 수정,海雲臺區提供牛排炸肉和三文魚蓋飯套餐的日式刺身店,提供炸牛排和三文魚蓋飯套餐的日式餐廳
+86ffc729-5b68-33bc-b134-1bfbadf0bfc1,소연옥해리단길점,vi,fix,공공업종 오분류(회/초밥) 수정,Nhà hàng sashimi Nhật Bản tại Haeundae với set gyukatsu và cơm cá hồi,Nhà hàng Nhật Bản phục vụ set gyukatsu và cơm cá hồi
+87b15da7-0d54-30d0-99bb-e9e68e818c34,부다면옥,en,fix,한우 수육을 boiled pork(돼지고기)로 오역함,Cold noodle restaurant serving 100% pure buckwheat Pyongyang naengmyeon and hanwoo beef boiled pork,Cold noodle restaurant serving 100% pure buckwheat Pyongyang naengmyeon and hanwoo boiled beef
+8888c5fe-a898-33cd-83ac-8c61fba654dc,토리킨,ko,fix,공공업종 분류(회/초밥)와 달리 라멘 전문점임,토리파이탄과 아부라소바 전문 해운대구 일식 회/초밥,토리파이탄과 아부라소바 전문 라멘집
+8888c5fe-a898-33cd-83ac-8c61fba654dc,토리킨,en,fix,공공업종 오분류(회/초밥) 수정,Japanese sashimi restaurant in Haeundae specializing in toripaitan and abura soba,Ramen shop specializing in tori paitan and abura soba
+8888c5fe-a898-33cd-83ac-8c61fba654dc,토리킨,ja,fix,공공업종 오분류(회/초밥) 수정,ヘウンデ区の鶏白湯と油そば専門の和食寿司店,鶏白湯と油そば専門のラーメン店
+8888c5fe-a898-33cd-83ac-8c61fba654dc,토리킨,zh-Hans,fix,공공업종 오분류(회/초밥) 수정,海云台区专营鸡白汤和油拌面的日式刺身店,专营鸡白汤和油拌面的拉面店
+8888c5fe-a898-33cd-83ac-8c61fba654dc,토리킨,zh-Hant,fix,공공업종 오분류(회/초밥) 수정,海雲臺區專營雞白湯和油拌麵的日式刺身店,專營雞白湯和油拌麵的拉麵店
+8888c5fe-a898-33cd-83ac-8c61fba654dc,토리킨,vi,fix,공공업종 오분류(회/초밥) 수정,Nhà hàng sashimi Nhật Bản tại Haeundae chuyên toripaitan và abura soba,Quán ramen chuyên tori paitan và abura soba
+89efd2e1-cca4-3aee-885b-a7cf759a51e8,소신,en,drop,규칙:PORK_AS_BEEF,Cost-effective pork grill with aged Korean beef sirloin,
+8a1545ec-15d0-30ea-9cec-f7cd4a2d7edb,미포항,ko,fix,장소 이름 반복,어촌 풍경과 해산물 음식점이 있는 해운대구 미포항,어촌 풍경과 해산물 음식점이 있는 작은 포구
+8a1545ec-15d0-30ea-9cec-f7cd4a2d7edb,미포항,en,fix,ko 수정에 맞춤,Small fishing port with seafood restaurants and coastal scenery in Haeundae,Small fishing port with coastal scenery and seafood restaurants
+8a1545ec-15d0-30ea-9cec-f7cd4a2d7edb,미포항,ja,fix,ko 수정에 맞춤,海雲台区の海産物料理店と漁村風景の小さな港,漁村風景と海産物料理店が並ぶ小さな港
+8a1545ec-15d0-30ea-9cec-f7cd4a2d7edb,미포항,zh-Hans,fix,ko 수정에 맞춤,海云台区有海鲜餐厅和渔村风景的小港口,拥有渔村风光与海鲜餐厅的小港口
+8a1545ec-15d0-30ea-9cec-f7cd4a2d7edb,미포항,zh-Hant,fix,ko 수정에 맞춤,海雲台區有海鮮餐廳和漁村風景的小港口,擁有漁村風光與海鮮餐廳的小港口
+8a1545ec-15d0-30ea-9cec-f7cd4a2d7edb,미포항,vi,fix,ko 수정에 맞춤,Cảng cá nhỏ với nhà hàng hải sản và cảnh biển tại Haeundae,Cảng cá nhỏ với phong cảnh làng chài và nhà hàng hải sản
+92571ef8-6d0c-391b-a4bd-46bde190e2fc,미소옥,en,drop,규칙:PORK_AS_BEEF,Pork grill restaurant offering rare Korean beef cuts at reasonable prices,
+937b5e90-d11d-3af0-81cb-294e7b7e6aba,사마르칸트,ko,fix,"경양식(서양식) 업종이지만, 실제로는 우즈베키스탄·중앙아시아 전통 요리(샤슬릭, 양갈비찜 등)를 제공하는 곳임. '경양식' 대신 '우즈베키스탄 전통 요리'로 수정 필요.",우즈베키스탄 전통식 샤슬릭과 양갈비찜 경양식,우즈베키스탄 전통 요리 전문 음식점
+937b5e90-d11d-3af0-81cb-294e7b7e6aba,사마르칸트,en,fix,ko에 맞춰 수정.,Uzbek traditional shashlik and lamb stew Western-style restaurant,Uzbek traditional cuisine restaurant
+937b5e90-d11d-3af0-81cb-294e7b7e6aba,사마르칸트,ja,fix,ko에 맞춰 수정.,ウズベキスタン伝統のシャシリクとラムシチューの洋食店,ウズベキスタン伝統料理専門店
+937b5e90-d11d-3af0-81cb-294e7b7e6aba,사마르칸트,zh-Hans,fix,ko에 맞춰 수정.,乌兹别克传统烤肉串和羊肉炖菜西餐厅,乌兹别克传统料理餐厅
+937b5e90-d11d-3af0-81cb-294e7b7e6aba,사마르칸트,zh-Hant,fix,ko에 맞춰 수정.,烏茲別克傳統烤肉串和羊肉燉菜西餐廳,烏茲別克傳統料理餐廳
+937b5e90-d11d-3af0-81cb-294e7b7e6aba,사마르칸트,vi,fix,ko에 맞춰 수정.,Nhà hàng món Tây truyền thống Uzbekistan với shashlik và hầm cừu,Nhà hàng ẩm thực truyền thống Uzbekistan
+94ad6fdf-8cb3-3ca3-a2cb-48ac90a3a48e,엘까르니따스광안리점,ko,fix,"오션뷰(전망) 언급은 facts에 있지만, 맛 평가(우수한 맛)는 facts에만 근거해 쓸 수 없음. '정통'은 사실상 메뉴 설명에 해당하므로 유지. '오션뷰'는 장소의 특징이므로 유지.",광안대교 오션뷰 멕시코 정통 타코와 퀘사디아 전문점,광안대교 오션뷰 멕시코 타코와 퀘사디아 전문점
+94ad6fdf-8cb3-3ca3-a2cb-48ac90a3a48e,엘까르니따스광안리점,en,fix,ko에 맞춰 수정,Authentic Mexican tacos and quesadillas with ocean view of Gwangan Bridge,Mexican taco and quesadilla specialty restaurant with ocean view of Gwangan Bridge
+94ad6fdf-8cb3-3ca3-a2cb-48ac90a3a48e,엘까르니따스광안리점,ja,fix,ko에 맞춰 수정,広安大橋のオーシャンビューで本格メキシコ料理のタコスとケサディーヤ,広安大橋のオーシャンビューでメキシコタコスとケサディーヤ専門店
+94ad6fdf-8cb3-3ca3-a2cb-48ac90a3a48e,엘까르니따스광안리점,zh-Hans,fix,ko에 맞춰 수정,广安大桥海景正宗墨西哥玉米饼和芝士烤饼专门店,广安大桥海景墨西哥玉米饼和芝士烤饼专门店
+94ad6fdf-8cb3-3ca3-a2cb-48ac90a3a48e,엘까르니따스광안리점,zh-Hant,fix,ko에 맞춰 수정,廣安大橋海景正宗墨西哥玉米餅和芝士烤餅專門店,廣安大橋海景墨西哥玉米餅和芝士烤餅專門店
+94ad6fdf-8cb3-3ca3-a2cb-48ac90a3a48e,엘까르니따스광안리점,vi,fix,ko에 맞춰 수정,Quán tacos và quesadilla Mexico chính thống với view cầu Gwangan,Quán tacos và quesadilla Mexico với view cầu Gwangan
+969d4574-ba9a-3a35-a112-b515ad0a27a5,케이디에스비,ko,fix,마제소바 전문점인데 불필요하게 일식 회/초밥으로 표기함,도쿄식 마제소바 전문 혼밥 편리한 일식 회/초밥,도쿄식 마제소바 전문 혼밥하기 좋은 일식당
+969d4574-ba9a-3a35-a112-b515ad0a27a5,케이디에스비,en,fix,마제소바 전문점을 sushi bar로 오역함,Tokyo-style mazesoba specialty with convenient solo dining sushi bar,Tokyo-style mazesoba specialty restaurant convenient for solo dining
+969d4574-ba9a-3a35-a112-b515ad0a27a5,케이디에스비,ja,fix,마제소바 전문점을 寿司店으로 오역함,東京式まぜそば専門の一人飲食に便利な寿司店,東京風まぜそば専門の一人ご飯に便利な和食店
+969d4574-ba9a-3a35-a112-b515ad0a27a5,케이디에스비,zh-Hans,fix,마제소바 전문점을 寿司店으로 오역함,东京风味拌面专门店，适合单人用餐的寿司店,东京风味拌面专门且适合一人用餐的日料店
+969d4574-ba9a-3a35-a112-b515ad0a27a5,케이디에스비,zh-Hant,fix,마제소바 전문점을 壽司店으로 오역함,東京風味拌麵專門店，適合單人用餐的壽司店,東京風味拌麵專門且適合一人用餐的日料店
+969d4574-ba9a-3a35-a112-b515ad0a27a5,케이디에스비,vi,fix,마제소바 전문점을 sushi 식당으로 오역함,"Quán mazesoba kiểu Tokyo tiện lợi cho ăn một mình, sushi Nhật",Quán ăn Nhật chuyên mì mazesoba kiểu Tokyo tiện lợi cho một người
+9c933ff7-a05c-3c4a-b50a-2ab7836d5839,솟간장터,ko,fix,"'신선한 생고기 안주'는 사실에 맞으나, '돼지고기 구이/찜 전문점'은 업종에만 근거해 표현해야 하므로, '생고기 안주'는 빼고 업종만 남김",신선한 생고기 안주 돼지고기 구이/찜 전문점,돼지고기 구이/찜 전문점
+9c933ff7-a05c-3c4a-b50a-2ab7836d5839,솟간장터,en,fix,ko의 수정에 맞춰 동일 의미로 수정,Fresh pork grilled and steamed meat specialty restaurant,Pork grilled and steamed meat specialty restaurant
+9c933ff7-a05c-3c4a-b50a-2ab7836d5839,솟간장터,ja,fix,ko의 수정에 맞춰 동일 의미로 수정,新鮮な豚肉の焼き・蒸し料理専門店,豚肉の焼き・蒸し料理専門店
+9c933ff7-a05c-3c4a-b50a-2ab7836d5839,솟간장터,zh-Hans,fix,ko의 수정에 맞춰 동일 의미로 수정,新鲜猪肉烤蒸肉专门店,猪肉烤蒸肉专门店
+9c933ff7-a05c-3c4a-b50a-2ab7836d5839,솟간장터,zh-Hant,fix,ko의 수정에 맞춰 동일 의미로 수정,新鮮豬肉烤蒸肉專門店,豬肉烤蒸肉專門店
+9c933ff7-a05c-3c4a-b50a-2ab7836d5839,솟간장터,vi,fix,ko의 수정에 맞춰 동일 의미로 수정,Nhà hàng chuyên món thịt heo nướng và hấp tươi,Nhà hàng chuyên món thịt heo nướng và hấp
+9eb017ef-7296-3620-87cf-75ad17077cc9,송백숯불농원,en,drop,규칙:PORK_AS_BEEF,Pork grill restaurant serving Korean beef sirloin and fresh pork belly,
+9f7b43f1-3ff3-3244-8b88-0c64f1820e93,마린시티,ko,fix,야경 명소라는 평가는 facts에 없으므로 제외해야 함,부산 해운대구의 신도시 마린시티 야경 명소,해운대구의 신도시 마린시티
+9f7b43f1-3ff3-3244-8b88-0c64f1820e93,마린시티,en,fix,ko fix에 맞춰 수정,Marine City new town with night view in Haeundae-gu Busan,Marine City new town in Haeundae-gu
+9f7b43f1-3ff3-3244-8b88-0c64f1820e93,마린시티,ja,fix,ko fix에 맞춰 수정,釜山海雲台区の新都市マリンシティの夜景スポット,釜山海雲台区の新都市マリンシティ
+9f7b43f1-3ff3-3244-8b88-0c64f1820e93,마린시티,zh-Hans,fix,ko fix에 맞춰 수정,釜山海云台区新城海洋城夜景胜地,釜山海云台区新城海洋城
+9f7b43f1-3ff3-3244-8b88-0c64f1820e93,마린시티,zh-Hant,fix,ko fix에 맞춰 수정,釜山海雲臺區新城海洋城夜景勝地,釜山海雲臺區新城海洋城
+9f7b43f1-3ff3-3244-8b88-0c64f1820e93,마린시티,vi,fix,ko fix에 맞춰 수정,Khu đô thị mới Marine City với cảnh đêm tại Haeundae-gu Busan,Khu đô thị mới Marine City tại Haeundae-gu
+a9966a57-5d38-39cc-b47c-3e5a101d2ddd,우츠쿠둑2,ko,fix,'경양식'은 서양식이 아니라 우즈베키스탄 음식점임. facts에 따라 '우즈베키스탄 음식 전문점'으로 수정,우즈베키스탄 양고기 케밥과 보르쉬 내는 경양식 전문점,우즈베키스탄 양고기 케밥과 보르쉬 전문점
+a9966a57-5d38-39cc-b47c-3e5a101d2ddd,우츠쿠둑2,en,fix,ko fix에 맞춰 Western-style restaurant이 아니라 Uzbek restaurant로 수정,Western-style restaurant serving Uzbek lamb kebab and borscht,Uzbek restaurant specializing in lamb kebab and borscht
+a9966a57-5d38-39cc-b47c-3e5a101d2ddd,우츠쿠둑2,ja,fix,ko fix에 맞춰洋食店→ウズベキスタン料理店,ウズベキスタンのラムケバブとボルシチを提供する洋食店,ウズベキスタンのラムケバブとボルシチ専門店
+a9966a57-5d38-39cc-b47c-3e5a101d2ddd,우츠쿠둑2,zh-Hans,fix,ko fix에 맞춰西餐厅→乌兹别克餐厅,提供乌兹别克羊肉串和罗宋汤的西餐厅,乌兹别克餐厅，主打羊肉串和罗宋汤
+a9966a57-5d38-39cc-b47c-3e5a101d2ddd,우츠쿠둑2,zh-Hant,fix,ko fix에 맞춰西餐廳→烏茲別克餐廳,提供烏茲別克羊肉串和羅宋湯的西餐廳,烏茲別克餐廳，主打羊肉串和羅宋湯
+a9966a57-5d38-39cc-b47c-3e5a101d2ddd,우츠쿠둑2,vi,fix,"ko fix에 맞춰 phong cách phương Tây 삭제, quán Uzbekistan",Nhà hàng phong cách phương Tây phục vụ kebab cừu Uzbekistan và borscht,Nhà hàng Uzbekistan chuyên kebab cừu và borscht
+ac3820db-b5c0-3e51-9f7e-5b116ae6e27e,갤러리토라 Gallery Tora,ko,drop,"갤러리토라는 미술관(갤러리)인데, 문화·역사·사찰로 분류되어 있음. facts에 실제 장소 유형(미술관)에 대한 정보가 없어 바로잡을 수 없음.",해운대구의 문화·역사·사찰,
+ac3820db-b5c0-3e51-9f7e-5b116ae6e27e,갤러리토라 Gallery Tora,en,drop,Same as ko.,"Cultural, historical, and temple site in Haeundae",
+ac3820db-b5c0-3e51-9f7e-5b116ae6e27e,갤러리토라 Gallery Tora,ja,drop,Same as ko.,海雲台区の文化・歴史・寺院,
+ac3820db-b5c0-3e51-9f7e-5b116ae6e27e,갤러리토라 Gallery Tora,zh-Hans,drop,Same as ko.,海云台区的文化·历史·寺庙,
+ac3820db-b5c0-3e51-9f7e-5b116ae6e27e,갤러리토라 Gallery Tora,zh-Hant,drop,Same as ko.,海雲台區的文化·歷史·寺廟,
+ac3820db-b5c0-3e51-9f7e-5b116ae6e27e,갤러리토라 Gallery Tora,vi,drop,Same as ko.,"Địa điểm văn hóa, lịch sử và chùa tại Haeundae",
+ad029234-f17a-398a-bb77-1bcbc41b3d36,해운대갤러리,ko,drop,"해운대갤러리는 갤러리(미술관)이나, '문화·역사·사찰'로 뭉뚱그려 표현해 실제 장소 유형과 맞지 않음. facts에 더 구체적 정보 없음.",해운대구의 문화·역사·사찰,
+ad029234-f17a-398a-bb77-1bcbc41b3d36,해운대갤러리,en,drop,ko가 drop이므로 동일하게 drop,"Cultural, historical, and temple site in Haeundae-gu",
+ad029234-f17a-398a-bb77-1bcbc41b3d36,해운대갤러리,ja,drop,ko가 drop이므로 동일하게 drop,海雲台区の文化・歴史・寺院,
+ad029234-f17a-398a-bb77-1bcbc41b3d36,해운대갤러리,zh-Hans,drop,ko가 drop이므로 동일하게 drop,海云台区的文化历史寺庙,
+ad029234-f17a-398a-bb77-1bcbc41b3d36,해운대갤러리,zh-Hant,drop,ko가 drop이므로 동일하게 drop,海雲台區的文化歷史寺廟,
+ad029234-f17a-398a-bb77-1bcbc41b3d36,해운대갤러리,vi,drop,ko가 drop이므로 동일하게 drop,"Di tích văn hóa, lịch sử và chùa ở quận Haeundae",
+ad54e672-80d5-3e8b-9b41-7fa229423e22,이어도,en,fix,"ko fix에 맞춰 ocean view만 언급, 'excellent' 등 평가는 제외",Raw fish restaurant offering ocean view and natural sashimi course near Gwangalli,Raw fish restaurant offering ocean view and natural sashimi course in Gwangalli
+ad54e672-80d5-3e8b-9b41-7fa229423e22,이어도,ja,fix,ko fix에 맞춰 평가어 삭제,広安里のオーシャンビューと天然活魚のコース料理を提供する刺身店,広安里のオーシャンビューと天然活魚のコース料理を提供する刺身店
+ad54e672-80d5-3e8b-9b41-7fa229423e22,이어도,zh-Hans,fix,ko fix에 맞춰 평가어 삭제,提供广安里海景和天然活鱼刺身套餐的海鲜店,提供广安里海景和天然活鱼刺身套餐的海鲜店
+ad54e672-80d5-3e8b-9b41-7fa229423e22,이어도,zh-Hant,fix,ko fix에 맞춰 평가어 삭제,提供廣安里海景和天然活魚刺身套餐的海鮮店,提供廣安里海景和天然活魚刺身套餐的海鮮店
+ad54e672-80d5-3e8b-9b41-7fa229423e22,이어도,vi,fix,ko fix에 맞춰 평가어 삭제,Quán sashimi với view biển Gwangalli và thực đơn sashimi tự nhiên,Quán sashimi với view biển Gwangalli và thực đơn sashimi tự nhiên
+aef92ab6-e545-3133-84aa-3ddcff9edd91,스무고개,en,drop,규칙:PORK_AS_BEEF,Pork grill with 500-hour aged 1++ Korean beef and hanok-style interior,
+b1726040-8fc8-3ed4-86a6-6d75b0bc430b,전망대,ko,fix,"장소 이름이 '전망대'이고 분류가 '자연·산책'임에도 불구하고, '경양식' 즉 음식점으로 잘못 표기됨. facts에 따르면 음식점이 아님. '수영구의 전망대'로 수정.",해운대구의 경양식,수영구의 전망대
+b1726040-8fc8-3ed4-86a6-6d75b0bc430b,전망대,en,fix,ko에 맞춰 수정.,Western-style restaurant in Haeundae-gu,Observatory in Suyeong-gu
+b1726040-8fc8-3ed4-86a6-6d75b0bc430b,전망대,ja,fix,ko에 맞춰 수정.,海雲台区の洋食店,水営区の展望台
+b1726040-8fc8-3ed4-86a6-6d75b0bc430b,전망대,zh-Hans,fix,ko에 맞춰 수정.,海云台区西餐厅,水营区的展望台
+b1726040-8fc8-3ed4-86a6-6d75b0bc430b,전망대,zh-Hant,fix,ko에 맞춰 수정.,海雲台區西餐廳,水營區的展望台
+b1726040-8fc8-3ed4-86a6-6d75b0bc430b,전망대,vi,fix,ko에 맞춰 수정.,Nhà hàng món Tây ở quận Haeundae,Đài quan sát ở quận Suyeong
+b61ed11d-f2e5-34fc-80fe-51d5b8c4e80d,평산옥,ko,fix,담백한 맛은 facts에 없는 평가이므로 제외해야 함,돼지고기 수육과 국수 전문점으로 담백한 맛 특징,돼지고기 수육과 국수 전문 음식점
+b61ed11d-f2e5-34fc-80fe-51d5b8c4e80d,평산옥,en,fix,ko의 fix에 맞춰 동일하게 수정,Pork boiled meat and noodle specialty restaurant with mild flavors,Restaurant specializing in pork boiled meat and noodles
+b61ed11d-f2e5-34fc-80fe-51d5b8c4e80d,평산옥,ja,fix,ko의 fix에 맞춰 동일하게 수정,豚肉の茹で肉と麺の専門店であっさり味が特徴,豚肉の茹で肉と麺の専門店
+b61ed11d-f2e5-34fc-80fe-51d5b8c4e80d,평산옥,zh-Hans,fix,ko의 fix에 맞춰 동일하게 수정,猪肉水煮肉和面条专门店，味道清淡,猪肉水煮肉和面条专门店
+b61ed11d-f2e5-34fc-80fe-51d5b8c4e80d,평산옥,zh-Hant,fix,ko의 fix에 맞춰 동일하게 수정,豬肉水煮肉和麵條專門店，味道清淡,豬肉水煮肉和麵條專門店
+b61ed11d-f2e5-34fc-80fe-51d5b8c4e80d,평산옥,vi,fix,ko의 fix에 맞춰 동일하게 수정,Quán chuyên món thịt heo luộc và mì với hương vị nhẹ nhàng,Quán chuyên thịt heo luộc và mì
+b7fc4c5b-490a-3eb9-a4c1-9b9ff9926a07,금수복국,ko,drop,"facts에 따르면 복국(복어국) 전문점임을 알 수 없음. 업종이 백반/한정식으로만 되어 있고, 복국에 대한 언급이 없음.",해운대구의 백반 한정식 음식점,
+b7fc4c5b-490a-3eb9-a4c1-9b9ff9926a07,금수복국,en,drop,ko drop에 맞춰 삭제,Baekban and Korean set meal restaurant in Haeundae-gu,
+b7fc4c5b-490a-3eb9-a4c1-9b9ff9926a07,금수복국,ja,drop,ko drop에 맞춰 삭제,海雲台区の定食・韓定食店,
+b7fc4c5b-490a-3eb9-a4c1-9b9ff9926a07,금수복국,zh-Hans,drop,ko drop에 맞춰 삭제,海云台区的韩定食餐厅,
+b7fc4c5b-490a-3eb9-a4c1-9b9ff9926a07,금수복국,zh-Hant,drop,ko drop에 맞춰 삭제,海雲台區的韓定食餐廳,
+b7fc4c5b-490a-3eb9-a4c1-9b9ff9926a07,금수복국,vi,drop,ko drop에 맞춰 삭제,Nhà hàng baekban và set meal Hàn Quốc ở Haeundae-gu,
+b9addc28-1cf7-3c60-b386-2e12af20984f,해성막창집 본점,ko,fix,"소막창이 소의 작은창자임을 명확히 해야 하며, 곱창전골도 소의 곱창임을 명확히 해야 함. '숙성 소막창과 곱창전골'은 자연스럽고 정확함.",숙성 소막창과 곱창전골 전문 해운대구 음식점,숙성 소막창과 곱창전골 전문점
+b9addc28-1cf7-3c60-b386-2e12af20984f,해성막창집 본점,en,fix,ko fix에 맞춰 수정,Haeundae restaurant specializing in aged small intestines and gopchang hot pot,Restaurant specializing in aged beef small intestines and gopchang hot pot
+b9addc28-1cf7-3c60-b386-2e12af20984f,해성막창집 본점,ja,fix,ko fix에 맞춰 수정,熟成された小腸とホルモン鍋専門の海雲台区の飲食店,熟成牛小腸とホルモン鍋専門店
+b9addc28-1cf7-3c60-b386-2e12af20984f,해성막창집 본점,zh-Hans,fix,ko fix에 맞춰 수정,海云台区熟成小肠与肠锅专门店,熟成牛小肠与牛肠锅专门店
+b9addc28-1cf7-3c60-b386-2e12af20984f,해성막창집 본점,zh-Hant,fix,ko fix에 맞춰 수정,海雲台區熟成小腸與腸鍋專門店,熟成牛小腸與牛腸鍋專門店
+b9addc28-1cf7-3c60-b386-2e12af20984f,해성막창집 본점,vi,fix,ko fix에 맞춰 수정,Nhà hàng Haeundae chuyên lòng non ủ chín và lẩu lòng,Quán chuyên lòng non bò ủ chín và lẩu lòng bò
+ba162937-2fb3-31a8-b014-0d217950a08a,예이제신관,ko,fix,백반/한정식 업종이므로 백반집이 아니라 한정식집이어야 함,한정식 모범음식점인 해운대구 백반집,한정식 모범음식점인 해운대구 한정식집
+ba162937-2fb3-31a8-b014-0d217950a08a,예이제신관,en,fix,ko fix에 맞춰 수정,Haeundae Korean set meal model restaurant serving hanjeongsik,Haeundae model restaurant serving hanjeongsik set meals
+ba162937-2fb3-31a8-b014-0d217950a08a,예이제신관,ja,fix,ko fix에 맞춰 수정,海雲台の韓定食模範飲食店,海雲台の韓定食模範飲食店
+ba162937-2fb3-31a8-b014-0d217950a08a,예이제신관,zh-Hans,fix,ko fix에 맞춰 수정,海云台韩定食模范餐厅,海云台韩定食模范餐厅
+ba162937-2fb3-31a8-b014-0d217950a08a,예이제신관,zh-Hant,fix,ko fix에 맞춰 수정,海雲台韓定食模範餐廳,海雲台韓定食模範餐廳
+ba162937-2fb3-31a8-b014-0d217950a08a,예이제신관,vi,fix,ko fix에 맞춰 수정,Quán cơm phần hanjeongsik đạt chuẩn tại Haeundae,Quán hanjeongsik đạt chuẩn tại Haeundae
+bab8660e-4674-30c2-bede-584568464a00,혜자네,ko,fix,돼지고기 구이집이 아니라 산곰장어와 조개구이 세트가 특징임. 돼지고기 언급은 facts에 없음.,산곰장어 조개구이 세트 가성비 돼지고기 구이집,산곰장어 조개구이 세트 전문점
+bab8660e-4674-30c2-bede-584568464a00,혜자네,en,fix,ko fix에 맞춰 수정,Value set menu with hagfish and grilled clams pork grill,Specialty set menu with hagfish and grilled clams
+bab8660e-4674-30c2-bede-584568464a00,혜자네,ja,fix,ko fix에 맞춰 수정,ヌタウナギと貝焼きセットのコスパ豚肉焼き店,ヌタウナギと貝焼きセット専門店
+bab8660e-4674-30c2-bede-584568464a00,혜자네,zh-Hans,fix,ko fix에 맞춰 수정,盲鳗和烤贝组合高性价比猪肉烤店,盲鳗和烤贝组合专门店
+bab8660e-4674-30c2-bede-584568464a00,혜자네,zh-Hant,fix,ko fix에 맞춰 수정,盲鰻和烤貝組合高性價比豬肉烤店,盲鰻和烤貝組合專門店
+bab8660e-4674-30c2-bede-584568464a00,혜자네,vi,fix,ko fix에 맞춰 수정,Quán nướng thịt heo với set cá mút đá và nghêu nướng giá tốt,Quán chuyên set cá mút đá và nghêu nướng
+bb051d07-6eb9-356e-99ab-9fc6177f9480,솔거갤러리,ko,drop,"솔거갤러리는 갤러리(미술관)이나, '문화·역사·사찰'로 뭉뚱그려 표현해 실제 장소 유형과 맞지 않음. facts에 더 구체적 정보 없음.",해운대구의 문화·역사·사찰,
+bb051d07-6eb9-356e-99ab-9fc6177f9480,솔거갤러리,en,drop,ko가 drop이므로 동일하게 drop,"Cultural, historical, and temple site in Haeundae-gu",
+bb051d07-6eb9-356e-99ab-9fc6177f9480,솔거갤러리,ja,drop,ko가 drop이므로 동일하게 drop,海雲台区の文化・歴史・寺院,
+bb051d07-6eb9-356e-99ab-9fc6177f9480,솔거갤러리,zh-Hans,drop,ko가 drop이므로 동일하게 drop,海云台区的文化历史寺庙,
+bb051d07-6eb9-356e-99ab-9fc6177f9480,솔거갤러리,zh-Hant,drop,ko가 drop이므로 동일하게 drop,海雲台區的文化歷史寺廟,
+bb051d07-6eb9-356e-99ab-9fc6177f9480,솔거갤러리,vi,drop,ko가 drop이므로 동일하게 drop,"Địa điểm văn hóa, lịch sử và chùa ở Haeundae-gu",
+bb9b38ca-7486-3acb-86da-621238736410,규우정,ko,fix,"돼지고기구이 업종이나 한우(소고기)만 언급, 돼지고기구이집 아님. 한우 참숯구이와 오션뷰만 남겨야 함.",최고급 1++ 한우 참숯구이와 오션뷰 돼지고기구이집,최고급 1++ 한우 참숯구이와 오션뷰
+bb9b38ca-7486-3acb-86da-621238736410,규우정,en,fix,ko에 맞춰 수정,Premium 1++ Korean beef charcoal grill with ocean view,
+bb9b38ca-7486-3acb-86da-621238736410,규우정,ja,fix,ko에 맞춰 수정,最高級1++韓牛炭火焼とオーシャンビューの焼肉店,最高級1++韓牛炭火焼とオーシャンビュー
+bb9b38ca-7486-3acb-86da-621238736410,규우정,zh-Hans,fix,ko에 맞춰 수정,顶级1++韩牛炭火烤肉与海景烤肉店,顶级1++韩牛炭火烤肉与海景
+bb9b38ca-7486-3acb-86da-621238736410,규우정,zh-Hant,fix,ko에 맞춰 수정,頂級1++韓牛炭火烤肉與海景烤肉店,頂級1++韓牛炭火烤肉與海景
+bb9b38ca-7486-3acb-86da-621238736410,규우정,vi,fix,ko에 맞춰 수정,Quán nướng thịt bò Hàn 1++ cao cấp với view biển,Thịt bò Hàn 1++ nướng than cao cấp với view biển
+bb9b38ca-7486-3acb-86da-621238736410,규우정,en,drop,규칙:PORK_AS_BEEF,Premium 1++ Korean beef charcoal grill with ocean view,
+c0719b43-629f-3021-b192-ce6cc7cae34b,쉐프리,ko,fix,공공 업종 분류는 경양식이지만 꽃게 파스타와 엔초비 파스타를 선보이는 이탈리안 요리 전문점임,제철 꽃게 파스타와 엔초비 파스타를 내는 경양식집,제철 꽃게 파스타와 엔초비 파스타를 선보이는 이탈리안 식당
+c0719b43-629f-3021-b192-ce6cc7cae34b,쉐프리,en,fix,ko 수정 반영(경양식 대신 이탈리안 식당),Western-style restaurant serving seasonal crab and anchovy pasta,Italian restaurant serving seasonal crab and anchovy pasta
+c0719b43-629f-3021-b192-ce6cc7cae34b,쉐프리,ja,fix,ko 수정 반영(경양식 대신 이탈리안 식당),旬のカニパスタとアンチョビパスタの洋食店,旬のカニパスタとアンチョビパスタのイタリア料理店
+c0719b43-629f-3021-b192-ce6cc7cae34b,쉐프리,zh-Hans,fix,ko 수정 반영(경양식 대신 이탈리안 식당),提供时令蟹肉意面和凤尾鱼意面的西餐厅,供应时令蟹肉意面和凤尾鱼意面的意式餐厅
+c0719b43-629f-3021-b192-ce6cc7cae34b,쉐프리,zh-Hant,fix,ko 수정 반영(경양식 대신 이탈리안 식당),提供時令蟹肉義麵和鳳尾魚義麵的西餐廳,供應時令蟹肉義麵和鳳尾魚義麵的義式餐廳
+c0719b43-629f-3021-b192-ce6cc7cae34b,쉐프리,vi,fix,ko 수정 반영(경양식 대신 이탈리안 식당),Nhà hàng kiểu Tây phục vụ mì cua theo mùa và mì cá cơm,Nhà hàng Ý phục vụ mì cua theo mùa và mì cá cơm
+c13c24e9-eeb3-37c7-aa5a-b459a6aa42c7,자무카,ko,fix,철판요리 전문점을 회/초밥으로 표기함,철판 불쇼와 다양한 테판야키 일식 회/초밥,화려한 불쇼와 다양한 메뉴의 테판야키 전문점
+c13c24e9-eeb3-37c7-aa5a-b459a6aa42c7,자무카,en,fix,철판요리 전문점을 sashimi로 오역함,Japanese sashimi with teppan fire show and various teppanyaki,Teppanyaki restaurant featuring fire shows and various dishes
+c13c24e9-eeb3-37c7-aa5a-b459a6aa42c7,자무카,ja,fix,철판요리 전문점을 寿司店으로 오역함,鉄板の火のショーと多彩な鉄板焼きの和食寿司店,火のショーと多彩なメニューが楽しめる鉄板焼き専門店
+c13c24e9-eeb3-37c7-aa5a-b459a6aa42c7,자무카,zh-Hans,fix,철판요리 전문점을 生鱼片店으로 오역함,铁板火秀与多样铁板烧日式生鱼片店,配有火焰秀与丰富菜品的铁板烧专门店
+c13c24e9-eeb3-37c7-aa5a-b459a6aa42c7,자무카,zh-Hant,fix,철판요리 전문점을 生魚片店으로 오역함,鐵板火秀與多樣鐵板燒日式生魚片店,配有火焰秀與豐富菜品的鐵板燒專門店
+c13c24e9-eeb3-37c7-aa5a-b459a6aa42c7,자무카,vi,fix,철판요리 전문점을 sashimi로 오역함,Sashimi Nhật với biểu diễn lửa teppan và nhiều món teppanyaki,Quán teppanyaki với biểu diễn lửa và nhiều món ăn đa dạng
+c4fd903b-a181-3478-a629-feaa3daee193,미식육,en,drop,규칙:PORK_AS_BEEF,Pork and beef grilled on large iron lid pork barbecue restaurant,
+c5da327e-8216-3d45-934d-02bfaa52bf88,팔레트,ko,fix,"오션뷰 다이닝은 facts에 있지만, '경양식'은 실제로 프렌치 기반 창의적 컨템퍼러리 코스 요리임. '경양식' 대신 '프렌치 기반 코스 요리'로 수정.",미쉐린 1스타 셰프 프렌치 경양식과 오션뷰 다이닝,미쉐린 1스타 셰프 프렌치 기반 코스 요리와 오션뷰 다이닝
+c5da327e-8216-3d45-934d-02bfaa52bf88,팔레트,en,fix,ko 수정에 맞춰 'French-based course cuisine'로 수정,Michelin 1-star chef French western-style dining with ocean view,Michelin 1-star chef French-based course cuisine with ocean view dining
+c5da327e-8216-3d45-934d-02bfaa52bf88,팔레트,ja,fix,ko 수정에 맞춰 'フレンチベースのコース料理'로 수정,ミシュラン1つ星シェフのフレンチ洋食とオーシャンビューダイニング,ミシュラン1つ星シェフのフレンチベースコース料理とオーシャンビューダイニング
+c5da327e-8216-3d45-934d-02bfaa52bf88,팔레트,zh-Hans,fix,ko 수정에 맞춰 '法式创意套餐'로 수정,米其林一星主厨法式西餐与海景餐厅,米其林一星主厨法式创意套餐与海景餐厅
+c5da327e-8216-3d45-934d-02bfaa52bf88,팔레트,zh-Hant,fix,ko 수정에 맞춰 '法式創意套餐'로 수정,米其林一星主廚法式西餐與海景餐廳,米其林一星主廚法式創意套餐與海景餐廳
+c5da327e-8216-3d45-934d-02bfaa52bf88,팔레트,vi,fix,ko 수정에 맞춰 'ẩm thực theo set kiểu Pháp'로 수정,Ẩm thực phương Tây kiểu Pháp của đầu bếp sao Michelin 1 sao với tầm nhìn biển,Ẩm thực theo set kiểu Pháp của đầu bếp sao Michelin 1 sao với tầm nhìn biển
+c82f1ba7-01c1-399b-b64c-41fb4b2d6562,중구기사식당,ko,fix,메뉴가 밀면과 비빔면뿐인 밀면 전문점이나 공공분류 백반집으로 표기됨,양파 육수와 쫄깃한 면발 밀면 전문 백반집,양파 육수와 쫄깃한 면발을 내는 밀면 전문 노포
+c82f1ba7-01c1-399b-b64c-41fb4b2d6562,중구기사식당,en,fix,ko 수정 반영(백반집 대신 밀면 노포),Korean set meal restaurant specializing in milmyeon with onion broth and chewy noodles,Long-established milmyeon specialty restaurant with onion broth and chewy noodles
+c82f1ba7-01c1-399b-b64c-41fb4b2d6562,중구기사식당,ja,fix,ko 수정 반영(백반집 대신 밀면 노포),玉ねぎスープともちもち麺のミルミョン専門定食店,玉ねぎスープともちもち麺のミルミョン専門老舗店
+c82f1ba7-01c1-399b-b64c-41fb4b2d6562,중구기사식당,zh-Hans,fix,ko 수정 반영(백반집 대신 밀면 노포),专营洋葱汤和弹性面条的密面韩式套餐店,专营洋葱汤和劲道面条的小麦面老字号店
+c82f1ba7-01c1-399b-b64c-41fb4b2d6562,중구기사식당,zh-Hant,fix,ko 수정 반영(백반집 대신 밀면 노포),專營洋蔥湯和彈性麵條的密麵韓式套餐店,專營洋蔥湯和勁道麵條的小麥麵老字號店
+c82f1ba7-01c1-399b-b64c-41fb4b2d6562,중구기사식당,vi,fix,ko 수정 반영(백반집 대신 밀면 노포),Quán cơm Hàn Quốc chuyên milmyeon nước hành tây và mì dai,Quán lâu đời chuyên milmyeon với nước dùng hành tây và sợi mì dai
+cbb3651d-c826-3406-a253-4ef7d41115a2,카츠미치,ko,fix,"facts에 따르면 돈카츠(돈까스)와 흑돈 메뉴를 제공하지만, 일식 회 전문점이라는 내용은 없음. 업종도 일식 회/초밥이지만, 실제 방문 이유는 돈카츠와 흑돈임.",저온 숙성 돈카츠와 일식 회 전문점,저온 숙성 흑돈 돈카츠와 일본식 다찌
+cbb3651d-c826-3406-a253-4ef7d41115a2,카츠미치,en,fix,ko fix에 맞춰 수정 필요,Specialized in low-temperature aged pork cutlet and Japanese raw fish,Low-temperature aged black pork cutlet and Japanese-style counter
+cbb3651d-c826-3406-a253-4ef7d41115a2,카츠미치,ja,fix,ko fix에 맞춰 수정 필요,低温熟成トンカツと和食の刺身専門店,低温熟成黒豚トンカツと和風カウンター
+cbb3651d-c826-3406-a253-4ef7d41115a2,카츠미치,zh-Hans,fix,ko fix에 맞춰 수정 필요,低温熟成炸猪排与日式生鱼片专门店,低温熟成黑猪排和日式吧台
+cbb3651d-c826-3406-a253-4ef7d41115a2,카츠미치,zh-Hant,fix,ko fix에 맞춰 수정 필요,低溫熟成炸豬排與日式生魚片專門店,低溫熟成黑豬排和日式吧台
+cbb3651d-c826-3406-a253-4ef7d41115a2,카츠미치,vi,fix,ko fix에 맞춰 수정 필요,Chuyên món thịt heo chiên xù ủ lạnh và sashimi Nhật Bản,Thịt heo đen chiên xù ủ lạnh và quầy kiểu Nhật
+cbfe785d-9531-318a-a76b-1a904aa1b9e8,왕표고기,en,drop,규칙:PORK_AS_BEEF,Pork barbecue specializing in wet-aged pork and beef sirloin,
+cc5e4847-8418-3e62-8784-d45d7ac2dcb3,평안도족발,en,fix,"족발집인데 hagfish(먹장어, 곰장어)로 오역됨",Long-established hagfish restaurant in Haeundae with 30-40 years history,Long-established jokbal restaurant in Haeundae with 30-40 years history
+cc5e4847-8418-3e62-8784-d45d7ac2dcb3,평안도족발,ja,fix,족발집인데 ヌタウナギ(먹장어)로 오역됨,30〜40年続く海雲台の老舗ヌタウナギ専門店,30〜40年続く海雲台の老舗チョッパル専門店
+cc5e4847-8418-3e62-8784-d45d7ac2dcb3,평안도족발,zh-Hans,fix,족발집인데盲鳗(먹장어)로 오역됨,拥有30~40年历史的海云台老字号盲鳗专门店,拥有30~40年历史的海云台老字号猪蹄专门店
+cc5e4847-8418-3e62-8784-d45d7ac2dcb3,평안도족발,zh-Hant,fix,족발집인데盲鰻(먹장어)로 오역됨,擁有30~40年歷史的海雲台老字號盲鰻專門店,擁有30~40年歷史的海雲台老字號豬蹄專門店
+cc5e4847-8418-3e62-8784-d45d7ac2dcb3,평안도족발,vi,fix,족발집인데 hagfish(먹장어)로 오역됨,Quán hagfish lâu đời 30-40 năm tại Haeundae,Quán chân giò lâu đời 30-40 năm tại Haeundae
+cdb92f5c-be35-39dd-a567-8015b99c8a0a,대우건설거제동전시관,ko,fix,전시관인데 사찰로 표기되어 있음. facts에 전시관 외 정보 없음.,해운대구의 문화 역사 사찰,해운대구의 전시관
+cdb92f5c-be35-39dd-a567-8015b99c8a0a,대우건설거제동전시관,en,fix,ko fix에 맞춰 수정,"Cultural, historical, and temple site in Haeundae-gu",Exhibition hall in Haeundae-gu
+cdb92f5c-be35-39dd-a567-8015b99c8a0a,대우건설거제동전시관,ja,fix,ko fix에 맞춰 수정,海雲台区の文化・歴史・寺院,海雲台区の展示館
+cdb92f5c-be35-39dd-a567-8015b99c8a0a,대우건설거제동전시관,zh-Hans,fix,ko fix에 맞춰 수정,海云台区的文化历史寺庙,海云台区的展览馆
+cdb92f5c-be35-39dd-a567-8015b99c8a0a,대우건설거제동전시관,zh-Hant,fix,ko fix에 맞춰 수정,海雲台區的文化歷史寺廟,海雲台區的展覽館
+cdb92f5c-be35-39dd-a567-8015b99c8a0a,대우건설거제동전시관,vi,fix,ko fix에 맞춰 수정,"Địa điểm văn hóa, lịch sử và chùa ở Haeundae-gu",Phòng triển lãm tại Haeundae-gu
+d0d27f5f-131d-34e2-a3ce-39cbd0bf2aa0,해로,en,drop,규칙:BEEF_AS_PORK,Japanese sushi restaurant near Huinyeoul Village with beef rice noodles and handmade pork cutlet by reservation,
+d0d27f5f-131d-34e2-a3ce-39cbd0bf2aa0,해로,vi,drop,규칙:BEEF_AS_PORK,Nhà hàng sushi Nhật gần làng Huinyeoul với mì gạo bò và cốt lết heo đặt trước,
+da645d16-0405-3950-97d8-a2cbb8ac8e73,콜라보일루아,ko,fix,"물회·모듬회·활어회 언급은 facts에 없음. 브런치, 피자, 파스타, 베이커리류가 주력임.","물회와 모듬회 코스, 170석 규모 해운대 활어회 전문점",브런치와 베이커리류 제공하는 해운대 레스토랑
+da645d16-0405-3950-97d8-a2cbb8ac8e73,콜라보일루아,en,fix,ko fix에 맞춰 수정,Haeundae sashimi specialty with mulhoe and assorted sashimi courses,Haeundae restaurant offering brunch and bakery items
+da645d16-0405-3950-97d8-a2cbb8ac8e73,콜라보일루아,ja,fix,ko fix에 맞춰 수정,水刺身と盛り合わせ刺身コースの海雲台活魚専門店,ブランチとベーカリーを提供する海雲台のレストラン
+da645d16-0405-3950-97d8-a2cbb8ac8e73,콜라보일루아,zh-Hans,fix,ko fix에 맞춰 수정,海云台活鱼专门店，提供物海和拼盘刺身套餐,提供早午餐和烘焙食品的海云台餐厅
+da645d16-0405-3950-97d8-a2cbb8ac8e73,콜라보일루아,zh-Hant,fix,ko fix에 맞춰 수정,海雲台活魚專門店，提供物海和拼盤刺身套餐,提供早午餐和烘焙食品的海雲台餐廳
+da645d16-0405-3950-97d8-a2cbb8ac8e73,콜라보일루아,vi,fix,ko fix에 맞춰 수정,Quán sashimi Haeundae chuyên mulhoe và sashimi đa dạng,Nhà hàng Haeundae phục vụ brunch và bánh mì
+e0876ad1-d6be-3821-bcfb-9f9a5fcb368c,암소갈비집 해운대,ko,fix,암소갈비는 소고기이므로 돼지고기 구이/찜은 업종 분류 오류. facts에 메뉴 정보 없음.,해운대구의 돼지고기 구이 찜 음식점,해운대구의 소고기 구이 음식점
+e0876ad1-d6be-3821-bcfb-9f9a5fcb368c,암소갈비집 해운대,en,fix,소고기 구이로 수정,Pork grilled and steamed restaurant in Haeundae-gu,Beef grilled restaurant in Haeundae-gu
+e0876ad1-d6be-3821-bcfb-9f9a5fcb368c,암소갈비집 해운대,ja,fix,소고기 구이로 수정,ヘウンデ区の豚肉焼き・蒸し料理店,ヘウンデ区の牛肉焼き料理店
+e0876ad1-d6be-3821-bcfb-9f9a5fcb368c,암소갈비집 해운대,zh-Hans,fix,소고기 구이로 수정,海云台区的猪肉烤蒸餐厅,海云台区的牛肉烤肉餐厅
+e0876ad1-d6be-3821-bcfb-9f9a5fcb368c,암소갈비집 해운대,zh-Hant,fix,소고기 구이로 수정,海雲臺區的豬肉烤蒸餐廳,海雲臺區的牛肉烤肉餐廳
+e0876ad1-d6be-3821-bcfb-9f9a5fcb368c,암소갈비집 해운대,vi,fix,소고기 구이로 수정,Nhà hàng thịt heo nướng hấp tại Haeundae,Nhà hàng thịt bò nướng tại Haeundae
+e1cc3c57-370b-3d44-8cd8-8e29fa25be00,아마,ko,fix,"경양식은 일본식 서양요리로, 스페인 가정식과는 다름. facts에 따르면 스페인 셰프가 선보이는 정통 스페인 홈메이드 가정식이므로, '정통 스페인 가정식'으로 수정 필요.",스페인 셰프의 정통 홈메이드 경양식,정통 스페인 가정식 전문점
+e1cc3c57-370b-3d44-8cd8-8e29fa25be00,아마,en,fix,ko fix에 맞춰 동일 의미로 수정,Authentic homemade Spanish cuisine by Spanish chef,Authentic Spanish home-style cuisine
+e1cc3c57-370b-3d44-8cd8-8e29fa25be00,아마,ja,fix,ko fix에 맞춰 동일 의미로 수정,スペイン人シェフによる本格ホームメイド洋食,本格スペイン家庭料理専門店
+e1cc3c57-370b-3d44-8cd8-8e29fa25be00,아마,zh-Hans,fix,ko fix에 맞춰 동일 의미로 수정,西班牙厨师正宗家常洋食,正宗西班牙家常菜专门店
+e1cc3c57-370b-3d44-8cd8-8e29fa25be00,아마,zh-Hant,fix,ko fix에 맞춰 동일 의미로 수정,西班牙廚師正宗家常洋食,正宗西班牙家常菜專門店
+e1cc3c57-370b-3d44-8cd8-8e29fa25be00,아마,vi,fix,ko fix에 맞춰 동일 의미로 수정,Món Tây Ban Nha tự làm chính thống của đầu bếp Tây Ban Nha,Quán chuyên món ăn gia đình Tây Ban Nha chính thống
+e21a6368-85ff-331a-a3c5-e991df58c87f,오비피씨,ko,fix,"오션뷰는 사실이나, '광안대교 오션뷰'는 광안대교가 정면으로 보인다는 점이 facts에 있으므로 더 구체적으로 표현 가능. '경양식'은 업종에 맞음. '특색 토핑 피자'는 facts에 부합.",광안대교 오션뷰와 특색 토핑 피자 경양식,광안대교 전망 특색 토핑 피자 경양식
+e21a6368-85ff-331a-a3c5-e991df58c87f,오비피씨,en,fix,ko에 맞춰 수정,Western-style restaurant with ocean view and unique topping pizza,Western-style restaurant with Gwangandaegyo view and unique topping pizza
+e21a6368-85ff-331a-a3c5-e991df58c87f,오비피씨,ja,fix,ko에 맞춰 수정,広安大橋のオーシャンビューと特徴的なトッピングピザ洋食店,広安大橋展望と特徴的なトッピングピザ洋食店
+e21a6368-85ff-331a-a3c5-e991df58c87f,오비피씨,zh-Hans,fix,ko에 맞춰 수정,广安大桥海景与特色披萨西餐厅,广安大桥景观与特色披萨西餐厅
+e21a6368-85ff-331a-a3c5-e991df58c87f,오비피씨,zh-Hant,fix,ko에 맞춰 수정,廣安大橋海景與特色披薩西餐廳,廣安大橋景觀與特色披薩西餐廳
+e21a6368-85ff-331a-a3c5-e991df58c87f,오비피씨,vi,fix,ko에 맞춰 수정,Nhà hàng kiểu Tây với view biển và pizza topping đặc sắc,Nhà hàng kiểu Tây với view cầu Gwangandaegyo và pizza topping đặc sắc
+e2f285a6-47d2-48b8-a78b-000132493003,민락어민활어직판장,en,fix,"ko는 활어직판장(직접 구매하고 맛볼 수 있는 곳)인데, en/vi는 특정 메뉴(sashimi, spicy fish stew)를 강조해 사실과 다름",Fresh seafood market with sashimi and spicy fish stew,Live seafood market where you can buy and taste fresh seafood
+e2f285a6-47d2-48b8-a78b-000132493003,민락어민활어직판장,vi,fix,"ko는 활어직판장(직접 구매하고 맛볼 수 있는 곳)인데, en/vi는 특정 메뉴(sashimi, canh cá cay)를 강조해 사실과 다름",Chợ hải sản tươi sống với sashimi và canh cá cay,Chợ hải sản tươi sống nơi có thể mua và thưởng thức hải sản tươi
+e4173acd-05ff-3a60-8ee2-0087c189aedb,아저씨대구탕,ko,fix,"대구뽈찜은 찜(steamed/stewed) 요리이나, '찜'을 'stew'로 번역한 것은 부정확함. facts에 따르면 '찜'이 맞으므로, 모든 언어에서 '찜'을 반영해야 함. 또한 '국탕 찌개 전문점'은 너무 포괄적이므로, facts에 따라 '대구탕과 대구뽈찜 전문점'으로 명확히 해야 함.",맑고 시원한 대구탕과 매콤한 대구뽈찜 국탕 찌개 전문점,대구탕과 대구뽈찜 전문점
+e4173acd-05ff-3a60-8ee2-0087c189aedb,아저씨대구탕,en,fix,ko fix에 맞춰 'cod soup and cod cheek jjim specialty restaurant'로 수정,Clear cod soup and spicy cod cheek stew restaurant,Cod soup and cod cheek jjim specialty restaurant
+e4173acd-05ff-3a60-8ee2-0087c189aedb,아저씨대구탕,ja,fix,ko fix에 맞춰 'タラ鍋とタラほほ蒸し専門店'로 수정,澄んだタラ汁と辛いタラほほ蒸しの専門店,タラ鍋とタラほほ蒸し専門店
+e4173acd-05ff-3a60-8ee2-0087c189aedb,아저씨대구탕,zh-Hans,fix,ko fix에 맞춰 '鳕鱼汤和鳕鱼脸蒸菜专门店'로 수정,清淡鲜美的鳕鱼汤和辣鳕鱼脸蒸菜馆,鳕鱼汤和鳕鱼脸蒸菜专门店
+e4173acd-05ff-3a60-8ee2-0087c189aedb,아저씨대구탕,zh-Hant,fix,ko fix에 맞춰 '鱈魚湯和鱈魚臉蒸菜專門店'로 수정,清淡鮮美的鱈魚湯和辣鱈魚臉蒸菜館,鱈魚湯和鱈魚臉蒸菜專門店
+e4173acd-05ff-3a60-8ee2-0087c189aedb,아저씨대구탕,vi,fix,ko fix에 맞춰 'Quán chuyên canh cá tuyết và cá tuyết hấp'로 수정,Quán canh cá tuyết trong và món cá tuyết hấp cay,Quán chuyên canh cá tuyết và cá tuyết hấp
+e5a47caf-4129-30f5-9be3-de5d98535bf8,헷츠,ko,fix,초밥(스시) 제공 여부가 facts에 없음. 돈카츠와 상로스카츠만 명확히 언급됨.,프리미엄 돈카츠와 상로스카츠 일식 회 초밥,프리미엄 돈카츠와 상로스카츠 전문점
+e5a47caf-4129-30f5-9be3-de5d98535bf8,헷츠,en,fix,ko fix에 맞춰 수정,Premium tonkatsu and special loin cutlet Japanese seafood and sushi,Premium tonkatsu and special loin cutlet specialty restaurant
+e5a47caf-4129-30f5-9be3-de5d98535bf8,헷츠,ja,fix,ko fix에 맞춰 수정,プレミアムとんかつと上ロースカツの和食海鮮寿司店,プレミアムとんかつと上ロースカツ専門店
+e5a47caf-4129-30f5-9be3-de5d98535bf8,헷츠,zh-Hans,fix,ko fix에 맞춰 수정,高级炸猪排和上等里脊炸猪排日式海鲜寿司店,高级炸猪排和上等里脊炸猪排专门店
+e5a47caf-4129-30f5-9be3-de5d98535bf8,헷츠,zh-Hant,fix,ko fix에 맞춰 수정,高級炸豬排與上等里肌炸豬排日式海鮮壽司店,高級炸豬排與上等里肌炸豬排專門店
+e5a47caf-4129-30f5-9be3-de5d98535bf8,헷츠,vi,fix,ko fix에 맞춰 수정,Nhà hàng Nhật với tonkatsu cao cấp và sushi hải sản,Nhà hàng chuyên tonkatsu cao cấp và thăn lợn đặc biệt
+e8d2895c-0058-3fda-8dd8-9e6a4baab1ac,원웨이브레드,ko,fix,"브런치, 휴양지 분위기는 facts에 없음. 소금버터식빵만 명확.",두툼한 소금버터식빵과 휴양지 분위기 브런치 카페,두툼한 소금버터식빵 베이커리 카페
+e8d2895c-0058-3fda-8dd8-9e6a4baab1ac,원웨이브레드,en,fix,ko fix에 맞춰 수정,Brunch bakery cafe with thick salted butter bread and exotic vibes,Bakery cafe with thick salted butter bread
+e8d2895c-0058-3fda-8dd8-9e6a4baab1ac,원웨이브레드,ja,fix,ko fix에 맞춰 수정,厚切り塩バター食パンとリゾート風ブランチカフェ,厚切り塩バター食パンのベーカリーカフェ
+e8d2895c-0058-3fda-8dd8-9e6a4baab1ac,원웨이브레드,zh-Hans,fix,ko fix에 맞춰 수정,厚切盐黄油面包与异国风情早午餐咖啡馆,厚切盐黄油面包烘焙咖啡馆
+e8d2895c-0058-3fda-8dd8-9e6a4baab1ac,원웨이브레드,zh-Hant,fix,ko fix에 맞춰 수정,厚切鹽奶油吐司與異國風情早午餐咖啡館,厚切鹽奶油吐司烘焙咖啡館
+e8d2895c-0058-3fda-8dd8-9e6a4baab1ac,원웨이브레드,vi,fix,ko fix에 맞춰 수정,Quán cà phê bánh mì bơ muối dày và không gian brunch phong cách nghỉ dưỡng,Quán cà phê bánh mì bơ muối dày
+ee856119-a373-3c98-b94e-a1776797faff,부산곰장어,ko,fix,공공 업종 분류는 횟집이나 실제는 곰장어 구이 전문점,즉석 산곰장어 양념·소금구이 즐기는 해운대 횟집,즉석 산곰장어 양념·소금구이 해운대 음식점
+ee856119-a373-3c98-b94e-a1776797faff,부산곰장어,en,fix,ko 수정 반영,Seafood restaurant in Haeundae serving fresh grilled hagfish with sauce or salt,Haeundae restaurant serving fresh grilled hagfish with sauce or salt
+ee856119-a373-3c98-b94e-a1776797faff,부산곰장어,ja,fix,ko 수정 반영,新鮮なヌタウナギのタレ・塩焼きを楽しめる海雲台の海鮮店,新鮮なヌタウナギのタレ・塩焼きを楽しめる海雲台の店
+ee856119-a373-3c98-b94e-a1776797faff,부산곰장어,zh-Hans,fix,ko 수정 반영,海云台海鲜店，享用即烤调味或盐烤盲鳗,海云台餐厅，享用现烤调味或盐烤盲鳗
+ee856119-a373-3c98-b94e-a1776797faff,부산곰장어,zh-Hant,fix,ko 수정 반영,海雲台海鮮店，享用即烤調味或鹽烤盲鰻,海雲台餐廳，享用現烤調味或鹽烤盲鰻
+ee856119-a373-3c98-b94e-a1776797faff,부산곰장어,vi,fix,ko 수정 반영,Quán hải sản Haeundae phục vụ cá mút đá nướng sốt hoặc muối,Nhà hàng Haeundae phục vụ cá mút đá nướng sốt hoặc muối
+f291e2de-1585-3312-be4a-8dbee97960f2,유화,ko,fix,가격·가성비·맛·퀄리티 등 평가가 포함되어 있어 facts만으로는 쓸 수 없음. facts에는 일식 회/초밥집임만 명확. '해운대구의 일식 회 초밥집'으로 수정.,합리적 가격대의 수준 높은 스시 오마카세 코스,해운대구의 일식 회 초밥집
+f291e2de-1585-3312-be4a-8dbee97960f2,유화,en,fix,Same as ko,High-quality sushi omakase course at reasonable price,Japanese sashimi and sushi restaurant in Haeundae-gu
+f291e2de-1585-3312-be4a-8dbee97960f2,유화,ja,fix,Same as ko,手頃な価格の高品質寿司おまかせコース,海雲台区の和食刺身・寿司店
+f291e2de-1585-3312-be4a-8dbee97960f2,유화,zh-Hans,fix,Same as ko,合理价格的高品质寿司套餐,海云台区的日式生鱼片寿司店
+f291e2de-1585-3312-be4a-8dbee97960f2,유화,zh-Hant,fix,Same as ko,合理價格的高品質壽司套餐,海雲台區的日式生魚片壽司店
+f291e2de-1585-3312-be4a-8dbee97960f2,유화,vi,fix,Same as ko,Khóa học sushi omakase chất lượng cao với giá hợp lý,Nhà hàng sashimi và sushi Nhật Bản ở Haeundae-gu
+fb73798c-7474-39cf-9b41-24f71a88c925,타이드솔루션스로쿠미,ko,fix,파스타와 덮밥을 파는 퓨전 일식당을 회/초밥으로 표기함,명란크림파스타 쇼가야키동 퓨전 일식 회/초밥,명란크림파스타와 쇼가야키동이 있는 퓨전 일식당
+fb73798c-7474-39cf-9b41-24f71a88c925,타이드솔루션스로쿠미,en,fix,퓨전 일식당을 sashimi로 오역함,Fusion Japanese sashimi with cod roe cream pasta and shogayaki don,Japanese fusion restaurant serving mentaiko cream pasta and shogayakidon
+fb73798c-7474-39cf-9b41-24f71a88c925,타이드솔루션스로쿠미,ja,fix,퓨전 일식당을 寿司店으로 오역함,明太クリームパスタと生姜焼き丼のフュージョン和食寿司店,明太クリームパスタと生姜焼き丼がある創作和食店
+fb73798c-7474-39cf-9b41-24f71a88c925,타이드솔루션스로쿠미,zh-Hans,fix,퓨전 일식당을 生鱼片店으로 오역함,明太奶油意面和姜烧饭的融合日式生鱼片店,供应明太子奶油意面与生姜烧肉盖饭的融合日料店
+fb73798c-7474-39cf-9b41-24f71a88c925,타이드솔루션스로쿠미,zh-Hant,fix,퓨전 일식당을 生魚片店으로 오역함,明太奶油義大利麵和薑燒飯的融合日式生魚片店,供應明太子奶油義大利麵與生薑燒肉蓋飯的融合日料店
+fb73798c-7474-39cf-9b41-24f71a88c925,타이드솔루션스로쿠미,vi,fix,퓨전 일식당을 sashimi로 오역함,Sashimi Nhật phong cách fusion với mì kem trứng cá và cơm thịt gừng,Quán ăn fusion Nhật phục vụ mì Ý kem trứng cá và cơm heo xào gừng
+fba3c1f2-529f-3e49-a318-b8c3d0cca585,카츠신,ko,fix,"업종은 일식 회/초밥이지만, 방문 이유에 따르면 정통 일본식 돈카츠 제공이 주요 특징임. 회/초밥 언급은 불필요. '정통 일본식 돈카츠 전문점'으로 수정.",정통 일본식 돈카츠 제공 일식 회 초밥,정통 일본식 돈카츠 전문점
+fba3c1f2-529f-3e49-a318-b8c3d0cca585,카츠신,en,fix,ko에 맞춰 수정.,Authentic Japanese tonkatsu served Japanese raw fish and sushi,Authentic Japanese tonkatsu specialty restaurant
+fba3c1f2-529f-3e49-a318-b8c3d0cca585,카츠신,ja,fix,ko에 맞춰 수정.,本格的な日本式とんかつを提供する和食の刺身と寿司,本格的な日本式とんかつ専門店
+fba3c1f2-529f-3e49-a318-b8c3d0cca585,카츠신,zh-Hans,fix,ko에 맞춰 수정.,提供正宗日式炸猪排的日式生鱼片和寿司,正宗日式炸猪排专门店
+fba3c1f2-529f-3e49-a318-b8c3d0cca585,카츠신,zh-Hant,fix,ko에 맞춰 수정.,提供正宗日式炸豬排的日式生魚片和壽司,正宗日式炸豬排專門店
+fba3c1f2-529f-3e49-a318-b8c3d0cca585,카츠신,vi,fix,ko에 맞춰 수정.,Sashimi và sushi Nhật Bản với món tonkatsu truyền thống,Nhà hàng chuyên tonkatsu Nhật Bản truyền thống
+fc30c3aa-068a-31a0-b3be-d834afd4ff35,이레옥,en,fix,한우 및 곰탕 표현 누락,Beef brisket and bone soup restaurant in Haeundae,Gomtang restaurant made with Korean beef brisket and bones
+fc30c3aa-068a-31a0-b3be-d834afd4ff35,이레옥,ja,fix,양지머리를 사태(すね肉)로 오역,海雲台の牛すね肉と骨スープ専門店,韓牛のブリスケと牛骨で煮込んだコムタン専門店
+fc30c3aa-068a-31a0-b3be-d834afd4ff35,이레옥,zh-Hans,fix,양지머리를 사태(牛腱)로 오역,海云台用牛腱和骨头熬制的牛肉汤店,用韩牛牛胸肉和牛骨熬制的牛骨汤专门店
+fc30c3aa-068a-31a0-b3be-d834afd4ff35,이레옥,zh-Hant,fix,양지머리를 사태(牛腱)로 오역,海雲台用牛腱和骨頭熬製的牛肉湯店,用韓牛牛胸肉和牛骨熬製的牛骨湯專門店
+fc30c3aa-068a-31a0-b3be-d834afd4ff35,이레옥,vi,fix,양지머리를 사태(thịt bắp)로 오역,Quán súp bò hầm từ thịt bắp và xương bò tại Haeundae,Quán gomtang nấu từ thịt nạm và xương bò Hanwoo
+fe87046b-a880-385c-a5d0-93c92ea56a7b,피오또,ko,fix,"미쉐린 1스타, 팜투테이블, 지속 가능성은 맞으나 '경양식'은 서양식 식사 의미로, facts에는 레스토랑임이 명확. '경양식' 대신 '레스토랑'만 사용.",미쉐린 1스타 지속 가능한 팜투테이블 경양식 레스토랑,미쉐린 1스타 지속 가능한 팜투테이블 레스토랑
+fe87046b-a880-385c-a5d0-93c92ea56a7b,피오또,en,fix,ko fix에 맞춰 수정,Michelin 1-star sustainable farm-to-table Western-style restaurant,Michelin 1-star sustainable farm-to-table restaurant
+fe87046b-a880-385c-a5d0-93c92ea56a7b,피오또,ja,fix,ko fix에 맞춰 수정,ミシュラン1つ星持続可能なファームトゥテーブル洋食店,ミシュラン1つ星持続可能なファームトゥテーブルレストラン
+fe87046b-a880-385c-a5d0-93c92ea56a7b,피오또,zh-Hans,fix,ko fix에 맞춰 수정,米其林一星可持续农场到餐桌西餐厅,米其林一星可持续农场到餐桌餐厅
+fe87046b-a880-385c-a5d0-93c92ea56a7b,피오또,zh-Hant,fix,ko fix에 맞춰 수정,米其林一星可持續農場到餐桌西餐廳,米其林一星可持續農場到餐桌餐廳
+fe87046b-a880-385c-a5d0-93c92ea56a7b,피오또,vi,fix,ko fix에 맞춰 수정,Nhà hàng phong cách Tây bếp farm-to-table bền vững đạt sao Michelin 1 sao,Nhà hàng farm-to-table bền vững đạt sao Michelin 1 sao
+fe8f096a-ca9b-3a0f-ae00-6d7f456831f8,백구당,ko,fix,크로이즌은 크루아상(croissant)이 아니라 옥수수빵임. facts에 명확히 언급.,50년 전통 옛날 맛 크로이즌 빵집,50년 전통 옛날 맛 옥수수빵집
+fe8f096a-ca9b-3a0f-ae00-6d7f456831f8,백구당,en,fix,ko fix에 맞춰 수정,Bakery with 50 years tradition and nostalgic croissant taste,Bakery with 50 years tradition and nostalgic corn bread
+fe8f096a-ca9b-3a0f-ae00-6d7f456831f8,백구당,ja,fix,ko fix에 맞춰 수정,50年の伝統と懐かしいクロワッサンのパン屋,50年の伝統と懐かしいコーンパンのパン屋
+fe8f096a-ca9b-3a0f-ae00-6d7f456831f8,백구당,zh-Hans,fix,ko fix에 맞춰 수정,拥有50年传统怀旧口味的面包店,拥有50年传统怀旧玉米面包店
+fe8f096a-ca9b-3a0f-ae00-6d7f456831f8,백구당,zh-Hant,fix,ko fix에 맞춰 수정,擁有50年傳統懷舊口味的麵包店,擁有50年傳統懷舊玉米麵包店
+fe8f096a-ca9b-3a0f-ae00-6d7f456831f8,백구당,vi,fix,ko fix에 맞춰 수정,Tiệm bánh truyền thống 50 năm với hương vị croissant hoài cổ,Tiệm bánh truyền thống 50 năm với bánh mì bắp hoài cổ
+ff552ffb-0a3f-37bf-8cce-c217d9f1af91,나가하마만게츠광안리점,ko,fix,"facts에는 일식 회(초밥) 언급 없고, 라멘과 교자 등 라멘 전문점임. '후쿠오카식 진한 돈코츠 라멘 전문점'으로 수정 필요.",후쿠오카식 진한 돈코츠 라멘과 일식 회,후쿠오카식 진한 돈코츠 라멘 전문점
+ff552ffb-0a3f-37bf-8cce-c217d9f1af91,나가하마만게츠광안리점,en,fix,ko fix에 맞춰 동일 의미로 수정,Fukuoka-style rich tonkotsu ramen and Japanese raw fish,Fukuoka-style rich tonkotsu ramen specialty restaurant
+ff552ffb-0a3f-37bf-8cce-c217d9f1af91,나가하마만게츠광안리점,ja,fix,ko fix에 맞춰 동일 의미로 수정,福岡風濃厚とんこつラーメンと和食の刺身,福岡風濃厚とんこつラーメン専門店
+ff552ffb-0a3f-37bf-8cce-c217d9f1af91,나가하마만게츠광안리점,zh-Hans,fix,ko fix에 맞춰 동일 의미로 수정,福冈风浓厚猪骨拉面与日式生鱼片,福冈风浓厚猪骨拉面专门店
+ff552ffb-0a3f-37bf-8cce-c217d9f1af91,나가하마만게츠광안리점,zh-Hant,fix,ko fix에 맞춰 동일 의미로 수정,福岡風濃厚豬骨拉麵與日式生魚片,福岡風濃厚豬骨拉麵專門店
+ff552ffb-0a3f-37bf-8cce-c217d9f1af91,나가하마만게츠광안리점,vi,fix,ko fix에 맞춰 동일 의미로 수정,Mì ramen tonkotsu đậm đà kiểu Fukuoka và sashimi Nhật Bản,Quán chuyên mì ramen tonkotsu đậm đà kiểu Fukuoka

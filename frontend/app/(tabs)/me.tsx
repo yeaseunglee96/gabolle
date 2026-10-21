@@ -157,8 +157,12 @@ export default function Me() {
         onPress={() => openPanel('saved')}
         disabled={!user}
       />
+      {/* 내 여행 후보로 저장한 장소 — 로그인 안 해도 기기에 저장된 것을 본다(S15P21E201-1969). */}
+      <InfoRow label={tx('저장한 장소', 'Saved places')} value="›" onPress={() => openPanel('saved-places')} />
       {/* 원글이 지워지거나 가려지면 내 댓글로 가는 길이 없어진다 — 여기서 모아 찾고 지운다(S15P21E201-1652). */}
       <InfoRow label={tx('내 댓글', 'My comments')} value="›" onPress={() => openPanel('replies')} disabled={!user} />
+      {/* 현지인이 앱에 없는 장소를 알려 주는 곳 — 보낸 제안과 승인 여부도 여기서 본다(S15P21E201-2031). */}
+      <InfoRow label={tx('장소 제안하기', 'Suggest a place')} description={tx('앱에 없는 맛집·명소를 알려 주세요', 'Share a spot we are missing')} value="›" onPress={() => router.push('/place-suggest')} />
       {/* 🔴 「팔로워」「팔로잉」 행도 여기 없다 — 위 프로필 카드의 타일(기록·팔로워·팔로잉)이 같은 곳으로
           간다(S15P21E201-1331). 같은 문이 둘이면 한쪽만 고쳐진다 — 「내 기록」과 같은 이유(1379). 되살리지 마라 — S15P21E201-1390. */}
       <InfoRow
@@ -220,6 +224,7 @@ export default function Me() {
       */}
       <InfoRow label={tx('알림', 'Notifications')} value="›" onPress={() => openPanel('notifications')} />
       <InfoRow label={tx('차단된 계정', 'Blocked accounts')} value="›" onPress={() => openPanel('blocked')} disabled={!user} />
+      <InfoRow label={tx('의견 보내기', 'Send feedback')} description={tx('버그·건의를 알려 주세요', 'Report a bug or share an idea')} value="›" onPress={() => router.push('/feedback')} />
       <InfoRow label={tx('도움말·문의', 'Help & support')} description={tx('앱 소개, 자주 묻는 질문, 문제 해결', 'App tour, FAQs, and troubleshooting')} value="›" onPress={() => openPanel('help')} />
       <InfoRow label={tx('약관·고지', 'Terms & notices')} value="›" onPress={() => openPanel('terms')} />
     </View>
@@ -251,8 +256,8 @@ export default function Me() {
           tripCount={tripCount}
           avatarUri={avatarUri}
           coverUri={user?.coverUrl ?? null}
-          // 로그인 전에도 눌린다 — 「–」 타일이 아무 반응이 없으면 고장으로 읽힌다. 로그인하고 그 패널로 돌아온다.
-          counts={[
+          // 🔴 손님에게는 숫자 칸을 안 그린다 — 「– 기록 · – 팔로워」 대시 줄은 고장처럼 보였다. 로그인은 커버의 「로그인」 단추가 맡는다(폰 카드와 같다).
+          counts={!user ? [] : [
             { label: tx('기록', 'Records'), value: storyCount, onPress: () => (user ? openPanel('posts') : router.push({ pathname: '/sign-in', params: { returnTo: '/me?panel=posts' } })) },
             { label: tx('팔로워', 'Followers'), value: followerCount, onPress: () => (user ? openPanel('followers') : router.push({ pathname: '/sign-in', params: { returnTo: '/me?panel=followers' } })) },
             { label: tx('팔로잉', 'Following'), value: followingCount, onPress: () => (user ? openPanel('following') : router.push({ pathname: '/sign-in', params: { returnTo: '/me?panel=following' } })) },
@@ -260,8 +265,9 @@ export default function Me() {
           eyebrow={<Eyebrow>{tx('내 계정', 'Account')}</Eyebrow>}
           actions={(
             <CoverButton
-              label={tx('프로필 편집', 'Edit profile')}
-              onPress={() => (user ? openPanel('profile') : router.push({ pathname: '/sign-in', params: { returnTo: '/me?panel=profile' } }))}
+              label={user ? tx('프로필 편집', 'Edit profile') : tx('로그인', 'Sign in')}
+              tone={user ? 'light' : 'primary'}
+              onPress={() => (user ? openPanel('profile') : router.push({ pathname: '/sign-in', params: { returnTo: '/me' } }))}
             />
           )}
           tx={tx}
@@ -346,10 +352,12 @@ export default function Me() {
         { label: tx('팔로워', 'Followers'), value: followerCount, onPress: () => (user ? openPanel('followers') : router.push({ pathname: '/sign-in', params: { returnTo: '/me?panel=followers' } })) },
         { label: tx('팔로잉', 'Following'), value: followingCount, onPress: () => (user ? openPanel('following') : router.push({ pathname: '/sign-in', params: { returnTo: '/me?panel=following' } })) },
       ]}
+      // 🔴 손님에게는 「로그인」이라고 쓴다 — 전에는 「프로필 편집」이라 적혀 있고 누르면 로그인으로 갔다(이름과 하는 일이 달랐다).
       actions={(
         <ProfileCardButton
-          label={tx('프로필 편집', 'Edit profile')}
-          onPress={() => (user ? openPanel('profile') : router.push({ pathname: '/sign-in', params: { returnTo: '/me?panel=profile' } }))}
+          label={user ? tx('프로필 편집', 'Edit profile') : tx('로그인', 'Sign in')}
+          tone={user ? 'soft' : 'primary'}
+          onPress={() => (user ? openPanel('profile') : router.push({ pathname: '/sign-in', params: { returnTo: '/me' } }))}
         />
       )}
       tx={tx}
@@ -365,7 +373,8 @@ export default function Me() {
       panes={{ records: (
       /* 🔴 비었을 때는 격자 대신 시안 4 의 02c — 동백이가 「아직 남긴 기록이 없어요」라고 말한다(S15P21E201-1418).
           예전엔 「새 기록 남기기」 타일 하나만 덩그러니 있어 빈 화면이 고장처럼 보였다. 못 불러온 것(null)은 비어 있는 것과 다르다. */
-      user && myStories !== null && myStories.length === 0 ? (
+      // 손님도 같은 빈 판을 본다 — 전에는 기록 탭이 아무것도 없는 흰 칸이었다.
+      !user || (myStories !== null && myStories.length === 0) ? (
         <View style={styles.recordsEmpty}>
           <GabolleMascot state="thinking" still style={styles.recordsEmptyMascot} />
           <Text variant="title" weight="bold">{tx('아직 남긴 기록이 없어요', 'No records yet')}</Text>
@@ -563,12 +572,12 @@ const styles = StyleSheet.create({
   segmentItem: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
   // 표시가 달리는 칸 = 세그먼트 안쪽. 여백(4)만큼 들여 놓아야 반 칸이 정확히 탭 하나가 된다.
   segmentTrack: { position: 'absolute', top: spacing[1], bottom: spacing[1], left: spacing[1], right: spacing[1] },
-  // 🔴 이 화면의 「활성 탭」 동백 채움 — check-palette 의 me.tsx 예외가 말하는 바로 그것이다(사용자 지시).
-  //    전에는 누른 탭 자체를 칠했고, 지금은 이 표시가 미끄러지며 칠한다. 채움이 하나 는 것이 아니다.
-  //    그림자는 시안 값(0 2px 8px, 동백 28%) — 표시가 바닥에서 살짝 떠 보여 «움직이는 것»으로 읽힌다.
+  // 🔴 활성 탭은 짙은 회색(선택 = action.secondary, tokens.ts 규칙 2 「선택에 빨강 금지」) — 2026-09-29 사용자 결정(UI 캔버스 ⑱).
+  //    전에는 동백 채움이라 「프로필 편집」과 빨강이 둘이었고, 선택 표시가 눌러야 할 단추처럼 보였다.
+  //    그림자는 시안 값(0 2px 8px, 28%) — 표시가 바닥에서 살짝 떠 보여 «움직이는 것»으로 읽힌다.
   segmentIndicator: {
-    width: '50%', height: '100%', borderRadius: radius.full, backgroundColor: color.action.primary,
-    shadowColor: color.action.primary, shadowOpacity: 0.28, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 3,
+    width: '50%', height: '100%', borderRadius: radius.full, backgroundColor: color.action.secondary,
+    shadowColor: color.action.secondary, shadowOpacity: 0.28, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 3,
   },
   segmentInk: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, alignItems: 'center', justifyContent: 'center' },
 

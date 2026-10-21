@@ -17,7 +17,7 @@ jest.mock('react-native-webview', () => ({ WebView: () => null }));
 jest.mock('@/i18n', () => ({ useI18n: () => ({ tx: (ko: string) => ko }) }));
 
 const fakeElement = () => ({ style: {}, setAttribute() {}, appendChild() {}, textContent: '', onclick: null });
-const fakeDocument = { createElement: fakeElement, addEventListener() {}, removeEventListener() {}, getElementById: () => ({}), head: { appendChild() {} } };
+const fakeDocument = { createElement: fakeElement, addEventListener() {}, removeEventListener() {}, getElementById: () => ({ clientHeight: 844, clientWidth: 400 }), head: { appendChild() {} } };
 (globalThis as unknown as { document: unknown }).document = fakeDocument;
 
 const setBounds = jest.fn();
@@ -32,7 +32,8 @@ class FakeMap {
   setCenter() {}
   setLevel() {}
   panTo() {}
-  getProjection() { return { containerPointFromCoords: (c: LatLng) => new Point(c.lng, c.lat), coordsFromContainerPoint: (p: Point) => new LatLng(p.y, p.x) }; }
+  // 점은 늘 화면 (200, 150) 에 찍힌다고 친다 — 창이 열려도(위 124 ~ 아래 844−624=220) 보이는 띠 안이다(S15P21E201-1989).
+  getProjection() { return { containerPointFromCoords: () => new Point(200, 150), coordsFromContainerPoint: (p: Point) => new LatLng(p.y, p.x) }; }
 }
 const fakeMaps = { load: (cb: () => void) => cb(), LatLng, LatLngBounds, CustomOverlay, Polyline, Map: FakeMap, Point };
 
@@ -62,7 +63,8 @@ describe('웹 지도 — 창을 접을 때 다시 맞추기', () => {
   it('🔴 refitKey 가 새 값이 되면 줄어든 아래 여백·위 여백으로 다시 맞춘다 — null 로 돌아갈 때는 안 맞춘다', () => {
     let tree!: ReturnType<typeof create>;
     act(() => { tree = create(<RouteMap {...props} bottomInset={600} refitKey={null} />, { createNodeMock: () => ({ clientHeight: 844 }) }); });
-    expect(lastPad()).toEqual([160, 60, 624, 60]);
+    // 창을 연 채 처음 그린다 — 보이는 띠가 좁아(844−124−624=96) 전체를 맞추지 않고 고른 곳을 가까이 본다(S15P21E201-1991).
+    expect(setBounds).not.toHaveBeenCalled();
     const before = setBounds.mock.calls.length;
     // 창만 접혔다(가린 높이만 바뀜) — 맞추지 않는다
     act(() => { tree.update(<RouteMap {...props} bottomInset={200} refitKey={null} />); });
@@ -70,8 +72,8 @@ describe('웹 지도 — 창을 접을 때 다시 맞추기', () => {
     // 「지도 보기」 — 한 번 다시 맞춘다
     act(() => { tree.update(<RouteMap {...props} bottomInset={200} refitKey="collapsed:0" />); });
     expect(setBounds.mock.calls.length).toBe(before + 1);
-    expect(lastPad()).toEqual([160, 60, 260, 60]);
-    // 창을 다시 연다 — 맞추지 않는다
+    expect(lastPad()).toEqual([124, 60, 224, 60]);
+    // 창을 다시 연다 — 점이 다 보이면 맞추지 않는다(가려진 점이 있을 때만 맞춘다 — ensureFitsOnOpen.test.ts)
     act(() => { tree.update(<RouteMap {...props} bottomInset={600} refitKey={null} />); });
     expect(setBounds.mock.calls.length).toBe(before + 1);
   });
@@ -89,8 +91,8 @@ describe('앱 지도(WebView 안의 HTML) — 다시 맞추기', () => {
 
   it('🔴 __fitKakaoMap 은 새 여백으로 같은 범위를 다시 맞춘다', () => {
     const win = boot();
-    win.__renderKakaoMap!({ stops, points: [], routes: [], selectedId: 'a', currentLocation: null, fitPadding: [160, 60, 624, 60], colors, focus: false, shiftY: 0 });
-    expect(lastPad()).toEqual([160, 60, 624, 60]);
+    win.__renderKakaoMap!({ stops, points: [], routes: [], selectedId: 'a', currentLocation: null, fitPadding: [160, 60, 400, 60], colors, focus: false, shiftY: 0 });
+    expect(lastPad()).toEqual([160, 60, 400, 60]);
     expect(typeof win.__fitKakaoMap).toBe('function');
     win.__fitKakaoMap!({ fitPadding: [160, 60, 260, 60], shiftY: 100 });
     expect(lastPad()).toEqual([160, 60, 260, 60]);

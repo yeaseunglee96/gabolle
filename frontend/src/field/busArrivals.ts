@@ -99,3 +99,19 @@ export async function loadNearbyBusArrivals(
     return { state: 'blocked', reason: blockedReason(error) };
   }
 }
+
+/**
+ * 걸어가서 탈 수 있나 — 도착까지 남은 시간과 정류장까지 걷는 시간을 견준다(UI 캔버스 ⑬).
+ * 「곧 도착」이 목록 맨 위에 있어도 걸어서 7분 걸리는 정류장이면 못 탄다 — 그 차이를 사람이 매번 계산하지 않게.
+ * 2분은 여유다. 도착 시각은 몇 분씩 흔들리고 횡단보도 신호도 있다.
+ *
+ * @returns catch 걸어가면 탄다 · tight 빠듯하다 · miss 걸어가면 이미 떠난다 · null 모른다(도착 시간이 없다)
+ */
+export function catchVerdict(arrivalSeconds: number | null, walkMin: number): 'catch' | 'tight' | 'miss' | null {
+  if (arrivalSeconds == null) return null;
+  const arriveMin = arrivalSeconds / 60;
+  if (arriveMin >= walkMin + 2) return 'catch';
+  if (arriveMin >= walkMin) return 'tight';
+  return 'miss';
+}
+

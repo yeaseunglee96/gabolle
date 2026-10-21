@@ -6,9 +6,10 @@ import { Button } from '@/components/Button';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
 import type { MapPathPoint, MapStop } from './types';
-import { fitPadding, focusShiftY } from './mapFocus';
+import { FOCUS_LEVEL, fitPadding, fitTargets, focusShiftY, isNarrowBand } from './mapFocus';
 import { simplifyPath } from './simplifyPath';
-import { slopeSegments, type SlopePiece } from './slopeGrades';
+import { gradedSegments, type RouteGrading } from './routeGrading';
+import type { SlopePiece } from './slopeGrades';
 import { txf } from '@/i18n/format';
 
 declare global { interface Window { kakao?: any } }
@@ -47,6 +48,12 @@ function styleSelection(el: HTMLElement, markerColor: string, selected: boolean)
   el.style.zIndex = selected ? '2' : '1';
 }
 
+/**
+ * 고른 점의 오버레이 z-index(S15P21E201-2052) — 번호 장소(2)·점 표시(1)보다 위. 마커 요소의 z-index 는 «오버레이 상자 안»에서만 통해서,
+ * 점이 스무 곳쯤 몰린 지도(약국·화장실)에서는 고른 점이 나중에 그려진 점들 뒤에 가려 보이지 않았다. 오버레이 자체를 올려야 위에 온다.
+ */
+const SELECTED_Z_INDEX = 3;
+
 const SDK_ID = 'kakao-map-sdk';
 const SDK_HOST = 'dapi.kakao.com';
 // 지도가 부르는 곳은 `dapi.kakao.com` 하나가 아니다. 그 주소는 시작 파일이고
@@ -55,6 +62,12 @@ const SDK_HOST = 'dapi.kakao.com';
 // (어느 주소를 더 부르는지는 유효한 키 없이는 확인할 수 없었다 — 시작 파일이
 // 키 없이는 401 만 준다. 그래서 이름을 넓게 잡아 둔다.)
 const MAP_HOSTS = /kakao\.com|daumcdn\.net/;
+/**
+ * 그릴 것이 있는데 이 시간(ms) 안에 지도가 안 만들어지면 회색 빈칸 대신 실패 안내를 낸다(S15P21E201-1889).
+ * 카카오 SDK 는 시작 파일을 받은 뒤 둘째 파일을 더 받는데, 그 둘째 파일이 막히면 어떤 오류 사건도 없이 load 콜백만 안 불린다.
+ * 느린 망의 첫 접속도 길어질 수 있어 넉넉히 둔다 — 늦게라도 그려지면 안내는 저절로 걷힌다(그리기 끝에서 failure 를 비운다).
+ */
+export const MAP_DRAW_TIMEOUT_MS = 15_000;
 
 // reason 은 여행자가 읽는 말이고, tech 는 고칠 사람이 읽는 한 줄이다. 둘 다 화면에 낸다
 // 고칠 사람이 화면을 볼 때 개발자 도구를 열고 있으리라는 보장이 없다.
@@ -69,11 +82,19 @@ export type MapRouteLayer = {
   path?: MapPathPoint[];
   /** 실제 길이 아니라 직선 추정인가. 안 적으면 추정으로 본다. */
   estimated?: boolean;
-  /** 선 굵기·불투명도 — 경사·그늘 겹(S15P21E201-1569)처럼 경로 아래 깔리는 선만 준다. 안 주면 경로 선 그대로. */
+  /**
+   * 선 굵기·불투명도 — 경로 아래 깔리는 보조 선만 준다. 안 주면 경로 선 그대로.
+   * (전에는 경사·그늘 겹 S15P21E201-1569 가 썼다. 그 겹은 S15P21E201-1896 에서 여행 페이지에서 뺐고, 지금 이 값을 주는 곳은 없다.)
+   */
   weight?: number;
   opacity?: number;
-  /** 걷는 길의 경사 조각(S15P21E201-1658) — 있으면 path 를 조각마다 잘라 경사 색으로 긋는다(slopeGrades.ts). */
+  /** 걷는 길의 경사 조각(S15P21E201-1658) — 있으면 path 를 조각마다 잘라 고른 조건의 색으로 긋는다(routeGrading.ts). */
   pieces?: SlopePiece[];
+  /**
+   * 사용자가 고른 조건(S15P21E201-1896) — 이 조건으로 조각을 칠한다. 둘 다 false 면 조각이 있어도 경로 자기 색(color) 한 가지로 그린다.
+   * 🔴 안 주면 전과 같다(경사로 칠한다) — 조건을 모르는 화면(이동 경로 상세)의 동작을 바꾸지 않는다.
+   */
+  grading?: RouteGrading;
 };
 export type MapPointLayer = { id: string; label: string; color: string; stops: MapStop[] };
 
@@ -103,12 +124,22 @@ type RouteMapProps = {
    * (S15P21E201-1535). 기본은 꺼짐: 다른 화면은 지금처럼 모든 점이 들어오게만 맞춘다.
    */
   focusSelected?: boolean;
+  /** 길 안내 중 — 내 위치를 따라가고 처음 한 번 동네가 보이게 확대한다(S15P21E201-1903, 앱 지도만). */
+  followLocation?: boolean;
   /**
    * 지도 아래쪽이 창에 가려진 높이(px). 전체를 맞출 때 그만큼 아래 여백을 더 두고, 고른 곳은 보이는 부분의 가운데로
    * 옮긴다(S15P21E201-1607 — 폰 여행 화면은 지도를 줄이지 않고 창을 겹쳐 올린다).
    * 🔴 이 값만 바뀌어서는 다시 맞추지 않는다. 창을 여닫을 때마다 지도가 가운데를 다시 잡으며 튀면 안 된다 —
    *    다음에 맞출 때(고른 곳이 바뀔 때 등) 쓴다.
    */
+  /**
+   * 점 표시(points — 기준 장소·출발지 같은 번호 없는 표시)도 맞추는 범위에 넣는다(근처 편의시설 지도, S15P21E201-2052).
+   * 안 넣으면 결과가 한두 곳일 때 기준 장소가 지도 모서리에 반쯤 걸리거나 화면 밖에 있었다. 기본은 꺼짐 — 번호 장소만 맞춘다
+   * (먼 출발지·숙소 점 때문에 장소들이 한 점에 뭉치던 것, S15P21E201-1903).
+   */
+  fitPoints?: boolean;
+  /** 지도가 좌우로 화면 밖에 걸친 폭(px) — 앱 지도의 +/− 단추가 쓴다. 웹 지도에는 단추가 없어 읽지 않는다(S15P21E201-1943). */
+  sideBleed?: number;
   bottomInset?: number;
   /** 지도 위쪽이 상태바·지도 위 칩에 가려진 높이(px). 맞출 때 그만큼 위 여백을 더 둔다(S15P21E201-1754). */
   topInset?: number;
@@ -119,13 +150,14 @@ type RouteMapProps = {
   refitKey?: string | number | null;
 };
 
-export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POINT_LAYERS, currentLocation, onBackToList, height = 340, focusSelected = false, bottomInset = 0, topInset = 0, refitKey = null }: RouteMapProps) {
+export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POINT_LAYERS, currentLocation, onBackToList, height = 340, focusSelected = false, fitPoints = false, bottomInset = 0, topInset = 0, refitKey = null }: RouteMapProps) {
   const { tx } = useI18n();
   const hostRef = useRef<HTMLElement | null>(null);
   const mapRef = useRef<any>(null);
   const overlaysRef = useRef<any[]>([]);
   // 마지막으로 맞춘 범위 — 칸 크기가 바뀌면 같은 범위를 새 크기에 다시 맞춘다.
   const fitRef = useRef<(() => void) | null>(null);
+  const ensureRef = useRef<(() => void) | null>(null);
   // 가려진 높이는 «맞출 때» 읽는다 — 의존성에 넣으면 창을 여닫을 때마다 지도가 다시 맞춰져 튄다.
   const insetRef = useRef(bottomInset);
   insetRef.current = bottomInset;
@@ -133,8 +165,27 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
   topInsetRef.current = topInset;
   // 지도 칸의 실제 높이 — 여백이 칸보다 커지지 않게 잰다.
   const hostHeight = () => hostRef.current?.clientHeight || height;
+  const hostWidth = () => hostRef.current?.clientWidth || 0;
   const [failure, setFailure] = useState<MapFailure | null>(null);
   const appKey = process.env.EXPO_PUBLIC_KAKAO_MAP_JS_KEY;
+  // 지도를 못 그렸을 때 여행자에게 하는 말 둘 — 이유(tech)만 다르다. 문구를 한 곳에 둬서 번역도 한 벌이다.
+  // 지도 설정이 틀렸든 그리다 오류가 났든, 사람에게 할 말은 «지도는 못 그렸지만 목록은 아래에 있다»로 같다.
+  const setupFailure = (tech: string): MapFailure => ({
+    title: tx('지금은 지도를 불러올 수 없어요', 'The map can’t be shown right now'),
+    reason: tx(
+      '지도 설정에 문제가 있어 지도를 그리지 못했어요. 방문 순서와 장소 목록은 아래에서 그대로 볼 수 있어요.',
+      'Something is wrong with the map setup, so we couldn’t draw it. You can still use the visit order and place list below.',
+    ),
+    tech,
+  });
+  const fileFailure = (tech: string): MapFailure => ({
+    title: tx('지도 파일을 못 받았어요', 'Could not fetch the map file'),
+    reason: tx(
+      '카카오 지도 파일을 받지 못했습니다. 네트워크가 막혔거나, 이 도메인이 카카오 개발자 콘솔에 등록되지 않았을 수 있습니다.',
+      'The Kakao map file could not be fetched. The network may be blocked, or this domain may not be registered in the Kakao developer console.',
+    ),
+    tech,
+  });
   // 🔴 고른 곳·누를 때 부를 함수·현재 위치는 «다시 그리기» 조건이 아니다(S15P21E201-1654). 전에는 셋 중 하나만 바뀌어도
   //    마커·선을 전부 새로 그리고 전체 맞추기(setBounds — 순간 이동)를 한 뒤 고른 곳으로 panTo 해서, 고를 때마다
   //    여행 전체의 가운데에서 출발해 날아왔다(사용자 폰 — 「늘 왼쪽에서 날아온다」). 그리는 동안에는 이 값들을 ref 로 읽는다.
@@ -145,7 +196,7 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
   const onSelectRef = useRef(onSelect);
   onSelectRef.current = onSelect;
   // 마커마다 그 요소와 테두리 색 — 고른 곳이 바뀌면 이 둘만 고친다.
-  const markersRef = useRef(new Map<string, { el: HTMLElement; color: string }>());
+  const markersRef = useRef(new Map<string, { el: HTMLElement; color: string; baseZ: number; overlay?: any }>());
   // 지금 지도가 옮겨 가 있는 고른 곳 — 같은 값으로 다시 오면 옮기지 않는다.
   const appliedSelectionRef = useRef<string | null>(null);
   // 고른 곳으로 옮기는 함수 — 그릴 때 만든다(그때의 장소 목록을 안다).
@@ -160,17 +211,38 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
     // ① 키가 아예 없다. EXPO_PUBLIC_ 값은 번들을 만드는 순간 문자열로 박히므로
     // 컨테이너를 띄울 때 주는 것은 소용이 없다 — docker build 에 넘겨야 한다.
     if (!appKey) {
-      setFailure({
-        title: tx('지도 키가 이 빌드에 안 들어갔어요', 'This build was made without a map key'),
-        reason: tx(
-          '웹 지도를 그리려면 화면을 빌드할 때 카카오 지도 키가 함께 들어가야 하는데, 이 빌드에는 빈 값이 들어갔습니다. 방문 순서와 장소 목록은 아래에서 그대로 볼 수 있어요.',
-          'The web map needs a Kakao map key baked in at build time, and this build got an empty one. You can still use the visit order and place list below.',
-        ),
-        tech: 'EXPO_PUBLIC_KAKAO_MAP_JS_KEY = (빈 값) · docker build --build-arg 로 넘겨야 한다',
-      });
+      setFailure(setupFailure('EXPO_PUBLIC_KAKAO_MAP_JS_KEY = (빈 값) · docker build --build-arg 로 넘겨야 한다'));
       return;
     }
+    // 🔴 지도에 그릴 것이 하나도 없다 — S15P21E201-1889. 가까운 도움 화면은 목록을 받기 «전에» 빈 목록으로 이 지도를 먼저 올리고,
+    //    탭을 바꿀 때마다 잠깐 빈 목록이 된다. 전에는 그때 stops[0].latitude 를 읽다 던졌다(2026-10-15 운영 실측).
+    //    ① SDK 가 목록보다 먼저 뜨면 그 콜백이 카카오 SDK 안에서 던져, SDK 가 뒤따르는 load 콜백을 «다시는» 안 불렀다 —
+    //       목록이 와도 지도 칸이 영영 회색 빈칸이었다(그 페이지의 다른 지도도 같이 죽는다).
+    //    ② SDK 가 이미 떠 있으면(탭을 바꿀 때) 콜백이 곧바로 불려 effect 안에서 던졌고, 화면 전체가 「화면을 불러오지 못했어요」로 무너졌다.
+    //    그릴 것이 없으면 지도를 만들지 않고 기다린다 — 목록이 채워지면 이 effect 가 다시 돈다.
+    const nothingToDraw = !stops.length && !points.some((layer) => layer.stops.length);
+    // 🔴 SDK 의 load 콜백 안에서는 아무것도 던지지 않는다. 던지면 위 ①처럼 SDK 가 이후 콜백을 안 부른다.
+    //    그리다 난 오류는 여기서 받아 화면에 말하고, SDK 에는 정상으로 돌려준다.
+    const guarded = (body: () => void) => () => {
+      try {
+        body();
+      } catch (error) {
+        setFailure(setupFailure(`지도를 그리다 오류가 났다: ${error instanceof Error ? error.message : String(error)}`));
+      }
+    };
     const draw = () => {
+      if (nothingToDraw) {
+        // 이미 그려 둔 점·선은 걷는다 — 지난 목록의 점이 남아 없는 곳을 가리키면 안 된다. 지도 자체는 두었다가 다음에 다시 쓴다.
+        overlaysRef.current.forEach((overlay) => overlay.setMap(null));
+        overlaysRef.current = [];
+        markersRef.current = new Map();
+        lineRecordsRef.current = [];
+        fitRef.current = null; ensureRef.current = null; focusFnRef.current = null;
+        // 지도 파일의 둘째 부분은 load 를 불러야 받기 시작한다(autoload=false) — 목록을 기다리는 동안 미리 받아 둔다.
+        // 넘기는 것은 빈 콜백이라 던질 것이 없다. 안 하면 목록이 온 «뒤에야» 받기 시작해 지도가 그만큼 늦게 뜬다.
+        window.kakao?.maps?.load(() => {});
+        return;
+      }
       // ③ 스크립트는 받았는데 지도 기능이 안 생겼다. 키가 이 도메인에 등록되지 않았을 때 이렇게 된다.
       if (!window.kakao?.maps) {
         setFailure({
@@ -183,10 +255,12 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
         });
         return;
       }
-      window.kakao.maps.load(() => {
+      window.kakao.maps.load(guarded(() => {
         if (!hostRef.current || !window.kakao) return;
         const maps = window.kakao.maps;
-        const center = new maps.LatLng(stops[0].latitude, stops[0].longitude);
+        const visibleStops = [...stops, ...points.flatMap((layer) => layer.stops)];
+        // 번호 장소가 없고 점 표시만 있는 지도도 있다 — 그때 stops[0] 은 없다. 첫 번째로 보이는 것을 가운데로(앱 지도 kakaoMapHtml.ts 와 같다).
+        const center = new maps.LatLng(visibleStops[0].latitude, visibleStops[0].longitude);
         const firstDraw = !mapRef.current;
         const map = mapRef.current ?? new maps.Map(hostRef.current, { center, level: 8 });
         mapRef.current = map;
@@ -203,12 +277,13 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
         overlaysRef.current.forEach((overlay) => overlay.setMap(null));
         overlaysRef.current = [];
         const bounds = new maps.LatLngBounds();
-        const visibleStops = [...stops, ...points.flatMap((layer) => layer.stops)];
+        // 🔴 맞추는 범위는 번호 장소만(S15P21E201-1903, kakaoMapHtml.ts 와 같다) — 먼 출발지까지 넣으면 장소들이 한 점에 뭉쳤다.
+        const fitStops = fitTargets(stops, visibleStops, fitPoints);
+        fitStops.forEach((stop) => bounds.extend(new maps.LatLng(stop.latitude, stop.longitude)));
         const selectedNow = selectedRef.current;
         markersRef.current = new Map();
         visibleStops.forEach((stop) => {
           const position = new maps.LatLng(stop.latitude, stop.longitude);
-          bounds.extend(position);
           const content = document.createElement('button');
           const pointLayer = points.find((layer) => layer.stops.some((item) => item.id === stop.id));
           const markerColor = pointLayer?.color ?? color.brand.navy;
@@ -227,12 +302,15 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
           }
           content.style.transition = 'transform 300ms cubic-bezier(.34,1.3,.64,1)';
           styleSelection(content, markerColor, stop.id === selectedNow);
-          markersRef.current.set(stop.id, { el: content, color: markerColor });
+          markersRef.current.set(stop.id, { el: content, color: markerColor, baseZ: pointLayer ? 1 : 2 });
           content.onclick = () => onSelectRef.current(stop.id);
           // 🔴 출발지·숙소 같은 표시는 번호 장소 아래에 깐다(S15P21E201-1788) — 가까우면 「출발지」가 1번을 덮었다.
           //    겹쳐도 글자가 더 넓어 옆으로 보인다. kakaoMapHtml.ts 와 같은 값.
           const overlay = new maps.CustomOverlay({ position, content, yAnchor: 0.5, zIndex: pointLayer ? 1 : 2 });
           overlay.setMap(map); overlaysRef.current.push(overlay);
+          const marker = markersRef.current.get(stop.id);
+          if (marker) marker.overlay = overlay;
+          if (stop.id === selectedNow) overlay.setZIndex?.(SELECTED_Z_INDEX);
         });
         // 🔴 일정 경로 선 하나 — 넓은 흰 테두리를 먼저 깔고 그 위에 실선(S15P21E201-1656). 전에는 어림 구간을 5px 짧은
         //    점선으로 그렸는데, 선 모양이 자동차 길이라 꺾임점이 촘촘해서 점선이 꺾임마다 끊기며 떨려 보였다(사용자 —
@@ -258,12 +336,12 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
           // 실제 길이라고 적혀 있을 때만 진하다. 나머지는 어림이라 옅다.
           const real = route.path?.length ? route.estimated === false : false;
           if (route.weight == null) {
-            // 걷는 길의 경사 조각이 있으면 조각마다 경사 색(S15P21E201-1658). 조각은 실제 길에만 온다.
-            const segments = route.path?.length ? slopeSegments(route.path, route.pieces) : null;
+            // 걷는 길의 조각이 있고 조건을 골랐으면 조각마다 그 조건의 색(S15P21E201-1658 · -1896). 조각은 실제 길에만 온다.
+            const segments = route.path?.length ? gradedSegments(route.path, route.pieces, route.grading) : null;
             drawRouteLine(points, segments ?? [{ points, color: route.color }], route.opacity ?? (real ? REAL_OPACITY : ESTIMATED_OPACITY));
             return;
           }
-          // 경사·그늘 겹(굵기를 직접 준 선)은 경로 아래 깔리는 옅은 띠라 그대로 그린다.
+          // 굵기를 직접 준 보조 선(전의 경사·그늘 겹)은 경로 아래 깔리는 옅은 띠라 그대로 그린다.
           const line = new maps.Polyline({
             path: points.map((point) => new maps.LatLng(point.latitude, point.longitude)),
             strokeWeight: route.weight,
@@ -276,9 +354,23 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
         // : stop이 하나면 bounds 넓이가 0이라 setBounds가 지도를 최대 줌으로
         // 밀어붙인다 — 고정 34px 마커가 화면 대부분을 덮어 장소 이름을 가린다. 하나일 때는
         // bounds 대신 그 지점을 도시 단위 줌으로 그냥 센터링한다.
+        // 좁은 띠(일정 창을 연 폰)에서 볼 곳 — 고른 곳, 없으면 첫 번호 장소(S15P21E201-1991, kakaoMapHtml.ts 와 같은 규칙).
+        const nearStop = () => fitStops.find((stop) => stop.id === selectedRef.current) ?? fitStops[0];
+        const narrowNow = () => fitStops.length > 1 && isNarrowBand(hostHeight(), fitPadding(insetRef.current, hostHeight(), topInsetRef.current, hostWidth()));
         const fit = () => {
-          if (visibleStops.length <= 1) { map.setCenter(center); map.setLevel(5); return; }
-          const [top, right, bottom, left] = fitPadding(insetRef.current, hostHeight(), topInsetRef.current);
+          if (narrowNow()) {
+            // 띠가 좁으면 전체를 맞추지 않는다 — 다 넣으려다 김해~송정까지 물러나 점이 겹쳤다. 볼 곳을 가까이, 띠 가운데에.
+            const [top, , bottom] = fitPadding(insetRef.current, hostHeight(), topInsetRef.current, hostWidth());
+            const near = nearStop();
+            const target = new maps.LatLng(near.latitude, near.longitude);
+            map.setLevel(FOCUS_LEVEL + 1);
+            map.setCenter(target);
+            const shift = Math.max(0, bottom - top) / 2;
+            if (shift) { const projection = map.getProjection(); const point = projection.containerPointFromCoords(target); map.setCenter(projection.coordsFromContainerPoint(new maps.Point(point.x, point.y + shift))); }
+            return;
+          }
+          if (fitStops.length <= 1) { map.setCenter(new maps.LatLng(fitStops[0].latitude, fitStops[0].longitude)); map.setLevel(5); return; }
+          const [top, right, bottom, left] = fitPadding(insetRef.current, hostHeight(), topInsetRef.current, hostWidth());
           map.setBounds(bounds, top, right, bottom, left);
         };
         // 🔴 모두 들어오게 맞춘 «다음에» 고른 곳으로 민다(panTo 는 부드럽게 옮긴다). 맞추기를 건너뛰면
@@ -286,26 +378,57 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
         // 고른 곳으로 «지금 화면·줌에서» 민다 — 고른 곳만 바뀔 때는 이것만 부른다(아래 effect).
         const focusOnSelected = () => {
           if (!focusRef.current) return;
-          const selectedStop = stops.find((stop) => stop.id === selectedRef.current);
+          // 점 표시(지하철역 등)도 고를 수 있다 — 번호 장소만 찾으면 역을 눌러도 지도가 안 움직였다(S15P21E201-1834).
+          const selectedStop = visibleStops.find((stop) => stop.id === selectedRef.current);
           if (!selectedStop) return;
           // 보이는 부분의 가운데로 — 지도 중심을 가린 높이의 절반만큼 아래에 둔다(mapFocus.ts).
           const target = new maps.LatLng(selectedStop.latitude, selectedStop.longitude);
-          const shift = focusShiftY(insetRef.current, hostHeight());
+          const shift = focusShiftY(insetRef.current, hostHeight(), topInsetRef.current);
           if (!shift) { map.panTo(target); return; }
           const projection = map.getProjection();
           const point = projection.containerPointFromCoords(target);
           map.panTo(projection.coordsFromContainerPoint(new maps.Point(point.x, point.y + shift)));
         };
-        const fitAndFocus = () => { fit(); focusOnSelected(); };
+        // 번호 점이 위·아래 가림 띠(여백 = 가림 + 점 반지름) 밖, 보이는 자리에 있나 — S15P21E201-1989.
+        const inBand = (stop: { latitude: number; longitude: number }) => {
+          try {
+            const [top, , bottom] = fitPadding(insetRef.current, hostHeight(), topInsetRef.current, hostWidth());
+            const point = map.getProjection().containerPointFromCoords(new maps.LatLng(stop.latitude, stop.longitude));
+            const h = hostHeight(); const w = hostWidth();
+            return point.y >= top && (!h || point.y <= h - bottom) && point.x >= 24 && (!w || point.x <= w - 24);
+          } catch { return true; }
+        };
+        // 🔴 전체를 맞춘 뒤에는 고른 곳이 이미 보이면 밀지 않는다(S15P21E201-1989) — 밀면 반대쪽 끝 점이 가림 띠 뒤로 나갔다.
+        const fitAndFocus = () => {
+          fit();
+          const selectedStop = visibleStops.find((stop) => stop.id === selectedRef.current);
+          if (selectedStop && !inBand(selectedStop)) focusOnSelected();
+        };
         fitAndFocus(); fitRef.current = fitAndFocus; focusFnRef.current = focusOnSelected;
+        // 창을 열 때 — 가려진 번호 점이 있을 때만 다시 맞춘다(다 보이면 그대로, 튀지 않게).
+        ensureRef.current = () => {
+          // 좁은 띠면 다 보이게 할 수 없다 — 볼 곳이 띠 안인지만 본다(S15P21E201-1991).
+          if (narrowNow()) { if (!inBand(nearStop())) fitAndFocus(); return; }
+          if (fitStops.some((stop) => !inBand(stop))) fitAndFocus();
+        };
         // 맞추면 줌이 바뀐다 — 줌 사건이 안 오는 환경도 있어 맞춘 뒤 한 번 더 셈한다.
         resimplify();
         appliedSelectionRef.current = selectedNow;
         setMapReady(true);
         setFailure(null);
-      });
+      }));
     };
-    if (window.kakao?.maps) { draw(); return; }
+    // 🔴 그릴 것이 있는데 지도가 끝내 안 만들어지면 — SDK 가 콜백을 안 부르는 경우(둘째 파일이 막힘 등) — 회색 빈칸만 남는다.
+    //    오류 사건도 없어서 아래 onError·onBlocked 가 못 잡는다. 일정 시간 뒤에도 지도가 없으면 안내를 낸다.
+    //    «지금 그리기를 시도한 뒤에도 지도가 없을 때만» 건다 — SDK 가 이미 떠 있어 곧바로 그려지면 타이머를 만들지 않는다.
+    let watchdog: ReturnType<typeof setTimeout> | undefined;
+    const armWatchdog = () => {
+      if (nothingToDraw || mapRef.current) return;
+      watchdog = setTimeout(() => {
+        if (!mapRef.current) setFailure((prev) => prev ?? fileFailure(`지도가 ${MAP_DRAW_TIMEOUT_MS / 1000}초 안에 만들어지지 않았다 · 지도 파일의 둘째 부분이 막혔을 수 있다`));
+      }, MAP_DRAW_TIMEOUT_MS);
+    };
+    if (window.kakao?.maps) { draw(); armWatchdog(); return () => { if (watchdog) clearTimeout(watchdog); }; }
 
     const onBlocked = (event: SecurityPolicyViolationEvent) => {
       if (!MAP_HOSTS.test(event.blockedURI ?? '')) return;
@@ -326,31 +449,32 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
     if (!existing) { script.id = SDK_ID; script.src = src; document.head.appendChild(script); }
     // 차단 사건과 error 사건은 둘 다 난다. 순서가 규격으로 정해져 있지 않으므로
     // 차단 쪽이 항상 이기게 한다 — 그쪽이 원인을 정확히 말해 주기 때문이다.
-    const onError = () => setFailure((prev) => prev ?? {
-      title: tx('지도 파일을 못 받았어요', 'Could not fetch the map file'),
-      reason: tx(
-        '카카오 지도 파일을 받지 못했습니다. 네트워크가 막혔거나, 이 도메인이 카카오 개발자 콘솔에 등록되지 않았을 수 있습니다.',
-        'The Kakao map file could not be fetched. The network may be blocked, or this domain may not be registered in the Kakao developer console.',
-      ),
-      tech: `요청 실패: ${src.replace(appKey, '(키)')}`,
-    });
+    const onError = () => setFailure((prev) => prev ?? fileFailure(`요청 실패: ${src.replace(appKey, '(키)')}`));
     script.addEventListener('load', draw);
     script.addEventListener('error', onError);
+    armWatchdog();
     return () => {
+      if (watchdog) clearTimeout(watchdog);
       document.removeEventListener('securitypolicyviolation', onBlocked);
       script.removeEventListener('load', draw);
       script.removeEventListener('error', onError);
     };
     // 고른 곳·현재 위치·누를 때 함수는 일부러 뺐다 — 위 selectedRef 설명.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [appKey, points, routes, stops]);
+  }, [appKey, points, routes, stops, fitPoints]);
 
   // 고른 곳만 바뀌면 다시 그리지 않는다 — 마커 모양만 바꾸고 지금 화면·줌에서 panTo(S15P21E201-1654).
   useEffect(() => {
     if (Platform.OS !== 'web' || !mapReady) return;
-    markersRef.current.forEach(({ el, color: markerColor }, id) => styleSelection(el, markerColor, id === selectedId));
+    markersRef.current.forEach(({ el, color: markerColor, baseZ, overlay }, id) => {
+      styleSelection(el, markerColor, id === selectedId);
+      overlay?.setZIndex?.(id === selectedId ? SELECTED_Z_INDEX : baseZ);
+    });
     if (appliedSelectionRef.current === selectedId) return;
     appliedSelectionRef.current = selectedId;
+    // 고르면 그 장소가 보일 만큼 확대한다(S15P21E201-1903) — 이미 더 가까이 보고 있으면 그대로 둔다.
+    const map = mapRef.current;
+    if (focusSelected && map && map.getLevel() > FOCUS_LEVEL) map.setLevel(FOCUS_LEVEL);
     focusFnRef.current?.();
   }, [mapReady, selectedId]);
 
@@ -397,6 +521,7 @@ export function RouteMap({ stops, selectedId, onSelect, routes, points = NO_POIN
     if (refitKey === lastRefitKey.current) return;
     lastRefitKey.current = refitKey;
     if (refitKey != null) fitRef.current?.();
+    else ensureRef.current?.(); // 창을 열 때 — 가려진 점이 있을 때만(S15P21E201-1989)
   }, [refitKey]);
 
   // 지도에 어림 선(옅은 선)이 하나라도 있으면 그 뜻을 글로 적는다(S15P21E201-1656 — 점선 대신 옅게 그린다).

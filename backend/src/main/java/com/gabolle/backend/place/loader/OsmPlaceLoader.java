@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.gabolle.backend.place.domain.Place;
 import com.gabolle.backend.place.repository.PlaceRepository;
+import com.gabolle.backend.place.service.BusanBoundary;
 
 /**
  * OpenStreetMap 부산 장소를 {@code place} 에 넣는다.
@@ -84,6 +85,10 @@ public class OsmPlaceLoader {
 
 		List<OsmPoiRow> fresh = new ArrayList<>(rows.size());
 		for (OsmPoiRow row : rows) {
+			// 부산 행정 경계 밖(김해·양산)은 받지 않는다 — 원본이 부산을 덮는 사각형이라 섞여 들어온다(S15P21E201-2038).
+			if (!BusanBoundary.contains(row.lat(), row.lng())) {
+				continue;
+			}
 			// 이미 있거나(DB) 이 덩어리 안에서 중복된 OSM 번호면 건너뛴다.
 			if (existing.add(placeIdOf(row.osmId()))) {
 				fresh.add(row);

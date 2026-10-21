@@ -30,6 +30,8 @@ export function StopName({ title, nameEn, style, ...text }: {
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', flexShrink: 1, minWidth: 0 },
-  keep: { flexShrink: 0 },
-  shrink: { flexShrink: 1, minWidth: 0 },
+  // 🔴 한글도 아주 조금은 줄어든다(S15P21E201-1903) — 전에는 한글이 0 이라 한글 이름이 길면(「(봄베이브로이 해운대점)」)
+  //    영어 이름이 0칸이 되어 괄호 속 한글만 남았다. 줄어드는 몫은 영어 쪽이 4배 크다 — 대개 영어가 먼저 잘린다.
+  keep: { flexShrink: 1, minWidth: 0 },
+  shrink: { flexShrink: 4, minWidth: 0 },
 });
