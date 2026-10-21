@@ -60,12 +60,13 @@ jobs:
         working-directory: backend
     steps:
       - uses: actions/checkout@v4
-      # MinIO 는 서비스 칸으로는 실행 명령(server /data)을 줄 수 없어 직접 띄운다
+      # MinIO 는 서비스 칸으로는 실행 명령(server /data)을 줄 수 없어 직접 띄운다. GitHub 기계에서는 quay.io 가
+      # unauthorized 로 막혀(2026-10-21 첫 실행) Docker Hub 의 같은 판을 쓴다
       - name: MinIO
         working-directory: .
         run: |
           docker run -d --name minio -p 9000:9000 -e MINIO_ROOT_USER=gabolle -e MINIO_ROOT_PASSWORD=gabolle_ci_minio \
-            quay.io/minio/minio:RELEASE.2024-10-13T13-34-11Z server /data
+            minio/minio:RELEASE.2024-10-13T13-34-11Z server /data
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
