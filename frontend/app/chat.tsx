@@ -126,7 +126,7 @@ export default function Chat() {
   // 근처 편의시설 — 한 줄 카드. AI 를 거치지 않고 화면으로 간다.
   const nearbyCard = <Pressable testID="chat-nearby-facilities" accessibilityRole="link" accessibilityLabel={tx('근처 편의시설, 주차장 · 환전소 · 화장실 · 짐보관', 'Nearby facilities, parking · currency exchange · restrooms · lockers')} onPress={() => router.push('/field/nearby')} style={({ pressed }) => [styles.nearby, pressed && styles.quickToolPressed]}>
       <View style={styles.toolIconBox}><Text variant="title">📍</Text></View>
-      <View style={styles.toolBody}><Text variant="body" weight="bold" numberOfLines={2}>{tx('근처 편의시설', 'Nearby facilities')}</Text><Text variant="caption" color={color.text.body} numberOfLines={2}>{tx('주차장 · 환전소 · 화장실 · 짐보관', 'Parking · currency exchange · restrooms · lockers')}</Text></View>
+      <View style={styles.toolBody}><Text variant="body" weight="bold" numberOfLines={2}>{tx('근처 편의시설', 'Nearby facilities')}</Text>{/* 한 줄에 들어가게 짧게 — 두 줄이면 이 칸만 커져 넓은 화면 목록 높이가 어긋났다(2026-10-20 사용자 결정) */}<Text variant="caption" color={color.text.body} numberOfLines={2}>{tx('주차장·환전·화장실·짐보관', 'Parking · exchange · restrooms · lockers')}</Text></View>
       <Text variant="title" color={color.text.muted}>›</Text>
     </Pressable>;
   // 🔴 순서는 «여행 중 급하고 자주 쓰는 것» — 긴급 → 버스 → 근처 편의시설 → 환율 → 사투리 → 도움말(사용자 결정 2026-10-20).

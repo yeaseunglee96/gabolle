@@ -45,7 +45,7 @@ describe('챗봇 첫 화면의 도구 칸 (폰 폭)', () => {
     const view = render(<Chat />);
 
     expect(view.getByText('근처 편의시설')).toBeTruthy();
-    expect(view.getByText('주차장 · 환전소 · 화장실 · 짐보관')).toBeTruthy();
+    expect(view.getByText('주차장·환전·화장실·짐보관')).toBeTruthy();
   });
 
   it('누르면 근처 편의시설 화면으로 간다 — AI 를 거치지 않는다', () => {
