@@ -143,6 +143,31 @@ class OsmPlaceLoaderTest {
 	}
 
 	@Test
+	@DisplayName("🔴 기본 이름이 러시아어·중국어여도 한국어 이름이 있으면 한국어로 — 문화 갈래에 「Храм святой Богородицы」가 떴다(S15P21E201-1882)")
+	void koreanNameWinsOverForeignDefaultName(@TempDir Path dir) throws Exception {
+		Path file = dir.resolve("poi.ndjson");
+		Files.writeString(file, String.join("\n",
+				"{\"type\":\"node\",\"id\":6680782685,\"lat\":35.1058,\"lon\":129.0309,\"tags\":"
+						+ "{\"name\":\"Храм святой Богородицы\",\"name:ko\":\"정교회 미술관\",\"name:en\":\"Orthodox Church\",\"tourism\":\"gallery\"}}",
+				"{\"type\":\"node\",\"id\":11,\"lat\":35.1,\"lon\":129.0,\"tags\":"
+						+ "{\"name\":\"巨人炸雞\",\"name:ko\":\"거인통닭\",\"amenity\":\"restaurant\"}}"),
+				StandardCharsets.UTF_8);
+
+		List<OsmPoiRow> taken = new ArrayList<>();
+		OsmPoiReader.read(file, 10, taken::addAll);
+
+		assertThat(taken).extracting(OsmPoiRow::name).containsExactlyInAnyOrder("정교회 미술관", "거인통닭");
+	}
+
+	@Test
+	@DisplayName("기본 이름이 한글이면 그대로 — 사람이 붙인 가게 이름이 먼저다 · 한국어 이름이 한글이 아니면 기본 이름")
+	void hangulDefaultNameStays() {
+		assertThat(OsmPoiReader.nameOf(Map.of("name", "해운대 영화의 거리", "name:ko", "영화의거리"))).isEqualTo("해운대 영화의 거리");
+		assertThat(OsmPoiReader.nameOf(Map.of("name", "馬鈴薯排骨湯連鎖店", "name:ko", "馬鈴薯排骨湯連鎖店"))).isEqualTo("馬鈴薯排骨湯連鎖店");
+		assertThat(OsmPoiReader.nameOf(Map.of("name", "Caffè Pascucci"))).isEqualTo("Caffè Pascucci");
+	}
+
+	@Test
 	@DisplayName("주소는 있는 조각만 큰 단위부터 이어 붙인다")
 	void addressIsJoinedFromWhateverExists(@TempDir Path dir) throws Exception {
 		Path file = dir.resolve("poi.ndjson");
@@ -207,5 +232,41 @@ class OsmPlaceLoaderTest {
 			assertThat(place.getSourceId()).isEqualTo("368601281");
 			assertThat(place.getCategory()).isEqualTo("LODGING");
 		});
+	}
+	@Test
+	@DisplayName("🔴 조형물·동상·기념비는 장소가 아니다 — 「세계를 바라보다(남자)」가 명소로 추천됐다(S15P21E201-2038)")
+	void artworksAndMemorialsAreNotPlaces() {
+		assertThat(OsmPlaceCategory.of(Map.of("tourism", "artwork", "name", "세계를 바라보다(남자)"))).isNull();
+		assertThat(OsmPlaceCategory.of(Map.of("tourism", "artwork", "artwork_type", "statue"))).isNull();
+		assertThat(OsmPlaceCategory.of(Map.of("historic", "memorial"))).isNull();
+		assertThat(OsmPlaceCategory.of(Map.of("historic", "monument"))).isNull();
+		assertThat(OsmPlaceCategory.of(Map.of("historic", "castle"))).isEqualTo("CULTURE_TEMPLE");
+	}
+
+	@Test
+	@DisplayName("🔴 동네 교회·성당과 보호수 나무는 여행 장소로 안 받는다 — 절은 받는다(S15P21E201-2038)")
+	void churchesAndTreesAreNotTravelPlaces() {
+		assertThat(OsmPlaceCategory.of(Map.of("amenity", "place_of_worship", "religion", "christian", "name", "은혜교회"))).isNull();
+		assertThat(OsmPlaceCategory.of(Map.of("amenity", "place_of_worship", "name", "천주교부산교구수정성당"))).isNull();
+		assertThat(OsmPlaceCategory.of(Map.of("tourism", "viewpoint", "name", "안동 팽나무"))).isNull();
+		assertThat(OsmPlaceCategory.of(Map.of("natural", "tree", "name", "부산시민공원 녹나무"))).isNull();
+		assertThat(OsmPlaceCategory.of(Map.of("amenity", "place_of_worship", "religion", "buddhist", "name", "범어사")))
+				.isEqualTo("CULTURE_TEMPLE");
+		assertThat(OsmPlaceCategory.of(Map.of("amenity", "arts_centre", "name", "한성당화랑"))).isEqualTo("CULTURE_TEMPLE");
+	}
+
+	@Test
+	@DisplayName("🔴 부산 행정 경계 밖(김해·양산)은 넣지 않는다 — 사각형으로 받아 와 김해 장유가 섞였다(S15P21E201-2038)")
+	void placesOutsideBusanAreNotStored() {
+		when(this.placeRepository.findAllById(anyIterable())).thenReturn(List.of());
+		OsmPlaceLoader loader = new OsmPlaceLoader(this.placeRepository, new SamePlaceGuard(this.placeRepository));
+
+		int saved = loader.saveChunk(List.of(
+				new OsmPoiRow(21L, "김해 장유 식당", "FOOD", null, 35.1925, 128.8100),
+				new OsmPoiRow(22L, "양산 물금 카페", "CAFE_HEALING", null, 35.3100, 129.0080),
+				new OsmPoiRow(23L, "해운대 식당", "FOOD", null, 35.1591, 129.1600)),
+				"osm-test", OffsetDateTime.now());
+
+		assertThat(saved).isEqualTo(1);
 	}
 }

@@ -19,5 +19,15 @@ public record AddItemRequest(
 		@NotNull(message = "더할 장소를 지정해 주세요.") String placeId,
 		@NotNull(message = "며칠째에 넣을지 지정해 주세요.")
 		@Min(value = 0, message = "며칠째인지는 0 이상이어야 합니다.") Integer dayIndex,
-		@NotNull(message = "바탕 판 번호가 필요합니다.") Integer baseVersion) {
+		@NotNull(message = "바탕 판 번호가 필요합니다.") Integer baseVersion,
+		/**
+		 * 그날 안의 몇 번째 자리에 넣을지(1부터, S15P21E201-2017). 없으면 예전처럼 맨 끝에 붙이고 시각을 비운다 — 화면이
+		 * 재계산을 이어 부른다. 있으면 그 자리에 끼우고 서버가 구간·시각을 바로 다시 매긴다(재계산 Job 이 필요 없다).
+		 */
+		@Min(value = 1, message = "자리는 1 이상이어야 합니다.") Integer position) {
+
+	/** 자리 없이 받던 예전 모양 — 맨 끝에 붙인다. */
+	public AddItemRequest(String placeId, Integer dayIndex, Integer baseVersion) {
+		this(placeId, dayIndex, baseVersion, null);
+	}
 }

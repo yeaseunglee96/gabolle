@@ -153,6 +153,63 @@ class RouteQueryServiceTest {
 		assertThat(leg.mode()).isEqualTo(TravelMode.CAR);
 	}
 
+	private static RouteLeg graphWalk(int durationMin) {
+		return new RouteLeg(TravelMode.WALK, durationMin * 67, durationMin, null, null, null, false, null,
+				RouteLeg.PROVIDER_WALK_GRAPH,
+				List.of(new double[] { 129.1554, 35.1600 }, new double[] { 129.1570, 35.1620 },
+						new double[] { 129.1586, 35.1653 }),
+				List.of(), null, List.of(new RouteLeg.Piece(0, 1, 2.5, false), new RouteLeg.Piece(1, 2, null, true)));
+	}
+
+	@Test
+	@DisplayName("🔴 직선으로는 가까워도 실제로 걸으면 멀면 대중교통을 그대로 둔다 — 직선 어림(약 13분)으로 견주던 것")
+	void keepsTransitWhenRealWalkIsLong() {
+		// 강을 돌아가야 해서 실제 걷는 길은 60분인 구간. 직선 어림(13분)으로 견주면 30분 버스를 버린다.
+		StubProvider walk = new StubProvider(TravelMode.WALK, Optional.of(graphWalk(60)));
+		RouteQueryService service = serviceWith(
+				new StubProvider(TravelMode.TRANSIT, Optional.of(transitLeg(30))), walk);
+
+		RouteLeg leg = service.find(SHORT_TRANSIT);
+
+		assertThat(walk.calls.get()).as("실제 걷는 길을 물어봤다").isEqualTo(1);
+		assertThat(leg.mode()).isEqualTo(TravelMode.TRANSIT);
+		assertThat(leg.durationMin()).isEqualTo(30);
+	}
+
+	@Test
+	@DisplayName("🔴 실제로 걸어도 빠르면 보행 그래프의 길(좌표·경사 조각)로 답하고, 계단 피하기를 그대로 넘긴다")
+	void walksOnTheGraphWhenRealWalkIsShort() {
+		StubProvider walk = new StubProvider(TravelMode.WALK, Optional.of(graphWalk(11)));
+		RouteQueryService service = serviceWith(
+				new StubProvider(TravelMode.TRANSIT, Optional.of(transitLeg(178))), walk);
+		RouteQuery stepFreeTransit = new RouteQuery(SHORT_TRANSIT.originLat(), SHORT_TRANSIT.originLng(),
+				SHORT_TRANSIT.destLat(), SHORT_TRANSIT.destLng(), TravelMode.TRANSIT, null, true);
+
+		RouteLeg leg = service.find(stepFreeTransit);
+
+		assertThat(leg.mode()).isEqualTo(TravelMode.WALK);
+		assertThat(leg.provider()).isEqualTo(RouteLeg.PROVIDER_WALK_GRAPH);
+		assertThat(leg.durationMin()).isEqualTo(11);
+		assertThat(leg.path()).hasSize(3);
+		assertThat(leg.pieces()).hasSize(2);
+		assertThat(leg.estimated()).as("실제 길로 잰 값이다").isFalse();
+		assertThat(walk.lastQuery.mode()).isEqualTo(TravelMode.WALK);
+		assertThat(walk.lastQuery.stepFree()).as("휠체어 여행의 계단 피하기가 걷기 질문까지 간다").isTrue();
+	}
+
+	@Test
+	@DisplayName("직선으로 곧장 걸어도 대중교통보다 느린 먼 구간은 보행 그래프를 뒤지지 않는다")
+	void skipsWalkGraphWhenEvenStraightLineIsSlower() {
+		StubProvider walk = new StubProvider(TravelMode.WALK, Optional.of(graphWalk(5)));
+		RouteQueryService service = serviceWith(
+				new StubProvider(TravelMode.TRANSIT, Optional.of(transitLeg(45))), walk);
+
+		RouteLeg leg = service.find(new RouteQuery(35.1587, 129.1604, 35.1578, 129.0592, TravelMode.TRANSIT));
+
+		assertThat(leg.mode()).isEqualTo(TravelMode.TRANSIT);
+		assertThat(walk.calls.get()).isZero();
+	}
+
 	/** 정해진 답만 돌려주고 호출 횟수를 센다. */
 	private static final class StubProvider implements RouteProviderPort {
 
@@ -161,6 +218,8 @@ class RouteQueryServiceTest {
 		private final Optional<RouteLeg> answer;
 
 		private final AtomicInteger calls = new AtomicInteger();
+
+		private volatile RouteQuery lastQuery;
 
 		private StubProvider(TravelMode supported, Optional<RouteLeg> answer) {
 			this.supported = supported;
@@ -175,6 +234,7 @@ class RouteQueryServiceTest {
 		@Override
 		public Optional<RouteLeg> find(RouteQuery query) {
 			this.calls.incrementAndGet();
+			this.lastQuery = query;
 			return this.answer;
 		}
 

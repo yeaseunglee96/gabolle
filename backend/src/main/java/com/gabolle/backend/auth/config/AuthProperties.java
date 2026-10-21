@@ -17,11 +17,13 @@ public class AuthProperties {
 	 *
 	 * <p>{@code AuthTokenService.rotate} 가 갱신할 때마다 만료 시각을 그 시점 기준으로 다시
 	 * 계산하므로, 이 값은 "마지막으로 쓴 뒤 얼마나 버티는가" 이지 "로그인한 뒤 얼마 만에
-	 * 끊기는가" 가 아니다. 그래서 절대 상한이 없다 — 2시간마다 한 번씩 열면 세션은 계속 산다.
+	 * 끊기는가" 가 아니다. 그래서 절대 상한이 없다 — 2일마다 한 번씩 열면 세션은 계속 산다.
+	 *
+	 * <p>2시간이었다가 2일로 늘렸다(S15P21E201-1978) — 전시 시연 기기가 2시간마다 로그인 화면으로 돌아갔다.
 	 *
 	 * <p>웹도 이 값을 따른다 — {@code WebAuthCookieService} 가 쿠키 수명을 여기서 가져온다.
 	 */
-	private Duration refreshTokenTtl = Duration.ofHours(2);
+	private Duration refreshTokenTtl = Duration.ofDays(2);
 
 	/**
 	 * 이미 쓴 갱신 토큰이 이 시간 안에 다시 오면 도난이 아니라 정상 경쟁으로 본다. 두 곳이 거의
@@ -58,14 +60,14 @@ public class AuthProperties {
 	 * 재설정 메일의 링크가 착지하는 곳. 여기에 {@code "?token=" + 원문토큰} 이 붙으므로 프런트의
 	 * 실제 화면 경로와 같아야 한다.
 	 */
-	private String passwordResetBaseUrl = "https://j15e201.p.ssafy.io/auth/password/reset";
+	private String passwordResetBaseUrl = "https://gabolle.kr/auth/password/reset";
 	/**
 	 * 애플이 {@code response_mode=form_post} 로 보낸 결과를 넘겨 줄 화면 주소.
 	 *
 	 * <p>요청에서 받은 값을 쓰지 않고 설정에 박힌 이 값만 쓴다. 애플의 POST 는 누구나 흉내낼 수
 	 * 있는 폼 전송이라, 거기 실린 주소로 되돌려 보내면 이 서버가 open redirect 도구가 된다.
 	 */
-	private String appleFormPostRedirectUrl = "https://j15e201.p.ssafy.io/oauth/apple/callback";
+	private String appleFormPostRedirectUrl = "https://gabolle.kr/oauth/apple/callback";
 
 	private List<String> oauthAllowedRedirectUris = new ArrayList<>();
 	private List<String> corsAllowedOrigins = new ArrayList<>();

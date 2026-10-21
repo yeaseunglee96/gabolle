@@ -25,6 +25,9 @@ import java.util.List;
  *        더하면 실제보다 싸다. {@code 0} 은 「걷기만 해서 공짜다」라는 다른 사실이다
  * @param pieces 경로를 경사·계단이 같은 조각으로 나눈 것 — S15P21E201-1630. 우리 보행 그래프가 찾은 걷기에만
  *        있고 나머지는 빈 목록이다(모른다를 지어내지 않는다)
+ * @param stepFreeHonored 계단·급경사를 피해 달라는 부탁(stepFree)을 들어준 걷기인가. 보행 그래프가 피하는 길을 끝내
+ *        못 찾아 가장 짧은 길로 대신 답했으면 {@code false} — 그 길에는 계단이 있을 수 있다. 부탁이 없었거나 보행
+ *        그래프가 찾은 걷기가 아니면 {@code null}(들어줄지 말지를 따진 적이 없다)
  */
 public record RouteLeg(
 		TravelMode mode,
@@ -39,10 +42,19 @@ public record RouteLeg(
 		List<double[]> path,
 		List<Step> steps,
 		Integer transitFareKrw,
-		List<Piece> pieces) {
+		List<Piece> pieces,
+		Boolean stepFreeHonored) {
 
 	public RouteLeg {
 		pieces = (pieces == null) ? List.of() : List.copyOf(pieces);
+	}
+
+	/** 계단 피하기를 따진 적이 없는 경로용 — {@code stepFreeHonored} 를 {@code null} 로 둔다. */
+	public RouteLeg(TravelMode mode, int distanceM, int durationMin, Integer taxiFareKrw, Integer tollFareKrw,
+			Integer transferCount, boolean estimated, String estimateReason, String provider,
+			List<double[]> path, List<Step> steps, Integer transitFareKrw, List<Piece> pieces) {
+		this(mode, distanceM, durationMin, taxiFareKrw, tollFareKrw, transferCount, estimated, estimateReason,
+				provider, path, steps, transitFareKrw, pieces, null);
 	}
 
 	/** 경사 조각이 없는 경로(업체·직선 어림·대중교통)용 — {@code pieces} 를 빈 목록으로 둔다. */
@@ -61,8 +73,27 @@ public record RouteLeg(
 				provider, path, steps, null, List.of());
 	}
 
-	/** 단계별 안내 한 줄. */
-	public record Step(String name, String guidance, int distanceM, int durationMin) {
+	/**
+	 * 단계별 안내 한 줄.
+	 *
+	 * @param stops 이 단계에서 지나는 정류장·역 — 타는 곳부터 내리는 곳까지 노선 순서대로(둘 다 포함). S15P21E201-1836.
+	 *        대중교통 단계에만 있고, 걷기·자동차 단계와 다른 길찾기는 빈 목록이다. 앱의 「탑승 중」 화면이 남은 정류장과
+	 *        내릴 곳을 알리는 데 쓴다 — 전에는 이 목록을 계산해 경로선 좌표로만 쓰고 이름을 버렸다
+	 */
+	public record Step(String name, String guidance, int distanceM, int durationMin, List<StopPoint> stops) {
+
+		public Step {
+			stops = (stops == null) ? List.of() : List.copyOf(stops);
+		}
+
+		/** 지나는 정류장을 모르는(대중교통이 아닌) 단계용 — {@code stops} 를 빈 목록으로 둔다. */
+		public Step(String name, String guidance, int distanceM, int durationMin) {
+			this(name, guidance, distanceM, durationMin, List.of());
+		}
+	}
+
+	/** 지나는 정류장·역 하나. */
+	public record StopPoint(String name, double lat, double lng) {
 	}
 
 	/**
@@ -71,8 +102,15 @@ public record RouteLeg(
 	 * @param slopePercent 그 길의 보통 기울기(%, 방향 없는 크기 — 오르막·내리막을 안 가른다). 모르면 {@code null} —
 	 *        30m 미만 조각·다리·터널·길 밖(출발·도착을 길에 붙이는 토막)이다. {@code 0}(평지)과 다르다
 	 * @param stairs 계단인가
+	 * @param shade 그 길의 그늘(0~1, 1 이 하루 종일 그늘) — 건물 그림자 하루 평균이고 0.1 단위로 묶었다(S15P21E201-1895).
+	 *        모르면 {@code null} — 그늘 값을 재 둔 여섯 지역 밖, 다리·터널, 길 밖 토막이다. {@code 0}(볕)과 다르다
 	 */
-	public record Piece(int from, int to, Double slopePercent, boolean stairs) {
+	public record Piece(int from, int to, Double slopePercent, boolean stairs, Double shade) {
+
+		/** 그늘 칸이 생기기 전의 모양 — 그늘을 모르는 조각이다. */
+		public Piece(int from, int to, Double slopePercent, boolean stairs) {
+			this(from, to, slopePercent, stairs, null);
+		}
 	}
 
 	public static final String PROVIDER_KAKAO_MOBILITY = "KAKAO_MOBILITY";

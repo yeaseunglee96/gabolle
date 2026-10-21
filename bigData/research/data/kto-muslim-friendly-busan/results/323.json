@@ -1,0 +1,50 @@
+{
+  "no": "323",
+  "nameEn": "Seoul Samgyetang",
+  "nameKo": "서울삼계탕",
+  "roadAddrKo": "부산 중구 남포길 36",
+  "addressMatchesPdf": true,
+  "operating": "unknown",
+  "operatingEvidence": [
+    {
+      "url": "https://triple.guide/restaurants/56b2f06c-2312-4974-9fb9-a3168c00c5fc",
+      "date": null,
+      "note": "영업시간 09:30-22:00 게재, 후기 날짜 없음"
+    }
+  ],
+  "newAddress": null,
+  "queries": [
+    "\"051-245-3696\" (검색 제한으로 실패)",
+    "서울삼계탕 남포동 부산 중구 남포길 36",
+    "서울삼계탕 남포동 후기 2025 인삼삼계탕 60년"
+  ],
+  "found": true,
+  "confidence": "medium",
+  "sources": [
+    "https://triple.guide/restaurants/56b2f06c-2312-4974-9fb9-a3168c00c5fc"
+  ],
+  "whyPeopleGo": [
+    {
+      "type": "연차·역사",
+      "note": "1962년부터라는 60년 전통 표기",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": 60,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "mixed",
+    "signatureDishes": [
+      "삼계탕",
+      "전기구이통닭"
+    ],
+    "priceBand": null
+  },
+  "photoCandidates": [],
+  "notes": "같은 골목의 남포삼계탕(남포길 16, 전화 051-245-5075)과 다른 가게임. 2025 후기는 그쪽 것이라 이 가게 근거로 쓰지 않음."
+}

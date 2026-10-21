@@ -113,6 +113,47 @@ class PlaceSearchIntegrationTest extends PlacePostgresIntegrationTest {
 	}
 
 	@Test
+	@DisplayName("🔴 관광공사 일본어 이름으로도 찾는다 — 화면에 보인 이름으로 검색하면 0건이었다(S15P21E201-1875)")
+	void searchByJapaneseOfficialNameFindsThePlace() {
+		UUID placeId = this.fixture.insertPlace("감천문화마을", "Gamcheon Culture Village", "ATTRACTION", 35.0975, 129.0107);
+		this.fixture.setLocalNames(placeId, "甘川文化村", "甘川文化村", "甘川文化村");
+
+		PlacePageResponse page = this.placeSearchService.search(this.fixture.prefix() + "甘川", null, null, null);
+
+		PlaceSummaryResponse matched = page.items().stream()
+				.filter(item -> item.placeId().equals(placeId)).findFirst().orElseThrow();
+		assertThat(matched.matchedField()).isEqualTo(PlaceSummaryResponse.MatchedField.NAME_LOCAL);
+	}
+
+	@Test
+	@DisplayName("🔴 간체·번체는 글자가 달라 따로 찾는다 — 번체 「海雲臺」와 간체 「海云台」 둘 다 같은 장소")
+	void searchBySimplifiedAndTraditionalChineseNames() {
+		UUID placeId = this.fixture.insertPlace("해운대해수욕장", "Haeundae Beach", "SEA_BEACH", 35.1585, 129.1598);
+		this.fixture.setLocalNames(placeId, "海雲台海水浴場", "海云台海水浴场", "海雲臺海水浴場");
+
+		PlacePageResponse hans = this.placeSearchService.search(this.fixture.prefix() + "海云台", null, null, null);
+		PlacePageResponse hant = this.placeSearchService.search(this.fixture.prefix() + "海雲臺", null, null, null);
+		PlacePageResponse filtered = this.placeSearchService.search(this.fixture.prefix() + "海云台", "SEA_BEACH", null, null);
+
+		assertThat(hans.items()).extracting(PlaceSummaryResponse::placeId).contains(placeId);
+		assertThat(hant.items()).extracting(PlaceSummaryResponse::placeId).contains(placeId);
+		assertThat(filtered.items()).extracting(PlaceSummaryResponse::placeId).contains(placeId);
+	}
+
+	@Test
+	@DisplayName("🔴 한국어 이름이 걸리면 여전히 한국어가 먼저다 — 현지 이름이 생겨도 기존 검색 결과는 그대로")
+	void koreanMatchStillWinsWhenLocalNamesExist() {
+		UUID placeId = this.fixture.insertPlace("감천문화마을", null, "ATTRACTION", 35.0975, 129.0107);
+		this.fixture.setLocalNames(placeId, "甘川文化村", null, null);
+
+		PlacePageResponse page = this.placeSearchService.search(this.fixture.prefix() + "감천", null, null, null);
+
+		PlaceSummaryResponse matched = page.items().stream()
+				.filter(item -> item.placeId().equals(placeId)).findFirst().orElseThrow();
+		assertThat(matched.matchedField()).isEqualTo(PlaceSummaryResponse.MatchedField.NAME_KO);
+	}
+
+	@Test
 	@DisplayName("완료 기준 — 종류 필터가 동작한다")
 	void categoryFilterWorks() {
 		String token = this.fixture.token();

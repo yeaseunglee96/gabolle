@@ -1,0 +1,286 @@
+{
+ "source": "한국관광공사 Muslim-Friendly Restaurants in Korea (정보 기준 2021-12, 2022-11 발행) 부산 항목",
+ "extractedAt": "2026-09-29",
+ "restaurants": [
+  {
+   "no": "015",
+   "category": "SELF_CERTIFIED",
+   "name": "Cappadocia",
+   "address": "123-9, Geumdan-ro, Geumjeong-gu, Busan",
+   "tel": "051-515-5981",
+   "lat": 35.260091,
+   "lng": 129.092224,
+   "cuisine": "Turkish food"
+  },
+  {
+   "no": "092",
+   "category": "MUSLIM_FRIENDLY",
+   "name": "Samarkand (Busan Branch)",
+   "address": "37, Daeyeong-ro 243beon-gil, Dong-gu, Busan",
+   "tel": "051-465-4734",
+   "lat": 35.113881,
+   "lng": 129.037966,
+   "cuisine": "Uzbek food"
+  },
+  {
+   "no": "095",
+   "category": "MUSLIM_FRIENDLY",
+   "name": "Rama & Bavana (Seomyeon Branch)",
+   "address": "33, Jungang-daero 702beon-gil, Busanjin-gu, Busan",
+   "tel": "051-804-0901",
+   "lat": 35.153359,
+   "lng": 129.060523,
+   "cuisine": "Asian Food"
+  },
+  {
+   "no": "096",
+   "category": "MUSLIM_FRIENDLY",
+   "name": "Wonjo Halmae Bokguk",
+   "address": "1, Dalmaji-gil 62beon-gil, Haeundae-gu, Busan",
+   "tel": "051-742-2789",
+   "lat": 35.160954,
+   "lng": 129.171545,
+   "cuisine": "Korean food"
+  },
+  {
+   "no": "097",
+   "category": "MUSLIM_FRIENDLY",
+   "name": "Punjab India Restaurant (Haeundae Branch)",
+   "address": "31, Gunam-ro, Haeundae-gu, Busan",
+   "tel": "051-731-1947",
+   "lat": 35.161387,
+   "lng": 129.16103,
+   "cuisine": "Indian food"
+  },
+  {
+   "no": "098",
+   "category": "MUSLIM_FRIENDLY",
+   "name": "Hello India AL-WAHA",
+   "address": "23, Gunam-ro, Haeundae-gu, Busan",
+   "tel": "051-731-2015",
+   "lat": 35.161967,
+   "lng": 129.160598,
+   "cuisine": "Indian food"
+  },
+  {
+   "no": "099",
+   "category": "MUSLIM_FRIENDLY",
+   "name": "Bombay Brau (Munhyeon Branch)",
+   "address": "40, Munhyeongeumyung-ro, Nam-gu, Busan",
+   "tel": "051-634-7828",
+   "lat": 35.161482,
+   "lng": 129.160453,
+   "cuisine": "Indian food"
+  },
+  {
+   "no": "100",
+   "category": "MUSLIM_FRIENDLY",
+   "name": "New Little India (Busan Station Branch)",
+   "address": "205, Jungang-daero, Dong-gu, Busan",
+   "tel": "051-467-4127",
+   "lat": 35.115711,
+   "lng": 129.039587,
+   "cuisine": "Indian food"
+  },
+  {
+   "no": "102",
+   "category": "MUSLIM_FRIENDLY",
+   "name": "Mugunghwa (Lotte Hotel Busan)",
+   "address": "772, Gaya-daero, Busanjin-gu, Busan",
+   "tel": "051-810-6330",
+   "lat": 35.15595,
+   "lng": 129.055933,
+   "cuisine": "Korean food"
+  },
+  {
+   "no": "103",
+   "category": "MUSLIM_FRIENDLY",
+   "name": "Bollywood",
+   "address": "9, Gwangnam-ro 130beon-gil, Suyeong-gu, Busan",
+   "tel": "051-987-9673",
+   "lat": 35.153065,
+   "lng": 129.117085,
+   "cuisine": "Indian food"
+  },
+  {
+   "no": "104",
+   "category": "MUSLIM_FRIENDLY",
+   "name": "Goma Daegutang",
+   "address": "127, Gwanganhaebyeon-ro, Suyeong-gu, Busan",
+   "tel": "051-626-3330",
+   "lat": 35.146338,
+   "lng": 129.11428,
+   "cuisine": "Korean food"
+  },
+  {
+   "no": "105",
+   "category": "MUSLIM_FRIENDLY",
+   "name": "Okmi Agujjim",
+   "address": "35, Mangmibeonyeong-ro 55beon-gil, Suyeong-gu, Busan",
+   "tel": "051-754-3789",
+   "lat": 35.173717,
+   "lng": 129.108834,
+   "cuisine": "Korean food"
+  },
+  {
+   "no": "106",
+   "category": "MUSLIM_FRIENDLY",
+   "name": "Namcheon Sutbul Jangeogui",
+   "address": "71-1, Hwangnyeong-daero 489beon-gil, Suyeong-gu, Busan",
+   "tel": "051-623-9276",
+   "lat": 35.140304,
+   "lng": 129.110662,
+   "cuisine": "Korean food"
+  },
+  {
+   "no": "107",
+   "category": "MUSLIM_FRIENDLY",
+   "name": "Bombay Brau (BIFC Branch)",
+   "address": "75, Gwangbok-ro, Jung-gu, Busan",
+   "tel": "051-256-7828",
+   "lat": 35.098722,
+   "lng": 129.033253,
+   "cuisine": "Indian food"
+  },
+  {
+   "no": "108",
+   "category": "MUSLIM_FRIENDLY",
+   "name": "New Little India (Nampo Branch)",
+   "address": "33-1, BIFF gwangjang-ro, Jung-gu, Busan",
+   "tel": "051-245-4127",
+   "lat": 35.098984,
+   "lng": 129.028925,
+   "cuisine": "Indian food"
+  },
+  {
+   "no": "109",
+   "category": "MUSLIM_FRIENDLY",
+   "name": "Bombay Brau (Haeundae Branch)",
+   "address": "30, Gunam-ro, Haeundae-gu, Busan",
+   "tel": "051-747-3855",
+   "lat": 35.161482,
+   "lng": 129.160453,
+   "cuisine": "Indian food"
+  },
+  {
+   "no": "110",
+   "category": "MUSLIM_FRIENDLY",
+   "name": "Eobu",
+   "address": "10, Gunam-ro 12beon-gil, Haeundae-gu, Busan",
+   "tel": "051-746-0619",
+   "lat": 35.162547,
+   "lng": 129.159156,
+   "cuisine": "Korean food"
+  },
+  {
+   "no": "111",
+   "category": "MUSLIM_FRIENDLY",
+   "name": "Yongjangeo Restaurant",
+   "address": "94, Nakdongnam-ro 682beon-gil, Gangseo-gu, Busan",
+   "tel": "051-941-5030",
+   "lat": 35.1181886,
+   "lng": 128.8919971,
+   "cuisine": "Korean food"
+  },
+  {
+   "no": "112",
+   "category": "MUSLIM_FRIENDLY",
+   "name": "Namaste Haeundae (Haeundae Branch)",
+   "address": "7, Haeundaehaebyeon-ro 265beon-gil, Haeundae-gu, Busan",
+   "tel": "051-746-1946",
+   "lat": 35.160221,
+   "lng": 129.160627,
+   "cuisine": "Indian food"
+  },
+  {
+   "no": "113",
+   "category": "MUSLIM_FRIENDLY",
+   "name": "Vege Narang",
+   "address": "9-32, Gwanganhaebyeon-ro 370beon-gil, Suyeong-gu, Busan",
+   "tel": "070-4177-5555",
+   "lat": 35.156632,
+   "lng": 129.134305,
+   "cuisine": "Korean food"
+  },
+  {
+   "no": "246",
+   "category": "MUSLIM_FRIENDLY",
+   "name": "U Ri",
+   "address": "1F, 52, Jagalchihaean-ro, Jung-gu, Busan",
+   "tel": "051-247-4282",
+   "lat": 35.096788,
+   "lng": 129.030571,
+   "cuisine": "Korean food"
+  },
+  {
+   "no": "289",
+   "category": "PORK_FREE",
+   "name": "Suhyang Babsang Builds Happiness",
+   "address": "592, Dadae-ro, Saha-gu, Busan",
+   "tel": "051-266-4726",
+   "lat": 35.053567,
+   "lng": 128.970582,
+   "cuisine": "Korean food"
+  },
+  {
+   "no": "322",
+   "category": "PORK_FREE",
+   "name": "Hurgsiru",
+   "address": "28, Chaseong-ro 451beon-gil, Gijang-eup, Gijang-gun, Busan",
+   "tel": "051-722-1377",
+   "lat": 35.257068,
+   "lng": 129.216415,
+   "cuisine": "Korean food"
+  },
+  {
+   "no": "323",
+   "category": "PORK_FREE",
+   "name": "Seoul Samgyetang",
+   "address": "36, Nampo-gil, Jung-gu, Busan",
+   "tel": "051-245-3696",
+   "lat": 35.0982708,
+   "lng": 129.0326242,
+   "cuisine": "Korean food"
+  },
+  {
+   "no": "324",
+   "category": "PORK_FREE",
+   "name": "Seogane Ori",
+   "address": "86, Gayagongwon-ro, Busanjin-gu, Busan",
+   "tel": "051-897-1223",
+   "lat": 35.145081,
+   "lng": 129.028805,
+   "cuisine": "Korean food"
+  },
+  {
+   "no": "325",
+   "category": "PORK_FREE",
+   "name": "Sangole",
+   "address": "173, Myeongji ocean city 1-ro, Gangseo-gu, Busan",
+   "tel": "051-292-5599",
+   "lat": 35.079767,
+   "lng": 128.903796,
+   "cuisine": "Korean food"
+  },
+  {
+   "no": "326",
+   "category": "PORK_FREE",
+   "name": "Jangsusam",
+   "address": "7, Suyeongseong-ro 3beon-gil, Suyeong-gu, Busan",
+   "tel": "051-746-7923",
+   "lat": 35.169521,
+   "lng": 129.119584,
+   "cuisine": "Korean food"
+  },
+  {
+   "no": "327",
+   "category": "PORK_FREE",
+   "name": "Onggichon",
+   "address": "11, Suyeong-ro 358beon-gil, Nam-gu, Busan",
+   "tel": null,
+   "lat": 35.139004,
+   "lng": 129.105022,
+   "cuisine": "Korean food"
+  }
+ ]
+}

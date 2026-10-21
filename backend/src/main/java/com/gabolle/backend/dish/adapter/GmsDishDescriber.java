@@ -194,7 +194,7 @@ public class GmsDishDescriber {
 	 * 앱 언어 코드를 모델이 알아듣는 언어 이름으로 바꾼다 — {@code GmsMenuReader} 와 같은
 	 * 다섯 갈래이고, 밖은 전부 한국어로 떨어진다.
 	 */
-	private static String languageNameFor(String language) {
+	static String languageNameFor(String language) {
 		if (language == null) {
 			return "한국어";
 		}
@@ -203,6 +203,7 @@ public class GmsDishDescriber {
 			case "ja" -> "일본어";
 			case "zh-Hans" -> "중국어(간체)";
 			case "zh-Hant" -> "중국어(번체)";
+			case "vi" -> "베트남어";
 			default -> "한국어";
 		};
 	}

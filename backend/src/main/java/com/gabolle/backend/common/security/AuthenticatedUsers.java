@@ -70,7 +70,8 @@ public final class AuthenticatedUsers {
 	}
 
 	/**
-	 * 여행 생성처럼 익명 세션도 자원의 주인이 될 수 있는 자리 전용. 그 외에는 {@link #requireId} 를 쓴다 —
+	 * 여행 생성처럼 익명 세션도 자원의 주인이 될 수 있는 자리 전용(여행 안의 자리는 {@link #requireTripActor}).
+	 * 그 외에는 {@link #requireId} 를 쓴다 —
 	 * 회원 전용 자원까지 여기로 바꾸면 익명 세션이 로그인 없이 회원 자원에 닿는 길이 열린다.
 	 *
 	 * <p>{@code principal} 이 {@link AnonymousSessionAuthenticationFilter#ANONYMOUS_PRINCIPAL_PREFIX} 로
@@ -97,6 +98,25 @@ public final class AuthenticatedUsers {
 		catch (IllegalArgumentException ex) {
 			throw new AuthException("INVALID_AUTHENTICATION", "인증 정보가 올바르지 않습니다.", HttpStatus.UNAUTHORIZED);
 		}
+	}
+
+	/**
+	 * 여행 하나 안에서만 쓰는 자리 전용 — 조회·편집·추천·일정처럼 권한을 {@code trip_member} 로 가리는 곳.
+	 *
+	 * <p>익명 세션이 만든 여행은 {@code trip_member.user_id} 에 세션 ID 가 들어 있으므로, 이 값을 그대로
+	 * 요청자로 넘기면 아래 서비스의 구성원 검사가 회원과 같은 규칙으로 돈다. 남의 여행은 구성원이 아니라
+	 * 똑같이 404 다.
+	 *
+	 * <p>{@code /me/*} 처럼 사람에게 붙은 자원, 초대·공유 링크·기록처럼 다른 사람에게 이름이 보이는
+	 * 자리에는 쓰지 않는다 — 그쪽은 {@link #requireId} 다.
+	 */
+	public static String requireTripActor(Authentication authentication) {
+		return requireOwner(authentication).id().toString();
+	}
+
+	/** {@link #requireTripActor} 의 선택판. 인증이 없거나 형식이 이상하면 빈 값. */
+	public static Optional<UUID> optionalTripActor(Authentication authentication) {
+		return optionalId(authentication).or(() -> optionalAnonymousSessionId(authentication));
 	}
 
 	/** {@code anonymous=true} 면 {@code id} 는 익명 세션 ID(session_id)이지 회원 ID 가 아니다. */

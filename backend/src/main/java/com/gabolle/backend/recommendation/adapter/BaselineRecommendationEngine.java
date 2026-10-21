@@ -173,6 +173,8 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 				: this.tripRepository.findSnapshotById(request.preferenceSnapshotId().toString()).orElse(null);
 		List<TripConstraint> constraints = (request.constraintSnapshotId() == null) ? List.of()
 				: this.tripRepository.findConstraintsBySnapshotId(request.constraintSnapshotId().toString());
+		// 음식 취향의 채식(할랄)도 식단 조건과 같은 판정으로 돌린다(S15P21E201-1873) — BaselineCandidateScorer.withTasteDiets.
+		constraints = this.scorer.withTasteDiets(constraints, preferenceSnapshot);
 
 		long candidateGenerationStart = System.nanoTime();
 		PlaceCandidateRequest queryRequest =
@@ -270,7 +272,16 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 	 * {@code candidateLimit} 을 {@code PlaceCandidateQueryService} 로 넘기면 그쪽은 점수를
 	 * 모르므로 거리순으로 잘라, 상한이 "가까운 순 N곳만 채점 대상" 이 된다. 동점은
 	 * {@code placeId} 로 가른다 — 순서가 실행마다 달라지면 나중에 비교할 수 없다.
-	 * 점수가 낮으면 탈락 판정 후보도 지켜지지 않는 것은 알려진 한계다.
+	 *
+	 * <p>🔴 <b>빠질 것이 확인된 후보({@link EngineCandidate#hardFailed()})는 자리를 맨 나중에 받는다.</b>
+	 * 꼭 지켜야 하는 조건(예: 「반드시」 휠체어인데 경사가 상한을 넘는 곳)을 어긴 후보는 결과를 조립할 때
+	 * 어차피 빠진다. 그런데 이 자르기가 점수만 보면, 점수는 높지만 빠질 후보가 상한 200 자리를 먼저 차지해
+	 * <b>통과하는 후보가 잘려 나가고</b> 여행이 「맞는 곳이 없다」로 실패했다. 그래서 통과할 수 있는 후보끼리
+	 * 먼저 아래 규칙(몫·섞기·점수 순)으로 자르고, 자리가 남을 때만 빠질 후보를 같은 규칙으로 채운다.
+	 *
+	 * <p>빠질 후보를 여기서 <b>지우지는 않는다</b>. 전부가 빠질 후보인 여행은 그 행들로 「어느 조건이
+	 * 막았나」를 되읽는다({@code BlockingConstraintAnalyzer}) — 그때는 통과 후보가 0이라 빠질 후보만으로
+	 * 예전과 똑같이 잘리므로, 그 설명도 예전과 같다.
 	 *
 	 * <p>🔴 <b>갈래를 안 고른 사람에게는 뒤쪽을 여행마다 다르게 채운다</b> (S15P21E201-1463).
 	 * 이 엔진에는 무작위가 하나도 없어서, 조건이 비슷하면 <b>늘 같은 곳이 같은 순서로</b> 나왔다.
@@ -295,7 +306,30 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 	 * @param surveyed 갈래 말고도 채점에 쓰이는 취향 답이 있는가 — 있으면 섞지 않고 점수 순으로 자른다
 	 * @param seed 섞기의 씨앗. 같은 값이면 같은 결과다
 	 */
-	private static List<EngineCandidate> keepBestScoring(List<EngineCandidate> candidates, int limit,
+	static List<EngineCandidate> keepBestScoring(List<EngineCandidate> candidates, int limit,
+			List<String> chosenCategories, boolean surveyed, UUID seed) {
+		if (candidates.size() <= limit) {
+			return candidates;
+		}
+		List<EngineCandidate> passable = new ArrayList<>();
+		List<EngineCandidate> failing = new ArrayList<>();
+		for (EngineCandidate candidate : candidates) {
+			(candidate.hardFailed() ? failing : passable).add(candidate);
+		}
+		List<EngineCandidate> kept = new ArrayList<>(
+				keepWithinGroup(passable, limit, chosenCategories, surveyed, seed));
+		if (kept.size() < limit && !failing.isEmpty()) {
+			kept.addAll(keepWithinGroup(failing, limit - kept.size(), chosenCategories, surveyed, seed));
+		}
+		kept.sort(cutOrder());
+		return kept;
+	}
+
+	/**
+	 * 한 무리(통과할 수 있는 후보 또는 빠질 후보) 안에서 몫·섞기·점수 순 규칙으로 {@code limit} 개를 고른다.
+	 * 규칙은 {@link #keepBestScoring} 설명 그대로다 — 무리를 나누기 전 이 저장소의 자르기가 이것이었다.
+	 */
+	private static List<EngineCandidate> keepWithinGroup(List<EngineCandidate> candidates, int limit,
 			List<String> chosenCategories, boolean surveyed, UUID seed) {
 		if (candidates.size() <= limit) {
 			return candidates;
@@ -369,6 +403,24 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 				taken.merge(category.toString(), 1, Integer::sum);
 			}
 		}
+		// 🔴 S15P21E201-2001 — 고른 갈래가 몫보다 적으면(해운대·광안리의 바다는 2곳) 남은 몫을 점수 순에 맡기지 않는다.
+		//    점수 순은 밥집·카페라 하루가 카페 3·식당 2·바다 1 이 됐다. 그 빈 몫은 밥집·카페가 아닌 다른 명소가 먼저 받는다.
+		int shortfall = 0;
+		for (String category : chosenCategories) {
+			shortfall += Math.max(0, perChosen - taken.getOrDefault(category, 0));
+		}
+		for (EngineCandidate candidate : sorted) {
+			if (shortfall <= 0 || kept.size() >= limit) {
+				break;
+			}
+			Object category = candidate.featureValues() == null ? null : candidate.featureValues().get("category");
+			if (category == null || MEAL_CATEGORY.equals(category.toString()) || REST_CATEGORY.equals(category.toString())
+					|| kept.containsKey(candidate.placeId())) {
+				continue;
+			}
+			kept.put(candidate.placeId(), candidate);
+			shortfall--;
+		}
 		for (EngineCandidate candidate : sorted) {
 			if (kept.size() >= limit) {
 				break;
@@ -379,6 +431,14 @@ public class BaselineRecommendationEngine implements RecommendationEnginePort {
 		// 몫으로 골랐어도 내보내는 순서는 점수 순이다 — ItineraryDraftCommand.places 의 계약.
 		out.sort(scoreOrder());
 		return out;
+	}
+
+	/**
+	 * 자른 뒤 내보내는 순서 — 빠질 후보가 맨 뒤, 그 안팎은 {@link #scoreOrder()}.
+	 * 전부 통과 후보이거나 전부 빠질 후보이면 {@link #scoreOrder()} 와 똑같다.
+	 */
+	private static Comparator<EngineCandidate> cutOrder() {
+		return Comparator.comparing(EngineCandidate::hardFailed).thenComparing(scoreOrder());
 	}
 
 	/** 점수 내림차순, 동점은 {@code placeId}. 두 곳에서 같은 순서를 써야 해서 따로 뺐다. */

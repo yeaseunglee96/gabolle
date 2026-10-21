@@ -30,15 +30,26 @@ class AccountDeletionTableInventoryTest extends AuthPostgresIntegrationTest {
 	/** DB 에서 그대로 읽은 것. 주장이 아니다 — 위 머리말 참고. */
 	private static final List<String> TABLES_POINTING_AT_APP_USER = List.of(
 			"auth_identity", "auth_session", "collection",
+			// 코스 평가(S15P21E201-2020). 탈퇴 때 AccountDeletionService 가 직접 지운다 — 한마디(자유 글)가 들어 있다.
+			"course_feedback",
 			// 음식 그림 만든 횟수. dish_image·dish_description 은 사람을 안 가리켜 여기 없다.
 			"dish_image_usage",
-			"feed_build", "itinerary_excluded_place",
-			"itinerary_versions", "local_credential", "menu_scan_usage", "oauth_signup_ticket", "place_review",
+			"feed_build",
+			// itinerary_versions·itinerary_excluded_place·recommendation_place_action 은 V20261002160000 이
+			// 외래키를 뗐다 — 비회원(익명 세션)도 일정을 만들고 고친다. 탈퇴는 app_user 행을 지우지 않아 영향이 없다.
+			"local_credential", "menu_scan_usage", "oauth_signup_ticket", "place_review",
 			"place_visit_verification",
+			// 현지인 장소 제안(S15P21E201-2031). 탈퇴해도 남긴다 — 승인된 장소의 출처 기록이고, 표시 이름은 app_user 를
+			// 익명화하면 함께 익명이 된다(local-pick 이 display_name 을 읽는다). 대기 중인 제안은 운영자가 마저 판단한다.
+			"place_suggestion",
 			// 기기 푸시 토큰. 탈퇴 때 AccountDeletionService 가 직접 지운다 — CASCADE 는 안 돈다
 			// (app_user 행을 익명화만 하므로). 안 지우면 탈퇴한 사람 폰에 알림이 계속 간다.
 			"push_token",
-			"recommendation_place_action", "saved_place", "story", "story_coauthor",
+			// 루트 포스트(S15P21E201-2027)와 그 좋아요·저장·복사. 탈퇴는 app_user 행을 지우지 않고 deleted_at 을
+			// 찍으므로 CASCADE 는 안 돈다 — 대신 RoutePostService.VISIBLE 이 작성자의 deleted_at 을 봐서 글이 어디에도
+			// 안 나온다(상세·피드·장소별 모두 그 한 조건을 지난다).
+			"route_post", "route_post_reaction",
+			"saved_place", "story", "story_coauthor",
 			"story_invite", "story_link_copy", "story_reaction",
 			"story_save", "story_view", "trip_invite", "trip_member",
 			"trip_share_link", "uploaded_image",
@@ -46,6 +57,9 @@ class AccountDeletionTableInventoryTest extends AuthPostgresIntegrationTest {
 			// story_video 를 먼저 지우지 않으면 외래키 위반으로 탈퇴 전체가 실패한다.
 			"uploaded_video",
 			"user_block", "user_consent", "user_follow", "user_pace_factor",
+			// 활동일(S15P21E201-2010) — (회원 번호, 날짜) 뿐이다. 탈퇴는 계정 행을 익명화만 하므로 남는다 — 지난달 MAU 가
+			// 탈퇴 때문에 줄어들면 안 된다. 남는 행은 익명이 된 계정을 가리켜 사람을 알아볼 수 없다.
+			"user_activity_day",
 			// (사람, 장소) 의 취향 반영 상태. 탈퇴 때 AccountDeletionService 가 직접 지운다 —
 			// CASCADE 는 안 돈다(계정 행을 익명화만 하므로). 안 지우면 탈퇴한 사람의 행동
 			// 이력이 그대로 남는다 (S15P21E201-1500).

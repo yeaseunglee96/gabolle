@@ -396,9 +396,11 @@ backend:build:
   services:
     - name: postgres:16-alpine
       alias: postgres
-    - name: quay.io/minio/minio:RELEASE.2024-10-13T13-34-11Z
+    # 🔴 2026-10-21 (S15P21E201-2074) — quay.io 도 막혔다(GitHub Actions 에서 unauthorized, 설치 파일 주소 410).
+    #    이 러너는 예전에 받아 둔 quay 이미지가 남아 있어 돌았을 뿐이다. 같은 판(2024-10-13)을 담은 bitnamilegacy
+    #    이미지로 바꾼다 — 실행 명령 없이 9000 번으로 뜨고, MINIO_ROOT_USER/PASSWORD 를 아래 variables 에서 읽는다.
+    - name: bitnamilegacy/minio:2024.10.13
       alias: minio
-      command: ["server", "/data"]
     # 🔴 S15P21E201-561 — 카프카를 **서비스 컨테이너**로 붙인다. 이 러너에는 도커 소켓이
     #    없어서(docker-in-docker 가 아니다) 테스트가 Testcontainers 로 브로커를 직접 띄우면
     #    "Could not find a valid Docker environment" 로 죽는다. 로컬에서는 도커가 있어
@@ -1171,6 +1173,8 @@ vote:recheck:
 #      · CI/CD 변수에 SSH 키도, 서버 주소도, 배포용 자격증명도 없다
 #      · 운영 서버 배포는 GitLab CI 가 아니라 **서버 위의 Jenkins** 가 한다
 #        (docs/SERVER-SETUP.md 5절 · backend/Jenkinsfile)
+#      → 🔴 2026-10-15 정정: Jenkins 는 옛 서버와 함께 꺼졌고, 배포는 이제 맨 아래
+#        deploy:server 잡이 한다(S15P21E201-2058). 위 세 줄은 그 전의 실측이다
 #
 #    없는 길을 지어내면 잡은 초록인데 화면은 안 바뀐다. 그래서 여기서 멈추고,
 #    **서버에 올리는 마지막 한 걸음은 사람이 한 번 만든다** — 방법은
@@ -1240,3 +1244,38 @@ status:publish:
     expire_in: 3 days
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_KIND == "status"
+
+# ══════════════════════════════════════════════════════════════════════════════
+# deploy:server — dev 에 머지되면 새 서버에 자동 배포한다 (S15P21E201-2058)
+# ══════════════════════════════════════════════════════════════════════════════
+#
+# 옛 서버(j15e201)와 그 위의 Jenkins 가 2026-10-13 에 꺼졌다. 서버는 이제 하나
+# (gabolle.kr · 3.34.84.167)뿐이고, CI(검사)는 이 저장소의 PC 러너가 맡는다.
+# 그래서 배포도 **같은 PC 러너**가 서버에 SSH(원격 접속)로 들어가 서버의
+# `~/deploy.sh back|front` 를 부르는 것으로 한다 — 서버에 러너를 더 두지 않는다.
+#
+# 🔴 열쇠는 「배포만」 할 수 있다. CI 변수 DEPLOY_SSH_KEY(파일 · 보호 — 보호된
+#    브랜치의 파이프라인에서만 보인다)는 배포 전용으로 새로 만든 열쇠이고, 서버의
+#    authorized_keys 가 이 열쇠를 `ci-deploy-gate.sh` 로 묶어 둬서
+#    `deploy back` · `deploy front` 두 명령 말고는 아무것도 못 돌린다.
+#    서버를 바꾸려면 서버에서 deploy.sh 를 고친다 — 이 잡은 손댈 것이 없다.
+#
+# 🔴 마이그레이션(DB 표 구조 변경)이 머지와 함께 운영에 들어간다. deploy.sh 가
+#    백엔드를 바꾸기 전에 DB 를 백업한다(~/m/predeploy, 최근 5개). 같은 때 두 번
+#    돌지 않게 서버 쪽에서 잠근다(flock) — 손 배포와 겹쳐도 차례를 기다린다.
+#
+# 검사(verify)가 전부 초록이어야 이 잡이 돈다(stage release). 빨간 머지는 안 올라간다.
+deploy:server:
+  stage: release
+  tags: [heavy]
+  interruptible: false
+  resource_group: production-server
+  before_script:
+    - apk add --no-cache openssh-client
+  script:
+    - PART="${CI_COMMIT_BRANCH%%/*}"
+    - echo "배포 대상 = $PART · 커밋 $CI_COMMIT_SHORT_SHA"
+    - chmod 600 "$DEPLOY_SSH_KEY"
+    - ssh -i "$DEPLOY_SSH_KEY" -o IdentitiesOnly=yes -o UserKnownHostsFile="$DEPLOY_KNOWN_HOSTS" -o StrictHostKeyChecking=yes -o ServerAliveInterval=30 ubuntu@3.34.84.167 "deploy $PART"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && ($CI_COMMIT_BRANCH == "back/dev" || $CI_COMMIT_BRANCH == "front/dev")

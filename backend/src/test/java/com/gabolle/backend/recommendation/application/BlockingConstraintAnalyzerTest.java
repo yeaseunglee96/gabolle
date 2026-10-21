@@ -125,6 +125,24 @@ class BlockingConstraintAnalyzerTest {
 	}
 
 	@Test
+	@DisplayName("🔴 경사만으로 다 막혔으면 이동 조건의 확인된 위반으로 말한다 — 갈래 없는 코드로 흘리지 않는다")
+	void slopeOnlyBlockIsMobilityViolation() {
+		// BaselineCandidateScorer.evaluateSlope 가 「반드시」 휠체어에 싣는 모양 그대로다.
+		String slope = "[{\"code\":\"SLOPE_OVER_LIMIT\",\"featureKey\":\"WHEELCHAIR\","
+				+ "\"slopePercent\":12.5,\"maxSlopePercent\":8.33}]";
+		given(candidate("[]", slope), candidate("[]", slope));
+
+		List<BlockingConstraintAnalyzer.Blocking> blocking = this.analyzer.analyze(noFeasibleJob());
+
+		assertThat(blocking).hasSize(1);
+		assertThat(blocking.get(0).code()).isEqualTo("SLOPE_OVER_LIMIT");
+		assertThat(blocking.get(0).constraintType()).isEqualTo("MOBILITY");
+		assertThat(blocking.get(0).constraintKey()).isEqualTo("WHEELCHAIR");
+		assertThat(blocking.get(0).reason()).isEqualTo(BlockingConstraintAnalyzer.REASON_VIOLATED);
+		assertThat(blocking.get(0).blockedCandidates()).isEqualTo(2);
+	}
+
+	@Test
 	@DisplayName("한 후보가 같은 조건에 두 번 걸려도 한 번만 센다 — 막은 수가 후보 수를 넘으면 안 된다")
 	void oneCandidateCountsOnce() {
 		String twice = "[{\"fact\":\"ALLERGEN_UNVERIFIED\",\"featureKey\":\"PEANUT\"},"

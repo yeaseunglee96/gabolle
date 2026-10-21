@@ -1,0 +1,66 @@
+{
+  "newAddress": null,
+  "found": true,
+  "newTypes": [],
+  "photoCandidates": [],
+  "no": "110",
+  "nameEn": "Eobu",
+  "nameKo": "어부",
+  "roadAddrKo": "부산광역시 해운대구 구남로12번길 10",
+  "addressMatchesPdf": true,
+  "operating": "open",
+  "operatingEvidence": [
+    {
+      "url": "https://www.diningcode.com/profile.php?rid=R1qMvJNaplDs",
+      "date": "2025-08",
+      "note": "다이닝코드에 2025년 8월 방문 후기, 양 많고 친절하다는 평과 조개 상태 불만이 함께 있음"
+    }
+  ],
+  "queries": [
+    "\"051-746-0619\"",
+    "어부 해운대 구남로12번길 10 조개구이 조개찜",
+    "해운대 어부 조개구이 후기 2025 구남로12번길"
+  ],
+  "confidence": "high",
+  "sources": [
+    "https://www.diningcode.com/profile.php?rid=R1qMvJNaplDs",
+    "https://triple.guide/restaurants/f897ee73-7546-4fa5-8c59-125de62bec0f"
+  ],
+  "whyPeopleGo": [
+    {
+      "type": "조리·재료",
+      "note": "직원이 직접 구워 주어 조개가 질기지 않다는 평",
+      "sources": [
+        0
+      ]
+    },
+    {
+      "type": "곁들임·차림",
+      "note": "조개탕이 나오고 칼국수나 알밥으로 마무리하는 구성",
+      "sources": [
+        0,
+        1
+      ]
+    },
+    {
+      "type": "간판 메뉴 지목",
+      "note": "가리비·키조개·오분자기가 든 모둠 조개구이",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": "전용 주차 없음, 인근 유료",
+    "audience": "mixed",
+    "signatureDishes": [
+      "모둠 조개구이",
+      "조개찜"
+    ],
+    "priceBand": "moderate"
+  },
+  "notes": "영업시간이 PDF(16:00~02:00)와 달리 16:00~24:00로 적힌 곳이 있다. 해운대역 5번 출구에서 도보 약 5분. 사진 후보 없음."
+}

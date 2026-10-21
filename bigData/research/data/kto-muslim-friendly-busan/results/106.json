@@ -1,0 +1,50 @@
+{
+  "no": "106",
+  "nameEn": "Namcheon Sutbul Jangeogui",
+  "nameKo": "남천숯불장어구이",
+  "roadAddrKo": "부산 수영구 황령대로489번길 71-1 (남천동)",
+  "addressMatchesPdf": true,
+  "operating": "unknown",
+  "operatingEvidence": [
+    {
+      "url": "https://triple.guide/restaurants/7a160985-fd11-45eb-a7d4-4977fb693010",
+      "date": null,
+      "note": "트리플 등록 정보뿐, 후기 날짜 없음"
+    }
+  ],
+  "newAddress": null,
+  "queries": [
+    "\"051-623-9276\"",
+    "남천숯불장어구이 수영구 황령대로 후기",
+    "남천숯불장어 수영구 황령대로489번길 71-1",
+    "남천숯불장어구이 남천동 장어 방문 후기 2025"
+  ],
+  "found": true,
+  "confidence": "low",
+  "sources": [
+    "https://triple.guide/restaurants/7a160985-fd11-45eb-a7d4-4977fb693010"
+  ],
+  "whyPeopleGo": [
+    {
+      "type": "간판 메뉴 지목",
+      "note": "숯불 장어구이가 상호 자체",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "newTypes": [],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "local",
+    "signatureDishes": [
+      "숯불장어구이"
+    ],
+    "priceBand": null
+  },
+  "photoCandidates": [],
+  "notes": "주소와 전화가 PDF와 일치하는 것은 트리플 등록 정보로만 확인. 방문기·후기는 못 찾음. 인근 덩굴아나고·칠복장어와 혼동 주의."
+}

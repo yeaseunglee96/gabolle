@@ -83,9 +83,21 @@ public class SecurityConfig {
 				// 기록 사진은 주소를 아는 사람이 그대로 연다 — 화면이 <img> 로 부르므로 그 요청에는
 				// Authorization 헤더가 안 붙는다. 키가 UUID 라 추측할 수 없고, 올리기는 인증이 필요하다.
 				.requestMatchers(HttpMethod.GET, "/api/v1/uploads/images/**").permitAll()
+				// 장소 사진 대리 조회(S15P21E201-1832)도 화면이 <img> 로 부른다 — 위와 같은 이유로 헤더가 없다.
+				// 장소 번호가 UUID 이고, Google 장소 번호가 저장된 장소에만 답한다(PlacePhotoController).
+				.requestMatchers(HttpMethod.GET, "/api/v1/places/*/photo").permitAll()
+				// 공공 사진 대리 조회(S15P21E201-1954)도 <img> 로 불린다. 허락 호스트만 받고(ImageUrlGuard)
+				// 사진일 때만 내보내므로, 열려 있어도 남의 서버를 아무렇게나 부르는 문이 되지 않는다.
+				.requestMatchers(HttpMethod.GET, "/api/v1/images/proxy").permitAll()
 				// 공유 조회는 43글자 난수 토큰을 아는 사람이 로그인 없이 연다. 발급(POST)·복제는
 				// 여전히 인증이 필요하다.
 				.requestMatchers(HttpMethod.GET, "/api/v1/shares/*").permitAll()
+				// 앱 버전 안내(S15P21E201-2048). 앱이 켜질 때 로그인 전에 부른다 — 최소 지원 버전 미만이면
+				// 로그인 화면도 막아야 하기 때문이다. 스토어에 이미 공개된 버전·주소만 답하고 쓰기가 없다.
+				.requestMatchers(HttpMethod.GET, "/api/v1/app/version").permitAll()
+				// 의견 보내기(S15P21E201-2049). 로그인 없이도 버그를 알릴 수 있어야 한다 — 로그인이 고장 난 사람이
+				// 가장 알리고 싶어 한다. 토큰이 있으면 필터가 그대로 신원을 심어 계정이 묶이고, 하루 상한은 서비스가 센다.
+				.requestMatchers(HttpMethod.POST, "/api/v1/feedback").permitAll()
 				// 운영자 전용 경로. S15P21E201-1548 — 이제 메서드 보안도 켜져 있어 컨트롤러의
 				// @PreAuthorize 가 이중으로 막지만, 이 경로 매처는 대체가 아니라 그대로 둔다 —
 				// 운영자 API 를 새로 만드는 사람이 애너테이션을 잊어도 이 줄이 여전히 막는다.

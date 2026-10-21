@@ -39,7 +39,7 @@ public class TripActivityController {
 			@RequestParam(name = "limit", defaultValue = "" + TripActivityService.DEFAULT_LIMIT) int limit,
 			Authentication authentication) {
 
-		String requester = AuthenticatedUsers.requireId(authentication).toString();
+		String requester = AuthenticatedUsers.requireTripActor(authentication);
 		TripActivityResponse response = this.activityService.list(tripId, requester, limit);
 		return ApiResponse.success(response, "req_" + UUID.randomUUID());
 	}

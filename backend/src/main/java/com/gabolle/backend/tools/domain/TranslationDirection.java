@@ -26,12 +26,17 @@ public enum TranslationDirection {
 
 	ZH_HANT_TO_KO(Language.CHINESE_TRADITIONAL, Language.KOREAN),
 
+	/** 베트남 손님 — S15P21E201-2004. */
+	VI_TO_KO(Language.VIETNAMESE, Language.KOREAN),
+
 	/** 가게가 한국어로 답한 것을 손님 언어로 돌려준다 — 대화가 양쪽으로 오간다. */
 	KO_TO_JA(Language.KOREAN, Language.JAPANESE),
 
 	KO_TO_ZH_HANS(Language.KOREAN, Language.CHINESE_SIMPLIFIED),
 
-	KO_TO_ZH_HANT(Language.KOREAN, Language.CHINESE_TRADITIONAL);
+	KO_TO_ZH_HANT(Language.KOREAN, Language.CHINESE_TRADITIONAL),
+
+	KO_TO_VI(Language.KOREAN, Language.VIETNAMESE);
 
 	private final Language source;
 
@@ -61,7 +66,8 @@ public enum TranslationDirection {
 		ENGLISH("영어"),
 		JAPANESE("일본어"),
 		CHINESE_SIMPLIFIED("간체 중국어"),
-		CHINESE_TRADITIONAL("번체 중국어");
+		CHINESE_TRADITIONAL("번체 중국어"),
+		VIETNAMESE("베트남어");
 
 		private final String promptName;
 

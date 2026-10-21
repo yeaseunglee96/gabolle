@@ -8,6 +8,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+import com.gabolle.backend.auth.service.LanguageNormalizer;
+
 /**
  * {@code POST /api/v1/auth/oauth/signup} — 소셜 인증 뒤 회원가입 완료.
  *
@@ -17,7 +19,8 @@ import jakarta.validation.constraints.Size;
 public record OAuthSignupRequest(
 		@NotBlank String signupTicket,
 		@Size(max = 50) String displayName,
-		@Pattern(regexp = "KO|EN") String language,
+		// 여섯 언어 — 목록은 LanguageNormalizer 한 곳에 있다(LocalSignupRequest 와 같은 줄을 쓴다).
+		@Pattern(regexp = LanguageNormalizer.SIGNUP_LANGUAGE_REGEX) String language,
 		/**
 		 * 원시형이 아니라 {@code Boolean} + {@code @NotNull} 이어야 한다. 원시형이면 이 키를 빼고
 		 * 보낸 요청이 검증 오류가 아니라 형식 오류로 끝나 어느 항목이 빠졌는지가 응답에 안 남는다.

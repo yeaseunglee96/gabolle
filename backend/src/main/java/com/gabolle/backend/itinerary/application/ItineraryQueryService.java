@@ -122,7 +122,19 @@ public class ItineraryQueryService {
 
 		return render(itineraryId, latestVersion, trip, content.items(), content.legs(), actualsByItemKey,
 				resolveFallbackMode(content.version()), access.role().name(), access.role().canEdit(),
-				content.version().warningCodes());
+				content.version().warningCodes(), originOf(itineraryId, content.version()));
+	}
+
+	/**
+	 * 직접 짜기로 시작한 일정인가 — 첫 판의 {@code request_id} 가 {@link SelfPlanItineraryService#REQUEST_ID} 면
+	 * {@code SELF}(S15P21E201-2018). 최신 판이 첫 판이면 다시 묻지 않는다.
+	 */
+	private String originOf(String itineraryId, ItineraryVersion latest) {
+		ItineraryVersion first = latest.version() == 1 ? latest
+				: this.itineraryRepository.findVersion(itineraryId, 1).orElse(null);
+		return first != null && SelfPlanItineraryService.REQUEST_ID.equals(first.requestId())
+				? ItineraryDetailResponse.ORIGIN_SELF
+				: ItineraryDetailResponse.ORIGIN_RECOMMENDATION;
 	}
 
 	/**
@@ -138,12 +150,13 @@ public class ItineraryQueryService {
 	@Transactional(readOnly = true)
 	public ItineraryDetailResponse preview(String previewId, Trip trip, TripMember.Role role,
 			List<ItineraryItem> items, List<ItineraryLeg> legs, List<String> warningCodes) {
-		return render(previewId, 0, trip, items, legs, Map.of(), null, role.name(), false, warningCodes);
+		return render(previewId, 0, trip, items, legs, Map.of(), null, role.name(), false, warningCodes,
+				ItineraryDetailResponse.ORIGIN_RECOMMENDATION);
 	}
 
 	private ItineraryDetailResponse render(String id, int version, Trip trip, List<ItineraryItem> contentItems,
 			List<ItineraryLeg> contentLegs, Map<String, ItineraryItemActual> actualsByItemKey,
-			FallbackMode fallbackMode, String myRole, boolean canEdit, List<String> warningCodes) {
+			FallbackMode fallbackMode, String myRole, boolean canEdit, List<String> warningCodes, String origin) {
 
 		Map<UUID, Place> placesByPlaceId = lookupPlaces(contentItems);
 
@@ -171,6 +184,9 @@ public class ItineraryQueryService {
 		Integer totalWalkingMeters = sumOrNull(contentLegs.stream()
 				.map(ItineraryLeg::walkingMeters));
 
+		RoutePaintConditions paint = (this.legPlanner == null)
+				? RoutePaintConditions.NONE
+				: this.legPlanner.routePaintConditions(trip);
 		return new ItineraryDetailResponse(
 				id,
 				// 이름은 Trip 이 정한다 — 사용자가 붙인 것이 있으면 그것, 없으면 기간.
@@ -188,7 +204,23 @@ public class ItineraryQueryService {
 				accessibilityUnverifiedCount(contentItems),
 				trip.partySize(),
 				// 일정을 짤 때의 상한과 같은 곳에서 센다 — 두 곳에서 곱하면 반올림이 경계에서 어긋난다.
-				BudgetAllowance.capKrw(trip.budgetKrw()));
+				BudgetAllowance.capKrw(trip.budgetKrw()),
+				// 구간을 잴 때와 같은 규칙 한 곳(ItineraryLegPlanner.needsStepFree)에서 센다 — 두 벌이 되면 일정은 계단
+				// 없는 길로 쟀는데 앱이 다시 물은 길은 계단 길이 되는 날이 온다.
+				this.legPlanner != null && this.legPlanner.needsStepFree(trip),
+				// 지도가 경로 선을 칠할 조건 — 사용자가 추천 단계에서 고른 것만 true (S15P21E201-1895).
+				paint.slopeAvoid(),
+				paint.shadePrefer(),
+				origin,
+				// 이 여행이 고른 이동수단 그대로(S15P21E201-2061) — 구간 줄의 「대중교통」 이름표와 길 안내가 열 탭을 화면이 이것으로 정한다.
+				// 안 고른 여행은 빈 배열이다(모른다).
+				travelModesOf(trip));
+	}
+
+	/** 여행의 이동수단 목록 — 저장된 배열을 그대로 목록으로. 안 골랐으면 빈 목록. */
+	private static List<String> travelModesOf(Trip trip) {
+		String[] modes = trip.travelModes();
+		return (modes == null) ? List.of() : List.of(modes);
 	}
 
 	/**
@@ -328,6 +360,13 @@ public class ItineraryQueryService {
 		// 선형도 같은 incoming 에 묶인다. 없으면 null 이고, 그때 출발·도착 두 점을 이어
 		// 만들어 주지 않는다 — 그 직선을 화면이 「실제로 잰 길」로 그리게 된다.
 		List<double[]> travelPath = incoming ? incomingLeg.path() : null;
+		// 경사·계단 조각도 같은 incoming 에 묶인다. 선형이 없으면 가리킬 자리가 없으므로 비운다.
+		List<ItineraryDetailResponse.Piece> travelPieces = (travelPath == null || incomingLeg.pieces() == null)
+				? null
+				: incomingLeg.pieces().stream()
+						.map(piece -> new ItineraryDetailResponse.Piece(piece.from(), piece.to(), piece.slopePercent(),
+								piece.stairs(), piece.shade()))
+						.toList();
 
 		return new ItineraryDetailResponse.Item(
 				item.itemKey(),
@@ -346,6 +385,7 @@ public class ItineraryQueryService {
 				travelDataStatus,
 				travelFareKrw,
 				travelPath,
+				travelPieces,
 				// ItineraryItem 이 생성자에서 빈 목록으로 정규화하므로 여기서 다시 감싸지 않는다.
 				item.warningCodes(),
 				// 이유 코드도 같다 — 생성자가 빈 목록으로 정규화한다.
@@ -355,7 +395,14 @@ public class ItineraryQueryService {
 				// 모르면 null 이고 0 으로 채우지 않는다 — 위도 0·경도 0 은 기니만 한가운데라
 				// 지도에 실제로 점이 찍힌다.
 				place.getLat(),
-				place.getLng());
+				place.getLng(),
+				// 다른 언어 화면이 장소 이름을 고른다 — 장소 상세와 같은 모양(S15P21E201-1937).
+				place.getNameEn(),
+				place.localNames(),
+				// 고정 방식 — 순서 고정/시각 고정(S15P21E201-2017). 고정이 아니면 null.
+				item.lockMode() == null ? null : item.lockMode().name(),
+				// 코스 카드의 한 줄 소개 — 언어별(S15P21E201-2029).
+				place.oneLine());
 	}
 
 	/** {@code visit_date} + {@code start_time} 을 ISO-8601 로 합친다. 시간대는 항상 Asia/Seoul 이다(API-03). */

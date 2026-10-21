@@ -38,7 +38,7 @@ class AppleFormPostJourneyFunctionalTest extends FunctionalJourneyTest {
 	private static final String PATH = "/api/v1/auth/oauth/apple/form-post";
 
 	/** 기본 설정값. 배포에서는 {@code GABOLLE_APPLE_FORM_POST_REDIRECT_URL} 이 덮는다. */
-	private static final String EXPECTED_HOST = "j15e201.p.ssafy.io";
+	private static final String EXPECTED_HOST = "gabolle.kr";
 
 	@Test
 	@DisplayName("애플이 보낸 폼을 로그인 없이 받고, code·state 를 화면 주소로 옮기는 302 를 낸다")

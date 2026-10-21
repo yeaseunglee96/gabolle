@@ -1,0 +1,90 @@
+{
+  "id": "KTO-099",
+  "name": "봄베이브로이 문현점",
+  "cat": "인도음식",
+  "attempts": 1,
+  "geminiTokens": 73088,
+  "researchedAt": "2026-09-30T00:25:53.779Z",
+  "confidence": "high",
+  "crowding": {
+    "found": false,
+    "note": "줄서기나 혼잡에 대한 명시적인 언급 없음"
+  },
+  "descriptors": {
+    "audience": "직장인, 가족, 관람객(드림씨어터 방문객)",
+    "generations": null,
+    "parking": true,
+    "priceBand": "mid",
+    "queueing": false,
+    "signatureDishes": [
+      "버터 치킨 커리",
+      "갈릭 난",
+      "탄두리 치킨",
+      "사모사"
+    ],
+    "yearsClaimed": null
+  },
+  "found": true,
+  "hours": {
+    "found": true,
+    "text": "매일 11:30 ~ 22:00 (Last order 21:30) (포털·휠부산 기준 10:50 ~ 21:50 병기)"
+  },
+  "localVsTourist": {
+    "found": true,
+    "note": "BIFC 직장인 및 인근 드림씨어터 공연 관람객 중심 방문"
+  },
+  "menuDiversity": {
+    "dishCount": 15,
+    "found": true
+  },
+  "notes": "부산 문현동 BIFC몰 3층(306호)에 위치한 정통 인도 요리 전문점으로 버터 치킨 커리와 난, 탄두리 치킨 등이 대표 메뉴임.",
+  "photoUrls": [],
+  "price": {
+    "found": false,
+    "priceMenu": null,
+    "priceWon": null
+  },
+  "sourceExcerpts": [
+    {
+      "excerpt": "위치: 부산광역시 남구 문현금융로 40, BIFC몰 3층 (306호). 영업시간: 매일 10:50 ~ 21:50. 전화번호: 051-634-7828. BIFC몰 3층 식당가에 위치하고 있으며, 지하철 국제금융센터역 1번 출구에서 가깝습니다.",
+      "url": "https://wheelbusan.or.kr"
+    },
+    {
+      "excerpt": "버터 치킨 커리: 고기가 부드럽고 소스가 진해 난과 함께 먹었을 때 가장 인기가 많은 메뉴 중 하나입니다. 난(Naan): 갈릭 난이 특히 바삭하고 마늘 향이 풍부해 좋은 평가를 받고 있습니다. 사모사: 바삭한 식감과 속을 채운 양념 감자의 조화가 좋아 중독성 있는 메뉴로 꼽힙니다. 매장 분위기가 좋고 직원들이 친절하다는 후기가 많습니다. 세트 메뉴(예: VIP 세트) 구성이 알차고 다양하게 맛볼 수 있어 처음 방문하는 분들에게도 추천됩니다.",
+      "url": "https://wanderboat.ai"
+    },
+    {
+      "excerpt": "부산광역시 남구 문현금융로 40, BIFC몰 3층 306호 (국제금융센터역 1번 출구 인근). 영업시간: 매일 11:30 ~ 22:00 (Last order 21:30). 특징: 정통 인도 요리 전문점으로, 커리, 탄두리 치킨, 난 등의 메뉴를 제공합니다. 드림씨어터 제휴 할인 혜택 등을 통해 런치세트 할인이나 치즈난 제공 등의 프로모션이 운영되기도 합니다.",
+      "url": "https://blog.naver.com"
+    }
+  ],
+  "sources": [
+    "https://wheelbusan.or.kr",
+    "https://wanderboat.ai",
+    "https://blog.naver.com"
+  ],
+  "whyPeopleGo": [
+    {
+      "note": "진하고 부드러운 버터 치킨 커리와 바삭한 갈릭 난, 사모사 등 정통 인도 요리의 맛",
+      "sources": [
+        1
+      ],
+      "type": "맛 자체"
+    },
+    {
+      "note": "BIFC몰 내 입점 및 지하철 국제금융센터역 인근 위치, 드림씨어터 관람객 연계 편의",
+      "sources": [
+        0,
+        2
+      ],
+      "type": "운영·접근 편의"
+    },
+    {
+      "note": "다양한 커리와 탄두리 요리, 난을 함께 즐길 수 있는 알찬 세트 메뉴 구성 및 친절한 응대",
+      "sources": [
+        1
+      ],
+      "type": "서비스·사람"
+    }
+  ]
+}

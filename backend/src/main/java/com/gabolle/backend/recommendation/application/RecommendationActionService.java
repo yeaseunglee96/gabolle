@@ -81,6 +81,9 @@ public class RecommendationActionService {
 	@Transactional
 	public RecommendationPlaceAction put(String tripId, String userId, String placeId,
 			RecommendationPlaceAction.Action action) {
+		// 구성원인지 먼저 본다. list·remove 는 보는데 이 자리만 빠져 있어서, 로그인만 하면
+		// 남의 여행의 판단도 덮어쓸 수 있었다.
+		this.tripQueryService.get(tripId, userId);
 		UUID trip = UUID.fromString(tripId);
 		UUID place = UUID.fromString(placeId);
 		UUID decidedBy = UUID.fromString(userId);

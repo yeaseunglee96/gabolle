@@ -1,0 +1,1228 @@
+﻿place_id,name_ko,column,old,new,source,evidence,rec_count,itin_count
+7b1828f6-c314-36be-abf4-40cf8a35ef0c,씨라이프부산아쿠아리움,name_en,,SEA LIFE Busan Aquarium,TourAPI EngService2 contentid=2666408,"제목 속 한국어 「씨라이프부산아쿠아리움」 이름 열쇠 같음, 5m",220,62
+7b1828f6-c314-36be-abf4-40cf8a35ef0c,씨라이프부산아쿠아리움,name_ja,,SEA LIFE 釜山アクアリウム,TourAPI JpnService2 contentid=281854,"제목 속 한국어 「씨라이프부산아쿠아리움」 이름 열쇠 같음, 5m",220,62
+03581d54-7e9d-4e22-ae0f-000995455003,해운대시장,name_en,,Busan Haeundae Market,TourAPI EngService2 contentid=1468918,"제목 속 한국어 「부산 해운대시장」 이름 열쇠 같음, 39m",151,34
+03581d54-7e9d-4e22-ae0f-000995455003,해운대시장,name_ja,,釜山海雲台市場,TourAPI JpnService2 contentid=1920279,"제목 속 한국어 「부산 해운대시장」 이름 열쇠 같음, 39m",151,34
+03581d54-7e9d-4e22-ae0f-000995455003,해운대시장,name_zh_hans,,釜山海云台市场,TourAPI ChsService2 contentid=1869052,"제목 속 한국어 「부산 해운대시장」 이름 열쇠 같음, 39m",151,34
+03581d54-7e9d-4e22-ae0f-000995455003,해운대시장,name_zh_hant,,釜山海雲臺市場,TourAPI ChtService2 contentid=2351468,"제목 속 한국어 「부산 해운대시장」 이름 열쇠 같음, 39m",151,34
+0ad38272-7a35-3498-991b-5b80563c8f4f,원갤러리,name_en,,Won Gallery,OSM node/368727681 (ODbL),같은 OSM 항목의 name:en,125,40
+ab4e8ad7-066a-3160-a950-cf719d350f12,수림횟집,name_en,,Surim Hoetjip,TourAPI EngService2 contentid=4097201,"제목 속 한국어 「수림횟집」 이름 열쇠 같음, 0m",159,0
+ab4e8ad7-066a-3160-a950-cf719d350f12,수림횟집,name_ja,,洙林フェッチプ,TourAPI JpnService2 contentid=4096942,"제목 속 한국어 「수림횟집」 이름 열쇠 같음, 0m",159,0
+ab4e8ad7-066a-3160-a950-cf719d350f12,수림횟집,name_zh_hans,,水林生鱼片餐厅,TourAPI ChsService2 contentid=4098285,"제목 속 한국어 「수림횟집」 이름 열쇠 같음, 0m",159,0
+ab4e8ad7-066a-3160-a950-cf719d350f12,수림횟집,name_zh_hant,,水林生魚片餐廳,TourAPI ChtService2 contentid=4097990,"제목 속 한국어 「수림횟집」 이름 열쇠 같음, 0m",159,0
+7294fa5c-c4ba-3d11-a2e6-2a4a0875a4a4,해월전망대,name_zh_hans,,海月展望台,TourAPI ChsService2 contentid=4039579,"제목 속 한국어 「해월전망대 」 이름 열쇠 같음, 40m",144,8
+7294fa5c-c4ba-3d11-a2e6-2a4a0875a4a4,해월전망대,name_en,,Haewol Skywalk,OSM node/12062982621 (ODbL),같은 OSM 항목의 name:en,144,8
+33994ebe-c860-3171-b8d4-d7fbe5e5ac2d,피카소화랑,name_en,,Pikaso Gallery,OSM node/368727608 (ODbL),같은 OSM 항목의 name:en,123,8
+6919dae4-4086-3ed7-8fd8-20e7ebffbec2,고운사진미술관,name_en,,Gounsajin Art Museum,OSM node/368726187 (ODbL),같은 OSM 항목의 name:en,122,2
+4342e177-a601-375d-826b-f97371b3d75d,부산 영화의 거리,name_en,,Busan Cine Road,TourAPI EngService2 contentid=3047063,"제목 속 한국어 「부산 영화의 거리」 이름 열쇠 같음, 399m",104,18
+755d0f09-6bc8-4bdc-b24f-c3807856ad39,더베이101,name_zh_hans,,The Bay 101,TourAPI ChsService2 contentid=2357426,"제목 속 한국어 「더베이101」 이름 열쇠 같음, 11m",74,42
+755d0f09-6bc8-4bdc-b24f-c3807856ad39,더베이101,name_zh_hant,,The Bay 101,TourAPI ChtService2 contentid=2357704,"제목 속 한국어 「더베이101」 이름 열쇠 같음, 5m",74,42
+31e24551-841c-3536-ba6a-34b3324ebbf6,수목원,name_ja,,樹木園,OSM node/368866527 (ODbL),같은 OSM 항목의 name:ja,72,39
+65863ed2-70a3-3718-9141-2fb8b322775e,최장호갤러리,name_en,,Choejangho Gallery,OSM node/368727592 (ODbL),같은 OSM 항목의 name:en,99,0
+e5b9047e-f300-3381-80be-78f357ab5cab,몽돌횟집,name_en,,Mongdol Fish Restaurant,OSM node/368957649 (ODbL),같은 OSM 항목의 name:en,97,0
+751db127-c4ec-33a7-895e-7f284af77450,주천조각보박물관,name_en,,Jucheonjogakbo Museum,OSM node/368735540 (ODbL),같은 OSM 항목의 name:en,90,7
+317eff31-46c7-3845-b401-f5c0fa3ac5f2,신해운대횟집,name_en,,Sinhaeundae Fish Restaurant,OSM node/368956638 (ODbL),같은 OSM 항목의 name:en,91,0
+53493eeb-ca7b-30a3-b9f8-d1c675a6095f,마린갤러리,name_en,,Marin Gallery,OSM node/368725881 (ODbL),같은 OSM 항목의 name:en,89,0
+1c11cb28-fb61-3055-a86f-1d7402635b72,충무횟집,name_en,,Chungmu Fish Restaurant,OSM node/368959346 (ODbL),같은 OSM 항목의 name:en,87,0
+bb051d07-6eb9-356e-99ab-9fc6177f9480,솔거갤러리,name_en,,Solgeo Gallery,OSM node/368727638 (ODbL),같은 OSM 항목의 name:en,84,0
+10f61307-dad8-34d7-814a-247611211533,클럽디 오아시스,name_en,,ClubD Oasis,TourAPI EngService2 contentid=3444761,"제목 속 한국어 「클럽디 오아시스」 이름 열쇠 같음, 0m",84,0
+10f61307-dad8-34d7-814a-247611211533,클럽디 오아시스,name_ja,,クラブDオアシス,TourAPI JpnService2 contentid=3444762,"제목 속 한국어 「클럽디 오아시스」 이름 열쇠 같음, 0m",84,0
+10f61307-dad8-34d7-814a-247611211533,클럽디 오아시스,name_zh_hans,,ClubD Oasis,TourAPI ChsService2 contentid=3444785,"제목 속 한국어 「클럽디 오아시스」 이름 열쇠 같음, 0m",84,0
+10f61307-dad8-34d7-814a-247611211533,클럽디 오아시스,name_zh_hant,,ClubD Oasis,TourAPI ChtService2 contentid=3108545,"제목 속 한국어 「클럽디 오아시스」 이름 열쇠 같음, 0m",84,0
+959ac4bf-8140-33cf-9d4c-d8a2d2f2f38c,민주공원,name_en,,Democracy Park,Wikidata Q12598807 (CC0),"한국어 이름 「부산민주공원」 열쇠 같음, 26m",78,5
+ad029234-f17a-398a-bb77-1bcbc41b3d36,해운대갤러리,name_en,,Haeundae Gallery,OSM node/368727673 (ODbL),같은 OSM 항목의 name:en,83,0
+3a75d9d0-63e2-3fea-823e-df273a4d7552,부산엑스더스카이,name_en,,BUSAN X the SKY,TourAPI EngService2 contentid=2815428,"제목 속 한국어 「부산엑스더스카이」 이름 열쇠 같음, 0m",82,0
+3a75d9d0-63e2-3fea-823e-df273a4d7552,부산엑스더스카이,name_ja,,BUSAN X the SKY,TourAPI JpnService2 contentid=2816164,"제목 속 한국어 「부산엑스더스카이」 이름 열쇠 같음, 0m",82,0
+cd46ee84-a2df-305f-a33b-13e15c671c40,옥상공원,name_ja,,屋上公園,OSM node/6475086304 (ODbL),같은 OSM 항목의 name:ja,52,29
+f2eaaa50-3c4e-324d-96e4-af538c71fece,조현화랑,name_en,,Johyeon Gallery,OSM node/368726146 (ODbL),같은 OSM 항목의 name:en,81,0
+0f616a69-8f4d-3b76-af16-e3323e98c8fa,초량 근대역사 갤러리,name_en,,Choryang Modern History Gallery,OSM node/13773553101 (ODbL),같은 OSM 항목의 name:en,57,20
+a50fc152-b7cb-304b-ba2a-33940fce8a19,40계단문화관광 테마거리,name_zh_hans,,40階梯,OSM node/4939629122 (ODbL),같은 OSM 항목의 name:zh(-Hans),67,9
+1cc4e345-cb55-3ec5-af0b-851a4a6800c8,타워갤러리,name_ja,,タワーギャラリー,OSM node/368727584 (ODbL),같은 OSM 항목의 name:ja,69,6
+2ac2b4af-c0f5-38e2-abe6-7400366ad4ea,OPS 해운대점,name_en,,OPS,OSM node/4646513590 (ODbL),같은 OSM 항목의 name:en,73,0
+cdb92f5c-be35-39dd-a567-8015b99c8a0a,대우건설거제동전시관,name_en,,Daeugeonseolgeojedong Exhibition Hall,OSM node/368898523 (ODbL),같은 OSM 항목의 name:en,71,1
+f1f76df7-4135-3aec-b09e-23f345155dec,Outback Steakhouse,name_en,,Outback Steakhouse,OSM node/5138976222 (ODbL),같은 OSM 항목의 name:en,67,0
+1beadc86-1c9b-30c9-8e6e-3cdd4fda0be0,수영로교회,name_en,,Sooyoungro Presbyterian Church,Wikidata Q140298799 (CC0),"한국어 이름 「수영로교회」 열쇠 같음, 12m",65,0
+75b38b70-c836-328c-8e27-cfc7cbdb0936,돼지국수 pork soup,name_zh_hans,,密陽血腸豬肉湯飯,OSM node/4271160710 (ODbL),같은 OSM 항목의 name:zh(-Hans),64,0
+e8d2b398-7658-361e-a59a-e57c0b70785a,달맞이성당,name_en,,Dalmaji Catholic Church,OSM node/368864638 (ODbL),같은 OSM 항목의 name:en,63,0
+85980826-51d4-398f-9978-19f4f2df54d4,부산대교,name_en,,Busandaegyo Bridge,TourAPI EngService2 contentid=1941474,"제목 속 한국어 「부산대교」 이름 열쇠 같음, 159m",53,10
+85980826-51d4-398f-9978-19f4f2df54d4,부산대교,name_ja,,釜山大橋,TourAPI JpnService2 contentid=1944677,"제목 속 한국어 「부산대교」 이름 열쇠 같음, 159m",53,10
+85980826-51d4-398f-9978-19f4f2df54d4,부산대교,name_zh_hans,,釜山大桥,TourAPI ChsService2 contentid=3340831,"제목 속 한국어 「부산대교」 이름 열쇠 같음, 159m",53,10
+85980826-51d4-398f-9978-19f4f2df54d4,부산대교,name_zh_hant,,釜山大橋,TourAPI ChtService2 contentid=1941456,"제목 속 한국어 「부산대교」 이름 열쇠 같음, 159m",53,10
+0581d63d-d683-32f2-a3e3-75a33432b0c8,한광미술관,name_en,,Hangwang Art Museum,OSM node/368725475 (ODbL),같은 OSM 항목의 name:en,59,3
+f548797c-361a-3b3a-8210-616be343a29d,국제시장,name_en,,Gukje Market,TourAPI EngService2 contentid=705873,"제목 속 한국어 「국제시장」 이름 열쇠 같음, 5m",58,2
+0fa2cd33-3055-3745-90cb-45cb6cf15617,남일횟집,name_en,,Namil Fish Restaurant,OSM node/368957951 (ODbL),같은 OSM 항목의 name:en,60,0
+2e9531b4-18bd-3a3c-80a4-0fe4439ad4ef,파스쿠치 광안리점,name_en,,Caffe Pascucci,OSM node/5877548585 (ODbL),같은 OSM 항목의 name:en,42,17
+f8dcab62-71a2-3bc0-8865-23d99e74c169,미광갤러리,name_en,,Migwang Gallery,OSM node/368727656 (ODbL),같은 OSM 항목의 name:en,54,4
+6f92f891-0e36-386c-9bd4-e029e1e065e5,청사포다릿돌전망대,name_en,,Cheongsapo Daritdol Observatory,TourAPI EngService2 contentid=2946894,"제목 속 한국어 「청사포 다릿돌전망대」 이름 열쇠 같음, 117m",43,15
+6f92f891-0e36-386c-9bd4-e029e1e065e5,청사포다릿돌전망대,name_zh_hant,,青沙浦踏石觀景臺,TourAPI ChtService2 contentid=2948597,"제목 속 한국어 「청사포 다릿돌전망대」 이름 열쇠 같음, 123m",43,15
+c142c26f-08fb-30bc-b160-c1db30a214c8,1970 伍班長 오반장,name_zh_hans,,伍班長燒肉,OSM node/4365623690 (ODbL),같은 OSM 항목의 name:zh(-Hans),57,0
+d7e3233f-d7c4-3851-9a39-2a0ae3235d77,PS14갤러리,name_en,,PS14 Gallery,OSM node/368727658 (ODbL),같은 OSM 항목의 name:en,54,2
+dae7b576-0eff-3127-9165-afd5646e4e0e,광복기념관,name_en,,Gwangbok Memorial Hall,OSM node/368636004 (ODbL),같은 OSM 항목의 name:en,56,0
+dae7b576-0eff-3127-9165-afd5646e4e0e,광복기념관,name_ja,,光復記念館,OSM node/368636004 (ODbL),같은 OSM 항목의 name:ja,56,0
+a1a81f3b-942a-3e3d-b3ac-3784830320cd,한성화랑,name_en,,Hanseong Gallery,OSM node/368727651 (ODbL),같은 OSM 항목의 name:en,36,20
+9025582e-0d91-3387-97e3-ad2bfc9e81c3,광안리 M 드론 라이트쇼,name_en,,Gwangalli Saturday Night Marvelous Drone Show,OSM node/12503880201 (ODbL),같은 OSM 항목의 name:en,54,1
+23e657fd-0a67-3145-a8eb-8270eab57829,예촌갤러리,name_en,,Yechon Gallery,OSM node/368727626 (ODbL),같은 OSM 항목의 name:en,51,2
+78b88cf7-887b-3039-aa47-eb161ef7c2ac,도시갤러리,name_en,,Dosi Gallery,OSM node/368726748 (ODbL),같은 OSM 항목의 name:en,52,0
+9490f387-8dfc-3266-aaba-c7c9ad3dfc59,부산영화체험박물관,name_en,,Busan Museum of Movies,TourAPI EngService2 contentid=3115762,"제목 속 한국어 「부산영화체험박물관」 이름 열쇠 같음, 12m",52,0
+9490f387-8dfc-3266-aaba-c7c9ad3dfc59,부산영화체험박물관,name_ja,,釜山映画体験博物館,TourAPI JpnService2 contentid=3115079,"제목 속 한국어 「부산영화체험박물관」 이름 열쇠 같음, 5m",52,0
+9490f387-8dfc-3266-aaba-c7c9ad3dfc59,부산영화체험박물관,name_zh_hant,,釜山電影體驗博物館,TourAPI ChtService2 contentid=3330094,"제목 속 한국어 「부산영화체험박물관」 이름 열쇠 같음, 5m",52,0
+31341339-ea3f-39da-a353-5682145980d5,청원횟집,name_en,,Cheongwon Fish Restaurant,OSM node/368956805 (ODbL),같은 OSM 항목의 name:en,50,1
+75481cbc-75a7-3b5a-b68a-6f4f46fd0a71,스타벅스,name_en,,Starbucks,OSM node/4426268903 (ODbL),같은 OSM 항목의 name:en,48,1
+75481cbc-75a7-3b5a-b68a-6f4f46fd0a71,스타벅스,name_ja,,スターバックス,OSM node/4426268903 (ODbL),같은 OSM 항목의 name:ja,48,1
+915edbff-7b2c-3156-adea-4e9b45c9551d,스타벅스,name_ja,,スターバックス,OSM node/4537711648 (ODbL),같은 OSM 항목의 name:ja,45,2
+18de0d5c-4373-3fdc-bd7c-093469bc4f0a,BIFF 광장 Streed Food,name_en,,BIFF Square,OSM node/4524166889 (ODbL),같은 OSM 항목의 name:en,41,5
+18de0d5c-4373-3fdc-bd7c-093469bc4f0a,BIFF 광장 Streed Food,name_ja,,BIFF広場,OSM node/4524166889 (ODbL),같은 OSM 항목의 name:ja,41,5
+18de0d5c-4373-3fdc-bd7c-093469bc4f0a,BIFF 광장 Streed Food,name_zh_hans,,BIFF 廣場,OSM node/4524166889 (ODbL),같은 OSM 항목의 name:zh(-Hans),41,5
+0a924604-b98c-39d3-b1bf-e3574ddb70a5,깡깡이 예술마을,name_en,,KANGKANGEE Arts Village,TourAPI EngService2 contentid=3386282,"제목 속 한국어 「깡깡이 예술마을」 이름 열쇠 같음, 5m",37,9
+0a924604-b98c-39d3-b1bf-e3574ddb70a5,깡깡이 예술마을,name_ja,,カンカンイ芸術村,TourAPI JpnService2 contentid=2644822,"제목 속 한국어 「깡깡이 예술마을」 이름 열쇠 같음, 5m",37,9
+0a924604-b98c-39d3-b1bf-e3574ddb70a5,깡깡이 예술마을,name_zh_hans,,奚琴艺术村,TourAPI ChsService2 contentid=3352643,"제목 속 한국어 「깡깡이 예술마을」 이름 열쇠 같음, 5m",37,9
+0a924604-b98c-39d3-b1bf-e3574ddb70a5,깡깡이 예술마을,name_zh_hant,,鏗鏘藝術村,TourAPI ChtService2 contentid=3339895,"제목 속 한국어 「깡깡이 예술마을」 이름 열쇠 같음, 5m",37,9
+42a110b4-34e1-33a5-a8eb-1d8c888ca5af,미포경북횟집,name_en,,Mipogyeongbuk Fish Restaurant,OSM node/368957118 (ODbL),같은 OSM 항목의 name:en,46,0
+01856a5e-bdea-3411-a75f-06f0122db450,OPS,name_en,,Pâtisserie OPS Boulangerie,OSM node/4237001636 (ODbL),같은 OSM 항목의 name:en,40,5
+8da358c5-5a95-3622-9ece-1ffae8d8a3ce,극동횟집,name_en,,Geukdong Fish Restaurant,OSM node/368959342 (ODbL),같은 OSM 항목의 name:en,45,0
+8fc366a6-a22e-324a-b141-93b1257d22f3,수영팔도시장,name_en,,Suyeong paldo Market,Wikidata Q137612434 (CC0),"한국어 이름 「수영팔도시장」 열쇠 같음, 248m",38,7
+3cb2c409-a153-3a85-94e4-fa69724b7c94,동일횟집,name_en,,Dongil Fish Restaurant,OSM node/368957465 (ODbL),같은 OSM 항목의 name:en,44,0
+37ea03ea-4141-3dd2-ba44-9bdc5afdcdda,송인횟집,name_en,,Songin Fish Restaurant,OSM node/368958826 (ODbL),같은 OSM 항목의 name:en,44,0
+29b914f1-991f-384c-b05a-b56add8b6596,일성횟집,name_en,,Ilseong Fish Restaurant,OSM node/368959365 (ODbL),같은 OSM 항목의 name:en,44,0
+9fcfcf83-4894-3ea4-a1ea-29ec92c147cc,자갈치시장,name_en,,Jagalchi Market,TourAPI EngService2 contentid=2382544,"제목 속 한국어 「부산 자갈치시장」 이름 열쇠 같음, 165m",41,3
+1e5350b5-2029-322a-9f80-edb1d7ec55fa,태종대성당,name_en,,Taejongdae Catholic Church,OSM node/368864729 (ODbL),같은 OSM 항목의 name:en,33,11
+ce91b390-e725-455f-ac39-000126848001,해동용궁사,name_en,,Haedong Yonggungsa,Wikidata Q2494268 (CC0),"한국어 이름 「해동용궁사」 열쇠 같음, 21m",9,34
+4d8e8e7e-fefe-3c28-acc6-8f472e559e19,미조횟집,name_en,,Mijo Fish Restaurant,OSM node/368957459 (ODbL),같은 OSM 항목의 name:en,42,0
+3b4579e4-697d-381f-bc0b-842e9fb18e79,스시베리,name_ja,,スシベリー,OSM node/5107391121 (ODbL),같은 OSM 항목의 name:ja,42,0
+ada4d5d5-99b4-3896-8290-8de41a836c43,영빈횟집,name_en,,Yeongbin Fish Restaurant,OSM node/368957504 (ODbL),같은 OSM 항목의 name:en,42,0
+ef486a67-a0e6-3bac-980d-3dd1f8760db0,조명의거리,name_en,,Lighting Street,TourAPI EngService2 contentid=1019419,"제목 속 한국어 「조명의거리」 이름 열쇠 같음, 5m",42,0
+5c6c602e-634b-3068-9c91-9f0af96e73f3,벡스코(BEXCO),name_en,,BEXCO,TourAPI EngService2 contentid=1079482,"제목 속 한국어 「벡스코」 이름 열쇠 같음, 5m",41,0
+5c6c602e-634b-3068-9c91-9f0af96e73f3,벡스코(BEXCO),name_zh_hant,,BEXCO,TourAPI ChtService2 contentid=1349827,"제목 속 한국어 「벡스코」 이름 열쇠 같음, 5m",41,0
+478c4c35-e28d-4fdd-af7c-000252563005,봉래산(부산),name_en,,Bongraesan,Wikidata Q16219907 (CC0),"한국어 이름 「봉래산」 열쇠 같음, 3m",28,13
+d96777ad-6ea4-3c04-9177-61929ad50f07,싱싱횟집,name_en,,Singsing Fish Restaurant,OSM node/368957519 (ODbL),같은 OSM 항목의 name:en,40,1
+9cf63e0a-d9de-3a42-9020-ae69e339b2be,청사포 다릿돌전망대,name_zh_hant,,青沙浦踏石觀景臺,TourAPI ChtService2 contentid=2948597,"제목 속 한국어 「청사포 다릿돌전망대」 이름 열쇠 같음, 0m",40,1
+33f6ddd4-b8b0-3ab6-bed9-19776aa8ebca,가양갤러리,name_en,,Gayang Gallery,OSM node/368726868 (ODbL),같은 OSM 항목의 name:en,40,0
+c326ca38-0ded-35a4-823d-22bce736bf37,스타벅스,name_en,,Starbucks,OSM node/9523055873 (ODbL),같은 OSM 항목의 name:en,40,0
+0976f02f-370a-3a17-b4fb-882ffbb9e2fb,안가,name_en,,Anga,OSM node/5892038086 (ODbL),같은 OSM 항목의 name:en,40,0
+d99e5c25-fd31-3e19-a1f4-8faf7b8fbb06,강남횟집,name_en,,Gangnam Fish Restaurant,OSM node/368957833 (ODbL),같은 OSM 항목의 name:en,39,0
+d99e5c25-fd31-3e19-a1f4-8faf7b8fbb06,강남횟집,name_ja,,江南刺身家,OSM node/368957833 (ODbL),같은 OSM 항목의 name:ja,39,0
+151c4337-878b-3621-a62c-03079600653a,동광화랑,name_en,,Donggwang Gallery,OSM node/368727647 (ODbL),같은 OSM 항목의 name:en,36,3
+27816b3b-0d6f-3ec4-8cbb-5962ab8ae6fb,뚜레쥬르,name_en,,Tous les Jours,OSM node/13455818560 (ODbL),같은 OSM 항목의 name:en,39,0
+f6a7d5b9-7f86-370e-96ef-fd6735a6f748,미타선원,name_en,,Mita Seonwon,OSM node/4939767221 (ODbL),같은 OSM 항목의 name:en,39,0
+40fec0fc-3e79-3d0d-8690-7f3f186316b6,송정3대국밥,name_zh_hans,,松亭三代汤饭,TourAPI ChsService2 contentid=3441399,"제목 속 한국어 「송정3대국밥」 이름 열쇠 같음, 1m",39,0
+40fec0fc-3e79-3d0d-8690-7f3f186316b6,송정3대국밥,name_zh_hant,,松亭三代湯飯,TourAPI ChtService2 contentid=3448306,"제목 속 한국어 「송정3대국밥」 이름 열쇠 같음, 1m",39,0
+8a808de1-e753-3c4d-89fb-627422e0c09f,곤포횟집,name_en,,Gonpo Fish Restaurant,OSM node/368958981 (ODbL),같은 OSM 항목의 name:en,37,0
+b8272ee5-9038-3904-ada3-138732756e1e,남양횟집,name_en,,Namyang Fish Restaurant,OSM node/368959849 (ODbL),같은 OSM 항목의 name:en,37,0
+4c51be19-f723-3810-a137-bc1865f17c71,달맞이횟집,name_en,,Dalmaji Fish Restaurant,OSM node/368957112 (ODbL),같은 OSM 항목의 name:en,37,0
+22e03175-057a-3f45-baa4-b020e61d496a,완도횟집,name_en,,Wando Fish Restaurant,OSM node/368958064 (ODbL),같은 OSM 항목의 name:en,37,0
+afecbe83-ac94-3fe8-9940-aa1dfbd7eb3d,용두산미술전시관,name_en,,Yongdusanmisul Exhibition Hall,OSM node/368898457 (ODbL),같은 OSM 항목의 name:en,37,0
+afecbe83-ac94-3fe8-9940-aa1dfbd7eb3d,용두산미술전시관,name_ja,,龍頭山美術展示館,OSM node/368898457 (ODbL),같은 OSM 항목의 name:ja,37,0
+04a3ad44-9736-3cf8-9713-e2c6a2aee841,바스키아갤러리,name_en,,Basquiat Gallery,OSM node/368726275 (ODbL),같은 OSM 항목의 name:en,36,0
+04a3ad44-9736-3cf8-9713-e2c6a2aee841,바스키아갤러리,name_ja,,バスキア ギャラリー,OSM node/368726275 (ODbL),같은 OSM 항목의 name:ja,36,0
+0dd646d7-d152-3888-b1ae-04d5fa636ca2,정인갤러리,name_en,,Jeongin Gallery,OSM node/368726755 (ODbL),같은 OSM 항목의 name:en,36,0
+c85cad60-2a4e-3067-ba45-07daae69d92c,피카소화랑,name_ja,,ピカソ画廊,OSM node/368727609 (ODbL),같은 OSM 항목의 name:ja,36,0
+bfa0b970-f9fc-4b65-880e-8697bda93219,BIFF광장,name_ja,,BIFF広場,TourAPI JpnService2 contentid=994056,"제목 속 한국어 「BIFF 광장」 이름 열쇠 같음, 14m",32,3
+bfa0b970-f9fc-4b65-880e-8697bda93219,BIFF광장,name_zh_hans,,BIFF广场,TourAPI ChsService2 contentid=604402,"제목 속 한국어 「BIFF 광장」 이름 열쇠 같음, 14m",32,3
+bfa0b970-f9fc-4b65-880e-8697bda93219,BIFF광장,name_zh_hant,,BIFF廣場,TourAPI ChtService2 contentid=604206,"제목 속 한국어 「BIFF 광장」 이름 열쇠 같음, 14m",32,3
+f210bb06-f634-3b53-9c96-27cd539bb2e5,맘스터치,name_en,,Mom's Touch,OSM node/12161448827 (ODbL),같은 OSM 항목의 name:en,35,0
+90bf814e-cd67-31a8-ad6a-4d26d0cdd98f,백산기념관,name_en,,Baeksan Memorial Hall,OSM node/368635721 (ODbL),같은 OSM 항목의 name:en,35,0
+90bf814e-cd67-31a8-ad6a-4d26d0cdd98f,백산기념관,name_ja,,白山記念館,OSM node/368635721 (ODbL),같은 OSM 항목의 name:ja,35,0
+afcbad84-9ea9-3203-bf70-e9b14a6b139c,부성횟집,name_en,,Buseong Fish Restaurant,OSM node/368959713 (ODbL),같은 OSM 항목의 name:en,35,0
+5c3d469f-69f6-3df0-bb68-3c316b215289,한성당화랑,name_en,,Han Catholic Church Gallery,OSM node/368727641 (ODbL),같은 OSM 항목의 name:en,35,0
+6c012a01-582e-3e56-8d58-e8b08f5d4b55,동보당화랑,name_en,,Dongbodang Gallery,OSM node/368727599 (ODbL),같은 OSM 항목의 name:en,34,0
+e99a7590-873e-3b02-b7b9-af8f14f14db2,메가MGC커피,name_en,,Mega Coffee,OSM node/13455849677 (ODbL),같은 OSM 항목의 name:en,34,0
+99ad3322-cd76-355a-9efd-909795a10f24,자연호횟집,name_en,,Jayeonho Fish Restaurant,OSM node/368956853 (ODbL),같은 OSM 항목의 name:en,34,0
+a20ea273-4557-3b02-aadd-75e2e4e4d7b8,부산포민속박물관,name_ja,,釜山浦民俗博物館,OSM node/368735545 (ODbL),같은 OSM 항목의 name:ja,29,3
+d2ba3822-7b52-3cf8-aaca-dd0536f693ff,부산항대교,name_en,,Busan Harbor Bridge,Wikidata Q2187707 (CC0),"한국어 이름 「부산항대교」 열쇠 같음, 105m",27,5
+3f4ff653-26ca-35ea-80b1-0726f040dcc9,맥도날드,name_en,,McDonald's,OSM node/4863246521 (ODbL),같은 OSM 항목의 name:en,31,0
+7bc8d0e4-119c-31b5-8589-d525cc77f6f5,청솔횟집,name_en,,Cheongsol Fish Restaurant,OSM node/368957561 (ODbL),같은 OSM 항목의 name:en,29,2
+5b8f5fee-d0dd-3211-9177-85d866ea7203,동궁횟집,name_en,,Donggung Fish Restaurant,OSM node/368958486 (ODbL),같은 OSM 항목의 name:en,30,0
+c78b0594-db12-3a05-8d98-d267103fa6d4,동원횟집,name_en,,Dongwon Fish Restaurant,OSM node/368957240 (ODbL),같은 OSM 항목의 name:en,30,0
+e148a5f5-465f-4af6-a611-000132607003,롯데백화점 부산본점,name_en,,Lotte Department Store - LOTTE Department Store Busan Main Branch [Tax Refund Shop],TourAPI EngService2 contentid=2955800,"제목 속 한국어 「롯데백화점 부산본점」 이름 열쇠 같음, 46m",29,1
+e148a5f5-465f-4af6-a611-000132607003,롯데백화점 부산본점,name_ja,,[事後免税店] ロッテ百貨店・プサン（釜山）店,TourAPI JpnService2 contentid=2962285,"제목 속 한국어 「롯데백화점 부산본점」 이름 열쇠 같음, 46m",29,1
+e148a5f5-465f-4af6-a611-000132607003,롯데백화점 부산본점,name_zh_hans,,[事后免税店]乐天百货商店釜山店,TourAPI ChsService2 contentid=2973109,"제목 속 한국어 「롯데백화점 부산본점」 이름 열쇠 같음, 46m",29,1
+e148a5f5-465f-4af6-a611-000132607003,롯데백화점 부산본점,name_zh_hant,,[事後免稅店] 樂天百貨公司 (釜山店),TourAPI ChtService2 contentid=2985853,"제목 속 한국어 「롯데백화점 부산본점」 이름 열쇠 같음, 46m",29,1
+76f3737b-314b-33ec-9623-5d3363ede74f,송정횟집,name_en,,Songjeong Fish Restaurant,OSM node/368957305 (ODbL),같은 OSM 항목의 name:en,30,0
+7bb96afe-ce05-339c-9539-6cff82e0fce0,자연횟집,name_en,,Jayeon Fish Restaurant,OSM node/368959683 (ODbL),같은 OSM 항목의 name:en,30,0
+124b1aa2-f54c-3399-bfc7-3b91e89ad89f,중앙횟집,name_en,,Jungang Fish Restaurant,OSM node/368958946 (ODbL),같은 OSM 항목의 name:en,30,0
+a2030e67-37fe-3838-9e28-7c97d7b305ca,해림횟집,name_en,,Haerim Fish Restaurant,OSM node/368959277 (ODbL),같은 OSM 항목의 name:en,30,0
+bc30c929-691a-36a8-8ea3-8e55171af0d4,KBS부산홀,name_en,,KBS Busan Hall,OSM node/2362916220 (ODbL),같은 OSM 항목의 name:en,29,0
+bc30c929-691a-36a8-8ea3-8e55171af0d4,KBS부산홀,name_ja,,KBS釜山ホール,OSM node/2362916220 (ODbL),같은 OSM 항목의 name:ja,29,0
+c53be108-c9cb-375d-8132-c1a24d162293,낙원횟집,name_en,,Nakwon Fish Restaurant,OSM node/368958004 (ODbL),같은 OSM 항목의 name:en,29,0
+0a7821f2-8c79-3011-9503-d4620e4c3bcb,월해횟집,name_en,,Wolhae Fish Restaurant,OSM node/368959439 (ODbL),같은 OSM 항목의 name:en,29,0
+bddbd864-c4aa-3811-84c4-04a1c7d41461,일출횟집,name_en,,Ilchul Fish Restaurant,OSM node/368958819 (ODbL),같은 OSM 항목의 name:en,29,0
+fcd604a8-5909-3c30-8116-e212dcea5b33,Café Pascucci,name_en,,Café Pascucci,OSM node/5035997121 (ODbL),같은 OSM 항목의 name:en,27,1
+c0cba7ee-f471-300e-895c-401fdef529d6,우노 도스 타코스,name_en,,Uno Dos Tacos,OSM node/9944950463 (ODbL),같은 OSM 항목의 name:en,28,0
+e8cebdeb-a17d-3a7c-8eff-794d0bc7f679,파리바게뜨,name_en,,Paris Baguette,OSM node/12166873089 (ODbL),같은 OSM 항목의 name:en,26,2
+9d893ec0-ac31-3e4a-b9ec-842a13912aa0,달밤에체조 부산 챌린지,name_en,,Moonlit Night Exercise Busan Challenge,TourAPI EngService2 contentid=4110303,"제목 속 한국어 「달밤에체조 부산 챌린지」 이름 열쇠 같음, 0m",17,10
+9d893ec0-ac31-3e4a-b9ec-842a13912aa0,달밤에체조 부산 챌린지,name_ja,,月夜に体操 釜山チャレンジ,TourAPI JpnService2 contentid=4110403,"제목 속 한국어 「달밤에체조 부산 챌린지」 이름 열쇠 같음, 0m",17,10
+55b22234-2c0d-343f-9b21-bb278973088e,동방화랑,name_en,,Dongbang Gallery,OSM node/368727634 (ODbL),같은 OSM 항목의 name:en,27,0
+2326ce90-fe5c-3641-911c-b102802e4b7d,경북횟집,name_en,,Gyeongbuk Fish Restaurant,OSM node/368959034 (ODbL),같은 OSM 항목의 name:en,26,0
+b65d2ef3-386d-33f5-af9e-b65f8035eb29,도모헌,name_ja,,DOMOHEON,TourAPI JpnService2 contentid=3486300,"제목 속 한국어 「도모헌」 이름 열쇠 같음, 5m",26,0
+cd315163-2f98-310f-be41-4cfd3b321f88,두부가,name_zh_hans,,豆腐家,OSM node/4604869195 (ODbL),같은 OSM 항목의 name:zh(-Hans),25,1
+49399184-2ff5-378d-b0cc-a7ed230568e0,스타벅스 신세계마린시티점,name_en,,Starbucks,OSM node/4653810345 (ODbL),같은 OSM 항목의 name:en,26,0
+49399184-2ff5-378d-b0cc-a7ed230568e0,스타벅스 신세계마린시티점,name_ja,,スターバックス,OSM node/4653810345 (ODbL),같은 OSM 항목의 name:ja,26,0
+49399184-2ff5-378d-b0cc-a7ed230568e0,스타벅스 신세계마린시티점,name_zh_hans,,星巴克,OSM node/4653810345 (ODbL),같은 OSM 항목의 name:zh(-Hans),26,0
+1250e75a-5b72-3a8d-a601-d550f8cfa3ae,청사포고성횟집,name_en,,Cheongsapogoseong Fish Restaurant,OSM node/368973352 (ODbL),같은 OSM 항목의 name:en,26,0
+6c521d83-97b6-3562-b43c-cf6ec84013d7,춘추화랑,name_en,,Chunchu Gallery,OSM node/368727660 (ODbL),같은 OSM 항목의 name:en,26,0
+52b413ba-082e-362d-97f3-dbe1151549ea,해동횟집,name_en,,Haedong Fish Restaurant,OSM node/368958747 (ODbL),같은 OSM 항목의 name:en,26,0
+dad24a8b-940e-3d30-b9f5-1b602f868c43,고향횟집,name_en,,Gohyang Fish Restaurant,OSM node/368958930 (ODbL),같은 OSM 항목의 name:en,25,0
+3257c685-f369-3775-a1bc-93d298e5121f,남지횟집,name_en,,Namji Fish Restaurant,OSM node/368958212 (ODbL),같은 OSM 항목의 name:en,25,0
+dbb43357-c392-3a84-bdfe-7644df2468bf,미정횟집,name_en,,Mijeong Fish Restaurant,OSM node/368959195 (ODbL),같은 OSM 항목의 name:en,25,0
+4ec0898e-7c6f-3db0-89b6-640e6841ea7a,바다횟집,name_en,,Bada Fish Restaurant,OSM node/368956797 (ODbL),같은 OSM 항목의 name:en,25,0
+f3e451bd-db10-409f-a1e3-001607655003,부산공동어시장,name_en,,Busan Cooperative Fish Market,Wikidata Q5001260 (CC0),"한국어 이름 「부산공동어시장」 열쇠 같음, 39m",24,1
+bbf252f7-0ddd-37c3-960f-737ed5952133,스타벅스,name_en,,Starbucks,OSM node/9676341614 (ODbL),같은 OSM 항목의 name:en,25,0
+f86fd315-72d6-3f3f-afa6-e4d29f1457a6,신광신발전시관,name_en,,Singwangsinbal Exhibition Hall,OSM node/368898716 (ODbL),같은 OSM 항목의 name:en,25,0
+cb2b7c35-e3ac-39c9-a63b-414b98ea488e,자갈치시장,name_en,,Jagalchi Market,TourAPI EngService2 contentid=2382544,"제목 속 한국어 「부산 자갈치시장」 이름 열쇠 같음, 37m",25,0
+9325d4bd-749c-3484-846e-eaa932ca672b,삼성횟집,name_en,,Samseong Fish Restaurant,OSM node/368957048 (ODbL),같은 OSM 항목의 name:en,24,0
+0f847612-5b70-3262-a10d-0dd671c6b7f8,싱싱횟집,name_en,,Singsing Fish Restaurant,OSM node/368956768 (ODbL),같은 OSM 항목의 name:en,24,0
+679b180e-7fd4-35c0-a477-981153d658a2,영도횟집,name_en,,Yeongdo Fish Restaurant,OSM node/368959238 (ODbL),같은 OSM 항목의 name:en,24,0
+a8d96682-5cf7-3030-a4c5-08f705624392,이디야커피,name_en,,Ediya Coffee,OSM node/13429372518 (ODbL),같은 OSM 항목의 name:en,24,0
+ffff5be2-a96a-3a3e-aa18-296546689f9e,호산화랑,name_en,,Hosan Gallery,OSM node/368727631 (ODbL),같은 OSM 항목의 name:en,23,1
+78cd4e5c-b6ed-3b01-99ff-3c0386da51fa,동남횟집,name_en,,Dongnam Fish Restaurant,OSM node/368958111 (ODbL),같은 OSM 항목의 name:en,23,0
+cad4af99-926d-3d85-b386-79f9ecce9501,수궁횟집,name_en,,Sugung Fish Restaurant,OSM node/368957948 (ODbL),같은 OSM 항목의 name:en,23,0
+0e190309-67c6-38a9-9565-2df0c2c28885,신동아횟집,name_en,,Sindonga Fish Restaurant,OSM node/368956980 (ODbL),같은 OSM 항목의 name:en,23,0
+a733674e-97b0-3dd4-a468-939de16b01d2,초화원,name_en,,Chohwawon,OSM node/4197447180 (ODbL),같은 OSM 항목의 name:en,23,0
+d941b2d6-44e5-3a78-b06b-e0f945dd0332,풍년횟집,name_en,,Pungnyeon Fish Restaurant,OSM node/368959743 (ODbL),같은 OSM 항목의 name:en,23,0
+a62ee2ea-b81d-33b1-898f-8b41db2b3b43,해변횟집,name_en,,Haebyeon Fish Restaurant,OSM node/368958713 (ODbL),같은 OSM 항목의 name:en,23,0
+d8ceb699-fdf0-3895-abfb-22ae80a43b81,내호냉면,name_en,,Naeho Naengmyeon,Wikidata Q129409037 (CC0),"한국어 이름 「내호냉면」 열쇠 같음, 15m",20,2
+d2cb3e2f-df16-3d7a-8b5b-7819ae074d80,대한불교전시관,name_en,,Daehan Buddhism Exhibition Hall,OSM node/368898378 (ODbL),같은 OSM 항목의 name:en,22,0
+8c7aba00-3627-331c-9770-3b1c065fb09e,영진횟집,name_en,,Yeongjin Fish Restaurant,OSM node/368959697 (ODbL),같은 OSM 항목의 name:en,22,0
+24ab23e3-c447-33e2-97be-160b66f42761,해인불교전시관,name_en,,Haein Buddhism Exhibition Hall,OSM node/368898383 (ODbL),같은 OSM 항목의 name:en,22,0
+24ab23e3-c447-33e2-97be-160b66f42761,해인불교전시관,name_ja,,海印仏教展示館,OSM node/368898383 (ODbL),같은 OSM 항목의 name:ja,22,0
+c0efd3fd-7094-3410-8e05-e79a62508bc6,기장횟집,name_en,,Gijang Fish Restaurant,OSM node/368959611 (ODbL),같은 OSM 항목의 name:en,21,0
+868ad078-08b9-3ffb-8443-f1d0668efc8c,백경횟집,name_en,,Baekgyeong Fish Restaurant,OSM node/368958679 (ODbL),같은 OSM 항목의 name:en,21,0
+1ecd3178-287e-326b-a198-8823fcbdf592,예당,name_ja,,芸堂(イェダン),OSM node/6151452400 (ODbL),같은 OSM 항목의 name:ja,21,0
+ed0c0bfe-1b61-384b-bb2a-5cf44c60cbd8,컴포즈커피,name_en,,Compose Coffee,OSM node/12166873091 (ODbL),같은 OSM 항목의 name:en,21,0
+ad2d2156-f3da-32e6-9b7a-fc9c2d6b1cc5,킴스떡볶이,name_en,,Kim’s Toppoki,OSM node/6269525894 (ODbL),같은 OSM 항목의 name:en,21,0
+017a16b4-cb02-39d3-bc69-fc9ca981941c,개미집,name_en,,Gaemijip,OSM node/5609625421 (ODbL),같은 OSM 항목의 name:en,20,0
+017a16b4-cb02-39d3-bc69-fc9ca981941c,개미집,name_ja,,ケミチプ,OSM node/5609625421 (ODbL),같은 OSM 항목의 name:ja,20,0
+ed4269a8-4f8b-3ab7-a78c-8c1d66e66f89,삐까토스트,name_ja,,ぴかぴかチーズトースト,OSM node/5596665429 (ODbL),같은 OSM 항목의 name:ja,20,0
+cabd0b44-5b4a-3a2e-88f4-7da36953ca36,수영성남문,name_en,,South Gate of the Suyeong Fortress,OSM node/2430740485 (ODbL),같은 OSM 항목의 name:en,20,0
+24e1fb32-8e88-33a9-bf28-b44a0c7be091,왔다횟집,name_en,,Watsda Fish Restaurant,OSM node/368957693 (ODbL),같은 OSM 항목의 name:en,20,0
+6cb13aab-a8c2-32b5-8f81-9eb77ee3ca0f,자갈치 해물짬뽕,name_en,,Jagalchi Seafood Jjambong,OSM node/12166892823 (ODbL),같은 OSM 항목의 name:en,20,0
+35d7ebda-9525-365c-82be-f8af92cb5b78,좌수영성지 곰솔,name_en,,Black Pine at Jwasueyong Fortress,OSM node/10840970551 (ODbL),같은 OSM 항목의 name:en,20,0
+4feb2f15-9cc5-35d1-b858-7b3fe81ecd47,충무횟집,name_en,,Chungmu Fish Restaurant,OSM node/368956705 (ODbL),같은 OSM 항목의 name:en,20,0
+d7f5e6ba-81a4-3702-8cb3-d0b83a34ea32,파리바게뜨,name_en,,Paris Baguette,OSM node/12400112444 (ODbL),같은 OSM 항목의 name:en,20,0
+97b97dd3-0979-3060-93d2-6785dac83865,가야미술관,name_en,,Gaya Art Museum,OSM node/368725971 (ODbL),같은 OSM 항목의 name:en,19,0
+b0dcac82-3a6c-3ecc-a63a-402967ba7aa8,대선횟집,name_en,,Daeseon Fish Restaurant,OSM node/368958610 (ODbL),같은 OSM 항목의 name:en,19,0
+061be3d0-b9d2-3661-b05d-5ad490b4b5ea,명랑시대쌀핫도그,name_ja,,明朗時代ホットドッグ,OSM node/5596708321 (ODbL),같은 OSM 항목의 name:ja,19,0
+5a957912-d059-3938-9d3d-4acf9b1bf9ac,버거킹,name_en,,Burger King,OSM node/6075628685 (ODbL),같은 OSM 항목의 name:en,19,0
+017e1da2-8f01-385d-941a-c97896534754,다전,name_en,,Dajeon,OSM node/4444865890 (ODbL),같은 OSM 항목의 name:en,16,2
+8566d93f-8f67-35c4-a923-0e04c6901c12,스타벅스,name_en,,Starbucks,OSM node/5069584621 (ODbL),같은 OSM 항목의 name:en,18,0
+8566d93f-8f67-35c4-a923-0e04c6901c12,스타벅스,name_ja,,スターバックス,OSM node/5069584621 (ODbL),같은 OSM 항목의 name:ja,18,0
+a4e5e663-999e-3ef4-a05c-fae6e6721b33,오양횟집,name_en,,Oyang Fish Restaurant,OSM node/368958152 (ODbL),같은 OSM 항목의 name:en,18,0
+0bdbf8e1-2385-35d2-b8cb-2c81c5c1ef5a,고유커피,name_en,,Goyu Coffee,OSM node/5068419221 (ODbL),같은 OSM 항목의 name:en,16,1
+f883094b-7247-38fd-acf5-6aff286b3ceb,롯데리아 센텀프라자빌딩점,name_en,,Lotteria,OSM node/4634192917 (ODbL),같은 OSM 항목의 name:en,17,0
+f883094b-7247-38fd-acf5-6aff286b3ceb,롯데리아 센텀프라자빌딩점,name_ja,,ロッテリア,OSM node/4634192917 (ODbL),같은 OSM 항목의 name:ja,17,0
+f883094b-7247-38fd-acf5-6aff286b3ceb,롯데리아 센텀프라자빌딩점,name_zh_hans,,乐天利,OSM node/4634192917 (ODbL),같은 OSM 항목의 name:zh(-Hans),17,0
+494ae7df-141c-30c4-be8c-87fc22ad2327,술고당,name_en,,Sulgodang,OSM node/11530431433 (ODbL),같은 OSM 항목의 name:en,17,0
+60f059f8-22b9-3493-acea-d7671dc60402,남부산교회,name_en,,Nambusan Church,TourAPI EngService2 contentid=2944337,"제목 속 한국어 「남부산교회」 이름 열쇠 같음, 0m",15,1
+60f059f8-22b9-3493-acea-d7671dc60402,남부산교회,name_ja,,南釜山教会,TourAPI JpnService2 contentid=3342157,"제목 속 한국어 「남부산교회」 이름 열쇠 같음, 5m",15,1
+60f059f8-22b9-3493-acea-d7671dc60402,남부산교회,name_zh_hans,,南釜山教会,TourAPI ChsService2 contentid=2944339,"제목 속 한국어 「남부산교회」 이름 열쇠 같음, 0m",15,1
+ffc34546-4b18-3950-9adc-6e309bb2f7ee,부산은행 금융역사관,name_ja,,釜山銀行 金融歴史館,OSM node/12741503361 (ODbL),같은 OSM 항목의 name:ja,16,0
+ba240e63-2c4d-3b3c-bbe4-66d7575c5c1b,부산콘서트홀,name_en,,Busan Concert Hall,Wikidata Q136352179 (CC0),"한국어 이름 「부산콘서트홀」 열쇠 같음, 25m",14,2
+c550e667-bfc9-3005-ba60-cc0ce962d8a0,아뜰리에마카롱,name_ja,,アトリエ・マカロン,OSM node/5621537621 (ODbL),같은 OSM 항목의 name:ja,15,1
+fe723517-b439-3012-8f66-e6e90014aed7,거제횟집,name_en,,Geoje Fish Restaurant,OSM node/368957919 (ODbL),같은 OSM 항목의 name:en,15,0
+a0c6fcab-c502-32e0-8c6e-27b15f01a108,전포 삼거리,name_en,,Jeonpo Samgeori,TourAPI EngService2 contentid=3339999,"제목 속 한국어 「전포 삼거리」 이름 열쇠 같음, 0m",15,0
+a0c6fcab-c502-32e0-8c6e-27b15f01a108,전포 삼거리,name_ja,,田浦交差点,TourAPI JpnService2 contentid=2944345,"제목 속 한국어 「전포 삼거리」 이름 열쇠 같음, 5m",15,0
+a0c6fcab-c502-32e0-8c6e-27b15f01a108,전포 삼거리,name_zh_hans,,田浦三岔路口,TourAPI ChsService2 contentid=2944368,"제목 속 한국어 「전포 삼거리」 이름 열쇠 같음, 0m",15,0
+0929fb5c-d613-3f38-9df0-79360ded38c1,텐퍼센트커피,name_en,,Tenpercent Coffee,OSM node/13440816191 (ODbL),같은 OSM 항목의 name:en,15,0
+a1f76dea-9eb6-3b06-b0d7-ccb1a8682d68,풍미횟집,name_en,,Pungmi Fish Restaurant,OSM node/368957717 (ODbL),같은 OSM 항목의 name:en,15,0
+d0da8c89-7c95-3f8f-8edc-32ead3c9c4bf,Yetnal Sonjjajang,name_en,,Yetnal Sonjjajang,OSM node/6430216286 (ODbL),같은 OSM 항목의 name:en,14,0
+b1c50d89-7314-3ca0-b14b-a815be7142fe,가야밀면,name_ja,,カヤミルミョン(伽耶冷麺),OSM node/5621495821 (ODbL),같은 OSM 항목의 name:ja,14,0
+95f85e7f-9006-330d-870b-8741059093d1,고기굽는남자,name_ja,,コギクムヌン男子(ナムジャ),OSM node/5621204621 (ODbL),같은 OSM 항목의 name:ja,14,0
+347a4b92-dce8-392e-b72c-2a91f90c3d6a,녹산횟집,name_en,,Noksan Fish Restaurant,OSM node/368958588 (ODbL),같은 OSM 항목의 name:en,14,0
+507ec325-bd8d-3345-a199-2b4c30896063,목화횟집,name_en,,Mokhwa Fish Restaurant,OSM node/368958480 (ODbL),같은 OSM 항목의 name:en,14,0
+2c4cbb00-1540-30f0-82da-46ac2b30b570,바르다김선생,name_ja,,パルダキムソンセン,OSM node/5596734432 (ODbL),같은 OSM 항목의 name:ja,14,0
+9194cac8-6714-3b61-9651-667d95ad86f0,소소횟집,name_en,,Soso Fish Restaurant,OSM node/368956856 (ODbL),같은 OSM 항목의 name:en,14,0
+aeb40b76-4041-3456-a66a-810a834bf034,송정돌짬뽕,name_en,,Songjeong Dol Jjambbong,OSM node/13384657001 (ODbL),같은 OSM 항목의 name:en,14,0
+91e32627-3b83-34c6-a32e-a8bc1e6b47d7,수림횟집,name_en,,Surim Fish Restaurant,OSM node/368959656 (ODbL),같은 OSM 항목의 name:en,14,0
+c4ee1ebd-1bf2-305c-9259-4eea840be01c,스타벅스,name_en,,Starbucks,OSM node/12772617525 (ODbL),같은 OSM 항목의 name:en,14,0
+1fae1323-d83b-3c4a-9c0c-c14dd5a5963b,연막술,name_ja,,ヨンマクスル,OSM node/6699551685 (ODbL),같은 OSM 항목의 name:ja,14,0
+c96792ca-38ac-3e14-a47a-3cdc11d9c4eb,요리사 횟집,name_en,,Yorisa Fish Restaurant,OSM node/368956838 (ODbL),같은 OSM 항목의 name:en,14,0
+017f441f-6c5b-364f-a5cf-1cc3a1648d1b,유달리 서면점,name_ja,,U:DALLY 西面店,OSM node/5618754629 (ODbL),같은 OSM 항목의 name:ja,13,1
+c1ade768-83c4-3dc7-ba3f-230c587ca3ff,일송횟집,name_en,,Ilsong Fish Restaurant,OSM node/368958809 (ODbL),같은 OSM 항목의 name:en,14,0
+bdbd40db-f524-35e8-b605-dd00d09aa8fa,천일횟집,name_en,,Cheonil Fish Restaurant,OSM node/368958872 (ODbL),같은 OSM 항목의 name:en,14,0
+8bb28420-f49a-3522-9192-5576d167cc07,투썸플레이스,name_en,,A Twosome Place,OSM node/12770613928 (ODbL),같은 OSM 항목의 name:en,14,0
+d345196d-caa0-3620-a405-a097d54494b3,남천횟집,name_en,,Namcheon Fish Restaurant,OSM node/368958451 (ODbL),같은 OSM 항목의 name:en,13,0
+a64b5462-5a12-3dff-b566-b3e61f9c6bd2,남항횟집,name_en,,Namhang Fish Restaurant,OSM node/368959614 (ODbL),같은 OSM 항목의 name:en,13,0
+5f1013b5-b7b2-3281-bc69-dc48ac81f730,동백횟집,name_en,,Dongbaek Fish Restaurant,OSM node/368957035 (ODbL),같은 OSM 항목의 name:en,13,0
+f6f05253-fd25-3f28-9a96-8afbac2fcd21,동성횟집,name_en,,Dongseong Fish Restaurant,OSM node/368958505 (ODbL),같은 OSM 항목의 name:en,13,0
+6a607673-d279-3f4c-ac94-65711b3bac05,동신횟집,name_en,,Dongsin Fish Restaurant,OSM node/368958344 (ODbL),같은 OSM 항목의 name:en,13,0
+3d032ad3-f1f8-3e7b-804c-a1b526789496,밀양횟집,name_en,,Milyang Fish Restaurant,OSM node/368957642 (ODbL),같은 OSM 항목의 name:en,13,0
+d87cc3e0-eda6-374e-b8f9-8c9c52e52ef3,장터횟집,name_en,,Jangteo Fish Restaurant,OSM node/368959172 (ODbL),같은 OSM 항목의 name:en,13,0
+a4cc4a75-8e85-3608-a6b5-60d53708a6c0,텐퍼센트커피,name_en,,Tenpercent Coffee,OSM node/12772617523 (ODbL),같은 OSM 항목의 name:en,13,0
+faa246e7-0053-3274-ae90-3cf4e0351521,항도횟집,name_en,,Hangdo Fish Restaurant,OSM node/368958118 (ODbL),같은 OSM 항목의 name:en,13,0
+a56f4f6b-f4b7-380f-a4a1-e5a9c3ab899e,Hawaiin Paradise Coffee,name_en,,Hawaiin Paradise Coffee,OSM node/12796857843 (ODbL),같은 OSM 항목의 name:en,12,0
+bdec2c9e-0735-3677-a6f2-64347d7f6b3c,거제횟집,name_en,,Geoje Fish Restaurant,OSM node/368959171 (ODbL),같은 OSM 항목의 name:en,12,0
+d84b2b35-a74f-3abb-b7b8-6adb7d75a78b,남해횟집,name_en,,Namhae Fish Restaurant,OSM node/368958777 (ODbL),같은 OSM 항목의 name:en,12,0
+acfc9381-8748-36b7-ab10-adaa4f4f40e9,다대횟집,name_en,,Dadae Fish Restaurant,OSM node/368957873 (ODbL),같은 OSM 항목의 name:en,12,0
+1b72557a-77bd-33e2-b585-b29839516b60,동백횟집,name_en,,Dongbaek Fish Restaurant,OSM node/368959793 (ODbL),같은 OSM 항목의 name:en,12,0
+2a3487ce-595b-33af-9d7d-7b67e7269777,만복국수집 서면점,name_ja,,マンボクククスチッ西面店,OSM node/5623275621 (ODbL),같은 OSM 항목의 name:ja,12,0
+0cf3c7cb-7b36-3de0-8a6a-1f61fd7ba1d6,명지횟집,name_en,,Myeongji Fish Restaurant,OSM node/368957912 (ODbL),같은 OSM 항목의 name:en,12,0
+e9e59e6d-3dba-340f-85b7-9cd7de2f04a0,스타벅스,name_en,,Starbucks,OSM node/5877548385 (ODbL),같은 OSM 항목의 name:en,12,0
+e9e59e6d-3dba-340f-85b7-9cd7de2f04a0,스타벅스,name_ja,,スターバックス,OSM node/5877548385 (ODbL),같은 OSM 항목의 name:ja,12,0
+ff145a04-467d-397c-b978-a458f1514b64,스타벅스,name_en,,Starbucks,OSM node/4526490890 (ODbL),같은 OSM 항목의 name:en,12,0
+ff145a04-467d-397c-b978-a458f1514b64,스타벅스,name_ja,,スターバックス,OSM node/4526490890 (ODbL),같은 OSM 항목의 name:ja,12,0
+751840b5-41b9-3126-9802-0388380cbf91,신선횟집,name_en,,Sinseon Fish Restaurant,OSM node/368959005 (ODbL),같은 OSM 항목의 name:en,12,0
+4bfd3e56-73e2-387a-a34b-a7adb9ab0e0c,양다방,name_en,,Yang Tabang,OSM node/9648029494 (ODbL),같은 OSM 항목의 name:en,11,1
+c7190333-4721-370a-a7af-52e18bc4c7d1,오륙도 횟집,name_en,,Oryukdo Fish Restaurant,OSM node/368956812 (ODbL),같은 OSM 항목의 name:en,12,0
+bddfd10e-cf8b-3862-97a7-6f7ca4a77a89,옥천횟집,name_en,,Okcheon Fish Restaurant,OSM node/368957852 (ODbL),같은 OSM 항목의 name:en,12,0
+9bb572b7-4f73-3add-8e2e-36fe1a38a5db,우정횟집,name_en,,Ujeong Fish Restaurant,OSM node/368958264 (ODbL),같은 OSM 항목의 name:en,12,0
+eff3bcd3-2fa3-452e-8af4-5fe175e85107,전포카페거리,name_ja,,田浦カフェ通り,TourAPI JpnService2 contentid=2602916,"제목 속 한국어 「전포카페거리」 이름 열쇠 같음, 105m",12,0
+eff3bcd3-2fa3-452e-8af4-5fe175e85107,전포카페거리,name_zh_hans,,田浦咖啡街,TourAPI ChsService2 contentid=3107957,"제목 속 한국어 「전포카페거리」 이름 열쇠 같음, 105m",12,0
+eff3bcd3-2fa3-452e-8af4-5fe175e85107,전포카페거리,name_zh_hant,,田浦咖啡街,TourAPI ChtService2 contentid=2986557,"제목 속 한국어 「전포카페거리」 이름 열쇠 같음, 105m",12,0
+7c8fd859-6cbd-354d-b5d5-e8e971d61009,제일횟집,name_en,,Jeil Fish Restaurant,OSM node/368957646 (ODbL),같은 OSM 항목의 name:en,12,0
+698de7e6-2548-389e-b99f-21afea427055,중리횟집,name_en,,Jungni Fish Restaurant,OSM node/368958786 (ODbL),같은 OSM 항목의 name:en,12,0
+58b0fc40-7316-34ce-ae69-4efe6d2236a2,청주동백횟집,name_en,,Cheongjudongbaek Fish Restaurant,OSM node/368957107 (ODbL),같은 OSM 항목의 name:en,12,0
+e18294a6-2573-3bee-8b94-5811460aacbc,청학횟집,name_en,,Cheonghak Fish Restaurant,OSM node/368959706 (ODbL),같은 OSM 항목의 name:en,12,0
+401a5141-591b-3198-9fad-69d1693be684,타르타르 부산서면점,name_ja,,TARR TARR 釜山西面店,OSM node/5618752623 (ODbL),같은 OSM 항목의 name:ja,12,0
+ccf15b9c-2d2d-3848-9633-cec2272ec08c,포항횟집,name_en,,Pohang Fish Restaurant,OSM node/368958306 (ODbL),같은 OSM 항목의 name:en,12,0
+f8ec7868-9ad5-33f9-a8e4-3a9b829377b7,하동횟집,name_en,,Hadong Fish Restaurant,OSM node/368959032 (ODbL),같은 OSM 항목의 name:en,12,0
+2c54843a-3446-3552-848d-ee60741945a5,해물횟집,name_en,,Haemul Fish Restaurant,OSM node/368956810 (ODbL),같은 OSM 항목의 name:en,12,0
+3f56b0af-1ec6-3396-ba40-8254d66b9867,Caffeinated,name_en,,Caffeinated,OSM node/5895892789 (ODbL),같은 OSM 항목의 name:en,11,0
+4fd35edd-4b33-3692-8b9f-be68b5f24621,Napoli Brick Oven,name_en,,Napoli Brick Oven,OSM node/12787494655 (ODbL),같은 OSM 항목의 name:en,11,0
+df1c4333-b110-3f80-a8c7-3bdb3c086fc8,고성횟집,name_en,,Goseong Fish Restaurant,OSM node/368959471 (ODbL),같은 OSM 항목의 name:en,11,0
+b39888cc-921d-3a07-94ac-4ff08d873ce8,기빈횟집,name_en,,Gibin Fish Restaurant,OSM node/368957337 (ODbL),같은 OSM 항목의 name:en,11,0
+d4414bcc-e14f-30ca-b3db-2aa0e2dc7e0c,돌고래,name_en,,Dolgorae,OSM node/5994312785 (ODbL),같은 OSM 항목의 name:en,11,0
+d4414bcc-e14f-30ca-b3db-2aa0e2dc7e0c,돌고래,name_ja,,トルゴレ,OSM node/5994312785 (ODbL),같은 OSM 항목의 name:ja,11,0
+4de30eab-c428-34c3-9155-8bdeadd73838,동남횟집,name_en,,Dongnam Fish Restaurant,OSM node/368958821 (ODbL),같은 OSM 항목의 name:en,11,0
+a7b84c8b-f7cd-326a-8378-2d25bf9c4601,동남횟집,name_en,,Dongnam Fish Restaurant,OSM node/368958093 (ODbL),같은 OSM 항목의 name:en,11,0
+93ec2399-8f77-33de-a5f3-cb9ae87955fb,맥도날드,name_en,,McDonald's,OSM node/7796640604 (ODbL),같은 OSM 항목의 name:en,11,0
+880f073d-4db2-305d-9d7b-3625bd76bf1c,부일횟집,name_en,,Buil Fish Restaurant,OSM node/368958584 (ODbL),같은 OSM 항목의 name:en,11,0
+8b553a04-00c0-321c-8e67-6fc9aba4d3c6,소라횟집,name_en,,Sora Fish Restaurant,OSM node/368959018 (ODbL),같은 OSM 항목의 name:en,11,0
+2211d406-70ca-3aaa-b747-571a6a6acc57,송원횟집,name_en,,Songwon Fish Restaurant,OSM node/368958737 (ODbL),같은 OSM 항목의 name:en,11,0
+e7746be4-d7cb-3ee7-81d0-3e62840ad064,엔제리너스,name_en,,Angel-in-us Coffee,OSM node/4539754487 (ODbL),같은 OSM 항목의 name:en,11,0
+297f2c34-3620-3a8b-809b-833191cd68a8,와키와키커피,name_en,,Wakey Wakey Coffee,OSM node/11530067839 (ODbL),같은 OSM 항목의 name:en,11,0
+bfeaf45f-7065-32c0-a9ff-667eadd191cf,칠암횟집,name_en,,Chiram Fish Restaurant,OSM node/368957030 (ODbL),같은 OSM 항목의 name:en,11,0
+e6621c0a-9fc5-3539-951a-1795866c66b7,희락횟집,name_en,,Huirak Fish Restaurant,OSM node/368957399 (ODbL),같은 OSM 항목의 name:en,11,0
+4025983e-6980-3ca8-9854-b00188b42952,광미횟집,name_en,,Gwangmi Fish Restaurant,OSM node/368959312 (ODbL),같은 OSM 항목의 name:en,10,0
+ba279aab-0582-3047-a997-70c2690ca51c,대어횟집,name_en,,Daeeo Fish Restaurant,OSM node/368957353 (ODbL),같은 OSM 항목의 name:en,10,0
+8a90ffea-9ddc-3082-91d7-678432776bd7,동해횟집,name_en,,Donghae Fish Restaurant,OSM node/368959827 (ODbL),같은 OSM 항목의 name:en,10,0
+a19f24bd-b171-3bc3-b0de-a039cccdef31,롯데리아,name_en,,Lotteria,OSM node/12686934296 (ODbL),같은 OSM 항목의 name:en,10,0
+de585c6f-3738-34f6-950f-f3022225fd7e,미광횟집,name_en,,Migwang Fish Restaurant,OSM node/368958877 (ODbL),같은 OSM 항목의 name:en,10,0
+bd34f143-bfa5-36f4-8824-8be916e19d92,미정횟집,name_en,,Mijeong Fish Restaurant,OSM node/368957037 (ODbL),같은 OSM 항목의 name:en,10,0
+17849f4b-0c17-3e1b-b8f7-0a47058dbd07,부광횟집,name_en,,Bugwang Fish Restaurant,OSM node/368958917 (ODbL),같은 OSM 항목의 name:en,10,0
+1154d806-a551-3874-a1e5-8d56ac044541,빈티지38,name_ja,,VINTAGE38,OSM node/5618752626 (ODbL),같은 OSM 항목의 name:ja,10,0
+a588422a-17ee-3829-8560-ec4a3ab2938e,섬진강재첩국전문점,name_ja,,蟾津江シジミスープ専門店,OSM node/6151501585 (ODbL),같은 OSM 항목의 name:ja,10,0
+839f6fca-deea-328f-a4d7-c1b2529a1f53,용궁횟집,name_en,,Yonggung Fish Restaurant,OSM node/368959463 (ODbL),같은 OSM 항목의 name:en,10,0
+8e5d8d09-1465-39dc-ba91-7e39b333a182,개미집 쥬디스태화점,name_ja,,ケミチッ ジュディス太和店,OSM node/5618754622 (ODbL),같은 OSM 항목의 name:ja,9,0
+dddf8f04-1c0c-3c4f-aaa8-bd8f842222d1,남해횟집,name_en,,Namhae Fish Restaurant,OSM node/368959357 (ODbL),같은 OSM 항목의 name:en,9,0
+349c8165-94c5-3df9-b4ee-214f4cd7a85a,맥도날드,name_en,,Burger King,OSM node/1763825103 (ODbL),같은 OSM 항목의 name:en,9,0
+349c8165-94c5-3df9-b4ee-214f4cd7a85a,맥도날드,name_ja,,マクドナルド,OSM node/1763825103 (ODbL),같은 OSM 항목의 name:ja,9,0
+349c8165-94c5-3df9-b4ee-214f4cd7a85a,맥도날드,name_zh_hans,,麦当劳,OSM node/1763825103 (ODbL),같은 OSM 항목의 name:zh(-Hans),9,0
+d0ac34a7-63dc-3723-9702-3512a31aaecc,몰레,name_en,,MOLLE,OSM node/5596703223 (ODbL),같은 OSM 항목의 name:en,9,0
+d0ac34a7-63dc-3723-9702-3512a31aaecc,몰레,name_ja,,モルレ,OSM node/5596703223 (ODbL),같은 OSM 항목의 name:ja,9,0
+e81280af-abd8-362a-a434-9cbd51d8886f,사천횟집,name_en,,Sacheon Fish Restaurant,OSM node/368959760 (ODbL),같은 OSM 항목의 name:en,9,0
+4b21fb0e-d875-3fd0-b48e-788497125c7a,새우상회 서면점,name_ja,,セウ商会 西面店,OSM node/5618752625 (ODbL),같은 OSM 항목의 name:ja,9,0
+adc11fa5-515e-30d6-a3b4-ae08f5a080d0,수림횟집,name_en,,Surim Fish Restaurant,OSM node/368959675 (ODbL),같은 OSM 항목의 name:en,9,0
+757f6ad6-b497-3451-ac1f-9b28722efac9,영도횟집,name_en,,Yeongdo Fish Restaurant,OSM node/368957490 (ODbL),같은 OSM 항목의 name:en,9,0
+ff31609d-14c9-3fbb-b4f4-49498e6a087a,일미횟집,name_en,,Ilmi Fish Restaurant,OSM node/368958567 (ODbL),같은 OSM 항목의 name:en,9,0
+4824017c-6925-3089-9947-30c8942505ed,충무횟집,name_en,,Chungmu Fish Restaurant,OSM node/368957443 (ODbL),같은 OSM 항목의 name:en,9,0
+8f677dc1-bf13-36f7-b872-777bf0d27747,큰해물천지,name_zh_hans,,海物天地,OSM node/4529653890 (ODbL),같은 OSM 항목의 name:zh(-Hans),9,0
+6fed3dde-0b41-3bef-be2a-f7a1b3734ed3,Cock'stail,name_en,,Cock'stail,OSM node/12788043287 (ODbL),같은 OSM 항목의 name:en,8,0
+2fc10906-c988-3d22-8886-de8ca4625e8e,eu pizzeria,name_en,,eu pizza,OSM node/6460745986 (ODbL),같은 OSM 항목의 name:en,8,0
+e0634999-5be8-3a47-bab4-fdef8bc01219,몽돌횟집,name_en,,Mongdol Fish Restaurant,OSM node/368958270 (ODbL),같은 OSM 항목의 name:en,8,0
+f36ea50a-b85a-34ac-b03e-70f667cc53d9,물레방아횟집,name_en,,Mullebanga Fish Restaurant,OSM node/368956899 (ODbL),같은 OSM 항목의 name:en,8,0
+aa6ce945-b3fd-396e-800a-7000ffc9f672,성원횟집,name_en,,Seongwon Fish Restaurant,OSM node/368958705 (ODbL),같은 OSM 항목의 name:en,8,0
+b11e077b-c98f-3deb-9fc8-764a6e95d918,어원횟집,name_en,,Eowon Fish Restaurant,OSM node/368958553 (ODbL),같은 OSM 항목의 name:en,8,0
+8eefb0e7-3069-3e74-9971-0dfc8ce431e4,연운당 전포카페거리점,name_ja,,軟雲堂 田浦カフェ通り店,OSM node/5623362521 (ODbL),같은 OSM 항목의 name:ja,8,0
+3a58ad5f-4bf3-3fdf-ae63-27c8c3867501,한뚝배기,name_en,,Handukbaegi,OSM node/12321399424 (ODbL),같은 OSM 항목의 name:en,8,0
+87be0938-84cc-3329-9e89-f17ef4499496,개미집 서면점,name_ja,,ケミチッ 西面店,OSM node/5618753622 (ODbL),같은 OSM 항목의 name:ja,7,0
+87be0938-84cc-3329-9e89-f17ef4499496,개미집 서면점,name_zh_hans,,螞蟻家,OSM node/5618753622 (ODbL),같은 OSM 항목의 name:zh(-Hans),7,0
+60cd1f96-ee97-3c3a-9894-cbb59347b76f,건영횟집,name_en,,Geonyeong Fish Restaurant,OSM node/368958953 (ODbL),같은 OSM 항목의 name:en,7,0
+992a4e16-037b-31bb-9e4b-2058bd0d96e2,고릴라브루잉,name_en,,Gorilla Brewing Co.,OSM node/5472663821 (ODbL),같은 OSM 항목의 name:en,7,0
+9e7ef0b8-3047-35c9-bd66-72427cf2c0d0,고요남,name_ja,,コヨナム,OSM node/5596718821 (ODbL),같은 OSM 항목의 name:ja,7,0
+574edb92-8004-3274-8c13-80106969cba5,금호횟집,name_en,,Geumho Fish Restaurant,OSM node/368958365 (ODbL),같은 OSM 항목의 name:en,7,0
+5a66d711-fe0c-3df1-a1b4-6cf073ce32bf,동천횟집,name_en,,Dongcheon Fish Restaurant,OSM node/368958604 (ODbL),같은 OSM 항목의 name:en,7,0
+c2bdceff-c410-36cf-a82b-ca5d01e6ca29,성포횟집,name_en,,Seongpo Fish Restaurant,OSM node/368959635 (ODbL),같은 OSM 항목의 name:en,7,0
+00d857f9-335e-3e1f-8411-6da9cab55e86,스타벅스,name_en,,Starbucks,OSM node/5903253288 (ODbL),같은 OSM 항목의 name:en,7,0
+00d857f9-335e-3e1f-8411-6da9cab55e86,스타벅스,name_ja,,スターバックス,OSM node/5903253288 (ODbL),같은 OSM 항목의 name:ja,7,0
+00d857f9-335e-3e1f-8411-6da9cab55e86,스타벅스,name_zh_hans,,星巴克,OSM node/5903253288 (ODbL),같은 OSM 항목의 name:zh(-Hans),7,0
+1c638a87-ea3c-3ab2-9a17-a7d91be51017,스타벅스,name_ja,,スターバックス,OSM node/3785217646 (ODbL),같은 OSM 항목의 name:ja,7,0
+3da8b092-02fa-328f-b52d-98af9d01b410,스타벅스,name_en,,Starbucks,OSM node/8321759795 (ODbL),같은 OSM 항목의 name:en,7,0
+3da8b092-02fa-328f-b52d-98af9d01b410,스타벅스,name_ja,,スターバックス,OSM node/8321759795 (ODbL),같은 OSM 항목의 name:ja,7,0
+3da8b092-02fa-328f-b52d-98af9d01b410,스타벅스,name_zh_hans,,星巴克,OSM node/8321759795 (ODbL),같은 OSM 항목의 name:zh(-Hans),7,0
+c0f38c25-f3bd-35c8-a575-6f7701d64d48,엔제리너스커피,name_ja,,Angel-in-us Coffee,OSM node/5620142823 (ODbL),같은 OSM 항목의 name:ja,7,0
+e3f088a4-7d78-33d2-8db8-c532d6b20c74,패럿,name_ja,,パロット,OSM node/5596676625 (ODbL),같은 OSM 항목의 name:ja,7,0
+577a1390-56d6-3aaa-88b9-618caa0323df,향미횟집,name_en,,Hyangmi Fish Restaurant,OSM node/368958492 (ODbL),같은 OSM 항목의 name:en,7,0
+04ab58c0-a589-305b-80f9-02890a5c260d,가도횟집,name_en,,Gado Fish Restaurant,OSM node/368958696 (ODbL),같은 OSM 항목의 name:en,6,0
+364009fc-ef3d-3591-836e-692625cbed72,동명횟집,name_en,,Dongmyeong Fish Restaurant,OSM node/368959785 (ODbL),같은 OSM 항목의 name:en,6,0
+cc8257f8-7c4b-3113-8c65-21ce01cd9f8f,동원횟집,name_en,,Dongwon Fish Restaurant,OSM node/368959466 (ODbL),같은 OSM 항목의 name:en,6,0
+79b1363f-dabc-33f3-ae89-b4c40479146c,등대횟집,name_en,,Deungdae Fish Restaurant,OSM node/368958638 (ODbL),같은 OSM 항목의 name:en,6,0
+2bd89de1-0a76-35b8-9603-73e8ff3d0d3e,삼호횟집,name_en,,Samho Fish Restaurant,OSM node/368956989 (ODbL),같은 OSM 항목의 name:en,6,0
+66300ed8-691b-3e5d-877f-24482a904bdf,설빙 서면점,name_ja,,ソルビン 西面店,OSM node/5618752624 (ODbL),같은 OSM 항목의 name:ja,6,0
+c61020d3-4525-3472-aa63-45311fc94406,성포횟집,name_en,,Seongpo Fish Restaurant,OSM node/368958180 (ODbL),같은 OSM 항목의 name:en,6,0
+06af9871-c862-35b6-9149-09eef776103c,스타벅스,name_en,,Starbucks,OSM node/4724283674 (ODbL),같은 OSM 항목의 name:en,6,0
+06af9871-c862-35b6-9149-09eef776103c,스타벅스,name_ja,,スターバックス,OSM node/4724283674 (ODbL),같은 OSM 항목의 name:ja,6,0
+06af9871-c862-35b6-9149-09eef776103c,스타벅스,name_zh_hans,,星巴克,OSM node/4724283674 (ODbL),같은 OSM 항목의 name:zh(-Hans),6,0
+27a17467-dfcd-31e1-a4d4-9ff4ba2781ad,스타벅스 부산서면점,name_en,,Starbucks Busanseomyeon,OSM node/5085592164 (ODbL),같은 OSM 항목의 name:en,6,0
+27a17467-dfcd-31e1-a4d4-9ff4ba2781ad,스타벅스 부산서면점,name_ja,,スターバックス 釜山西面店,OSM node/5085592164 (ODbL),같은 OSM 항목의 name:ja,6,0
+27a17467-dfcd-31e1-a4d4-9ff4ba2781ad,스타벅스 부산서면점,name_zh_hans,,星巴克,OSM node/5085592164 (ODbL),같은 OSM 항목의 name:zh(-Hans),6,0
+71625aa3-4912-36b5-becd-45a071ebe8d6,엔제리너스,name_en,,Angel-in-us Coffee,OSM node/2516172249 (ODbL),같은 OSM 항목의 name:en,6,0
+2ae280e1-a0f8-3bab-a8be-c07122f0536f,왕궁횟집,name_en,,Wanggung Fish Restaurant,OSM node/368958997 (ODbL),같은 OSM 항목의 name:en,6,0
+11c5182b-630c-3ff3-b830-f8935f5a27b3,일송횟집,name_en,,Ilsong Fish Restaurant,OSM node/368957358 (ODbL),같은 OSM 항목의 name:en,6,0
+f599b679-6983-36d6-b6e7-93f64dfa634b,창성횟집,name_en,,Changseong Fish Restaurant,OSM node/368956670 (ODbL),같은 OSM 항목의 name:en,6,0
+0ddc0a09-d693-3da3-9606-8cd7b11a9242,파리바게뜨,name_en,,Paris Baguette,OSM node/13716269635 (ODbL),같은 OSM 항목의 name:en,6,0
+d2a0fdd5-441d-305e-aef0-f7185a0ff432,강남횟집,name_en,,Gangnam Fish Restaurant,OSM node/368958351 (ODbL),같은 OSM 항목의 name:en,5,0
+d2a0fdd5-441d-305e-aef0-f7185a0ff432,강남횟집,name_ja,,江南刺身店,OSM node/368958351 (ODbL),같은 OSM 항목의 name:ja,5,0
+ee474dad-5ba0-33cc-8eca-90f00863015a,거제횟집,name_en,,Geoje Fish Restaurant,OSM node/368957220 (ODbL),같은 OSM 항목의 name:en,5,0
+ed3eafc4-7511-369a-85b9-583f8938ca80,덕포횟집,name_en,,Deokpo Fish Restaurant,OSM node/368957858 (ODbL),같은 OSM 항목의 name:en,5,0
+9c77e21b-425e-3356-8815-b7ff7e5b5289,돈까스 톤키,name_ja,,とんかつ とんき,OSM node/11378003176 (ODbL),같은 OSM 항목의 name:ja,5,0
+beecc535-8da0-37cc-ba44-57352a7d4239,동백횟집,name_en,,Dongbaek Fish Restaurant,OSM node/368957542 (ODbL),같은 OSM 항목의 name:en,5,0
+df6808d7-e9b9-35aa-aa81-d68700cea9b5,밀양횟집,name_en,,Milyang Fish Restaurant,OSM node/368958508 (ODbL),같은 OSM 항목의 name:en,5,0
+4ec7dee5-5b67-3bcc-8691-522ba313b144,스타벅스,name_en,,Starbucks,OSM node/4724283670 (ODbL),같은 OSM 항목의 name:en,5,0
+4ec7dee5-5b67-3bcc-8691-522ba313b144,스타벅스,name_ja,,スターバックス,OSM node/4724283670 (ODbL),같은 OSM 항목의 name:ja,5,0
+4ec7dee5-5b67-3bcc-8691-522ba313b144,스타벅스,name_zh_hans,,星巴克,OSM node/4724283670 (ODbL),같은 OSM 항목의 name:zh(-Hans),5,0
+e6751a20-7493-3077-9b4e-df6c86af31bf,스타벅스,name_en,,Starbucks,OSM node/6127299463 (ODbL),같은 OSM 항목의 name:en,5,0
+e6751a20-7493-3077-9b4e-df6c86af31bf,스타벅스,name_ja,,スターバックス,OSM node/6127299463 (ODbL),같은 OSM 항목의 name:ja,5,0
+e6751a20-7493-3077-9b4e-df6c86af31bf,스타벅스,name_zh_hans,,星巴克,OSM node/6127299463 (ODbL),같은 OSM 항목의 name:zh(-Hans),5,0
+c32ac45c-af10-3b6f-a815-5572410642fd,엔제리너스,name_en,,Angel-in-us Coffee,OSM node/12963678051 (ODbL),같은 OSM 항목의 name:en,5,0
+455b9af8-9df4-3411-b22a-ad7f127c03b8,이재모 Pizza,name_en,,Ijaemo Pizza,OSM node/11527194968 (ODbL),같은 OSM 항목의 name:en,5,0
+619ebfd0-8aba-3e38-a8bf-4c3e0016d43b,자매횟집,name_en,,Jamae Fish Restaurant,OSM node/368957330 (ODbL),같은 OSM 항목의 name:en,5,0
+a74980a9-1a79-325b-85ee-77f8a8ce1544,텐퍼센트커피,name_en,,Tenpercent Coffee,OSM node/11530482226 (ODbL),같은 OSM 항목의 name:en,5,0
+dbb63890-d03d-3318-b4c2-9359ae3b1553,투썸플레이스,name_en,,A Twosome Place,OSM node/4388626289 (ODbL),같은 OSM 항목의 name:en,5,0
+a15095f2-f36c-3904-97f5-a2d83405a57e,파리바게뜨,name_en,,Paris Baguette,OSM node/12163193956 (ODbL),같은 OSM 항목의 name:en,5,0
+7ebfaa4e-fb87-39f0-8da2-abd9dff5352c,파스쿠찌,name_en,,CAFFE PASCUCCI,OSM node/5620034421 (ODbL),같은 OSM 항목의 name:en,5,0
+7ebfaa4e-fb87-39f0-8da2-abd9dff5352c,파스쿠찌,name_ja,,CAFFE PASCUCCI,OSM node/5620034421 (ODbL),같은 OSM 항목의 name:ja,5,0
+65577939-cfa0-3b34-ac1f-db2a4e9c4b60,풍천,name_en,,Pung Chun Cafe,OSM node/9657690683 (ODbL),같은 OSM 항목의 name:en,5,0
+9645558a-0fcb-337a-b17a-60aa610ee122,한옥집,name_ja,,ハノッチッ キムチチム,OSM node/5621747421 (ODbL),같은 OSM 항목의 name:ja,5,0
+868cdb53-06fb-35d6-8e68-c56f45dffbc2,강변횟집,name_en,,Gangbyeon Fish Restaurant,OSM node/368956869 (ODbL),같은 OSM 항목의 name:en,4,0
+a08aaa64-5e5e-356d-b2ad-3bbeca3827d4,고성횟집,name_en,,Goseong Fish Restaurant,OSM node/368957583 (ODbL),같은 OSM 항목의 name:en,4,0
+59bdfe9f-8ab5-3c2e-86d5-249f5692decd,골횟집,name_en,,Gol Fish Restaurant,OSM node/368968727 (ODbL),같은 OSM 항목의 name:en,4,0
+800fb12a-d576-31a1-9478-440773e02539,공차,name_en,,Gong Cha,OSM node/4529825990 (ODbL),같은 OSM 항목의 name:en,4,0
+800fb12a-d576-31a1-9478-440773e02539,공차,name_ja,,貢茶,OSM node/4529825990 (ODbL),같은 OSM 항목의 name:ja,4,0
+800fb12a-d576-31a1-9478-440773e02539,공차,name_zh_hans,,貢茶,OSM node/4529825990 (ODbL),같은 OSM 항목의 name:zh(-Hans),4,0
+2fc1134f-ac3b-38be-92a2-c97c95f70e96,송광도매횟집,name_en,,Songgwangdomae Fish Restaurant,OSM node/368956717 (ODbL),같은 OSM 항목의 name:en,4,0
+9b470d38-f1c3-3398-bb91-49b32538aed1,스타벅스,name_en,,Starbucks,OSM node/12319779395 (ODbL),같은 OSM 항목의 name:en,4,0
+b3258205-8954-3281-95ee-dc477562d423,스타벅스 BIFC몰점,name_ja,,スターバックス,OSM node/6405375988 (ODbL),같은 OSM 항목의 name:ja,4,0
+90fab40d-0ba7-3c7e-beb4-f13e1ae4735c,시골밥상,name_ja,,シゴルバプサン,OSM node/4604869897 (ODbL),같은 OSM 항목의 name:ja,4,0
+c0849e03-dec4-3659-85b8-3843750f8471,어심횟집,name_en,,Eosim Fish Restaurant,OSM node/368958220 (ODbL),같은 OSM 항목의 name:en,4,0
+5c0986e0-581f-35f6-a175-04b04e3d1641,영동횟집,name_en,,Yeongdong Fish Restaurant,OSM node/368958464 (ODbL),같은 OSM 항목의 name:en,4,0
+f39d0405-13a3-349a-84a3-36471d3d042d,울산횟집,name_en,,Ulsan Fish Restaurant,OSM node/368957523 (ODbL),같은 OSM 항목의 name:en,4,0
+b4cccaec-d779-3cd9-bab3-bab16ed95343,이누키,name_ja,,イヌキ,OSM node/5596694232 (ODbL),같은 OSM 항목의 name:ja,4,0
+7c56e186-cddc-3d77-b4c1-f16a94c95e9c,이디야커피,name_en,,Ediya Coffee,OSM node/4438709389 (ODbL),같은 OSM 항목의 name:en,4,0
+b7fd5a16-7c9f-3bb9-a1a2-954963fa6335,이디야커피,name_en,,Ediya Coffee,OSM node/5895910187 (ODbL),같은 OSM 항목의 name:en,4,0
+7862b94d-13e9-321a-b4f7-214b2cb5e80a,일미횟집,name_en,,Ilmi Fish Restaurant,OSM node/368957596 (ODbL),같은 OSM 항목의 name:en,4,0
+75b5e932-1f5b-39b8-a3c5-2e3317b15af3,카페베네,name_en,,Caffe Bene,OSM node/5292823207 (ODbL),같은 OSM 항목의 name:en,4,0
+75b5e932-1f5b-39b8-a3c5-2e3317b15af3,카페베네,name_ja,,カフェベネ,OSM node/5292823207 (ODbL),같은 OSM 항목의 name:ja,4,0
+da3b18c5-2f74-3a55-978c-4d679860cca3,파리바게뜨,name_en,,Paris Baguette,OSM node/900137460 (ODbL),같은 OSM 항목의 name:en,4,0
+da3b18c5-2f74-3a55-978c-4d679860cca3,파리바게뜨,name_zh_hans,,巴黎贝甜,OSM node/900137460 (ODbL),같은 OSM 항목의 name:zh(-Hans),4,0
+3102688c-011a-36a0-9230-837ad5bbdf4d,구포촌국수,name_en,,Gupochon Noodles,OSM node/12317829152 (ODbL),같은 OSM 항목의 name:en,3,0
+da51f429-6228-3170-9d48-0dbbafad0b69,롯데리아,name_en,,Lotteria,OSM node/12963678052 (ODbL),같은 OSM 항목의 name:en,3,0
+22623b4e-a38f-3c53-89ad-171549bd481d,맘스터치,name_en,,Mom's Touch,OSM node/8321759804 (ODbL),같은 OSM 항목의 name:en,3,0
+22623b4e-a38f-3c53-89ad-171549bd481d,맘스터치,name_ja,,マムズタッチ,OSM node/8321759804 (ODbL),같은 OSM 항목의 name:ja,3,0
+99ba87c2-fa27-3950-b6a8-0885f8f6d087,본죽,name_en,,Bonjuk,OSM node/8321759776 (ODbL),같은 OSM 항목의 name:en,3,0
+99ba87c2-fa27-3950-b6a8-0885f8f6d087,본죽,name_ja,,本粥,OSM node/8321759776 (ODbL),같은 OSM 항목의 name:ja,3,0
+836b152e-302e-3550-a68d-1cd3db66fc23,서브웨이 중앙점,name_ja,,サブウェイ,OSM node/4813530022 (ODbL),같은 OSM 항목의 name:ja,3,0
+836b152e-302e-3550-a68d-1cd3db66fc23,서브웨이 중앙점,name_zh_hans,,赛百味,OSM node/4813530022 (ODbL),같은 OSM 항목의 name:zh(-Hans),3,0
+63938a51-ea83-3d2c-aed7-227abdd8f1f1,영광횟집,name_en,,Yeonggwang Fish Restaurant,OSM node/368957826 (ODbL),같은 OSM 항목의 name:en,3,0
+2e63840d-25a7-3647-aef3-0a39e7ee28e8,이기대출렁다리,name_en,,Igidae Suspension Bridge,OSM node/12497403201 (ODbL),같은 OSM 항목의 name:en,3,0
+2b64d7e4-7c9f-32d2-8bd7-f6643eb13809,일차횟집,name_en,,Ilcha Fish Restaurant,OSM node/368959775 (ODbL),같은 OSM 항목의 name:en,3,0
+5ba17c8c-f4db-3beb-a724-ceef97b3c2ac,중봉전망대,name_en,,Jungbong Observatory,OSM node/7049071586 (ODbL),같은 OSM 항목의 name:en,3,0
+8e1901fc-5d1a-3747-8970-5dd2662ef234,컴포즈커피,name_en,,Compose Coffee,OSM node/11530474164 (ODbL),같은 OSM 항목의 name:en,3,0
+709cc264-52c2-3508-8240-d773c7ee811e,킹콩부대찌개 부산남포동점,name_zh_hans,,金剛部隊鍋 南浦洞店,OSM node/4693474091 (ODbL),같은 OSM 항목의 name:zh(-Hans),3,0
+64fec5a1-cc1d-3ae5-b82e-651949e675a4,포항횟집,name_en,,Pohang Fish Restaurant,OSM node/368958682 (ODbL),같은 OSM 항목의 name:en,3,0
+981659bc-8e1b-38ae-84fe-1a5c7a5c3d9d,경남횟집,name_en,,Gyeongnam Fish Restaurant,OSM node/368957851 (ODbL),같은 OSM 항목의 name:en,2,0
+65678178-54b2-3708-8821-35eeab88d051,곁집,name_en,,GyeotJib,OSM node/5054999921 (ODbL),같은 OSM 항목의 name:en,2,0
+62849073-375c-330f-bd08-3e4ec84fa280,고성횟집,name_en,,Goseong Fish Restaurant,OSM node/368956906 (ODbL),같은 OSM 항목의 name:en,2,0
+40516ff1-2785-33a3-9a4a-c9538baa2c79,기장향교,name_en,,Gijang Hyanggyo,Wikidata Q19939482 (CC0),"한국어 이름 「기장향교」 열쇠 같음, 308m",1,1
+688499d9-d82a-3c10-aa50-1654f01e31d2,동남횟집,name_en,,Dongnam Fish Restaurant,OSM node/368957654 (ODbL),같은 OSM 항목의 name:en,2,0
+2ed2eb1a-351d-3428-90d0-3dfb2d18ce20,동하횟집,name_en,,Dongha Fish Restaurant,OSM node/368956667 (ODbL),같은 OSM 항목의 name:en,2,0
+27d51c68-65d1-3778-bbba-0224c3f91f52,동해횟집,name_en,,Donghae Fish Restaurant,OSM node/368957690 (ODbL),같은 OSM 항목의 name:en,2,0
+c86a03f1-e97d-3f3b-a30d-eac3cf58899b,동해횟집,name_en,,Donghae Fish Restaurant,OSM node/368959154 (ODbL),같은 OSM 항목의 name:en,2,0
+51e8397b-f606-33a3-9904-c31cf8d60f50,등대횟집,name_en,,Deungdae Fish Restaurant,OSM node/368958459 (ODbL),같은 OSM 항목의 name:en,2,0
+b5ddb474-83bd-38d5-8954-2aa562c954ba,맥도날드,name_en,,McDonald's,OSM node/4529668889 (ODbL),같은 OSM 항목의 name:en,2,0
+434efed5-280b-3cc7-a327-5a3dba4b8033,명지횟집,name_en,,Myeongji Fish Restaurant,OSM node/368958768 (ODbL),같은 OSM 항목의 name:en,2,0
+44a2fb82-58bf-37a0-8b7a-765ffd405b88,부산진시장,name_en,,Busanjin Market,Wikidata Q24859159 (CC0),"한국어 이름 「부산진시장」 열쇠 같음, 26m",2,0
+f2c6f433-89fa-31bb-8e3e-566342dd1cd2,산해횟집,name_en,,Sanhae Fish Restaurant,OSM node/368958420 (ODbL),같은 OSM 항목의 name:en,2,0
+a7e4964c-e961-34bc-b395-fc3e0bbfaf30,서브웨이,name_ja,,サブウェイ,OSM node/5043795225 (ODbL),같은 OSM 항목의 name:ja,2,0
+a7e4964c-e961-34bc-b395-fc3e0bbfaf30,서브웨이,name_zh_hans,,赛百味,OSM node/5043795225 (ODbL),같은 OSM 항목의 name:zh(-Hans),2,0
+2990d5c5-90b2-35ec-be1d-4b066bac1a7b,서포횟집,name_en,,Seopo Fish Restaurant,OSM node/368958384 (ODbL),같은 OSM 항목의 name:en,2,0
+6f1a9aaf-1535-3e03-bb3f-b06878d63a90,스타벅스,name_en,,Starbucks,OSM node/12785537221 (ODbL),같은 OSM 항목의 name:en,2,0
+98d8fd26-06c6-3695-b487-1b8fa0019363,스타벅스,name_en,,Starbucks,OSM node/11434128519 (ODbL),같은 OSM 항목의 name:en,2,0
+1bcaf6c1-0e7a-33c8-8b62-ed66022178c6,아미고,name_en,,Amigo,OSM node/11233195737 (ODbL),같은 OSM 항목의 name:en,2,0
+31e68b9f-e931-3200-907f-18f573357caf,이디야커피,name_en,,Ediya Coffee,OSM node/4529669889 (ODbL),같은 OSM 항목의 name:en,2,0
+e61522fb-30d2-38e6-93e3-08a5b80d9ed9,지혜횟집,name_en,,Jihye Fish Restaurant,OSM node/368958980 (ODbL),같은 OSM 항목의 name:en,2,0
+00e29004-8f7c-3dc2-8b67-1af019774899,진선횟집,name_en,,Jinseon Fish Restaurant,OSM node/368957551 (ODbL),같은 OSM 항목의 name:en,2,0
+1b20fed6-fd63-38eb-b1e2-d5b8114b4ea6,청해횟집,name_en,,Cheonghae Fish Restaurant,OSM node/368958905 (ODbL),같은 OSM 항목의 name:en,2,0
+2f0b315e-a929-3f75-a41a-88fb13f6b769,통영횟집,name_en,,Tongyeong Fish Restaurant,OSM node/368957438 (ODbL),같은 OSM 항목의 name:en,2,0
+4093cfec-36e7-310d-9994-9b48f4cb489f,황령산,name_en,,Hwangnyeongsan Mountain,TourAPI EngService2 contentid=1918039,"제목 속 한국어 「황령산」 이름 열쇠 같음, 5m",1,1
+82992fdb-5078-3622-8fa4-111c6d0d80b6,Subway,name_en,,Subway,OSM node/11820455870 (ODbL),같은 OSM 항목의 name:en,1,0
+d8f9a693-522a-414d-aae0-002788410005,가야공원,name_en,,Gayagongwon,Wikidata Q27296341 (CC0),"한국어 이름 「가야공원」 열쇠 같음, 556m",1,0
+60e9ff5f-d89f-35c3-b92a-17a8fefd5311,교촌치킨,name_en,,KyoChon,OSM node/6480376985 (ODbL),같은 OSM 항목의 name:en,1,0
+9201e68b-63b0-3e76-a13a-8c335d0fe407,김재선갤러리,name_en,,Gimjaeseon Gallery,OSM node/368727587 (ODbL),같은 OSM 항목의 name:en,1,0
+a25bb475-1aa4-3977-8bda-b95c9e3864fd,녹산횟집,name_en,,Noksan Fish Restaurant,OSM node/368959796 (ODbL),같은 OSM 항목의 name:en,1,0
+d0bd545e-317f-3414-8af0-92e610e4749f,대교횟집,name_en,,Daegyo Fish Restaurant,OSM node/368959694 (ODbL),같은 OSM 항목의 name:en,1,0
+02ad93a3-8cb2-3471-b9de-f8a3fd4d8c7b,동아대학교 박물관,name_en,,Donga University Museum,OSM node/368734675 (ODbL),같은 OSM 항목의 name:en,1,0
+7ef11fe9-bc8e-318a-aea7-790615d37d8c,롯데리아,name_en,,Lotteria,OSM node/4416293592 (ODbL),같은 OSM 항목의 name:en,1,0
+7ef11fe9-bc8e-318a-aea7-790615d37d8c,롯데리아,name_ja,,ロッテリア,OSM node/4416293592 (ODbL),같은 OSM 항목의 name:ja,1,0
+7ef11fe9-bc8e-318a-aea7-790615d37d8c,롯데리아,name_zh_hans,,乐天利,OSM node/4416293592 (ODbL),같은 OSM 항목의 name:zh(-Hans),1,0
+f13c5fbe-6ecf-326d-bbe2-11926743e703,롯데리아,name_en,,Lotteria,OSM node/5898168487 (ODbL),같은 OSM 항목의 name:en,1,0
+f13c5fbe-6ecf-326d-bbe2-11926743e703,롯데리아,name_ja,,ロッテリア,OSM node/5898168487 (ODbL),같은 OSM 항목의 name:ja,1,0
+f13c5fbe-6ecf-326d-bbe2-11926743e703,롯데리아,name_zh_hans,,乐天利,OSM node/5898168487 (ODbL),같은 OSM 항목의 name:zh(-Hans),1,0
+c260b810-deee-3cf4-8b12-b641de21ca14,맥도날드,name_ja,,マクドナルド,OSM node/2513845941 (ODbL),같은 OSM 항목의 name:ja,1,0
+5c01d2fd-c4d3-32b2-aeee-a3b0c158a4b9,맥도날드 서면3호점,name_en,,McDonald's,OSM node/5084910424 (ODbL),같은 OSM 항목의 name:en,1,0
+5c01d2fd-c4d3-32b2-aeee-a3b0c158a4b9,맥도날드 서면3호점,name_ja,,マクドナルド,OSM node/5084910424 (ODbL),같은 OSM 항목의 name:ja,1,0
+5c01d2fd-c4d3-32b2-aeee-a3b0c158a4b9,맥도날드 서면3호점,name_zh_hans,,麦当劳,OSM node/5084910424 (ODbL),같은 OSM 항목의 name:zh(-Hans),1,0
+cc264d0f-287a-3158-84b8-7be7d1f8d9a1,바다산책횟집,name_en,,Badasanchaek Fish Restaurant,OSM node/368957027 (ODbL),같은 OSM 항목의 name:en,1,0
+dbce0db5-71cf-3bee-bc4c-c089dba53c8f,별궁횟집,name_en,,Byeolgung Fish Restaurant,OSM node/368956884 (ODbL),같은 OSM 항목의 name:en,1,0
+6e636cc1-4ca6-3bfc-9313-ca44c3a9335e,스타벅스,name_en,,Starbucks,OSM node/5875247586 (ODbL),같은 OSM 항목의 name:en,1,0
+6e636cc1-4ca6-3bfc-9313-ca44c3a9335e,스타벅스,name_ja,,スターバックス,OSM node/5875247586 (ODbL),같은 OSM 항목의 name:ja,1,0
+37458fc0-6bc2-3901-9d3c-846b138c1c33,신세계백화점 센텀시티점,name_zh_hans,,[事后免税店]新世界百货商店Centum City店,TourAPI ChsService2 contentid=2970653,"제목 속 한국어 「신세계백화점 센텀시티점」 이름 열쇠 같음, 20m",1,0
+5e72c7b7-402d-3db5-b2be-fce9f82d54ee,안동횟집,name_en,,Andong Fish Restaurant,OSM node/368956693 (ODbL),같은 OSM 항목의 name:en,1,0
+53565d98-32e1-3567-96c8-c66853511026,오대양횟집,name_en,,Odaeyang Fish Restaurant,OSM node/368956740 (ODbL),같은 OSM 항목의 name:en,1,0
+a6e97394-5022-3e55-a17a-6f4363e1e2f5,용궁횟집,name_en,,Yonggung Fish Restaurant,OSM node/368958774 (ODbL),같은 OSM 항목의 name:en,1,0
+5f7799a6-47d9-36fc-859a-522481ea7de4,이디야커피,name_en,,Ediya Coffee,OSM node/8821158660 (ODbL),같은 OSM 항목의 name:en,1,0
+03ef21d5-2473-3665-8935-4c7ae9d35296,일미횟집,name_en,,Ilmi Fish Restaurant,OSM node/368959072 (ODbL),같은 OSM 항목의 name:en,1,0
+3b35bec6-60be-319f-a217-5bf4b21aa980,제일횟집,name_en,,Jeil Fish Restaurant,OSM node/368957678 (ODbL),같은 OSM 항목의 name:en,1,0
+fa87340a-0c84-3658-b994-d19940f2593a,제주도횟집,name_en,,Jejudo Fish Restaurant,OSM node/368956652 (ODbL),같은 OSM 항목의 name:en,1,0
+c21dd4f5-3535-37c3-b28e-4d5afdf63d85,중앙횟집,name_en,,Jungang Fish Restaurant,OSM node/368958255 (ODbL),같은 OSM 항목의 name:en,1,0
+a9d95a34-29c6-3dd1-b875-b1d1cb27362b,천일횟집,name_en,,Cheonil Fish Restaurant,OSM node/368958963 (ODbL),같은 OSM 항목의 name:en,1,0
+741ccdef-16a1-367a-ae1d-67d7ae9537de,청도횟집,name_en,,Cheongdo Fish Restaurant,OSM node/368959820 (ODbL),같은 OSM 항목의 name:en,1,0
+036e257b-673b-3a42-b4bb-d8bbd70ce309,카페베네,name_en,,Caffe Bene,OSM node/4208764035 (ODbL),같은 OSM 항목의 name:en,1,0
+036e257b-673b-3a42-b4bb-d8bbd70ce309,카페베네,name_ja,,カフェベネ,OSM node/4208764035 (ODbL),같은 OSM 항목의 name:ja,1,0
+b8c8c476-228d-3873-8bee-bff72bea7ce7,컴포즈커피,name_en,,Compose Coffee,OSM node/8821158665 (ODbL),같은 OSM 항목의 name:en,1,0
+10b7b7ec-88a2-3d0c-af7c-11e8ba00ebeb,하나돈까스 남천점,name_en,,Hana Donkatsu,OSM node/4460451399 (ODbL),같은 OSM 항목의 name:en,1,0
+ad22270e-ee55-3eef-be71-d5d928ffa2f1,하동횟집,name_en,,Hadong Fish Restaurant,OSM node/368957548 (ODbL),같은 OSM 항목의 name:en,1,0
+3ebd4ae8-29b0-3325-bc62-4d2525531e1d,항구물횟집,name_en,,Hanggumul Fish Restaurant,OSM node/368956738 (ODbL),같은 OSM 항목의 name:en,1,0
+e0bcc60e-b5f6-34d9-92b4-04d60533a99e,2026 별바다부산 「나이트 캠크닉」,name_ja,,星の海・釜山「ナイトミュージック・キャンクニック」,TourAPI JpnService2 contentid=4103875,"제목 속 한국어 「2026 별바다부산 「나이트 캠크닉」」 이름 열쇠 같음, 0m",0,0
+fbabe508-4404-31ab-b229-59947dc161d8,9번횟집,name_en,,9 Beon Fish Restaurant,OSM node/368957145 (ODbL),같은 OSM 항목의 name:en,0,0
+ec7fecbc-eaf0-36c3-a71f-4188e930cd5c,BBQ치킨,name_en,,bb.q Olive Chicken Cafe,OSM node/12319218181 (ODbL),같은 OSM 항목의 name:en,0,0
+2f7a6958-3ce1-32ab-8074-abfde01c8685,Egg Drop,name_en,,Egg Drop,OSM node/11430202072 (ODbL),같은 OSM 항목의 name:en,0,0
+9386f927-98d8-3903-b000-520061b8b655,KNN시어터,name_en,,KNN Theater,OSM node/6194950386 (ODbL),같은 OSM 항목의 name:en,0,0
+9386f927-98d8-3903-b000-520061b8b655,KNN시어터,name_ja,,KNNシアター,OSM node/6194950386 (ODbL),같은 OSM 항목의 name:ja,0,0
+b7287148-f3f1-3d99-884e-7a76a8453fe4,Magnificent View to Busan,name_en,,Magnificent View to Busan,OSM node/11854065768 (ODbL),같은 OSM 항목의 name:en,0,0
+44fac930-cc63-3b30-9164-eebeb8dc0b4c,가덕횟집,name_en,,Gadeok Fish Restaurant,OSM node/368957472 (ODbL),같은 OSM 항목의 name:en,0,0
+d23e3f36-33da-36f9-913b-7fac77977ddb,가덕횟집,name_en,,Gadeok Fish Restaurant,OSM node/368957291 (ODbL),같은 OSM 항목의 name:en,0,0
+b16e7abb-1482-3586-a6c8-298c1964cd72,가도횟집,name_en,,Gado Fish Restaurant,OSM node/368957475 (ODbL),같은 OSM 항목의 name:en,0,0
+b38b886b-f63a-38a7-8a2f-20c17378270f,가락횟집,name_en,,Garak Fish Restaurant,OSM node/368957050 (ODbL),같은 OSM 항목의 name:en,0,0
+b5aa6880-c385-3566-b14e-4683098d6025,가람횟집,name_en,,Garam Fish Restaurant,OSM node/368957680 (ODbL),같은 OSM 항목의 name:en,0,0
+0f31c4cc-2fe0-382d-9326-64fb1ae3313a,갈매기 브루잉,name_en,,Galmegi Brewing Co.,OSM node/5893923492 (ODbL),같은 OSM 항목의 name:en,0,0
+4df87c9e-fb6c-39f0-9ac2-0df8568cba5e,갈매기브루잉 경성대점,name_en,,Galmegi Brewery,OSM node/5249814522 (ODbL),같은 OSM 항목의 name:en,0,0
+18c6c8cb-45c6-32b9-983f-69813f0aebb0,갈매기횟집,name_en,,Galmaegi Fish Restaurant,OSM node/368956719 (ODbL),같은 OSM 항목의 name:en,0,0
+090ed623-5295-3490-a8d8-5e2f9b0578a0,감만횟집,name_en,,Gamman Fish Restaurant,OSM node/368959527 (ODbL),같은 OSM 항목의 name:en,0,0
+36851fc8-a001-317b-9f51-69e2fbbb8f3d,감미횟집,name_en,,Gammi Fish Restaurant,OSM node/368956633 (ODbL),같은 OSM 항목의 name:en,0,0
+8a399a47-cbaf-398e-a641-d4854379b69a,감포횟집,name_en,,Gampo Fish Restaurant,OSM node/368958576 (ODbL),같은 OSM 항목의 name:en,0,0
+852339e1-0014-3a74-a2a5-5e63d8df4d49,감포횟집,name_en,,Gampo Fish Restaurant,OSM node/368957972 (ODbL),같은 OSM 항목의 name:en,0,0
+b36c49b8-b522-3191-a514-7952e38daac8,강남수산횟집,name_en,,Gangnamsusan Fish Restaurant,OSM node/368957100 (ODbL),같은 OSM 항목의 name:en,0,0
+05b690bd-1491-3df0-a3a8-6543ef343e2c,강미회집,name_en,,Gangmi Fish Restaurant,OSM node/368955193 (ODbL),같은 OSM 항목의 name:en,0,0
+59e314b6-63a0-3403-a789-ae499b4d0e16,강변횟집,name_en,,Gangbyeon Fish Restaurant,OSM node/368959008 (ODbL),같은 OSM 항목의 name:en,0,0
+e51aefdf-b458-37cb-8879-423bce397df6,강변횟집,name_en,,Gangbyeon Fish Restaurant,OSM node/368957428 (ODbL),같은 OSM 항목의 name:en,0,0
+6dd2241f-2bac-3033-960f-3269ee64da4f,강서횟집,name_en,,Gangseo Fish Restaurant,OSM node/368958562 (ODbL),같은 OSM 항목의 name:en,0,0
+2ca89614-ffce-34e9-8fb2-57912f19011d,갯가횟집,name_en,,Gaetga Fish Restaurant,OSM node/368973172 (ODbL),같은 OSM 항목의 name:en,0,0
+e4120a12-ca3f-348a-a6b2-e647236ce250,거북이횟집,name_en,,Geobuki Fish Restaurant,OSM node/368973122 (ODbL),같은 OSM 항목의 name:en,0,0
+26577448-cc9a-38a7-8a76-f2a49afb6b55,거북횟집,name_en,,Geobuk Fish Restaurant,OSM node/368973109 (ODbL),같은 OSM 항목의 name:en,0,0
+679ffe3f-c7fb-3dc9-a744-6f156012797a,거북횟집,name_en,,Geobuk Fish Restaurant,OSM node/368957610 (ODbL),같은 OSM 항목의 name:en,0,0
+b9c4589f-1684-3229-9d9d-df6294ec2e45,거제횟집,name_en,,Geoje Fish Restaurant,OSM node/368959518 (ODbL),같은 OSM 항목의 name:en,0,0
+4a4c782a-8dfc-3167-aebb-e9be7332f6b9,거제횟집,name_en,,Geoje Fish Restaurant,OSM node/368959748 (ODbL),같은 OSM 항목의 name:en,0,0
+c0c69501-28fd-310d-a570-d8a78562f8b0,거창횟집,name_en,,Geochang Fish Restaurant,OSM node/368957458 (ODbL),같은 OSM 항목의 name:en,0,0
+143add7f-e9bc-3d63-aa3f-4237d2e96af9,경성코페,name_en,,Gyeongseong Coffee,OSM node/6466237833 (ODbL),같은 OSM 항목의 name:en,0,0
+92451b64-8012-3e93-a4ae-e0ec056b21e0,경성횟집,name_en,,Gyeongseong Fish Restaurant,OSM node/368957892 (ODbL),같은 OSM 항목의 name:en,0,0
+d1d6b152-5264-38cd-b775-24d4620f3b75,고궁당화랑,name_en,,Gogungdang Gallery,OSM node/368727653 (ODbL),같은 OSM 항목의 name:en,0,0
+6d6f9551-d03b-3f39-8a48-46791262b464,고궁당화랑,name_en,,Gogungdang Gallery,OSM node/368727594 (ODbL),같은 OSM 항목의 name:en,0,0
+9f123520-774f-3bac-aaed-b662f53514b5,고성왕도매횟집,name_en,,Goseongwangdomae Fish Restaurant,OSM node/368973350 (ODbL),같은 OSM 항목의 name:en,0,0
+04932664-874f-3617-a20a-0df509149ba1,고성횟집,name_en,,Goseong Fish Restaurant,OSM node/368958753 (ODbL),같은 OSM 항목의 name:en,0,0
+8642ec48-e413-38f0-bf2d-ae90a044a228,고성횟집,name_en,,Goseong Fish Restaurant,OSM node/368958633 (ODbL),같은 OSM 항목의 name:en,0,0
+8e8152ab-9bdb-34da-9ffb-52c17e388cd3,고성횟집,name_en,,Goseong Fish Restaurant,OSM node/368959507 (ODbL),같은 OSM 항목의 name:en,0,0
+f413a05b-fb61-3794-b036-f1fd9a06e5c5,고성횟집,name_en,,Goseong Fish Restaurant,OSM node/368957153 (ODbL),같은 OSM 항목의 name:en,0,0
+429ebdc0-ecc6-3dd1-af83-e0378f0f9f58,고성횟집,name_en,,Goseong Fish Restaurant,OSM node/368957525 (ODbL),같은 OSM 항목의 name:en,0,0
+c39b5035-7631-3b06-a22b-c9269b58808e,고성횟집,name_en,,Goseong Fish Restaurant,OSM node/368957386 (ODbL),같은 OSM 항목의 name:en,0,0
+44d62b5d-18b8-37a9-9361-ff0241425ad8,고향횟집,name_en,,Gohyang Fish Restaurant,OSM node/368958235 (ODbL),같은 OSM 항목의 name:en,0,0
+390ddbda-bcbf-3168-8ee3-81419a2f77b1,곤지횟집,name_en,,Gonji Fish Restaurant,OSM node/368957420 (ODbL),같은 OSM 항목의 name:en,0,0
+df8fdc1b-54d0-3230-b6c4-3fed09dff3f9,곤포횟집,name_en,,Gonpo Fish Restaurant,OSM node/368959296 (ODbL),같은 OSM 항목의 name:en,0,0
+73d4304f-0dc2-3b8e-ac76-8d40d439571f,곰보횟집,name_en,,Gombo Fish Restaurant,OSM node/368958712 (ODbL),같은 OSM 항목의 name:en,0,0
+0f9bd718-223f-33dc-8aef-d77255d21d87,관음정사,name_en,,Gwaneumjeongsa,OSM node/4723477631 (ODbL),같은 OSM 항목의 name:en,0,0
+5f01743e-d372-3a5c-aa61-713f3ef8171f,관해정,name_en,,Gwanhae Pavilion Overlook,OSM node/10216138890 (ODbL),같은 OSM 항목의 name:en,0,0
+ef40c3b0-53f4-3b26-b7ee-6bd79acd2951,광복기념관,name_en,,Gwangbok Memorial Hall,OSM node/368635738 (ODbL),같은 OSM 항목의 name:en,0,0
+ef40c3b0-53f4-3b26-b7ee-6bd79acd2951,광복기념관,name_ja,,光復記念館,OSM node/368635738 (ODbL),같은 OSM 항목의 name:ja,0,0
+1e88032a-d2bc-3afe-8aba-5a1f9b0e7627,광안리어방축제,name_en,,Gwangalli Eobang Festival,TourAPI EngService2 contentid=697426,"제목 속 한국어 「광안리어방축제」 이름 열쇠 같음, 0m",0,0
+075f8858-5b92-35e4-9ad1-3622d3dedea2,광진활어횟집,name_en,,Gwangjinhwaleo Fish Restaurant,OSM node/368957015 (ODbL),같은 OSM 항목의 name:en,0,0
+a1328b13-52cd-317b-8969-0b3c727a025b,교촌치킨,name_en,,KyoChon Chicken,OSM node/12000722287 (ODbL),같은 OSM 항목의 name:en,0,0
+c22e22db-3d5d-3b7d-9945-a9a74b408f73,구명사,name_en,,Gumyeongsa Temple,OSM node/4541328368 (ODbL),같은 OSM 항목의 name:en,0,0
+c22e22db-3d5d-3b7d-9945-a9a74b408f73,구명사,name_ja,,求命寺,OSM node/4541328368 (ODbL),같은 OSM 항목의 name:ja,0,0
+c22e22db-3d5d-3b7d-9945-a9a74b408f73,구명사,name_zh_hans,,救命寺,OSM node/4541328368 (ODbL),같은 OSM 항목의 name:zh(-Hans),0,0
+617d3717-dcb5-307c-a0a7-fb3ecb6a969c,구포상승문화회관,name_en,,Guposangseung Cultural Center,OSM node/368874220 (ODbL),같은 OSM 항목의 name:en,0,0
+d1bdcc37-f27c-3403-a37b-1f45abe56e1e,구포횟집,name_en,,Gupo Fish Restaurant,OSM node/368958641 (ODbL),같은 OSM 항목의 name:en,0,0
+154ff564-192c-3ae6-9161-33da39b2ea24,국립수산과학관,name_ja,,国立水産科学館,OSM node/368632936 (ODbL),같은 OSM 항목의 name:ja,0,0
+154ff564-192c-3ae6-9161-33da39b2ea24,국립수산과학관,name_zh_hans,,國立水產科學館,OSM node/368632936 (ODbL),같은 OSM 항목의 name:zh(-Hans),0,0
+5c99ecf8-be53-30f7-89a2-ebd3a4b630fd,금강횟집,name_en,,Geumgang Fish Restaurant,OSM node/368973192 (ODbL),같은 OSM 항목의 name:en,0,0
+9716f211-35e1-36a5-86f1-609a43e96026,금곡횟집,name_en,,Geumgok Fish Restaurant,OSM node/368959782 (ODbL),같은 OSM 항목의 name:en,0,0
+f4b23341-82a9-33fe-b431-be2e2711fe58,금련산,name_en,,Geumnyeonsan,Wikidata Q27296332 (CC0),"한국어 이름 「금련산」 열쇠 같음, 200m",0,0
+6efd777f-e088-38ce-9364-d56c75bf9903,금보횟집,name_en,,Geumbo Fish Restaurant,OSM node/368959851 (ODbL),같은 OSM 항목의 name:en,0,0
+1e95ef3b-bca7-374a-9b5d-a8398d803b85,금샘횟집,name_en,,Geumsaem Fish Restaurant,OSM node/368959715 (ODbL),같은 OSM 항목의 name:en,0,0
+da4d12c2-b468-384a-8716-177309689995,금성삼천포 횟집,name_en,,Geumseongsamcheonpo Fish Restaurant,OSM node/368956725 (ODbL),같은 OSM 항목의 name:en,0,0
+31a279ec-ac14-3611-a35d-91d71dc9f61b,금성횟집,name_en,,Geumseong Fish Restaurant,OSM node/368956945 (ODbL),같은 OSM 항목의 name:en,0,0
+160ad2c7-b6ac-3615-84e6-8cab329feb05,금송횟집,name_en,,Geumsong Fish Restaurant,OSM node/368957614 (ODbL),같은 OSM 항목의 name:en,0,0
+1a602fb5-f62b-3c53-9d54-00e7bcefb74d,금어횟집,name_en,,Geumeo Fish Restaurant,OSM node/368959038 (ODbL),같은 OSM 항목의 name:en,0,0
+40f1bfba-1c44-32ee-a8cb-316a765ab777,금어횟집,name_en,,Geumeo Fish Restaurant,OSM node/368957876 (ODbL),같은 OSM 항목의 name:en,0,0
+a6e61e18-cd63-30a1-9d2d-0ddb44a47289,금어횟집,name_en,,Geumeo Fish Restaurant,OSM node/368958841 (ODbL),같은 OSM 항목의 name:en,0,0
+f7eb2b12-dc07-32aa-a164-a30e35a08918,금오횟집,name_en,,Geumo Fish Restaurant,OSM node/368957480 (ODbL),같은 OSM 항목의 name:en,0,0
+c956483d-e054-390d-8694-d7fab6cd1482,금풍횟집,name_en,,Geumpung Fish Restaurant,OSM node/368957021 (ODbL),같은 OSM 항목의 name:en,0,0
+8d4848d5-df0a-3340-878e-a2696514e824,금호횟집,name_en,,Geumho Fish Restaurant,OSM node/368958007 (ODbL),같은 OSM 항목의 name:en,0,0
+8a5742f1-4026-38e3-8db9-d0d667a5e58c,금화횟집,name_en,,Geumhwa Fish Restaurant,OSM node/368958331 (ODbL),같은 OSM 항목의 name:en,0,0
+9d58ea1b-ca2b-3a46-9bae-6f66f8bd2f7e,기장시장등대횟집,name_en,,Gijang Market Deungdae Fish Restaurant,OSM node/368973356 (ODbL),같은 OSM 항목의 name:en,0,0
+f1f5afcc-40ed-3c51-920f-48e89f2fc1e2,기장자연산횟집,name_en,,Gijangjayeonsan Fish Restaurant,OSM node/368973346 (ODbL),같은 OSM 항목의 name:en,0,0
+a1963b39-7947-3868-90b9-5d5561754ed7,기장횟집,name_en,,Gijang Fish Restaurant,OSM node/368959286 (ODbL),같은 OSM 항목의 name:en,0,0
+95d90834-ff36-3803-b22f-92e4fb16a314,김밥천국,name_en,,Gimbap Cheongug,OSM node/12000706760 (ODbL),같은 OSM 항목의 name:en,0,0
+95d90834-ff36-3803-b22f-92e4fb16a314,김밥천국,name_ja,,キムパプ天国,OSM node/12000706760 (ODbL),같은 OSM 항목의 name:ja,0,0
+f9ca9096-3b59-3a43-ad61-9257d6d0b082,김해횟집,name_en,,Gimhae Fish Restaurant,OSM node/368959474 (ODbL),같은 OSM 항목의 name:en,0,0
+cf7e82f1-7764-3e5b-bf94-187b6a3139f7,김해횟집,name_en,,Gimhae Fish Restaurant,OSM node/368958472 (ODbL),같은 OSM 항목의 name:en,0,0
+2743abb5-57d3-36d0-85a2-60872c1004bd,나들목,name_en,,Nadeulmong,OSM node/4523010800 (ODbL),같은 OSM 항목의 name:en,0,0
+1cdbbb65-a58a-4a3c-a4b3-000630874005,낙동강하구에코센터,name_en,,Nakdong River Estuary Eco Center,Wikidata Q137611620 (CC0),"한국어 이름 「낙동강하구에코센터」 열쇠 같음, 343m",0,0
+d58c478b-7325-3edf-811a-5948bd5a0cea,낙원횟집,name_en,,Nakwon Fish Restaurant,OSM node/368958169 (ODbL),같은 OSM 항목의 name:en,0,0
+56437fee-16a6-3b0a-b20d-9a5ab2771afc,남강횟집,name_en,,Namgang Fish Restaurant,OSM node/368959855 (ODbL),같은 OSM 항목의 name:en,0,0
+149a4659-3640-3900-aa5d-07a46e089e92,남강횟집,name_en,,Namgang Fish Restaurant,OSM node/368958723 (ODbL),같은 OSM 항목의 name:en,0,0
+00ad73be-1179-3f28-bf3d-bf13fd556fda,남경횟집,name_en,,Namgyeong Fish Restaurant,OSM node/368959541 (ODbL),같은 OSM 항목의 name:en,0,0
+d00bc8e5-9b09-3bd8-bcd8-ca0d30e0e1d3,남광횟집,name_en,,Namgwang Fish Restaurant,OSM node/368958990 (ODbL),같은 OSM 항목의 name:en,0,0
+86715fc9-de82-36d5-b26a-a91336708047,남도횟집,name_en,,Namdo Fish Restaurant,OSM node/368959539 (ODbL),같은 OSM 항목의 name:en,0,0
+d28ab82d-0d1f-31ef-a51b-c32711e5aebd,남도횟집,name_en,,Namdo Fish Restaurant,OSM node/368958813 (ODbL),같은 OSM 항목의 name:en,0,0
+816838c0-4d1f-3861-8141-c60993a212a2,남산화랑,name_en,,Namsan Gallery,OSM node/368727579 (ODbL),같은 OSM 항목의 name:en,0,0
+8b37cdec-6fd7-3852-bbdd-eabc77942139,남지횟집,name_en,,Namji Fish Restaurant,OSM node/368957564 (ODbL),같은 OSM 항목의 name:en,0,0
+764ed4b6-3850-32cc-a768-48a9fbf29ff7,남지횟집,name_en,,Namji Fish Restaurant,OSM node/368959321 (ODbL),같은 OSM 항목의 name:en,0,0
+c69d1627-df14-35eb-8a3e-c8c3c5058505,남천횟집,name_en,,Namcheon Fish Restaurant,OSM node/368959399 (ODbL),같은 OSM 항목의 name:en,0,0
+5d24e9e1-8acc-3836-aee6-ac0c430b3ae2,남포횟집,name_en,,Nampo Fish Restaurant,OSM node/368959153 (ODbL),같은 OSM 항목의 name:en,0,0
+f11124dd-8844-3332-8d30-d27ad81d58f2,남해보물섬자연산횟집,name_en,,Namhaebomulseomjayeonsan Fish Restaurant,OSM node/368956966 (ODbL),같은 OSM 항목의 name:en,0,0
+5e21d661-708f-3f41-9783-f9eea903e4e2,남해횟집,name_en,,Namhae Fish Restaurant,OSM node/368959515 (ODbL),같은 OSM 항목의 name:en,0,0
+ea62dadc-4a80-313f-bee5-80c023c98205,남해횟집,name_en,,Namhae Fish Restaurant,OSM node/368957814 (ODbL),같은 OSM 항목의 name:en,0,0
+29675d66-4424-3506-8002-a26e5f9d6b56,남해횟집,name_en,,Namhae Fish Restaurant,OSM node/368959502 (ODbL),같은 OSM 항목의 name:en,0,0
+18a62cab-e43f-324f-89c5-2aa939debd40,남해횟집,name_en,,Namhae Fish Restaurant,OSM node/368957747 (ODbL),같은 OSM 항목의 name:en,0,0
+18a62cab-e43f-324f-89c5-2aa939debd40,남해횟집,name_zh_hans,,竹城教堂在附近,OSM node/368957747 (ODbL),같은 OSM 항목의 name:zh(-Hans),0,0
+39033d64-51f3-34fd-ba19-974a50b8d2ce,남해횟집,name_en,,Namhae Fish Restaurant,OSM node/368957494 (ODbL),같은 OSM 항목의 name:en,0,0
+e00ccc0a-d940-380b-9650-a73aa3bc001c,남해횟집,name_en,,Namhae Fish Restaurant,OSM node/368957930 (ODbL),같은 OSM 항목의 name:en,0,0
+0beb3e3f-7f0c-397e-b1ea-3531a0ff3ef0,남해횟집,name_en,,Namhae Fish Restaurant,OSM node/368957885 (ODbL),같은 OSM 항목의 name:en,0,0
+3c33fc2c-18a8-345f-8a57-2e396434f065,남해횟집,name_en,,Namhae Fish Restaurant,OSM node/368959426 (ODbL),같은 OSM 항목의 name:en,0,0
+f6c2fc75-20b0-33ad-b8f7-f9d92a360ebe,남해횟집,name_en,,Namhae Fish Restaurant,OSM node/368958456 (ODbL),같은 OSM 항목의 name:en,0,0
+9942d4e4-7677-3876-ba29-ba010f3dcc86,남해횟집,name_en,,Namhae Fish Restaurant,OSM node/368957501 (ODbL),같은 OSM 항목의 name:en,0,0
+ce52c248-9cfe-31e9-8736-16dac260b1ce,남해횟집,name_en,,Namhae Fish Restaurant,OSM node/368958251 (ODbL),같은 OSM 항목의 name:en,0,0
+ce52c248-9cfe-31e9-8736-16dac260b1ce,남해횟집,name_ja,,南海刺身店,OSM node/368958251 (ODbL),같은 OSM 항목의 name:ja,0,0
+c68e2b5d-b417-3d01-8c7e-477ff4128bd8,남해횟집,name_en,,Namhae Fish Restaurant,OSM node/368958690 (ODbL),같은 OSM 항목의 name:en,0,0
+a8720cd0-3222-35bf-a790-328226234c13,남해횟집,name_en,,Namhae Fish Restaurant,OSM node/368957865 (ODbL),같은 OSM 항목의 name:en,0,0
+3143e289-a76d-389a-9dc0-cfb93e2414f3,남해횟집,name_en,,Namhae Fish Restaurant,OSM node/368957191 (ODbL),같은 OSM 항목의 name:en,0,0
+3143e289-a76d-389a-9dc0-cfb93e2414f3,남해횟집,name_ja,,南海刺身店,OSM node/368957191 (ODbL),같은 OSM 항목의 name:ja,0,0
+f896a822-6200-371b-ac5e-029c0e4eac49,남해횟집,name_en,,Namhae Fish Restaurant,OSM node/368957385 (ODbL),같은 OSM 항목의 name:en,0,0
+74096dd0-e9f1-3c58-8512-497aa3dff8b7,남해횟집,name_en,,Namhae Fish Restaurant,OSM node/368957818 (ODbL),같은 OSM 항목의 name:en,0,0
+7472eef6-2187-3829-ac22-d3d685ab2d2a,남해횟집,name_en,,Namhae Fish Restaurant,OSM node/368956848 (ODbL),같은 OSM 항목의 name:en,0,0
+b3f0239d-1e4c-3cf0-ab9b-c2dd080900ca,남해횟집,name_en,,Namhae Fish Restaurant,OSM node/368959634 (ODbL),같은 OSM 항목의 name:en,0,0
+339942ff-31aa-3be1-9512-dd20aaa279be,남해횟집,name_en,,Namhae Fish Restaurant,OSM node/368959260 (ODbL),같은 OSM 항목의 name:en,0,0
+8097b92e-51aa-36e6-8dbc-282772b522bf,남해횟집,name_en,,Namhae Fish Restaurant,OSM node/368959844 (ODbL),같은 OSM 항목의 name:en,0,0
+38400cec-5d4a-3445-a8bf-e6ff9a063a32,노브랜드버거 부산대연점,name_en,,No Brand Burger,OSM node/9706506430 (ODbL),같은 OSM 항목의 name:en,0,0
+2fd6fb8d-5b8b-375c-a31e-a6ac7c48b3c2,녹산횟집,name_en,,Noksan Fish Restaurant,OSM node/368957700 (ODbL),같은 OSM 항목의 name:en,0,0
+bef4e132-f7d4-326c-9594-8cd3f3370f08,녹산횟집,name_en,,Noksan Fish Restaurant,OSM node/368957607 (ODbL),같은 OSM 항목의 name:en,0,0
+640af3f0-5fbd-3445-87f4-ef73b5d83482,녹산횟집,name_en,,Noksan Fish Restaurant,OSM node/368957255 (ODbL),같은 OSM 항목의 name:en,0,0
+40f98c52-07a7-3d04-98ea-e4179ff8c011,녹산횟집,name_en,,Noksan Fish Restaurant,OSM node/368958216 (ODbL),같은 OSM 항목의 name:en,0,0
+9a551121-057c-3ff8-907f-6f12a8cc649a,녹산횟집,name_en,,Noksan Fish Restaurant,OSM node/368956775 (ODbL),같은 OSM 항목의 name:en,0,0
+f22e8afb-ca90-310f-9a42-1083ae18133f,농심 횟집,name_en,,Nongsim Fish Restaurant,OSM node/368956919 (ODbL),같은 OSM 항목의 name:en,0,0
+b94cf379-fa12-31c4-9a79-9772181bd3b5,다다횟집,name_en,,Dada Fish Restaurant,OSM node/368956991 (ODbL),같은 OSM 항목의 name:en,0,0
+fb9632c6-4c44-35f8-8444-7b55fedff986,다대횟집,name_en,,Dadae Fish Restaurant,OSM node/368956773 (ODbL),같은 OSM 항목의 name:en,0,0
+c09b09ad-b25f-3795-820f-e88f80da3154,다대횟집,name_en,,Dadae Fish Restaurant,OSM node/368957151 (ODbL),같은 OSM 항목의 name:en,0,0
+ee05be01-2669-37b3-9dc8-344100c5d345,다도해횟집,name_en,,Dadohae Fish Restaurant,OSM node/368957001 (ODbL),같은 OSM 항목의 name:en,0,0
+894913c2-b904-317a-bd4f-0c5199979aa9,다도횟집,name_en,,Dado Fish Restaurant,OSM node/368957215 (ODbL),같은 OSM 항목의 name:en,0,0
+bd161d0c-89f9-3ad8-9579-7cf53fbcc2c9,다빈횟집,name_en,,Dabin Fish Restaurant,OSM node/368958438 (ODbL),같은 OSM 항목의 name:en,0,0
+388e4d32-facf-3edc-86c9-dfd0ffccc4d7,다희카페,name_en,,Dahee Cafe,OSM node/11658553231 (ODbL),같은 OSM 항목의 name:en,0,0
+e11e19b1-57ac-38d9-82ad-ffbf27103852,달동횟집,name_en,,Daldong Fish Restaurant,OSM node/368958797 (ODbL),같은 OSM 항목의 name:en,0,0
+389441bc-247f-3b4a-a7f8-1586a6e1b8f6,대가횟집,name_en,,Daega Fish Restaurant,OSM node/368973140 (ODbL),같은 OSM 항목의 name:en,0,0
+4772e43b-a2d5-32ef-afb6-faa913d93dad,대구횟집,name_en,,Daegu Fish Restaurant,OSM node/368959244 (ODbL),같은 OSM 항목의 name:en,0,0
+e7c8e1bc-72cc-318c-ace1-11bb3724482b,대도횟집,name_en,,Daedo Fish Restaurant,OSM node/368958237 (ODbL),같은 OSM 항목의 name:en,0,0
+34b26b34-d601-342d-91bc-49ed6c91be39,대동강회집,name_en,,Daedonggang Fish Restaurant,OSM node/368955196 (ODbL),같은 OSM 항목의 name:en,0,0
+26e18eca-68c2-378d-87a6-1736a4f4c51b,대명장횟집,name_en,,Daemyeongjang Fish Restaurant,OSM node/368973229 (ODbL),같은 OSM 항목의 name:en,0,0
+5c96efa3-765b-371d-8ba9-fb998e37d584,대명횟집,name_en,,Daemyeong Fish Restaurant,OSM node/368958589 (ODbL),같은 OSM 항목의 name:en,0,0
+4a3c2ed4-7598-3f09-bc99-2b2cbb9eac99,대성횟집,name_en,,Daeseong Fish Restaurant,OSM node/368959650 (ODbL),같은 OSM 항목의 name:en,0,0
+26530bbf-c0d5-3332-845e-6b6520714e1a,대성횟집,name_en,,Daeseong Fish Restaurant,OSM node/368958035 (ODbL),같은 OSM 항목의 name:en,0,0
+00a1b863-2b59-3d96-b748-aef351b39a68,대성횟집,name_en,,Daeseong Fish Restaurant,OSM node/368957571 (ODbL),같은 OSM 항목의 name:en,0,0
+afbd2be7-df73-32d0-8650-4723e60263ea,대아횟집,name_en,,Daea Fish Restaurant,OSM node/368957581 (ODbL),같은 OSM 항목의 name:en,0,0
+0daf6d43-8381-306c-abbf-2b6bb9adc07d,대양횟집,name_en,,Daeyang Fish Restaurant,OSM node/368957184 (ODbL),같은 OSM 항목의 name:en,0,0
+d539c793-a693-3add-a024-ac8390e9233e,대양횟집,name_en,,Daeyang Fish Restaurant,OSM node/368957916 (ODbL),같은 OSM 항목의 name:en,0,0
+bd7588b2-7fab-3e6f-b55a-f56a2f17399d,대어횟집,name_en,,Daeeo Fish Restaurant,OSM node/368957628 (ODbL),같은 OSM 항목의 name:en,0,0
+e32253a8-9a36-3f57-8ba5-4b6044ed3812,대영횟집,name_en,,Daeyeong Fish Restaurant,OSM node/368959809 (ODbL),같은 OSM 항목의 name:en,0,0
+f74d32ad-97e8-3d82-96d1-4408909e76b0,대형횟집,name_en,,Daehyeong Fish Restaurant,OSM node/368957223 (ODbL),같은 OSM 항목의 name:en,0,0
+9ebc9db2-4c88-3785-ab1b-2bc018afd8a1,대호횟집,name_en,,Daeho Fish Restaurant,OSM node/368959111 (ODbL),같은 OSM 항목의 name:en,0,0
+e60551ad-74db-3399-976e-743fb167c92f,덕성화랑,name_en,,Deokseong Gallery,OSM node/368727675 (ODbL),같은 OSM 항목의 name:en,0,0
+92d9bbc3-517f-3323-a33e-6b27980933d5,도피오,name_en,,Doppio,OSM node/10171755718 (ODbL),같은 OSM 항목의 name:en,0,0
+6301bcaf-2915-35cb-b733-6461ff98fbb4,독도횟집,name_en,,Dokdo Fish Restaurant,OSM node/368957604 (ODbL),같은 OSM 항목의 name:en,0,0
+b2daad93-cd38-3c13-8151-2e14f6016d0d,독도횟집,name_en,,Dokdo Fish Restaurant,OSM node/368957671 (ODbL),같은 OSM 항목의 name:en,0,0
+0fa22108-938d-382f-95ea-0c9bb8d6cb08,독도횟집,name_en,,Dokdo Fish Restaurant,OSM node/368958381 (ODbL),같은 OSM 항목의 name:en,0,0
+1ff760be-0952-394a-a41f-910cbf28f3cc,돌샘횟집,name_en,,Dolsaem Fish Restaurant,OSM node/368956835 (ODbL),같은 OSM 항목의 name:en,0,0
+da10271f-075a-3336-93cb-a6207ca14536,돌섬횟집,name_en,,Dolseom Fish Restaurant,OSM node/368957785 (ODbL),같은 OSM 항목의 name:en,0,0
+d3e5f980-087f-3c85-bdc9-e8938e81e2c3,돌섬횟집,name_en,,Dolseom Fish Restaurant,OSM node/368958393 (ODbL),같은 OSM 항목의 name:en,0,0
+e7d8dbba-f024-3437-8c6d-5b2748f9fd99,동국횟집,name_en,,Dongguk Fish Restaurant,OSM node/368958465 (ODbL),같은 OSM 항목의 name:en,0,0
+f60cac45-97bf-3179-8677-a6ff41d3ebb0,동남횟집,name_en,,Dongnam Fish Restaurant,OSM node/368959076 (ODbL),같은 OSM 항목의 name:en,0,0
+affbbfc2-e035-43be-a3e3-001608737003,동래시장,name_en,,Dongnae Market,Wikidata Q130199216 (CC0),"한국어 이름 「동래시장」 열쇠 같음, 3m",0,0
+ec35957b-cede-3692-b05a-62e2eca92469,동래읍성역사축제,name_en,,Dongnaeeupseong History Festival,TourAPI EngService2 contentid=1876897,"제목 속 한국어 「동래읍성역사축제」 이름 열쇠 같음, 39m",0,0
+411b1a9d-a849-3ab5-ae67-c7eab9adb91d,동래향교,name_en,,Dongnae Hyanggyo,Wikidata Q16092850 (CC0),"한국어 이름 「동래향교」 열쇠 같음, 32m",0,0
+eb1e884d-9b39-375e-9e68-1529dbf7710f,동명횟집,name_en,,Dongmyeong Fish Restaurant,OSM node/368956729 (ODbL),같은 OSM 항목의 name:en,0,0
+2a0d3313-1150-307f-a4f7-12ac4d31e21a,동방횟집,name_en,,Dongbang Fish Restaurant,OSM node/368959580 (ODbL),같은 OSM 항목의 name:en,0,0
+4006d8c7-806d-3b2f-a7eb-dbfa78355d2b,동백리온정마을청정횟집,name_en,,Dongbaengnionjeong Village Cheongjeong Fish Restaurant,OSM node/368973359 (ODbL),같은 OSM 항목의 name:en,0,0
+df7689da-25fc-384e-b5f9-2194baa26a02,동백칠광횟집,name_en,,Dongbaekchilgwang Fish Restaurant,OSM node/368973331 (ODbL),같은 OSM 항목의 name:en,0,0
+3682bc5b-2147-3e85-bf0b-82b20d30d8ff,동백횟집,name_en,,Dongbaek Fish Restaurant,OSM node/368959576 (ODbL),같은 OSM 항목의 name:en,0,0
+810be578-0cdb-3ebc-bcad-2e185f0ed90f,동부횟집,name_en,,Dongbu Fish Restaurant,OSM node/368958196 (ODbL),같은 OSM 항목의 name:en,0,0
+ba4fdcc0-49ce-3f5b-b998-1e71b37f8a26,동산횟집,name_en,,Dongsan Fish Restaurant,OSM node/368959410 (ODbL),같은 OSM 항목의 name:en,0,0
+81ee2808-6ff5-3119-a9ca-624fe48b4932,동상동횟집,name_en,,Dongsangdong Fish Restaurant,OSM node/368956975 (ODbL),같은 OSM 항목의 name:en,0,0
+afa65c34-b5c6-3331-98e2-045111801da0,동원횟집,name_en,,Dongwon Fish Restaurant,OSM node/368957279 (ODbL),같은 OSM 항목의 name:en,0,0
+3d8d105e-af6a-3e20-9311-d9ad3524797d,동원횟집,name_en,,Dongwon Fish Restaurant,OSM node/368959725 (ODbL),같은 OSM 항목의 name:en,0,0
+f1b8aa02-42b5-3d3c-af14-ffeb55b2fc62,동원횟집,name_en,,Dongwon Fish Restaurant,OSM node/368957804 (ODbL),같은 OSM 항목의 name:en,0,0
+a67e6c2e-4a06-3ac2-9b5d-6affa3d82696,동정횟집,name_en,,Dongjeong Fish Restaurant,OSM node/368957275 (ODbL),같은 OSM 항목의 name:en,0,0
+0d46a459-203f-33ac-bc86-91b4451fde6b,동주횟집,name_en,,Dongju Fish Restaurant,OSM node/368957193 (ODbL),같은 OSM 항목의 name:en,0,0
+8ffc3417-4c51-3a85-9b4b-9d69eed78d08,동춘횟집,name_en,,Dongchun Fish Restaurant,OSM node/368959647 (ODbL),같은 OSM 항목의 name:en,0,0
+faeedf61-5c98-3c7a-84a3-61c714bbd416,동해횟집,name_en,,Donghae Fish Restaurant,OSM node/368973168 (ODbL),같은 OSM 항목의 name:en,0,0
+6977bdc9-bc10-35a1-8630-625512661563,동해횟집,name_en,,Donghae Fish Restaurant,OSM node/368957094 (ODbL),같은 OSM 항목의 name:en,0,0
+69487222-cb5b-377c-a9a9-0613621e0f66,동해횟집,name_en,,Donghae Fish Restaurant,OSM node/368958831 (ODbL),같은 OSM 항목의 name:en,0,0
+01e5c0cb-c0bc-311e-bc71-446363365cf7,동해횟집,name_en,,Donghae Fish Restaurant,OSM node/368958377 (ODbL),같은 OSM 항목의 name:en,0,0
+4b04c559-85a6-3714-9958-a5627aabe835,동해횟집,name_en,,Donghae Fish Restaurant,OSM node/368959721 (ODbL),같은 OSM 항목의 name:en,0,0
+460d026e-582f-3009-a12f-e3afddc65ece,동해횟집,name_en,,Donghae Fish Restaurant,OSM node/368956795 (ODbL),같은 OSM 항목의 name:en,0,0
+85fe76f6-610c-3f60-a1ee-58c7368ab588,동해횟집,name_en,,Donghae Fish Restaurant,OSM node/368957824 (ODbL),같은 OSM 항목의 name:en,0,0
+a275fd85-e110-313c-aef5-92799793eea4,동해횟집,name_en,,Donghae Fish Restaurant,OSM node/368957087 (ODbL),같은 OSM 항목의 name:en,0,0
+848b635c-bacf-351a-8881-e93806f9675b,동해횟집,name_en,,Donghae Fish Restaurant,OSM node/368959455 (ODbL),같은 OSM 항목의 name:en,0,0
+27aa446a-5a93-323d-8b6c-ce5fa6486eee,동호장횟집,name_en,,Donghojang Fish Restaurant,OSM node/368973206 (ODbL),같은 OSM 항목의 name:en,0,0
+840ec1ea-e581-3203-97b2-92fb3e8389c1,두메횟집,name_en,,Dume Fish Restaurant,OSM node/368973201 (ODbL),같은 OSM 항목의 name:en,0,0
+74698867-6e50-3cb3-9bae-c6561920122d,등대횟집,name_en,,Deungdae Fish Restaurant,OSM node/368958045 (ODbL),같은 OSM 항목의 name:en,0,0
+bd766745-cf51-3881-9b3d-17490e8798e7,등대횟집,name_en,,Deungdae Fish Restaurant,OSM node/368958114 (ODbL),같은 OSM 항목의 name:en,0,0
+916cd520-cbab-35d4-8f9b-44e4cfd1d183,등대횟집,name_en,,Deungdae Fish Restaurant,OSM node/368959303 (ODbL),같은 OSM 항목의 name:en,0,0
+d105b8d5-4bee-3d07-9946-927fe1ebd6e4,등대횟집,name_en,,Deungdae Fish Restaurant,OSM node/368959600 (ODbL),같은 OSM 항목의 name:en,0,0
+0fa53483-1cc9-3919-9ee1-7d9715bedbbe,등대횟집,name_en,,Deungdae Fish Restaurant,OSM node/368957588 (ODbL),같은 OSM 항목의 name:en,0,0
+3cc14a23-9f44-37aa-bee0-51a8ced73f15,디아트커피,name_en,,Diart Coffee,OSM node/12777790412 (ODbL),같은 OSM 항목의 name:en,0,0
+91d17111-a0e7-375a-bc56-2b71cefb54de,뚜레쥬르,name_en,,Tous les Jours,OSM node/12749421645 (ODbL),같은 OSM 항목의 name:en,0,0
+9b5b9cdd-8c87-3628-aeff-274bebc4f219,뚜레쥬르,name_en,,Tous Les Jours,OSM node/9345525894 (ODbL),같은 OSM 항목의 name:en,0,0
+9d4ef8fe-449d-3cab-94b5-21255b3be998,뚜레쥬르,name_en,,Tous les Jours,OSM node/4636762292 (ODbL),같은 OSM 항목의 name:en,0,0
+9d4ef8fe-449d-3cab-94b5-21255b3be998,뚜레쥬르,name_ja,,トゥレジュール,OSM node/4636762292 (ODbL),같은 OSM 항목의 name:ja,0,0
+e72b2ade-436b-3567-a4b1-b2cc3df8a8f7,라인수산회집,name_en,,Rainsusan Fish Restaurant,OSM node/368955199 (ODbL),같은 OSM 항목의 name:en,0,0
+1ed7c857-6dfb-3445-9106-7751a628132a,라쿠나마타타,name_ja,,ラクナマタタ,OSM node/5611902921 (ODbL),같은 OSM 항목의 name:ja,0,0
+4f394b75-308f-3a9d-b71f-6b20c26ca139,로베르또상품전시관,name_en,,Robereuddosangpum Exhibition Hall,OSM node/368898684 (ODbL),같은 OSM 항목의 name:en,0,0
+3443dc09-6008-3fa7-bac6-7a496d04e78d,록산횟집,name_en,,Roksan Fish Restaurant,OSM node/368958839 (ODbL),같은 OSM 항목의 name:en,0,0
+b778ea9f-f59c-3336-8db3-7bfd7ab376aa,롤뺑드빠리,name_en,,Rollpain de Paris,OSM node/6124444785 (ODbL),같은 OSM 항목의 name:en,0,0
+e2400fb5-0db9-3b29-9f77-f5a8f63fd493,롯데리아,name_en,,Lotteria,OSM node/4636821563 (ODbL),같은 OSM 항목의 name:en,0,0
+e2400fb5-0db9-3b29-9f77-f5a8f63fd493,롯데리아,name_ja,,ロッテリア,OSM node/4636821563 (ODbL),같은 OSM 항목의 name:ja,0,0
+e2400fb5-0db9-3b29-9f77-f5a8f63fd493,롯데리아,name_zh_hans,,乐天利,OSM node/4636821563 (ODbL),같은 OSM 항목의 name:zh(-Hans),0,0
+a43cf14d-6b0a-33b5-91be-d26cbd8616e9,롯데리아,name_en,,Lotteria,OSM node/12963629532 (ODbL),같은 OSM 항목의 name:en,0,0
+61212f86-065a-3f97-a24c-edc698250757,롯데리아,name_en,,Lotteria,OSM node/6122180523 (ODbL),같은 OSM 항목의 name:en,0,0
+61212f86-065a-3f97-a24c-edc698250757,롯데리아,name_ja,,ロッテリア,OSM node/6122180523 (ODbL),같은 OSM 항목의 name:ja,0,0
+61212f86-065a-3f97-a24c-edc698250757,롯데리아,name_zh_hans,,乐天利,OSM node/6122180523 (ODbL),같은 OSM 항목의 name:zh(-Hans),0,0
+06392138-e5ed-3d01-988b-d317669e3966,롯데리아,name_en,,Lotteria,OSM node/9857381172 (ODbL),같은 OSM 항목의 name:en,0,0
+002a3554-7a50-3f32-9d82-461803470ef8,롯데리아,name_en,,Lotteria,OSM node/9175691411 (ODbL),같은 OSM 항목의 name:en,0,0
+f1cc7e21-c95a-315a-8375-cbb126ec2432,롯데리아,name_en,,Lotteria,OSM node/8364187347 (ODbL),같은 OSM 항목의 name:en,0,0
+f1cc7e21-c95a-315a-8375-cbb126ec2432,롯데리아,name_ja,,ロッテリア,OSM node/8364187347 (ODbL),같은 OSM 항목의 name:ja,0,0
+f1cc7e21-c95a-315a-8375-cbb126ec2432,롯데리아,name_zh_hans,,乐天利,OSM node/8364187347 (ODbL),같은 OSM 항목의 name:zh(-Hans),0,0
+b968a578-034b-36e0-a6ca-3b7425039908,롯데리아,name_en,,Lotteria,OSM node/4633743603 (ODbL),같은 OSM 항목의 name:en,0,0
+b968a578-034b-36e0-a6ca-3b7425039908,롯데리아,name_ja,,ロッテリア,OSM node/4633743603 (ODbL),같은 OSM 항목의 name:ja,0,0
+b968a578-034b-36e0-a6ca-3b7425039908,롯데리아,name_zh_hans,,乐天利,OSM node/4633743603 (ODbL),같은 OSM 항목의 name:zh(-Hans),0,0
+5201101a-1967-37e0-91d1-8e375c594c4a,롯데리아,name_en,,Lotteria,OSM node/1763825026 (ODbL),같은 OSM 항목의 name:en,0,0
+5201101a-1967-37e0-91d1-8e375c594c4a,롯데리아,name_ja,,ロッテリア,OSM node/1763825026 (ODbL),같은 OSM 항목의 name:ja,0,0
+5201101a-1967-37e0-91d1-8e375c594c4a,롯데리아,name_zh_hans,,乐天利,OSM node/1763825026 (ODbL),같은 OSM 항목의 name:zh(-Hans),0,0
+e8a79e10-cba4-3536-b78d-ecede6893dde,롯데리아 부산용호점,name_en,,Lotteria,OSM node/4686337381 (ODbL),같은 OSM 항목의 name:en,0,0
+e8a79e10-cba4-3536-b78d-ecede6893dde,롯데리아 부산용호점,name_ja,,ロッテリア,OSM node/4686337381 (ODbL),같은 OSM 항목의 name:ja,0,0
+e8a79e10-cba4-3536-b78d-ecede6893dde,롯데리아 부산용호점,name_zh_hans,,乐天利,OSM node/4686337381 (ODbL),같은 OSM 항목의 name:zh(-Hans),0,0
+249baa64-0460-3971-9491-9d608a374cdf,롯데리아 부산하단점,name_en,,Lotteria,OSM node/5434538095 (ODbL),같은 OSM 항목의 name:en,0,0
+249baa64-0460-3971-9491-9d608a374cdf,롯데리아 부산하단점,name_ja,,ロッテリア,OSM node/5434538095 (ODbL),같은 OSM 항목의 name:ja,0,0
+249baa64-0460-3971-9491-9d608a374cdf,롯데리아 부산하단점,name_zh_hans,,乐天利,OSM node/5434538095 (ODbL),같은 OSM 항목의 name:zh(-Hans),0,0
+2f758555-fd71-31a4-9e20-3d38dd3f9b34,류길상 피자 (다대점),name_en,,Ryugillsang Pizza,OSM node/5628685622 (ODbL),같은 OSM 항목의 name:en,0,0
+08746fef-89dc-3f1a-91de-ee546635fbe4,마하정사,name_en,,Mahajeongsa,OSM node/368860557 (ODbL),같은 OSM 항목의 name:en,0,0
+666151a8-fd59-3100-9a82-1c38a09c6b89,만복횟집,name_en,,Manbok Fish Restaurant,OSM node/368956757 (ODbL),같은 OSM 항목의 name:en,0,0
+ad03d727-291b-333e-a608-fc51d0ce9677,만성횟집,name_en,,Manseong Fish Restaurant,OSM node/368958361 (ODbL),같은 OSM 항목의 name:en,0,0
+d23f083d-2bf0-330f-bab5-029fc9faa9d1,만포장횟집,name_en,,Manpojang Fish Restaurant,OSM node/368956973 (ODbL),같은 OSM 항목의 name:en,0,0
+1436d202-42ed-325f-952a-39dcdc7756a2,맘스터치,name_en,,Mom's Touch,OSM node/13448556525 (ODbL),같은 OSM 항목의 name:en,0,0
+02735efa-53e6-30d0-a6c2-81024f1db63f,맘스터치,name_en,,Mom's Touch,OSM node/4636845040 (ODbL),같은 OSM 항목의 name:en,0,0
+02735efa-53e6-30d0-a6c2-81024f1db63f,맘스터치,name_ja,,マムスタッチ,OSM node/4636845040 (ODbL),같은 OSM 항목의 name:ja,0,0
+42da4ef1-d369-3538-81f1-58ffa75688f1,맘스터치,name_en,,Mom's Touch,OSM node/12020275449 (ODbL),같은 OSM 항목의 name:en,0,0
+e547cb2e-755b-3ce7-b77b-db47fa0ed119,맘스터치,name_en,,Mom's Touch,OSM node/5501087757 (ODbL),같은 OSM 항목의 name:en,0,0
+e547cb2e-755b-3ce7-b77b-db47fa0ed119,맘스터치,name_ja,,マムズタッチ,OSM node/5501087757 (ODbL),같은 OSM 항목의 name:ja,0,0
+f0d876bf-772c-3f67-a3ac-3e35427b63d9,맘스터치,name_en,,Mom's Touch,OSM node/4633975012 (ODbL),같은 OSM 항목의 name:en,0,0
+f0d876bf-772c-3f67-a3ac-3e35427b63d9,맘스터치,name_ja,,マムスタッチ,OSM node/4633975012 (ODbL),같은 OSM 항목의 name:ja,0,0
+e8c59d63-35af-3cac-8782-4174142c669c,맘스터치,name_en,,Mom's Touch,OSM node/4631042222 (ODbL),같은 OSM 항목의 name:en,0,0
+e8c59d63-35af-3cac-8782-4174142c669c,맘스터치,name_ja,,マムスタッチ,OSM node/4631042222 (ODbL),같은 OSM 항목의 name:ja,0,0
+b4611155-bb0f-36b6-8f3d-4fe5ae01e138,맘스터치 부경대점,name_en,,Mom's Touch,OSM node/4702445612 (ODbL),같은 OSM 항목의 name:en,0,0
+b4611155-bb0f-36b6-8f3d-4fe5ae01e138,맘스터치 부경대점,name_ja,,マムスタッチ,OSM node/4702445612 (ODbL),같은 OSM 항목의 name:ja,0,0
+7ed7c96b-fab4-3ac9-9c0c-926f6704cd78,매일횟집,name_en,,Maeil Fish Restaurant,OSM node/368958634 (ODbL),같은 OSM 항목의 name:en,0,0
+12c1ec2d-a015-3ac1-a00f-04b7492cdbcb,맥도날드,name_en,,McDonald's,OSM node/12107535611 (ODbL),같은 OSM 항목의 name:en,0,0
+ffed0381-e1a8-39b6-80c8-a4043c6c1f11,맥도날드,name_en,,McDonald's,OSM node/6853038220 (ODbL),같은 OSM 항목의 name:en,0,0
+9dc03114-f611-3725-8ff2-33280b5d9020,맥도날드,name_en,,McDonald's,OSM node/4958306154 (ODbL),같은 OSM 항목의 name:en,0,0
+9dc03114-f611-3725-8ff2-33280b5d9020,맥도날드,name_ja,,マクドナルド,OSM node/4958306154 (ODbL),같은 OSM 항목의 name:ja,0,0
+9dc03114-f611-3725-8ff2-33280b5d9020,맥도날드,name_zh_hans,,麦当劳,OSM node/4958306154 (ODbL),같은 OSM 항목의 name:zh(-Hans),0,0
+3fbb18a6-cde4-33c6-aa70-0ceb1b42f1f0,맥도날드,name_en,,McDonald's,OSM node/12759210151 (ODbL),같은 OSM 항목의 name:en,0,0
+983670e1-e8dd-3de8-b2fd-45aacb2f1f63,맥도날드,name_en,,McDonald's,OSM node/5218069222 (ODbL),같은 OSM 항목의 name:en,0,0
+8633341a-8b39-380f-b799-38319db37b37,맥도날드,name_en,,Mcdonard,OSM node/4633975010 (ODbL),같은 OSM 항목의 name:en,0,0
+8633341a-8b39-380f-b799-38319db37b37,맥도날드,name_ja,,マクドナルド,OSM node/4633975010 (ODbL),같은 OSM 항목의 name:ja,0,0
+8633341a-8b39-380f-b799-38319db37b37,맥도날드,name_zh_hans,,麦当劳,OSM node/4633975010 (ODbL),같은 OSM 항목의 name:zh(-Hans),0,0
+2569be28-a905-3b9c-bb16-400d906b036a,맥도날드,name_en,,McDonald's,OSM node/4006795689 (ODbL),같은 OSM 항목의 name:en,0,0
+ed215470-ffbd-3fd7-87b0-818fd9bce6f4,맥도날드,name_en,,McDonald's,OSM node/13051268621 (ODbL),같은 OSM 항목의 name:en,0,0
+56533c5c-1ba8-387f-90a0-6db696af6aae,맥도날드,name_en,,McDonald's,OSM node/8364187345 (ODbL),같은 OSM 항목의 name:en,0,0
+56533c5c-1ba8-387f-90a0-6db696af6aae,맥도날드,name_ja,,マクドナルド,OSM node/8364187345 (ODbL),같은 OSM 항목의 name:ja,0,0
+56533c5c-1ba8-387f-90a0-6db696af6aae,맥도날드,name_zh_hans,,麦当劳,OSM node/8364187345 (ODbL),같은 OSM 항목의 name:zh(-Hans),0,0
+03afde9a-549f-3b01-9de7-5d1755f47838,맥도날드 다대점,name_en,,Mcdonald's,OSM node/4837729126 (ODbL),같은 OSM 항목의 name:en,0,0
+03afde9a-549f-3b01-9de7-5d1755f47838,맥도날드 다대점,name_ja,,マクドナルド,OSM node/4837729126 (ODbL),같은 OSM 항목의 name:ja,0,0
+03afde9a-549f-3b01-9de7-5d1755f47838,맥도날드 다대점,name_zh_hans,,麦当劳,OSM node/4837729126 (ODbL),같은 OSM 항목의 name:zh(-Hans),0,0
+5bd40c0c-7e8f-3570-9129-b4285c55c5f3,맥도날드 부산교대SK DT점,name_en,,Mcdonald's,OSM node/4629761590 (ODbL),같은 OSM 항목의 name:en,0,0
+5bd40c0c-7e8f-3570-9129-b4285c55c5f3,맥도날드 부산교대SK DT점,name_ja,,マクドナルド,OSM node/4629761590 (ODbL),같은 OSM 항목의 name:ja,0,0
+5bd40c0c-7e8f-3570-9129-b4285c55c5f3,맥도날드 부산교대SK DT점,name_zh_hans,,麦当劳,OSM node/4629761590 (ODbL),같은 OSM 항목의 name:zh(-Hans),0,0
+9dfa6455-ea67-385f-8397-7f0d09cc69ac,명륜불교전시관,name_en,,Myeongnyun Buddhism Exhibition Hall,OSM node/368898380 (ODbL),같은 OSM 항목의 name:en,0,0
+f4a48d99-465a-327e-becd-2a4549f14d15,명산횟집,name_en,,Myeongsan Fish Restaurant,OSM node/368958703 (ODbL),같은 OSM 항목의 name:en,0,0
+928dc31a-537d-3949-9568-901feb1139f3,명성횟집,name_en,,Myeongseong Fish Restaurant,OSM node/368958400 (ODbL),같은 OSM 항목의 name:en,0,0
+399761b3-88b3-3ade-a24d-cfc99b073844,명성횟집,name_en,,Myeongseong Fish Restaurant,OSM node/368959147 (ODbL),같은 OSM 항목의 name:en,0,0
+c93e3f5e-c6e4-3bce-a97e-db1457f1dce1,명장횟집,name_en,,Myeongjang Fish Restaurant,OSM node/368957975 (ODbL),같은 OSM 항목의 name:en,0,0
+64662503-8636-3d61-ba2e-9ba1bb3862ff,명지횟집,name_en,,Myeongji Fish Restaurant,OSM node/368959564 (ODbL),같은 OSM 항목의 name:en,0,0
+53bf36da-1445-376e-aaa4-4f1598a9a884,명지횟집,name_en,,Myeongji Fish Restaurant,OSM node/368958310 (ODbL),같은 OSM 항목의 name:en,0,0
+48b6e974-2c28-3196-b077-24c1ec3b82a1,명희횟집,name_en,,Myeonghui Fish Restaurant,OSM node/368959311 (ODbL),같은 OSM 항목의 name:en,0,0
+afb93cf3-b99a-361b-b09d-9e258cc6ef12,모라성요한성당,name_en,,Mora St.John Catholic Church,OSM node/368864613 (ODbL),같은 OSM 항목의 name:en,0,0
+45c2bfe1-9839-3eb1-93ee-562d65e1f1ee,모범횟집,name_en,,Mobeom Fish Restaurant,OSM node/368958209 (ODbL),같은 OSM 항목의 name:en,0,0
+b68ea0fd-ee41-37cb-a46f-e9992de2918a,모아횟집,name_en,,Moa Fish Restaurant,OSM node/368956841 (ODbL),같은 OSM 항목의 name:en,0,0
+1e16da56-a66a-3e54-829f-f2fb092d0e92,몽실횟집,name_en,,Mongsil Fish Restaurant,OSM node/368956658 (ODbL),같은 OSM 항목의 name:en,0,0
+732b8caf-addc-30c7-bcfc-3d8a8a59701a,무한정횟집,name_en,,Muhanjeong Fish Restaurant,OSM node/368973221 (ODbL),같은 OSM 항목의 name:en,0,0
+96e526e3-eecb-35d7-bb7f-577f773ea766,무한정횟집,name_en,,Muhanjeong Fish Restaurant,OSM node/368973278 (ODbL),같은 OSM 항목의 name:en,0,0
+8c2f184d-67c5-3596-9b42-d687514e7e7a,문동횟집,name_en,,Mundong Fish Restaurant,OSM node/368958620 (ODbL),같은 OSM 항목의 name:en,0,0
+8234e929-7e64-36f1-bb99-7b72921fd8e2,문중바위횟집,name_en,,Munjungbawi Fish Restaurant,OSM node/368973117 (ODbL),같은 OSM 항목의 name:en,0,0
+11a1a212-8a46-3743-a4b7-3adc87abc95a,문화횟집,name_en,,Munhwa Fish Restaurant,OSM node/368958912 (ODbL),같은 OSM 항목의 name:en,0,0
+4f500720-00a7-3dbf-ad74-06913925015d,문화횟집,name_en,,Munhwa Fish Restaurant,OSM node/368958084 (ODbL),같은 OSM 항목의 name:en,0,0
+ca36d063-38cd-32b3-a37e-9848db8d9de9,물레방아횟집,name_en,,Mullebanga Fish Restaurant,OSM node/368956789 (ODbL),같은 OSM 항목의 name:en,0,0
+4f5819e7-d42a-3f1b-b9de-e71b62dfc441,미동횟집,name_en,,Midong Fish Restaurant,OSM node/368957434 (ODbL),같은 OSM 항목의 name:en,0,0
+2a6786c1-9ca9-3028-b5f0-2ad71b4f7429,미조횟집,name_en,,Mijo Fish Restaurant,OSM node/368959402 (ODbL),같은 OSM 항목의 name:en,0,0
+fda35b86-c392-307b-8222-078d5b1d4d22,미조횟집,name_en,,Mijo Fish Restaurant,OSM node/368957754 (ODbL),같은 OSM 항목의 name:en,0,0
+461b98cd-7dab-321f-8a5b-566fe8a6d2a6,미진횟집,name_en,,Mijin Fish Restaurant,OSM node/368958407 (ODbL),같은 OSM 항목의 name:en,0,0
+88c4061e-a599-3f81-8e9b-846f12fc381b,미해장횟집,name_en,,Mihaejang Fish Restaurant,OSM node/368973296 (ODbL),같은 OSM 항목의 name:en,0,0
+3b758495-52f3-378c-87cb-a65dc0c10ce1,미화횟집,name_en,,Mihwa Fish Restaurant,OSM node/368957336 (ODbL),같은 OSM 항목의 name:en,0,0
+e4e297d8-db06-3c42-a791-6715098dff98,밀양 수산 횟집,name_en,,Milyang Susan Fish Restaurant,OSM node/368956759 (ODbL),같은 OSM 항목의 name:en,0,0
+ca8e4045-d42f-37a7-b135-d3b011a8d30a,밀양횟집,name_en,,Milyang Fish Restaurant,OSM node/368957273 (ODbL),같은 OSM 항목의 name:en,0,0
+9ee9b00c-c115-3088-901b-37d684befde2,밀양횟집,name_en,,Milyang Fish Restaurant,OSM node/368958165 (ODbL),같은 OSM 항목의 name:en,0,0
+c652eed8-e7c6-3ad6-9365-98bd685b0d7a,밀양횟집,name_en,,Milyang Fish Restaurant,OSM node/368958534 (ODbL),같은 OSM 항목의 name:en,0,0
+f682d908-13b2-3a07-9ef5-e3589a87d1f5,바다나라횟집,name_en,,Badanara Fish Restaurant,OSM node/368973330 (ODbL),같은 OSM 항목의 name:en,0,0
+2607ba8f-a533-3a0d-bd2b-aad431a26a02,바다횟집,name_en,,Bada Fish Restaurant,OSM node/368958324 (ODbL),같은 OSM 항목의 name:en,0,0
+d8df5b07-0aa4-3555-99b3-942d1c93255a,바다횟집,name_en,,Bada Fish Restaurant,OSM node/368959126 (ODbL),같은 OSM 항목의 name:en,0,0
+a6fd2aa2-88d1-3a70-8b5a-2cc4315bcd98,바다횟집,name_en,,Bada Fish Restaurant,OSM node/368958896 (ODbL),같은 OSM 항목의 name:en,0,0
+a683a18c-6054-32b2-b801-710f20285ff2,바다횟집,name_en,,Bada Fish Restaurant,OSM node/368957712 (ODbL),같은 OSM 항목의 name:en,0,0
+56400e3c-3ac4-3648-a6e5-1109cf67ed8b,바다횟집,name_en,,Bada Fish Restaurant,OSM node/368973176 (ODbL),같은 OSM 항목의 name:en,0,0
+fbdc04e2-29b1-382a-af14-0ad804b0f662,바다횟집,name_en,,Bada Fish Restaurant,OSM node/5675412444 (ODbL),같은 OSM 항목의 name:en,0,0
+b3ed9af7-8a5f-3ba1-9629-bd68554e40ca,바다횟집,name_en,,Bada Fish Restaurant,OSM node/368957527 (ODbL),같은 OSM 항목의 name:en,0,0
+1d7bd68e-29f7-3ba0-bc9d-7d83a85fb47c,바다횟집,name_en,,Bada Fish Restaurant,OSM node/368957906 (ODbL),같은 OSM 항목의 name:en,0,0
+5c12d88c-42ab-3c3b-8d8c-504ee7128356,바우횟집,name_en,,Bau Fish Restaurant,OSM node/368959108 (ODbL),같은 OSM 항목의 name:en,0,0
+8ae8f9a5-e0fe-3b0c-9ce7-64455e8697dc,반도횟집,name_en,,Bando Fish Restaurant,OSM node/368959224 (ODbL),같은 OSM 항목의 name:en,0,0
+2907e5c4-87a3-37b0-8286-40ae1c3a6c7e,방파제횟집,name_en,,Bangpaje Fish Restaurant,OSM node/368973212 (ODbL),같은 OSM 항목의 name:en,0,0
+c2d1a524-04ec-3441-b2f8-898e37b3aafd,백광횟집,name_en,,Baekgwang Fish Restaurant,OSM node/368958478 (ODbL),같은 OSM 항목의 name:en,0,0
+71658430-5c66-37c2-a6bd-8669e8f4a6a7,백도횟집,name_en,,Baekdo Fish Restaurant,OSM node/368957381 (ODbL),같은 OSM 항목의 name:en,0,0
+50a4f49e-7249-3fcb-9beb-90086b5b3207,백도횟집,name_en,,Baekdo Fish Restaurant,OSM node/368958934 (ODbL),같은 OSM 항목의 name:en,0,0
+e18cd37a-5c26-3759-a551-a7164c400974,백련사,name_en,,Baengnyeonsa Temple,OSM node/6885571185 (ODbL),같은 OSM 항목의 name:en,0,0
+733d08f5-c623-3156-8c82-15fb892666ed,백양횟집,name_en,,Baekyang Fish Restaurant,OSM node/368958229 (ODbL),같은 OSM 항목의 name:en,0,0
+6c158051-1214-321e-9fb2-b6c182d2a3ea,백조장횟집,name_en,,Baekjojang Fish Restaurant,OSM node/368973253 (ODbL),같은 OSM 항목의 name:en,0,0
+803d395b-6e39-3ce8-80be-590c82802b17,백천횟집,name_en,,Baekcheon Fish Restaurant,OSM node/368959495 (ODbL),같은 OSM 항목의 name:en,0,0
+cbde70cb-e03d-39a9-8135-3cf26d5cb01a,백초횟집,name_en,,Baekcho Fish Restaurant,OSM node/368957044 (ODbL),같은 OSM 항목의 name:en,0,0
+477cd0d1-c593-3441-8287-e111192d7924,버거킹,name_en,,Burger King,OSM node/4633975013 (ODbL),같은 OSM 항목의 name:en,0,0
+477cd0d1-c593-3441-8287-e111192d7924,버거킹,name_ja,,バーガーキング,OSM node/4633975013 (ODbL),같은 OSM 항목의 name:ja,0,0
+73b214d5-8384-3d34-a7c0-263c8128a60a,버거킹,name_en,,Burger King,OSM node/368906998 (ODbL),같은 OSM 항목의 name:en,0,0
+76d4ab38-5325-31d4-ac54-9cde0781d9ab,버드나무횟집,name_en,,Beodeunamu Fish Restaurant,OSM node/368956818 (ODbL),같은 OSM 항목의 name:en,0,0
+5da71311-baa8-3caf-82d3-b17ce6c4f29c,버들횟집,name_en,,Beodeul Fish Restaurant,OSM node/368958061 (ODbL),같은 OSM 항목의 name:en,0,0
+1f986748-e37a-3901-a348-cd790dcdc3eb,벗거횟집,name_en,,Beosgeo Fish Restaurant,OSM node/368957453 (ODbL),같은 OSM 항목의 name:en,0,0
+1f2c7af1-1c4c-39b9-bf91-e92adb07f90f,별장횟집,name_en,,Byeoljang Fish Restaurant,OSM node/368958485 (ODbL),같은 OSM 항목의 name:en,0,0
+4f25aea7-e630-38da-8241-3dd0abc2f72a,보광상가수협3번횟집,name_en,,Bogwang Arcade Suhyeop 3 Beon Fish Restaurant,OSM node/368973360 (ODbL),같은 OSM 항목의 name:en,0,0
+20539ff2-f5b8-32c2-9a60-a97036281293,보국사,name_en,,Boguksa,OSM node/368860549 (ODbL),같은 OSM 항목의 name:en,0,0
+ce147849-ed09-3572-a0c0-06a1ac6e7fc0,보승횟집,name_en,,Boseung Fish Restaurant,OSM node/368958140 (ODbL),같은 OSM 항목의 name:en,0,0
+2304a738-b5a4-325f-8925-c26110274c3c,본전횟집,name_en,,Bonjeon Fish Restaurant,OSM node/368957115 (ODbL),같은 OSM 항목의 name:en,0,0
+28e812f4-1649-3af9-921f-3b9023999395,본전횟집,name_en,,Bonjeon Fish Restaurant,OSM node/368959041 (ODbL),같은 OSM 항목의 name:en,0,0
+251acb94-1308-371e-8bf9-e0abea3b9046,봉화횟집,name_en,,Bonghwa Fish Restaurant,OSM node/368958803 (ODbL),같은 OSM 항목의 name:en,0,0
+39475bc1-ec41-3c37-a2f1-b6ddbdb1133e,부곡횟집,name_en,,Bugok Fish Restaurant,OSM node/368958995 (ODbL),같은 OSM 항목의 name:en,0,0
+005fa16d-8713-31f9-8c62-c72a11abe35e,부광횟집,name_en,,Bugwang Fish Restaurant,OSM node/368957670 (ODbL),같은 OSM 항목의 name:en,0,0
+15854bbe-342f-3622-a2eb-9fe755550529,부광횟집,name_en,,Bugwang Fish Restaurant,OSM node/368957595 (ODbL),같은 OSM 항목의 name:en,0,0
+39544cbc-dc9f-3f76-a2cf-d5432a4093ab,부부횟집,name_en,,Bubu Fish Restaurant,OSM node/368973189 (ODbL),같은 OSM 항목의 name:en,0,0
+ca7fa7ab-b096-3d92-85d6-6c48570f6843,부부횟집,name_en,,Bubu Fish Restaurant,OSM node/368959088 (ODbL),같은 OSM 항목의 name:en,0,0
+e2838f0c-3a55-43f3-a4ad-001117790003,부산 기장시장,name_en,,Gijang Market,TourAPI EngService2 contentid=1347023,"제목 속 한국어 「부산 기장시장」 이름 열쇠 같음, 0m",0,0
+e2838f0c-3a55-43f3-a4ad-001117790003,부산 기장시장,name_ja,,釜山機張市場,TourAPI JpnService2 contentid=1920170,"제목 속 한국어 「부산 기장시장」 이름 열쇠 같음, 0m",0,0
+e2838f0c-3a55-43f3-a4ad-001117790003,부산 기장시장,name_zh_hans,,釜山机张市场,TourAPI ChsService2 contentid=1327398,"제목 속 한국어 「부산 기장시장」 이름 열쇠 같음, 69m",0,0
+e2838f0c-3a55-43f3-a4ad-001117790003,부산 기장시장,name_zh_hant,,釜山機張市場,TourAPI ChtService2 contentid=1273206,"제목 속 한국어 「부산 기장시장」 이름 열쇠 같음, 0m",0,0
+2042a1d8-2e82-3933-ac64-a50ee8985338,부산 아시아드주경기장,name_en,,Busan Asiad Main Stadium,TourAPI EngService2 contentid=1955161,"제목 속 한국어 「부산 아시아드주경기장」 이름 열쇠 같음, 0m",0,0
+026cb340-05a4-3023-a23d-e0a54332496e,부산 영화의 전당,name_en,,Busan Cinema Center,TourAPI EngService2 contentid=2503886,"제목 속 한국어 「부산 영화의 전당」 이름 열쇠 같음, 5m",0,0
+026cb340-05a4-3023-a23d-e0a54332496e,부산 영화의 전당,name_zh_hant,,釜山電影殿堂,TourAPI ChtService2 contentid=2495655,"제목 속 한국어 「부산 영화의 전당」 이름 열쇠 같음, 5m",0,0
+b43707fa-ec35-37e5-980a-2bb248f8c3c2,부산광역시립 시민도서관,name_en,,The Busan Metropolitan Simin Municipal Library,Wikidata Q12598765 (CC0),"한국어 이름 「부산광역시립시민도서관」 열쇠 같음, 86m",0,0
+76b41b4b-2800-306e-84fb-e7abf46f8a67,부산국제록페스티벌,name_en,,Busan International Rock Festival,TourAPI EngService2 contentid=293091,"제목 속 한국어 「부산국제록페스티벌」 이름 열쇠 같음, 0m",0,0
+5b06d4cf-6976-333d-b631-b856c5a9baf7,부산국제매직페스티벌,name_en,,Busan International Magic Festival,TourAPI EngService2 contentid=1351398,"제목 속 한국어 「부산국제매직페스티벌」 이름 열쇠 같음, 0m",0,0
+5b06d4cf-6976-333d-b631-b856c5a9baf7,부산국제매직페스티벌,name_ja,,釜山国際マジックフェスティバル,TourAPI JpnService2 contentid=1682206,"제목 속 한국어 「부산국제매직페스티벌」 이름 열쇠 같음, 0m",0,0
+3acc186c-14e7-3c1d-9753-96c1e6e12d98,부산바다축제,name_en,,Busan Sea Festival,TourAPI EngService2 contentid=293090,"제목 속 한국어 「부산바다축제」 이름 열쇠 같음, 0m",0,0
+7fb50784-4917-3ab8-92f2-9186ae3a90bf,부산사직종합운동장 사직야구장,name_en,,Busan Sports Complex Sajik Baseball Ground,TourAPI EngService2 contentid=4066778,"제목 속 한국어 「부산사직종합운동장 사직야구장」 이름 열쇠 같음, 0m",0,0
+7fb50784-4917-3ab8-92f2-9186ae3a90bf,부산사직종합운동장 사직야구장,name_ja,,釜山社稷総合競技場社稷野球場,TourAPI JpnService2 contentid=4065288,"제목 속 한국어 「부산사직종합운동장 사직야구장」 이름 열쇠 같음, 0m",0,0
+7fb50784-4917-3ab8-92f2-9186ae3a90bf,부산사직종합운동장 사직야구장,name_zh_hans,,釜山社稷综合运动场 社稷棒球场,TourAPI ChsService2 contentid=4067369,"제목 속 한국어 「부산사직종합운동장 사직야구장」 이름 열쇠 같음, 0m",0,0
+7fb50784-4917-3ab8-92f2-9186ae3a90bf,부산사직종합운동장 사직야구장,name_zh_hant,,釜山社稷綜合運動場 社稷棒球場,TourAPI ChtService2 contentid=4067321,"제목 속 한국어 「부산사직종합운동장 사직야구장」 이름 열쇠 같음, 0m",0,0
+60f0c14c-7d98-3bac-898d-953cd3b089ec,부산아트갤러리,name_en,,Busanateu Gallery,OSM node/368726533 (ODbL),같은 OSM 항목의 name:en,0,0
+3cfb7d80-a3cd-33c9-b0f1-2f1fe2c163a1,부산양정 수목원,name_en,,Busanyangjeong Arboretum,OSM node/368866395 (ODbL),같은 OSM 항목의 name:en,0,0
+1cfe36b6-e9c7-3af1-8dbd-dbde702838d1,부성횟집,name_en,,Buseong Fish Restaurant,OSM node/368959559 (ODbL),같은 OSM 항목의 name:en,0,0
+bda0bcce-c911-3beb-bd8f-b5e1515f8c7e,부일횟집,name_en,,Buil Fish Restaurant,OSM node/368958575 (ODbL),같은 OSM 항목의 name:en,0,0
+16035d07-b109-3504-92c1-bf8372256f38,부일횟집,name_en,,Buil Fish Restaurant,OSM node/368957019 (ODbL),같은 OSM 항목의 name:en,0,0
+e7906306-4f7a-3fdb-8c6b-977c3356e6f6,부일횟집,name_en,,Buil Fish Restaurant,OSM node/368957209 (ODbL),같은 OSM 항목의 name:en,0,0
+da439427-1d15-31b8-a7e3-58182feb0a5f,불로만 숯불바베큐,name_en,,Bulloman BBQ,OSM node/4719622329 (ODbL),같은 OSM 항목의 name:en,0,0
+bd72def6-507e-3be5-93e1-12bb9d72c7dc,사랑방,name_en,,Sarangbang,TourAPI EngService2 contentid=3061988,"제목 속 한국어 「사랑방」 이름 열쇠 같음, 413m",0,0
+6cff169f-b7d5-36a2-a6ec-76f00094e48f,사상성당,name_en,,Sasang Catholic Church,OSM node/368864608 (ODbL),같은 OSM 항목의 name:en,0,0
+b4e75fa8-350e-3c53-b6c8-3df6c42b62c4,산지횟집,name_en,,Sanji Fish Restaurant,OSM node/368959301 (ODbL),같은 OSM 항목의 name:en,0,0
+2eda9aa9-685d-381b-bed5-23fa6e1ca697,산호횟집,name_en,,Sanho Fish Restaurant,OSM node/368956831 (ODbL),같은 OSM 항목의 name:en,0,0
+cc0bc527-ddf7-32af-afd8-f2c67ac98a12,삼락횟집,name_en,,Samnak Fish Restaurant,OSM node/368958144 (ODbL),같은 OSM 항목의 name:en,0,0
+eec2d78a-0410-311a-82b6-f48a39b0ea32,삼미횟집,name_en,,Sammi Fish Restaurant,OSM node/368957809 (ODbL),같은 OSM 항목의 name:en,0,0
+8eef3bb8-c3e9-33f2-970a-3a5b84fa4052,삼미횟집,name_en,,Sammi Fish Restaurant,OSM node/368957843 (ODbL),같은 OSM 항목의 name:en,0,0
+1bdb52b6-d959-33d2-9dd3-1719b11e4c2e,삼미횟집,name_en,,Sammi Fish Restaurant,OSM node/368958452 (ODbL),같은 OSM 항목의 name:en,0,0
+f070d43a-5efc-3b0f-94e4-babac3a27993,삼성장횟집,name_en,,Samseongjang Fish Restaurant,OSM node/368973216 (ODbL),같은 OSM 항목의 name:en,0,0
+118eea70-2b49-36a7-af21-fec3b448acec,삼성횟집,name_en,,Samseong Fish Restaurant,OSM node/368958257 (ODbL),같은 OSM 항목의 name:en,0,0
+46ecfcf6-38f3-3a05-b509-69d3978ee218,삼영횟집,name_en,,Samyeong Fish Restaurant,OSM node/368958619 (ODbL),같은 OSM 항목의 name:en,0,0
+3dd2aad5-6005-3204-9a24-0d2925388a14,삼정횟집,name_en,,Samjeong Fish Restaurant,OSM node/368957344 (ODbL),같은 OSM 항목의 name:en,0,0
+5bfe9eae-d7ba-3b18-be0d-50797f36483c,삼천포횟집,name_en,,Samcheonpo Fish Restaurant,OSM node/368956828 (ODbL),같은 OSM 항목의 name:en,0,0
+102bec68-6a47-3893-90d7-f59300f838ff,새횟집,name_en,,Sae Fish Restaurant,OSM node/368957129 (ODbL),같은 OSM 항목의 name:en,0,0
+71b780da-df89-3f53-8d32-eab11e027f83,서광횟집,name_en,,Seogwang Fish Restaurant,OSM node/368957518 (ODbL),같은 OSM 항목의 name:en,0,0
+5de1d334-eb77-3504-943b-2c02cf35bc60,서동미로시장,name_en,,Seodong Miro Market,TourAPI EngService2 contentid=4066744,"제목 속 한국어 「서동미로시장」 이름 열쇠 같음, 5m",0,0
+5de1d334-eb77-3504-943b-2c02cf35bc60,서동미로시장,name_ja,,書洞迷路市場,TourAPI JpnService2 contentid=4065280,"제목 속 한국어 「서동미로시장」 이름 열쇠 같음, 5m",0,0
+5de1d334-eb77-3504-943b-2c02cf35bc60,서동미로시장,name_zh_hans,,书洞迷路市场,TourAPI ChsService2 contentid=4067367,"제목 속 한국어 「서동미로시장」 이름 열쇠 같음, 5m",0,0
+5de1d334-eb77-3504-943b-2c02cf35bc60,서동미로시장,name_zh_hant,,書洞迷路市場,TourAPI ChtService2 contentid=4067317,"제목 속 한국어 「서동미로시장」 이름 열쇠 같음, 5m",0,0
+23e05d30-1f0e-3498-a496-6b10ee0379fe,서울횟집,name_en,,Seoul Fish Restaurant,OSM node/368958763 (ODbL),같은 OSM 항목의 name:en,0,0
+9bc8a61a-9cc3-3951-b335-ede8b022abf5,서울횟집,name_en,,Seoul Fish Restaurant,OSM node/368957024 (ODbL),같은 OSM 항목의 name:en,0,0
+7c59feef-3e2e-334d-8bce-eeb4a5836bc4,선경횟집,name_en,,Seongyeong Fish Restaurant,OSM node/368958640 (ODbL),같은 OSM 항목의 name:en,0,0
+984fc3d7-1bcc-3b42-a628-8baccbd0ff65,선미횟집,name_en,,Seonmi Fish Restaurant,OSM node/368957943 (ODbL),같은 OSM 항목의 name:en,0,0
+53e6a2f9-34ea-3373-aa2e-0373080eea19,선미횟집,name_en,,Seonmi Fish Restaurant,OSM node/368957247 (ODbL),같은 OSM 항목의 name:en,0,0
+b132705b-87fa-3567-bd11-441a35cb4f82,선미횟집,name_en,,Seonmi Fish Restaurant,OSM node/368958018 (ODbL),같은 OSM 항목의 name:en,0,0
+0229210d-fcf9-3cd1-81a0-ec7c27fdeec6,선어횟집,name_en,,Seoneo Fish Restaurant,OSM node/368957467 (ODbL),같은 OSM 항목의 name:en,0,0
+560c47d8-0d9b-3327-91a4-868d9ab562d2,선창횟집,name_en,,Seonchang Fish Restaurant,OSM node/368957838 (ODbL),같은 OSM 항목의 name:en,0,0
+4a54de0a-77b2-35cd-a084-5cc7e8ec9ef5,선창횟집,name_en,,Seonchang Fish Restaurant,OSM node/368958880 (ODbL),같은 OSM 항목의 name:en,0,0
+c7a5f4ba-a9d6-31a6-86e7-80afd04d217e,선횟집,name_en,,Seon Fish Restaurant,OSM node/368973364 (ODbL),같은 OSM 항목의 name:en,0,0
+d543fc98-6203-3826-b8d8-67ab7209db7c,성림횟집,name_en,,Seongnim Fish Restaurant,OSM node/368973103 (ODbL),같은 OSM 항목의 name:en,0,0
+ac4401a1-f88a-3c9e-8c4a-2e75c876f21e,성미횟집,name_en,,Seongmi Fish Restaurant,OSM node/368957768 (ODbL),같은 OSM 항목의 name:en,0,0
+925b7f6d-9962-32c7-9b31-b378f28a3f98,성심횟집,name_en,,Seongsim Fish Restaurant,OSM node/368958040 (ODbL),같은 OSM 항목의 name:en,0,0
+05778602-60db-338c-9267-406b8053657d,성양횟집,name_en,,Seongyang Fish Restaurant,OSM node/368956998 (ODbL),같은 OSM 항목의 name:en,0,0
+fc88f419-5894-3017-98d4-30cce12d2965,성활횟집,name_en,,Seonghwal Fish Restaurant,OSM node/368958603 (ODbL),같은 OSM 항목의 name:en,0,0
+77e18c38-44b5-3601-805a-2dc05b0f1023,소나무횟집,name_en,,Sonamu Fish Restaurant,OSM node/368973308 (ODbL),같은 OSM 항목의 name:en,0,0
+528a1f56-2bbe-3b89-9c38-11c7fb1263ec,소망횟집,name_en,,Somang Fish Restaurant,OSM node/368958301 (ODbL),같은 OSM 항목의 name:en,0,0
+d3d047af-997a-3543-9fd1-773477db7a4a,손맥주집,name_en,,Son’s beer house,OSM node/13007417722 (ODbL),같은 OSM 항목의 name:en,0,0
+34369210-9171-38e9-b4a0-ffe703aa1d1f,솔밭횟집,name_en,,Solbat Fish Restaurant,OSM node/368959383 (ODbL),같은 OSM 항목의 name:en,0,0
+4332e341-3602-3a60-89d7-b1ddc009e7e8,솔밭횟집,name_en,,Solbat Fish Restaurant,OSM node/368957977 (ODbL),같은 OSM 항목의 name:en,0,0
+347a5ab6-7d8e-39bf-afa8-3aae11b665e9,송미횟집,name_en,,Songmi Fish Restaurant,OSM node/368973203 (ODbL),같은 OSM 항목의 name:en,0,0
+06eb95f8-4c40-3505-9318-06f555298371,송일횟집,name_en,,Songil Fish Restaurant,OSM node/368957660 (ODbL),같은 OSM 항목의 name:en,0,0
+996496d0-e761-3236-8634-5758f0367a98,송정횟집,name_en,,Songjeong Fish Restaurant,OSM node/368957382 (ODbL),같은 OSM 항목의 name:en,0,0
+40ca356e-3d32-39b9-814c-4984bf49b382,송하횟집,name_en,,Songha Fish Restaurant,OSM node/368956874 (ODbL),같은 OSM 항목의 name:en,0,0
+12181cad-9c46-3185-a804-659985d2d4b3,송해횟집,name_en,,Songhae Fish Restaurant,OSM node/368958559 (ODbL),같은 OSM 항목의 name:en,0,0
+ecbec4fb-95c7-3ba2-bafd-4e893c52ccad,수궁횟집,name_en,,Sugung Fish Restaurant,OSM node/368959255 (ODbL),같은 OSM 항목의 name:en,0,0
+7aeff0b1-dbc0-32c3-a1b3-52d1f15bd415,수도횟집,name_en,,Sudo Fish Restaurant,OSM node/368957269 (ODbL),같은 OSM 항목의 name:en,0,0
+b9e5cf04-f598-3a2a-a4a2-150b0108b392,수림횟집,name_en,,Surim Fish Restaurant,OSM node/368958027 (ODbL),같은 OSM 항목의 name:en,0,0
+83aff238-6d80-3261-98b5-91a26820c93a,수림횟집,name_en,,Surim Fish Restaurant,OSM node/368959644 (ODbL),같은 OSM 항목의 name:en,0,0
+c99c8e73-5c27-3eb3-bd93-dd067344c99a,수미횟집,name_en,,Sumi Fish Restaurant,OSM node/368958346 (ODbL),같은 OSM 항목의 name:en,0,0
+f5ba80b2-19d3-3447-91f6-2b7c9d3ccd20,수변최고국밥,name_en,,Su Byeon Best Pork Soup,OSM node/11425219716 (ODbL),같은 OSM 항목의 name:en,0,0
+a2a4ec33-142d-3481-9121-67286671c436,수월횟집,name_en,,Suwol Fish Restaurant,OSM node/368973100 (ODbL),같은 OSM 항목의 name:en,0,0
+e809e451-c813-3970-bec0-c39a01f694a4,수정횟집,name_en,,Sujeong Fish Restaurant,OSM node/368958116 (ODbL),같은 OSM 항목의 name:en,0,0
+a267f978-2833-3687-8749-2657ac73182a,수중횟집,name_en,,Sujung Fish Restaurant,OSM node/368956712 (ODbL),같은 OSM 항목의 name:en,0,0
+ef9dec77-a0d1-316c-9569-8bf5351a25e6,수진횟집,name_en,,Sujin Fish Restaurant,OSM node/368957631 (ODbL),같은 OSM 항목의 name:en,0,0
+549c2b63-9311-3f19-b951-73e2bc583932,수평횟집,name_en,,Supyeong Fish Restaurant,OSM node/368958268 (ODbL),같은 OSM 항목의 name:en,0,0
+70c33161-1c31-3da0-a214-3669dc93de19,수현횟집,name_en,,Suhyeon Fish Restaurant,OSM node/368973134 (ODbL),같은 OSM 항목의 name:en,0,0
+3ba8e5c9-0d79-309c-a2a4-92703e8ed82f,스타벅스,name_ja,,スターバックス,OSM node/4526476190 (ODbL),같은 OSM 항목의 name:ja,0,0
+240bbaf7-530a-3ebb-953f-f40e6162d19e,스타벅스,name_en,,Starbucks,OSM node/9277863043 (ODbL),같은 OSM 항목의 name:en,0,0
+bc897e59-265e-3a50-87e1-610f369896b7,스타벅스,name_en,,Starbucks,OSM node/9006015382 (ODbL),같은 OSM 항목의 name:en,0,0
+176c3ae0-be56-3ce3-aed7-c32b9073fd49,스타벅스,name_en,,Starbucks,OSM node/12898499266 (ODbL),같은 OSM 항목의 name:en,0,0
+8b255988-3240-376b-b0c6-c39cf9d69643,스타벅스,name_en,,Starbucks,OSM node/12686934290 (ODbL),같은 OSM 항목의 name:en,0,0
+1b8c690e-d8b5-330e-9a7b-1c32594d1178,스타벅스,name_ja,,スターバックス,OSM node/3785356880 (ODbL),같은 OSM 항목의 name:ja,0,0
+0d9b00fa-97cc-3e2f-89e4-458311883599,스타벅스,name_en,,Starbucks,OSM node/11074765920 (ODbL),같은 OSM 항목의 name:en,0,0
+c95e9c03-db72-3e8e-aeb2-a17c83edecdc,스타벅스,name_ja,,スターバックス,OSM node/6122180521 (ODbL),같은 OSM 항목의 name:ja,0,0
+90364f8a-f5fa-31d2-952b-664d655b589a,스타벅스,name_en,,Starbucks,OSM node/11066782962 (ODbL),같은 OSM 항목의 name:en,0,0
+cca52d3e-6407-30f6-9d46-68c1ad41a4ae,스타벅스,name_en,,Starbucks,OSM node/12107519462 (ODbL),같은 OSM 항목의 name:en,0,0
+07efba2b-b572-3579-bbb2-9047e3fbafca,스타벅스,name_en,,Starbucks,OSM node/8364187346 (ODbL),같은 OSM 항목의 name:en,0,0
+07efba2b-b572-3579-bbb2-9047e3fbafca,스타벅스,name_ja,,スターバックス,OSM node/8364187346 (ODbL),같은 OSM 항목의 name:ja,0,0
+07efba2b-b572-3579-bbb2-9047e3fbafca,스타벅스,name_zh_hans,,星巴克,OSM node/8364187346 (ODbL),같은 OSM 항목의 name:zh(-Hans),0,0
+d7201cd6-2e41-3298-801f-1f409d43e5fd,스타벅스,name_ja,,スターバックス,OSM node/4539659287 (ODbL),같은 OSM 항목의 name:ja,0,0
+d3d36eeb-f1c2-3c54-a001-6bf723d60037,스타벅스,name_en,,Starbucks,OSM node/10277643594 (ODbL),같은 OSM 항목의 name:en,0,0
+7f3b7e0c-4c1a-3c98-8e9a-3d39be5178ca,스타벅스,name_en,,STARBUCKS,OSM node/5804463117 (ODbL),같은 OSM 항목의 name:en,0,0
+7f3b7e0c-4c1a-3c98-8e9a-3d39be5178ca,스타벅스,name_ja,,スターバックス,OSM node/5804463117 (ODbL),같은 OSM 항목의 name:ja,0,0
+7f3b7e0c-4c1a-3c98-8e9a-3d39be5178ca,스타벅스,name_zh_hans,,星巴克,OSM node/5804463117 (ODbL),같은 OSM 항목의 name:zh(-Hans),0,0
+8af95889-807d-31f1-9cea-0b27e02761aa,스타벅스 부산교대역점,name_en,,Starbucks,OSM node/4629891178 (ODbL),같은 OSM 항목의 name:en,0,0
+8af95889-807d-31f1-9cea-0b27e02761aa,스타벅스 부산교대역점,name_ja,,スターバックス,OSM node/4629891178 (ODbL),같은 OSM 항목의 name:ja,0,0
+8af95889-807d-31f1-9cea-0b27e02761aa,스타벅스 부산교대역점,name_zh_hans,,星巴克,OSM node/4629891178 (ODbL),같은 OSM 항목의 name:zh(-Hans),0,0
+d6f08506-78f5-326a-ab74-1ff50830d8f3,스타벅스 부산대정문점,name_en,,Starbucks,OSM node/4632756316 (ODbL),같은 OSM 항목의 name:en,0,0
+d6f08506-78f5-326a-ab74-1ff50830d8f3,스타벅스 부산대정문점,name_ja,,スターバックス,OSM node/4632756316 (ODbL),같은 OSM 항목의 name:ja,0,0
+d6f08506-78f5-326a-ab74-1ff50830d8f3,스타벅스 부산대정문점,name_zh_hans,,星巴克,OSM node/4632756316 (ODbL),같은 OSM 항목의 name:zh(-Hans),0,0
+f981c2a9-8b01-3927-98f3-f136f4257d22,스타벅스 사상역점,name_en,,Starbucks,OSM node/4238855499 (ODbL),같은 OSM 항목의 name:en,0,0
+f981c2a9-8b01-3927-98f3-f136f4257d22,스타벅스 사상역점,name_ja,,スターバックス,OSM node/4238855499 (ODbL),같은 OSM 항목의 name:ja,0,0
+f981c2a9-8b01-3927-98f3-f136f4257d22,스타벅스 사상역점,name_zh_hans,,星巴克,OSM node/4238855499 (ODbL),같은 OSM 항목의 name:zh(-Hans),0,0
+ceb76a11-617b-3cac-b7c4-e0addcedc373,스타벅스 사직구장점,name_en,,Starbucks,OSM node/4956979446 (ODbL),같은 OSM 항목의 name:en,0,0
+ceb76a11-617b-3cac-b7c4-e0addcedc373,스타벅스 사직구장점,name_ja,,スターバックス,OSM node/4956979446 (ODbL),같은 OSM 항목의 name:ja,0,0
+ceb76a11-617b-3cac-b7c4-e0addcedc373,스타벅스 사직구장점,name_zh_hans,,星巴克,OSM node/4956979446 (ODbL),같은 OSM 항목의 name:zh(-Hans),0,0
+4c4891cd-74ed-3d9f-a88e-126113c2953a,스포원파크,name_en,,Spo 1 Park,Wikidata Q131428608 (CC0),"한국어 이름 「스포원파크」 열쇠 같음, 227m",0,0
+0edb90c5-2bcc-3d86-8dcf-2437cf597512,승하횟집,name_en,,Seungha Fish Restaurant,OSM node/368959100 (ODbL),같은 OSM 항목의 name:en,0,0
+3c95df78-affc-3a46-a49d-ce5a5d62f38c,승현횟집,name_en,,Seunghyeon Fish Restaurant,OSM node/368957058 (ODbL),같은 OSM 항목의 name:en,0,0
+ad96f049-5c8e-317e-9d4f-14f2bfc733b3,신미횟집,name_en,,Sinmi Fish Restaurant,OSM node/368959739 (ODbL),같은 OSM 항목의 name:en,0,0
+8104bd4c-d2e3-3230-84cb-579e877500bd,신산횟집,name_en,,Sinsan Fish Restaurant,OSM node/368958129 (ODbL),같은 OSM 항목의 name:en,0,0
+a8441e29-7d56-3d38-8cd1-75c7905fa639,신선장횟집,name_en,,Sinseonjang Fish Restaurant,OSM node/368973252 (ODbL),같은 OSM 항목의 name:en,0,0
+ae07f40d-93cf-3e2f-b48a-bfcdc8b11563,신선횟집,name_en,,Sinseon Fish Restaurant,OSM node/368959200 (ODbL),같은 OSM 항목의 name:en,0,0
+44cefe4c-8cde-3ebb-ae90-b4fce37f1d65,신선횟집,name_en,,Sinseon Fish Restaurant,OSM node/368958862 (ODbL),같은 OSM 항목의 name:en,0,0
+71ced7c4-d54f-3987-863f-3a26b3f2787e,신정횟집,name_en,,Sinjeong Fish Restaurant,OSM node/368957488 (ODbL),같은 OSM 항목의 name:en,0,0
+844b0c0b-2844-3df4-a9ba-ff08d0438eac,신천횟집,name_en,,Sincheon Fish Restaurant,OSM node/368959138 (ODbL),같은 OSM 항목의 name:en,0,0
+eecf1c28-ad11-3a0f-bfb5-867b68f6ada9,싱싱활어횟집,name_en,,Singsinghwaleo Fish Restaurant,OSM node/368956647 (ODbL),같은 OSM 항목의 name:en,0,0
+904cfe83-44ec-306e-9003-ed7c2b686e2c,싱싱횟집,name_en,,Singsing Fish Restaurant,OSM node/368958358 (ODbL),같은 OSM 항목의 name:en,0,0
+74c57342-aa7f-381a-b503-3fe3bee35a4d,싱싱횟집,name_en,,Singsing Fish Restaurant,OSM node/368956721 (ODbL),같은 OSM 항목의 name:en,0,0
+6a162aae-bdce-3580-8c17-7aef4ace0c4b,싱싱횟집,name_en,,Singsing Fish Restaurant,OSM node/368957683 (ODbL),같은 OSM 항목의 name:en,0,0
+b78c40ef-ec05-38a7-8dff-a93609c9db52,쌍둥이돼지국밥 대연점,name_zh_hans,,雙胞胎豬肉飯湯,OSM node/4535673597 (ODbL),같은 OSM 항목의 name:zh(-Hans),0,0
+f2445f6b-571b-328b-8536-fb163d1adb91,아도횟집,name_en,,Ado Fish Restaurant,OSM node/368957923 (ODbL),같은 OSM 항목의 name:en,0,0
+ea60c605-510a-3725-8c32-75e7f7588c65,아름횟집,name_en,,Areum Fish Restaurant,OSM node/368958356 (ODbL),같은 OSM 항목의 name:en,0,0
+4b9ae3a8-b356-30ed-977a-f8fdeddab996,안목,name_en,,Anmok,TourAPI EngService2 contentid=3433013,"제목 속 한국어 「안목」 이름 열쇠 같음, 0m",0,0
+4b9ae3a8-b356-30ed-977a-f8fdeddab996,안목,name_ja,,安木,TourAPI JpnService2 contentid=3438620,"제목 속 한국어 「안목」 이름 열쇠 같음, 0m",0,0
+4b9ae3a8-b356-30ed-977a-f8fdeddab996,안목,name_zh_hans,,安木,TourAPI ChsService2 contentid=3441412,"제목 속 한국어 「안목」 이름 열쇠 같음, 0m",0,0
+4b9ae3a8-b356-30ed-977a-f8fdeddab996,안목,name_zh_hant,,安木,TourAPI ChtService2 contentid=3448314,"제목 속 한국어 「안목」 이름 열쇠 같음, 0m",0,0
+097785d2-6373-382c-a658-0bd2e4ac0f58,애기돌횟집,name_en,,Aegidol Fish Restaurant,OSM node/368973223 (ODbL),같은 OSM 항목의 name:en,0,0
+45a3d3e3-e180-3d52-a1eb-cc28a8cc84b1,양정횟집,name_en,,Yangjeong Fish Restaurant,OSM node/368958162 (ODbL),같은 OSM 항목의 name:en,0,0
+9bc7b984-40ee-3e25-8498-f8e2e1d9fa60,양정횟집,name_en,,Yangjeong Fish Restaurant,OSM node/368957899 (ODbL),같은 OSM 항목의 name:en,0,0
+bbfd153e-a9e8-3ce7-a624-2ec8e36872af,어림횟집,name_en,,Eorim Fish Restaurant,OSM node/368957197 (ODbL),같은 OSM 항목의 name:en,0,0
+e780ce83-b364-3b51-9f28-0caaee3f1808,어미횟집,name_en,,Eomi Fish Restaurant,OSM node/368958645 (ODbL),같은 OSM 항목의 name:en,0,0
+6992f990-ceaa-3bfd-a825-ba77c84819ba,어부횟집,name_en,,Eobu Fish Restaurant,OSM node/368957054 (ODbL),같은 OSM 항목의 name:en,0,0
+1f9862c2-d585-3478-b253-a51d986f47eb,어빈횟집,name_en,,Eobin Fish Restaurant,OSM node/368957483 (ODbL),같은 OSM 항목의 name:en,0,0
+45dca791-930e-330b-aa0c-ea19255c137b,어심횟집,name_en,,Eosim Fish Restaurant,OSM node/368957964 (ODbL),같은 OSM 항목의 name:en,0,0
+bdc5e0a8-5f6d-3c7c-a2bf-a8804d4692d8,어심횟집,name_en,,Eosim Fish Restaurant,OSM node/368957984 (ODbL),같은 OSM 항목의 name:en,0,0
+ee990a2d-8a7c-305d-95aa-2965f483b92d,어심횟집,name_en,,Eosim Fish Restaurant,OSM node/368958205 (ODbL),같은 OSM 항목의 name:en,0,0
+473f98e1-5941-3270-9d8c-766bb160d6c6,어촌횟집,name_en,,Eochon Fish Restaurant,OSM node/368957423 (ODbL),같은 OSM 항목의 name:en,0,0
+ddfe7f31-a3c9-3f16-9b17-a3d1d9a18b79,엔제리너스,name_en,,Angel-in-us Coffee,OSM node/3785255102 (ODbL),같은 OSM 항목의 name:en,0,0
+c405aecd-64f5-3b07-8c4c-d57998d4cc19,여로횟집,name_en,,Yeoro Fish Restaurant,OSM node/368959673 (ODbL),같은 OSM 항목의 name:en,0,0
+b1f08b5b-64d4-303f-babd-0f2e4f250d98,연산성당,name_en,,Yeonsan Catholic Church,OSM node/368864630 (ODbL),같은 OSM 항목의 name:en,0,0
+ee527163-2067-31dc-840b-1ee4244473a1,연지횟집,name_en,,Yeonji Fish Restaurant,OSM node/368957417 (ODbL),같은 OSM 항목의 name:en,0,0
+b99ed81b-dd4c-3a6c-afa2-a441346c46dc,연지횟집,name_en,,Yeonji Fish Restaurant,OSM node/368958971 (ODbL),같은 OSM 항목의 name:en,0,0
+8c2a654b-244f-3197-9475-c13fa61c9375,영광횟집,name_en,,Yeonggwang Fish Restaurant,OSM node/368958214 (ODbL),같은 OSM 항목의 name:en,0,0
+cba9a0e0-e312-3b37-8ff0-e60bc5fd9155,영남횟집,name_en,,Yeongnam Fish Restaurant,OSM node/368958388 (ODbL),같은 OSM 항목의 name:en,0,0
+345153e1-68b0-3b53-af95-810da390d843,영덕횟집,name_en,,Yeongdeok Fish Restaurant,OSM node/368957533 (ODbL),같은 OSM 항목의 name:en,0,0
+2b087cab-9a7f-3f45-a418-680414a15e13,영도횟집,name_en,,Yeongdo Fish Restaurant,OSM node/368958731 (ODbL),같은 OSM 항목의 name:en,0,0
+7cf4cff8-0f6a-3149-93e9-a87785f4b46d,영선횟집,name_en,,Yeongseon Fish Restaurant,OSM node/368958909 (ODbL),같은 OSM 항목의 name:en,0,0
+98ac3053-75c2-30bd-815c-3436d7d3f661,영일횟집,name_en,,Yeongil Fish Restaurant,OSM node/368959164 (ODbL),같은 OSM 항목의 name:en,0,0
+88c1baa5-1879-3d9a-9d54-be0e7a639ca3,영진횟집,name_en,,Yeongjin Fish Restaurant,OSM node/368958002 (ODbL),같은 OSM 항목의 name:en,0,0
+d8836d09-0c5c-4d15-a962-95894af98d2e,영화의전당,name_zh_hant,,釜山電影殿堂,TourAPI ChtService2 contentid=2495655,"제목 속 한국어 「부산 영화의 전당」 이름 열쇠 같음, 30m",0,0
+f6dfb1cc-370d-3072-85ee-dd269719c406,옛날횟집,name_en,,Yetnal Fish Restaurant,OSM node/368956745 (ODbL),같은 OSM 항목의 name:en,0,0
+ece96137-82de-4e79-ace6-000126088001,오륙도 (부산 국가지질공원),name_en,,Oryukdo,Wikidata Q11261050 (CC0),"한국어 이름 「오륙도」 열쇠 같음, 121m",0,0
+0f6ebeb1-c446-31b3-9a4f-499993a2a6af,오륙도 스카이워크,name_en,,Oryukdo Skywalk,TourAPI EngService2 contentid=1981825,"제목 속 한국어 「오륙도 스카이워크」 이름 열쇠 같음, 30m",0,0
+0f6ebeb1-c446-31b3-9a4f-499993a2a6af,오륙도 스카이워크,name_ja,,五六島スカイウォーク,TourAPI JpnService2 contentid=1986711,"제목 속 한국어 「오륙도 스카이워크」 이름 열쇠 같음, 30m",0,0
+0f6ebeb1-c446-31b3-9a4f-499993a2a6af,오륙도 스카이워크,name_zh_hans,,五六岛天空步道,TourAPI ChsService2 contentid=2004730,"제목 속 한국어 「오륙도 스카이워크」 이름 열쇠 같음, 249m",0,0
+0f6ebeb1-c446-31b3-9a4f-499993a2a6af,오륙도 스카이워크,name_zh_hant,,五六島Skywalk,TourAPI ChtService2 contentid=1966737,"제목 속 한국어 「오륙도 스카이워크」 이름 열쇠 같음, 30m",0,0
+78b931f4-b48a-329d-a40f-2dccbe3a0d14,오미횟집,name_en,,Omi Fish Restaurant,OSM node/368959754 (ODbL),같은 OSM 항목의 name:en,0,0
+84008d6f-a2a0-3225-a87d-6ac3c20fb017,오복횟집,name_en,,Obok Fish Restaurant,OSM node/368957242 (ODbL),같은 OSM 항목의 name:en,0,0
+930fee23-c266-35a4-8d2b-1f271d46b25e,오양횟집,name_en,,Oyang Fish Restaurant,OSM node/368959681 (ODbL),같은 OSM 항목의 name:en,0,0
+b51d9798-89ef-3ea7-9055-683661cf315b,오양횟집,name_en,,Oyang Fish Restaurant,OSM node/368957695 (ODbL),같은 OSM 항목의 name:en,0,0
+1126cb9f-887f-3a00-bdc4-32378f673ca2,온정횟집,name_en,,Onjeong Fish Restaurant,OSM node/368957041 (ODbL),같은 OSM 항목의 name:en,0,0
+8ca99e81-a5f4-3d71-98d5-3e13a1a82cfa,왔다횟집,name_en,,Watsda Fish Restaurant,OSM node/368959323 (ODbL),같은 OSM 항목의 name:en,0,0
+f1069635-2253-364c-82c2-c7b90a38c384,왕벌횟집,name_en,,Wangbeol Fish Restaurant,OSM node/368958869 (ODbL),같은 OSM 항목의 name:en,0,0
+ff044f42-904b-3baa-b669-095686ad9f2e,왕상횟집,name_en,,Wangsang Fish Restaurant,OSM node/368958087 (ODbL),같은 OSM 항목의 name:en,0,0
+3922d4c4-aa02-3bb5-a22f-c01c0b8fd859,용궁횟집,name_en,,Yonggung Fish Restaurant,OSM node/368956694 (ODbL),같은 OSM 항목의 name:en,0,0
+02e7eef3-83b8-3b63-a205-379c6cc9fdf3,용당횟집,name_en,,Yongdang Fish Restaurant,OSM node/368957728 (ODbL),같은 OSM 항목의 name:en,0,0
+57b95f5f-7e1e-3b4d-af29-c586a16cc50b,용성횟집,name_en,,Yongseong Fish Restaurant,OSM node/368959822 (ODbL),같은 OSM 항목의 name:en,0,0
+b19f9549-2687-3afb-bd07-38da0a7d1b70,용암할매횟집,name_en,,Yongamhalmae Fish Restaurant,OSM node/368973322 (ODbL),같은 OSM 항목의 name:en,0,0
+62546eec-5b8c-38a8-9c50-31bbb34ab95a,용원횟집,name_en,,Yongwon Fish Restaurant,OSM node/368957937 (ODbL),같은 OSM 항목의 name:en,0,0
+b9ef8579-9554-3d19-a0f3-05ffc25103a2,용진횟집,name_en,,Yongjin Fish Restaurant,OSM node/368958329 (ODbL),같은 OSM 항목의 name:en,0,0
+ac276ce3-6594-3cb9-bd5d-f0dbdd9ca0d6,용천사,name_en,,Yongcheon-sa,OSM node/5467142630 (ODbL),같은 OSM 항목의 name:en,0,0
+e790f76a-90ff-3c11-a13b-cbf954e81f2b,우리횟집,name_en,,Uri Fish Restaurant,OSM node/368957696 (ODbL),같은 OSM 항목의 name:en,0,0
+3cd32a1c-5959-37f6-811c-a47257ba50a9,우물횟집,name_en,,Umul Fish Restaurant,OSM node/368956863 (ODbL),같은 OSM 항목의 name:en,0,0
+34a7e58e-7102-3b08-87d0-132d461614f5,우미횟집,name_en,,Umi Fish Restaurant,OSM node/368957539 (ODbL),같은 OSM 항목의 name:en,0,0
+9525de75-f9a6-35f2-b588-1dc61df89bc0,우봉횟집,name_en,,Ubong Fish Restaurant,OSM node/368973372 (ODbL),같은 OSM 항목의 name:en,0,0
+f3a256ae-6811-3fa7-a819-151f446f5b5d,우성횟집,name_en,,Useong Fish Restaurant,OSM node/368957980 (ODbL),같은 OSM 항목의 name:en,0,0
+a6c4c9a0-1be4-3354-bf44-09f1d9ab7a06,우성횟집,name_en,,Useong Fish Restaurant,OSM node/368958849 (ODbL),같은 OSM 항목의 name:en,0,0
+ae779095-dadd-3638-9881-126843bd5aae,우장춘기념관,name_en,,Ujangchun Memorial Hall,OSM node/368635964 (ODbL),같은 OSM 항목의 name:en,0,0
+6925eb45-72a5-3a6c-ac88-a6df5e86d5b7,우정횟집,name_en,,Ujeong Fish Restaurant,OSM node/368958199 (ODbL),같은 OSM 항목의 name:en,0,0
+94c40967-a9ad-3138-8fef-59cd9af41432,울산횟집,name_en,,Ulsan Fish Restaurant,OSM node/368957796 (ODbL),같은 OSM 항목의 name:en,0,0
+8ced05d0-f51d-3487-98fe-2a33d3f4aebf,원조할매횟집,name_en,,Wonjohalmae Fish Restaurant,OSM node/368973114 (ODbL),같은 OSM 항목의 name:en,0,0
+ef8d53c8-a3b6-3e1e-b182-cdf9714e1df5,월전횟집,name_en,,Woljeon Fish Restaurant,OSM node/368973161 (ODbL),같은 OSM 항목의 name:en,0,0
+197882b5-9312-3198-8a91-33aaffd42e7a,월화횟집,name_en,,Wolhwa Fish Restaurant,OSM node/368957568 (ODbL),같은 OSM 항목의 name:en,0,0
+045e266f-4f7f-3a93-af24-40764a11952b,유가네,name_ja,,ユガネ,OSM node/5607494221 (ODbL),같은 OSM 항목의 name:ja,0,0
+cee62f33-c574-31c0-9516-34f1c76ab240,유가네 서면본점,name_ja,,ユガネ 西面本店,OSM node/5618754621 (ODbL),같은 OSM 항목의 name:ja,0,0
+91bfa6cb-28f6-3830-aa1f-c0d4ffd819e0,유가횟집,name_en,,Yuga Fish Restaurant,OSM node/368956777 (ODbL),같은 OSM 항목의 name:en,0,0
+4e1f5915-dba8-3f38-97d4-7634ea6f4199,유미횟집,name_en,,Yumi Fish Restaurant,OSM node/368959800 (ODbL),같은 OSM 항목의 name:en,0,0
+fcbfeb5b-13d8-342a-8668-40b671017908,유성횟집,name_en,,Yuseong Fish Restaurant,OSM node/368959815 (ODbL),같은 OSM 항목의 name:en,0,0
+4fe8a6ce-e28c-3293-876e-e8091160ee4f,유성횟집,name_en,,Yuseong Fish Restaurant,OSM node/368959624 (ODbL),같은 OSM 항목의 name:en,0,0
+228d73b6-40d3-3f33-8185-034e52bd2e47,유정횟집,name_en,,Yujeong Fish Restaurant,OSM node/368958126 (ODbL),같은 OSM 항목의 name:en,0,0
+4b2f5189-4592-3af5-a25d-ed1af52fc494,윤희횟집,name_en,,Yunhui Fish Restaurant,OSM node/368956677 (ODbL),같은 OSM 항목의 name:en,0,0
+861f9d47-05ba-346e-bf75-f11fd35e86a7,은성횟집,name_en,,Eunseong Fish Restaurant,OSM node/368957554 (ODbL),같은 OSM 항목의 name:en,0,0
+733a022d-6a58-3776-95e9-075219fa1ee7,은파횟집,name_en,,Eunpa Fish Restaurant,OSM node/368957226 (ODbL),같은 OSM 항목의 name:en,0,0
+0a41a264-a6fd-3580-b7c9-4ab1a51c9bb7,은파횟집,name_en,,Eunpa Fish Restaurant,OSM node/368957181 (ODbL),같은 OSM 항목의 name:en,0,0
+e28f65e2-4860-3a46-a075-21f67cfeb2dd,은화횟집,name_en,,Eunhwa Fish Restaurant,OSM node/368958106 (ODbL),같은 OSM 항목의 name:en,0,0
+cc66728a-7b6f-3daf-9bbf-b4f29509310e,을숙도횟집,name_en,,Eulsukdo Fish Restaurant,OSM node/368957065 (ODbL),같은 OSM 항목의 name:en,0,0
+9a2262c5-8370-316b-97a8-22a8c71cbecb,의령횟집,name_en,,Uiryeong Fish Restaurant,OSM node/368956923 (ODbL),같은 OSM 항목의 name:en,0,0
+df557fc0-7cad-3195-a5b0-b88998441279,의령횟집,name_en,,Uiryeong Fish Restaurant,OSM node/368957617 (ODbL),같은 OSM 항목의 name:en,0,0
+95e90056-d4e0-3ced-a8f4-83901bdf4eb5,이가회집,name_en,,Iga Fish Restaurant,OSM node/368955186 (ODbL),같은 OSM 항목의 name:en,0,0
+199f24fe-95ea-37ee-a97a-ac4b51805c45,이기대해안산책로,name_en,,Igidae Coastal Trail,OSM node/4807672421 (ODbL),같은 OSM 항목의 name:en,0,0
+54c7df8f-660a-3e51-92d0-89d3a7bf6ca9,이동횟집,name_en,,Idong Fish Restaurant,OSM node/368973185 (ODbL),같은 OSM 항목의 name:en,0,0
+b1821cce-e756-3f38-9f7d-5735d08d082f,이디야커피,name_en,,Ediya Coffee,OSM node/10033007903 (ODbL),같은 OSM 항목의 name:en,0,0
+a3fde0f2-dc0b-3a56-a73f-f5ba39195092,이디야커피,name_en,,Ediya Coffee,OSM node/4658618998 (ODbL),같은 OSM 항목의 name:en,0,0
+d50da169-286b-3464-a3df-d3db947d34a6,이디야커피,name_en,,Ediya Coffee,OSM node/12963492053 (ODbL),같은 OSM 항목의 name:en,0,0
+8812611c-f1a5-3ce6-9cc1-a5644484a239,이모활어횟집,name_en,,Imohwaleo Fish Restaurant,OSM node/368956939 (ODbL),같은 OSM 항목의 name:en,0,0
+03fac197-1350-35f0-8c84-1e3898fcd596,이삭토스트 부산부경대점,name_en,,Isaac Toast,OSM node/4538812989 (ODbL),같은 OSM 항목의 name:en,0,0
+12a8c27e-b6cf-3c58-af4c-8439d2a7c252,이연수불교미술관,name_en,,Iyeonsu Buddhism Art Museum,OSM node/368726218 (ODbL),같은 OSM 항목의 name:en,0,0
+4e918c9f-9583-316a-beaa-e0f68801d9e1,이화장횟집,name_en,,Ihwajang Fish Restaurant,OSM node/368973289 (ODbL),같은 OSM 항목의 name:en,0,0
+1d69572d-cb9c-3673-bfd6-6f5037b72775,일광수산횟집,name_en,,Ilgwangsusan Fish Restaurant,OSM node/368973336 (ODbL),같은 OSM 항목의 name:en,0,0
+4b30587b-b346-42f8-a0ff-000126098001,일광해수욕장,name_en,,Ilgwang Beach,Wikidata Q12613619 (CC0),"한국어 이름 「일광해수욕장」 열쇠 같음, 134m",0,0
+fdb6b3fe-b008-3fdf-b2ef-75dc62b37c17,일광횟집,name_en,,Ilgwang Fish Restaurant,OSM node/368958951 (ODbL),같은 OSM 항목의 name:en,0,0
+b98a15c8-a873-37a3-8df5-fe8f21337d32,일미횟집,name_en,,Ilmi Fish Restaurant,OSM node/368959202 (ODbL),같은 OSM 항목의 name:en,0,0
+2546538e-d41c-332e-a7da-1868c07365cb,일미횟집,name_en,,Ilmi Fish Restaurant,OSM node/368957287 (ODbL),같은 OSM 항목의 name:en,0,0
+bd5458b3-7e4f-37c2-8f11-3866205bdff9,일미횟집,name_en,,Ilmi Fish Restaurant,OSM node/368973195 (ODbL),같은 OSM 항목의 name:en,0,0
+c1f25c4f-4d09-3f92-8d38-4f6147885ea1,일미횟집,name_en,,Ilmi Fish Restaurant,OSM node/368959145 (ODbL),같은 OSM 항목의 name:en,0,0
+96e7ba1d-a52a-3291-a01f-ef6883886e60,일번횟집,name_en,,Ilbeon Fish Restaurant,OSM node/368959063 (ODbL),같은 OSM 항목의 name:en,0,0
+874ba83e-9908-3e4b-9f97-ebcbf136b8f9,일송횟집,name_en,,Ilsong Fish Restaurant,OSM node/368959329 (ODbL),같은 OSM 항목의 name:en,0,0
+8429aef1-389b-3a10-9f69-c74dc22eb18c,일송횟집,name_en,,Ilsong Fish Restaurant,OSM node/368957638 (ODbL),같은 OSM 항목의 name:en,0,0
+9a19d11f-efb9-368b-9f0a-cb2832402c3e,일억조 횟집,name_en,,Ileokjo Fish Restaurant,OSM node/368956944 (ODbL),같은 OSM 항목의 name:en,0,0
+a0c14a60-f098-358e-820b-2f92a4984070,일화횟집,name_en,,Ilhwa Fish Restaurant,OSM node/368957988 (ODbL),같은 OSM 항목의 name:en,0,0
+dfb4b594-c0bf-3476-8dcc-00086f7d1b82,자갈밭횟집,name_en,,Jagalbat Fish Restaurant,OSM node/368973211 (ODbL),같은 OSM 항목의 name:en,0,0
+e4a966b4-c9e2-383b-84a8-520e234c5ea3,자갈횟집,name_en,,Jagal Fish Restaurant,OSM node/368957732 (ODbL),같은 OSM 항목의 name:en,0,0
+940f1ef8-0227-353d-a7e9-9c9767f3f4a7,자연횟집,name_en,,Jayeon Fish Restaurant,OSM node/368957907 (ODbL),같은 OSM 항목의 name:en,0,0
+623984fb-a78b-33ee-b8ed-743f7d641eb6,자연횟집,name_en,,Jayeon Fish Restaurant,OSM node/368957321 (ODbL),같은 OSM 항목의 name:en,0,0
+9d947f43-aeb5-36d0-ad1c-c0d58984ec85,자연횟집,name_en,,Jayeon Fish Restaurant,OSM node/368973158 (ODbL),같은 OSM 항목의 name:en,0,0
+79bb1f0d-6d0a-3faf-9e12-c75202de84ff,자유횟집,name_en,,Jayu Fish Restaurant,OSM node/368957323 (ODbL),같은 OSM 항목의 name:en,0,0
+484ef6ed-0278-398d-bb4c-4c39bf6acfc9,장기횟집,name_en,,Janggi Fish Restaurant,OSM node/368958793 (ODbL),같은 OSM 항목의 name:en,0,0
+32781289-4d42-30f8-b90e-82ceaed28112,장원횟집,name_en,,Jangwon Fish Restaurant,OSM node/368959223 (ODbL),같은 OSM 항목의 name:en,0,0
+47032163-bddc-37bb-961d-acac141a9be1,장터횟집,name_en,,Jangteo Fish Restaurant,OSM node/368957867 (ODbL),같은 OSM 항목의 name:en,0,0
+44250e88-8676-3746-945c-3f846eb3f9d4,재송회집,name_en,,Jaesong Fish Restaurant,OSM node/368955172 (ODbL),같은 OSM 항목의 name:en,0,0
+9def55b7-3fdd-38b3-9020-802b1f42f9e7,적조암,name_en,,Jeokjo Temple,OSM node/13197036931 (ODbL),같은 OSM 항목의 name:en,0,0
+445c1c27-e378-38f5-bf60-2b53bd469f64,전원횟집,name_en,,Jeonwon Fish Restaurant,OSM node/368957366 (ODbL),같은 OSM 항목의 name:en,0,0
+2d7168ba-3beb-3925-aaed-92b4405ac11f,정은사,name_en,,Jeongeunsa,OSM node/368860543 (ODbL),같은 OSM 항목의 name:en,0,0
+f5de207a-510d-3f99-a3c0-5fc86dcb84e9,제일장횟집,name_en,,Jeiljang Fish Restaurant,OSM node/368957009 (ODbL),같은 OSM 항목의 name:en,0,0
+0a09f180-1aec-3322-b040-d4e6e9fd883e,제일횟집,name_en,,Jeil Fish Restaurant,OSM node/368958317 (ODbL),같은 OSM 항목의 name:en,0,0
+fd75a5ad-2ee4-37b7-b74c-b3dc11f0597e,제일횟집,name_en,,Jeil Fish Restaurant,OSM node/368958187 (ODbL),같은 OSM 항목의 name:en,0,0
+909d4868-5e65-35ab-b157-dcd0796c4e71,제일횟집,name_en,,Jeil Fish Restaurant,OSM node/368958446 (ODbL),같은 OSM 항목의 name:en,0,0
+909d4868-5e65-35ab-b157-dcd0796c4e71,제일횟집,name_ja,,第一刺身店,OSM node/368958446 (ODbL),같은 OSM 항목의 name:ja,0,0
+61d236a9-e65d-3b65-adee-21c9a31a0cc6,제일횟집,name_en,,Jeil Fish Restaurant,OSM node/368957179 (ODbL),같은 OSM 항목의 name:en,0,0
+98ae412f-7b86-388b-adbe-e98c16721378,제일횟집,name_en,,Jeil Fish Restaurant,OSM node/368958428 (ODbL),같은 OSM 항목의 name:en,0,0
+bf024f55-07af-3a87-ae1c-76ab8889b27c,조은횟집,name_en,,Joeun Fish Restaurant,OSM node/368959710 (ODbL),같은 OSM 항목의 name:en,0,0
+1787a1a3-20ac-3f03-8e56-656296f08733,조은횟집,name_en,,Joeun Fish Restaurant,OSM node/368959179 (ODbL),같은 OSM 항목의 name:en,0,0
+90536ad3-fe42-33ce-9d64-f4df019bd77f,주원횟집,name_en,,Juwon Fish Restaurant,OSM node/368957201 (ODbL),같은 OSM 항목의 name:en,0,0
+6f5d5ee1-d457-3b7d-9143-068033392b99,죽도횟집,name_en,,Jukdo Fish Restaurant,OSM node/368957794 (ODbL),같은 OSM 항목의 name:en,0,0
+26b0a9d1-076d-3001-b292-1a1dcfd51d8a,죽성무한정횟집,name_en,,Jukseongmuhanjeong Fish Restaurant,OSM node/368973347 (ODbL),같은 OSM 항목의 name:en,0,0
+8178ef0b-7209-3383-bd4e-a16964595fa4,죽성별장횟집,name_en,,Jukseongbyeoljang Fish Restaurant,OSM node/368973324 (ODbL),같은 OSM 항목의 name:en,0,0
+7c49831e-a3ec-3091-b5a4-0948d4b96d31,죽성횟집,name_en,,Jukseong Fish Restaurant,OSM node/368973108 (ODbL),같은 OSM 항목의 name:en,0,0
+03dc5da5-e842-3258-837f-af3f37aef91f,중앙회집,name_en,,Jungang Fish Restaurant,OSM node/368955184 (ODbL),같은 OSM 항목의 name:en,0,0
+03dc5da5-e842-3258-837f-af3f37aef91f,중앙회집,name_ja,,中央刺身店,OSM node/368955184 (ODbL),같은 OSM 항목의 name:ja,0,0
+f9cab195-cb63-3937-a8f8-3821ec02c898,지씨네횟집,name_en,,Jissine Fish Restaurant,OSM node/368973259 (ODbL),같은 OSM 항목의 name:en,0,0
+77640bbe-7c9f-356c-a61a-62ae7f22739e,직송횟집,name_en,,Jiksong Fish Restaurant,OSM node/368956753 (ODbL),같은 OSM 항목의 name:en,0,0
+67da6398-2eda-3453-95a4-4b3a90091ea7,진미횟집,name_en,,Jinmi Fish Restaurant,OSM node/368958411 (ODbL),같은 OSM 항목의 name:en,0,0
+6a9c01cb-19b4-3b30-8b29-08926849154c,진영횟집,name_en,,Jinyeong Fish diner,OSM node/368957393 (ODbL),같은 OSM 항목의 name:en,0,0
+8cd8021b-0b4e-3fc3-a1d8-999cae76b567,진주횟집,name_en,,Jinju Fish Restaurant,OSM node/368959096 (ODbL),같은 OSM 항목의 name:en,0,0
+6a1f33f3-ba6d-3c26-adf4-d4baf0faec6c,진주횟집,name_en,,Jinju Fish Restaurant,OSM node/368958921 (ODbL),같은 OSM 항목의 name:en,0,0
+6748c517-4c87-3199-a34c-b77908997269,진주횟집,name_en,,Jinju Fish Restaurant,OSM node/368958338 (ODbL),같은 OSM 항목의 name:en,0,0
+e9b0a541-95ee-3f41-a9c0-f962b0ade443,진주횟집,name_en,,Jinju Fish Restaurant,OSM node/368956930 (ODbL),같은 OSM 항목의 name:en,0,0
+ec616f03-8ccb-3f8f-b1f9-e94eefb50da0,참존횟집,name_en,,Chamjon Fish Restaurant,OSM node/368958370 (ODbL),같은 OSM 항목의 name:en,0,0
+d3974a2d-14c4-32d0-90f6-abcd13cf2a83,창미횟집,name_en,,Changmi Fish Restaurant,OSM node/368959591 (ODbL),같은 OSM 항목의 name:en,0,0
+b624e813-b2a4-30e9-a6f1-927894f9ce27,천성진성,name_en,,Cheonseongjinseong,Wikidata Q5091681 (CC0),"한국어 이름 「천성진성」 열쇠 같음, 33m",0,0
+ef96174f-65bb-3da2-b4f8-9f008103fcf0,천성횟집,name_en,,Cheonseong Fish Restaurant,OSM node/368957006 (ODbL),같은 OSM 항목의 name:en,0,0
+77abd2d0-7501-3195-a8eb-ebb8622086a0,천우장횟집,name_en,,Cheonujang Fish Restaurant,OSM node/368957075 (ODbL),같은 OSM 항목의 name:en,0,0
+8e1a6ec8-5da5-324d-b1e2-a5418cc84ad6,천우장횟집,name_en,,Cheonujang Fish Restaurant,OSM node/368973317 (ODbL),같은 OSM 항목의 name:en,0,0
+927f3696-c1ab-3c2e-8451-51dd51d0e93a,천일횟집,name_en,,Cheonil Fish Restaurant,OSM node/368957787 (ODbL),같은 OSM 항목의 name:en,0,0
+908c9523-7b0b-35cd-828a-8c623ed0b491,천주교 부산교구대천성당,name_en,,Daecheon Catholic Church,OSM node/368864689 (ODbL),같은 OSM 항목의 name:en,0,0
+b48f3d82-1ddd-30aa-a238-585b1723a46b,천주교부산교구금정성당,name_ja,,カトリック釜山教区金井聖堂,OSM node/368864714 (ODbL),같은 OSM 항목의 name:ja,0,0
+be7022ac-426d-3cba-aa66-21e5e8503cc2,천호횟집,name_en,,Cheonho Fish Restaurant,OSM node/368959061 (ODbL),같은 OSM 항목의 name:en,0,0
+43aba311-95e5-382c-84f4-304f63c6cad4,철희횟집,name_en,,Cheolhui Fish Restaurant,OSM node/368958100 (ODbL),같은 OSM 항목의 name:en,0,0
+c39e7b29-0343-3eaf-8221-9c678a0b9eae,청기와횟집,name_en,,Cheonggiwa Fish Restaurant,OSM node/368973218 (ODbL),같은 OSM 항목의 name:en,0,0
+9405b0ed-51b4-3d28-8220-88283d4ddaf6,청기와횟집,name_en,,Cheonggiwa Fish Restaurant,OSM node/368956748 (ODbL),같은 OSM 항목의 name:en,0,0
+852ffa19-43d1-3670-a126-92153e34ee43,청기와횟집,name_en,,Cheonggiwa Fish Restaurant,OSM node/368973275 (ODbL),같은 OSM 항목의 name:en,0,0
+0bf72ac9-0814-30f2-bfb1-d90c48185c32,청도횟집,name_en,,Cheongdo Fish Restaurant,OSM node/368959728 (ODbL),같은 OSM 항목의 name:en,0,0
+bbc952f2-2c9b-3285-9a19-a46d92f01867,청도횟집,name_en,,Cheongdo Fish Restaurant,OSM node/368957185 (ODbL),같은 OSM 항목의 name:en,0,0
+48c71edd-772c-3fd2-b446-eeab86b605fd,청도횟집,name_en,,Cheongdo Fish Restaurant,OSM node/368958928 (ODbL),같은 OSM 항목의 name:en,0,0
+6e5c956c-af83-35cc-9006-b00b910da5a8,청미횟집,name_en,,Cheongmi Fish Restaurant,OSM node/368957256 (ODbL),같은 OSM 항목의 name:en,0,0
+3bffdab1-9a2f-3a4e-83ea-134be12cf42f,청파장횟집,name_en,,Cheongpajang Fish Restaurant,OSM node/368956995 (ODbL),같은 OSM 항목의 name:en,0,0
+b16d267c-b388-3a6b-8c20-3720a177bd26,청해횟집,name_en,,Cheonghae Fish Restaurant,OSM node/368957590 (ODbL),같은 OSM 항목의 name:en,0,0
+edb69972-c226-39da-a27b-b2c15ed04977,청해횟집,name_en,,Cheonghae Fish Restaurant,OSM node/368957859 (ODbL),같은 OSM 항목의 name:en,0,0
+2bcbf123-3689-3dd6-8687-efe69edaad09,청해횟집,name_en,,Cheonghae Fish Restaurant,OSM node/368957317 (ODbL),같은 OSM 항목의 name:en,0,0
+e258a211-442b-3de1-b14a-6be8eada2d1b,청해횟집,name_en,,Cheonghae Fish Restaurant,OSM node/368958026 (ODbL),같은 OSM 항목의 name:en,0,0
+77cbe92a-654d-3e68-bcce-65fe078a0e42,청해횟집,name_en,,Cheonghae Fish Restaurant,OSM node/368958547 (ODbL),같은 OSM 항목의 name:en,0,0
+3d7540f5-3fb7-3b06-9986-1227f93304c9,청해횟집,name_en,,Cheonghae Fish Restaurant,OSM node/368957263 (ODbL),같은 OSM 항목의 name:en,0,0
+8129f098-1c3f-3a0d-9e15-6d36e5935dc9,청호횟집,name_en,,Cheongho Fish Restaurant,OSM node/368957213 (ODbL),같은 OSM 항목의 name:en,0,0
+4734d92f-5e25-3a0e-854c-33d5bcfc6edf,청호횟집,name_en,,Cheongho Fish Restaurant,OSM node/368959532 (ODbL),같은 OSM 항목의 name:en,0,0
+26b8ffd2-102f-3060-9f44-7efd8bcbd5e9,청호횟집,name_en,,Cheongho Fish Restaurant,OSM node/368956735 (ODbL),같은 OSM 항목의 name:en,0,0
+33fde470-0bd3-33a9-9487-5cb4efb04c54,청호횟집,name_en,,Cheongho Fish Restaurant,OSM node/368957350 (ODbL),같은 OSM 항목의 name:en,0,0
+927d80d5-f259-33b6-87cf-3b414cb1227d,총각횟집,name_en,,Chonggak Fish Restaurant,OSM node/368959840 (ODbL),같은 OSM 항목의 name:en,0,0
+9c41cce8-bee7-3ae7-8c1d-a4f31228dc11,충남횟집,name_en,,Chungnam Fish Restaurant,OSM node/368957074 (ODbL),같은 OSM 항목의 name:en,0,0
+b131b54f-d1ea-30e2-834f-3d5b39cca930,충무횟집,name_en,,Chungmu Fish Restaurant,OSM node/368958833 (ODbL),같은 OSM 항목의 name:en,0,0
+4851aa62-9edb-30b0-a642-273c58b2d161,충무횟집,name_en,,Chungmu Fish Restaurant,OSM node/368959336 (ODbL),같은 OSM 항목의 name:en,0,0
+7636793e-bbfa-3429-8c0f-03befff7dfca,충무횟집,name_en,,Chungmu Fish Restaurant,OSM node/368958431 (ODbL),같은 OSM 항목의 name:en,0,0
+fba580a8-50bb-36f8-b5d2-dc332e8e3cac,충무횟집,name_en,,Chungmu Fish Restaurant,OSM node/368959666 (ODbL),같은 OSM 항목의 name:en,0,0
+73d6cbd3-21fc-3f15-9b55-ca6c7ccd4337,충무횟집,name_en,,Chungmu Fish Restaurant,OSM node/368959186 (ODbL),같은 OSM 항목의 name:en,0,0
+12bc51bd-ed74-3b2a-b89c-5075735a0ef2,충무횟집,name_en,,Chungmu Fish Restaurant,OSM node/368958133 (ODbL),같은 OSM 항목의 name:en,0,0
+d43e4e24-91d2-3386-8891-8807d9bcd599,충무횟집,name_en,,Chungmu Fish Restaurant,OSM node/368959588 (ODbL),같은 OSM 항목의 name:en,0,0
+6c04675a-b573-3516-8446-ecb71c4bc93c,충일횟집,name_en,,Chungil Fish Restaurant,OSM node/368958627 (ODbL),같은 OSM 항목의 name:en,0,0
+95de6c15-d681-38e1-a0b6-39ba78f7e193,치킨 신드롬,name_ja,,チキン シンドローム,OSM node/3792328244 (ODbL),같은 OSM 항목의 name:ja,0,0
+580042ce-17db-3b77-9062-2c40f9af7725,칠성회집,name_en,,Chilseong Fish Restaurant,OSM node/368955191 (ODbL),같은 OSM 항목의 name:en,0,0
+fd0e73ac-5e60-3c95-a62a-e316fe621fff,칠암 대양횟집,name_en,,Chiram Daeyang Fish Restaurant,OSM node/368956894 (ODbL),같은 OSM 항목의 name:en,0,0
+ddd09752-51b8-3098-bddc-8f4457c8b7db,칠암등대횟집,name_en,,Chiramdeungdae Fish Restaurant,OSM node/368973125 (ODbL),같은 OSM 항목의 name:en,0,0
+6e1587ac-a3bd-3783-9ae8-17aa16b81e65,칠암일출횟집,name_en,,Chiramilchul Fish Restaurant,OSM node/368973341 (ODbL),같은 OSM 항목의 name:en,0,0
+eaa96313-1947-3262-a529-ad66343b1d13,칠암자연산전문횟집,name_en,,Chiramjayeonsanjeonmun Fish Restaurant,OSM node/368973355 (ODbL),같은 OSM 항목의 name:en,0,0
+504b1d6f-d209-3a5d-b431-4767e4263808,칠암횟집,name_en,,Chiram Fish Restaurant,OSM node/368958077 (ODbL),같은 OSM 항목의 name:en,0,0
+65f21ec1-0f7c-35a5-ae51-ea3789993289,칠암횟집,name_en,,Chiram Fish Restaurant,OSM node/368958323 (ODbL),같은 OSM 항목의 name:en,0,0
+cc58745a-d9f2-3e4e-84de-2f1a4242fcf2,칠암횟집,name_en,,Chiram Fish Restaurant,OSM node/368959392 (ODbL),같은 OSM 항목의 name:en,0,0
+90bdf3ce-f471-3aea-89db-82e4aa442776,칠암횟집,name_en,,Chiram Fish Restaurant,OSM node/368958437 (ODbL),같은 OSM 항목의 name:en,0,0
+9fdb94e8-3bc9-3362-bf92-4a0b5ea70d84,카페베네,name_en,,Caffe Bene,OSM node/4629989128 (ODbL),같은 OSM 항목의 name:en,0,0
+9fdb94e8-3bc9-3362-bf92-4a0b5ea70d84,카페베네,name_ja,,カフェベネ,OSM node/4629989128 (ODbL),같은 OSM 항목의 name:ja,0,0
+b7a41e3f-8945-308e-a0db-58f6af22b80d,카페베네,name_en,,Caffe Bene,OSM node/4634326716 (ODbL),같은 OSM 항목의 name:en,0,0
+b7a41e3f-8945-308e-a0db-58f6af22b80d,카페베네,name_ja,,カフェベネ,OSM node/4634326716 (ODbL),같은 OSM 항목의 name:ja,0,0
+40d33d80-1dba-36ad-bf51-7a7ac0c98aff,컴포즈커피,name_en,,Compose Coffee,OSM node/11301216820 (ODbL),같은 OSM 항목의 name:en,0,0
+192fa435-43ed-34e4-82a0-9fd5900b4153,컴포즈커피,name_en,,Compose Coffee,OSM node/13431667784 (ODbL),같은 OSM 항목의 name:en,0,0
+b9a57901-4036-39df-8922-894302128445,큰바다횟집,name_en,,Keunbada Fish Restaurant,OSM node/368956683 (ODbL),같은 OSM 항목의 name:en,0,0
+6d2df9ca-eb1d-3ba3-9693-b9f10b99eeed,타보로,name_en,,Taboro,OSM node/10228129931 (ODbL),같은 OSM 항목의 name:en,0,0
+cbd93e10-06ec-3066-8643-4253a7b864ca,태성하모회자연산횟집,name_en,,Taeseonghamohoejayeonsan Fish Restaurant,OSM node/368956913 (ODbL),같은 OSM 항목의 name:en,0,0
+59fdb525-b97d-39e1-a776-427ac50654e1,태영횟집,name_en,,Taeyeong Fish Restaurant,OSM node/368958222 (ODbL),같은 OSM 항목의 name:en,0,0
+31829b51-3405-380a-a21e-c700325e750a,태평양횟집,name_en,,Taepyeongyang Fish Restaurant,OSM node/368973299 (ODbL),같은 OSM 항목의 name:en,0,0
+fb0dca7d-478c-3ccd-b8af-9042fcc64733,태향횟집,name_en,,Taehyang Fish Restaurant,OSM node/368957946 (ODbL),같은 OSM 항목의 name:en,0,0
+f9e46cda-e044-3e22-a8b6-87dba90718cd,태화횟집,name_en,,Taehwa Fish Restaurant,OSM node/368957012 (ODbL),같은 OSM 항목의 name:en,0,0
+bb5cf337-4e2b-3539-aad1-9496b4814aa7,태흥횟집,name_en,,Taeheung Fish Restaurant,OSM node/368958021 (ODbL),같은 OSM 항목의 name:en,0,0
+92c9f709-d3ad-391d-9ace-d6f983ce00b5,텐퍼센트커피,name_en,,Tenpercent Coffee,OSM node/11527549984 (ODbL),같은 OSM 항목의 name:en,0,0
+6bf8192a-fd5a-33ed-8b6a-55a367f625de,텐퍼센트커피,name_en,,Tenpercent Coffee,OSM node/12686395392 (ODbL),같은 OSM 항목의 name:en,0,0
+6dbe1a05-c4aa-3481-9511-b5fad52e020e,텐퍼센트커피,name_en,,Tenpercent Coffee,OSM node/7975511185 (ODbL),같은 OSM 항목의 name:en,0,0
+a2d78739-ecfc-31fa-8dc0-9aa583d70cc3,텐퍼센트커피,name_en,,Tenpercent Coffee,OSM node/12963701276 (ODbL),같은 OSM 항목의 name:en,0,0
+70818cd3-f124-3594-9753-69937ec70b01,통영횟집,name_en,,Tongyeong Fish Restaurant,OSM node/368958887 (ODbL),같은 OSM 항목의 name:en,0,0
+0c558f65-fd66-30c4-81fb-7b23d80e4e21,통영횟집,name_en,,Tongyeong Fish Restaurant,OSM node/368958644 (ODbL),같은 OSM 항목의 name:en,0,0
+f9fdbdea-e866-3e3a-b479-6223ffb22826,통영횟집,name_en,,Tongyeong Fish Restaurant,OSM node/368957206 (ODbL),같은 OSM 항목의 name:en,0,0
+335c663d-6b32-3fe8-842b-577ec63e4064,통영횟집,name_en,,Tongyeong Fish Restaurant,OSM node/368957831 (ODbL),같은 OSM 항목의 name:en,0,0
+11f6909d-0d16-3e21-914d-372710206170,투썸플레이스,name_en,,A Twosome Place,OSM node/13694887347 (ODbL),같은 OSM 항목의 name:en,0,0
+461ff101-30ba-3d0b-aef8-2c945f3fc89f,투썸플레이스,name_en,,A Twosome Place,OSM node/12963629533 (ODbL),같은 OSM 항목의 name:en,0,0
+6656bc1d-057b-3096-80d9-f1b34bee59fc,파도횟집,name_en,,Pado Fish Restaurant,OSM node/368973131 (ODbL),같은 OSM 항목의 name:en,0,0
+13786827-fcbb-378e-a0cf-f8fa3d9a6c28,파도횟집,name_en,,Pado Fish Restaurant,OSM node/368959839 (ODbL),같은 OSM 항목의 name:en,0,0
+72715382-e503-3680-8973-fcd198a1aa0d,파리바게뜨,name_en,,Paris Baguette,OSM node/12686395399 (ODbL),같은 OSM 항목의 name:en,0,0
+77eb4102-e3ae-3400-bf39-8a81c6590b36,파리바게뜨,name_en,,Paris Baguette,OSM node/11388032879 (ODbL),같은 OSM 항목의 name:en,0,0
+be65665e-e928-31b3-b1e8-377eb5611871,파리바게뜨,name_en,,Paris Baguette,OSM node/8162735751 (ODbL),같은 OSM 항목의 name:en,0,0
+f582d88e-dd83-3cbe-bd30-691ca5ca8bc8,파리바게뜨,name_en,,Paris Baguette,OSM node/9714008775 (ODbL),같은 OSM 항목의 name:en,0,0
+4ee89afb-a558-3969-8039-627cb45ece53,파리바게뜨,name_en,,Paris Baguette,OSM node/12963652263 (ODbL),같은 OSM 항목의 name:en,0,0
+41baf67c-dc9c-38fc-923b-a016ce81fa09,파리바게뜨,name_en,,Paris Baguette,OSM node/12759210145 (ODbL),같은 OSM 항목의 name:en,0,0
+ec770fc7-4376-3083-91d9-d7e6e064540a,파리바게뜨,name_en,,Paris Baguette,OSM node/12963629535 (ODbL),같은 OSM 항목의 name:en,0,0
+78b103fe-8a56-34a8-93a2-962cca46eb04,파리바게뜨,name_en,,Paris Baguette,OSM node/12963469814 (ODbL),같은 OSM 항목의 name:en,0,0
+4653a9d6-d7a6-39b8-a093-69c2e428c309,파리바게뜨,name_en,,Paris Baguette,OSM node/8364187350 (ODbL),같은 OSM 항목의 name:en,0,0
+4653a9d6-d7a6-39b8-a093-69c2e428c309,파리바게뜨,name_zh_hans,,巴黎贝甜,OSM node/8364187350 (ODbL),같은 OSM 항목의 name:zh(-Hans),0,0
+d803ef27-8cc1-3964-802e-7d2fb30c47f3,파리바게뜨,name_en,,Paris Baguette,OSM node/9266042847 (ODbL),같은 OSM 항목의 name:en,0,0
+3c66bc59-b1fe-34ea-9678-8934f4aa64fe,평화교회,name_en,,Pyeonghwa Church,OSM node/13173683392 (ODbL),같은 OSM 항목의 name:en,0,0
+8fcabda0-a6f7-31a4-aec6-4eff1da52a23,평화횟집,name_en,,Pyeonghwa Fish Restaurant,OSM node/368958611 (ODbL),같은 OSM 항목의 name:en,0,0
+7f792736-9605-31ac-bc4a-f456d693dcb6,평화횟집,name_en,,Pyeonghwa Fish Restaurant,OSM node/368959816 (ODbL),같은 OSM 항목의 name:en,0,0
+fb49217c-57ca-3d62-bd62-4a616385fbe3,평화횟집,name_en,,Pyeonghwa Fish Restaurant,OSM node/368958014 (ODbL),같은 OSM 항목의 name:en,0,0
+368c84d9-1731-3dd3-a5e9-feddc9767f84,포항횟집,name_en,,Pohang Fish Restaurant,OSM node/368958362 (ODbL),같은 OSM 항목의 name:en,0,0
+2dd99f8f-69f2-349b-9628-a0ccf4b7c01b,포항횟집,name_en,,Pohang Fish Restaurant,OSM node/368959772 (ODbL),같은 OSM 항목의 name:en,0,0
+5539b1e3-32a8-37c1-b8e1-971720d181cc,포항횟집,name_en,,Pohang Fish Restaurant,OSM node/368957261 (ODbL),같은 OSM 항목의 name:en,0,0
+67f4bf77-8aa7-3987-94f8-3dff94b1d25d,포항횟집,name_en,,Pohang Fish Restaurant,OSM node/368956860 (ODbL),같은 OSM 항목의 name:en,0,0
+d838c7f5-e5f3-3c86-8551-6fdcbcf10ebd,푸라닭 부산금곡점,name_en,,PURADAK,OSM node/12741134037 (ODbL),같은 OSM 항목의 name:en,0,0
+d64870cb-e8b8-3fbb-a327-93c3c612a702,푸른횟집,name_en,,Pureun Fish Restaurant,OSM node/368957188 (ODbL),같은 OSM 항목의 name:en,0,0
+60399b8b-76da-3940-a640-a4de526fbd36,풍년횟집,name_en,,Pungnyeon Fish Restaurant,OSM node/368957066 (ODbL),같은 OSM 항목의 name:en,0,0
+ce22d566-7751-306a-a93e-fdfb5a941a4a,풍년횟집,name_en,,Pungnyeon Fish Restaurant,OSM node/368959252 (ODbL),같은 OSM 항목의 name:en,0,0
+0e37d122-1496-3884-ba67-63e06ab0ea8e,풍류횟집,name_en,,Pungnyu Fish Restaurant,OSM node/368973150 (ODbL),같은 OSM 항목의 name:en,0,0
+2486e537-4ce8-30ee-98fa-33711cd30c8c,하단성당,name_en,,Hadan Catholic Church,OSM node/368864618 (ODbL),같은 OSM 항목의 name:en,0,0
+ef66ffb3-396c-37c3-95c4-28b008496048,하동횟집,name_en,,Hadong Fish Restaurant,OSM node/368959833 (ODbL),같은 OSM 항목의 name:en,0,0
+05d553e5-9e4f-3e6f-bb0c-8c16d976682f,하동횟집,name_en,,Hadong Fish Restaurant,OSM node/368958675 (ODbL),같은 OSM 항목의 name:en,0,0
+8e9d891d-f88a-3edc-b4c8-bb650769d3f5,하동횟집,name_en,,Hadong Fish Restaurant,OSM node/368958583 (ODbL),같은 OSM 항목의 name:en,0,0
+9c6dd1ea-af7e-32ea-8961-e0a167160fa5,하동횟집,name_en,,Hadong Fish Restaurant,OSM node/368957360 (ODbL),같은 OSM 항목의 name:en,0,0
+3dc3b165-e9c8-39b6-a39f-0a72913dc10e,하루방횟집,name_en,,Harubang Fish Restaurant,OSM node/368973303 (ODbL),같은 OSM 항목의 name:en,0,0
+f8f89a12-33f5-3d19-9390-91324dc43346,한강횟집,name_en,,Hangang Fish Restaurant,OSM node/368958540 (ODbL),같은 OSM 항목의 name:en,0,0
+a96e4a84-0261-32ee-a70e-fa95fb505083,한려횟집,name_en,,Hannyeo Fish Restaurant,OSM node/368958288 (ODbL),같은 OSM 항목의 name:en,0,0
+e3fda6ff-1584-36af-94bd-45d12d581bbb,한아름횟집,name_en,,Hanareum Fish Restaurant,OSM node/368973242 (ODbL),같은 OSM 항목의 name:en,0,0
+20faaf6e-cf1d-3155-be79-2645b90fb8f4,한양횟집,name_en,,Hanyang Fish Restaurant,OSM node/368957164 (ODbL),같은 OSM 항목의 name:en,0,0
+8f6cffcb-a0d7-34c0-9358-5255b61b8f8d,한양횟집,name_en,,Hanyang Fish Restaurant,OSM node/368958193 (ODbL),같은 OSM 항목의 name:en,0,0
+c974e022-c665-35d2-94d0-e9a412c1bf39,할매국밥,name_ja,,ハルメテジクッパ,OSM node/6388440385 (ODbL),같은 OSM 항목의 name:ja,0,0
+1b5ea4cc-7590-3241-8624-450ffbf2713b,항도횟집,name_en,,Hangdo Fish Restaurant,OSM node/368957186 (ODbL),같은 OSM 항목의 name:en,0,0
+e6c353cc-c8f1-3ef9-bc77-cc194f77a79f,항도횟집,name_en,,Hangdo Fish Restaurant,OSM node/368959337 (ODbL),같은 OSM 항목의 name:en,0,0
+a5d8bc0f-9d1b-303a-ba32-93a550cc51bb,해강횟집,name_en,,Haegang Fish Restaurant,OSM node/368958088 (ODbL),같은 OSM 항목의 name:en,0,0
+8c4fa73a-623c-34ec-b99f-10c28bc5866a,해녀횟집,name_en,,Haenyeo Fish Restaurant,OSM node/368957953 (ODbL),같은 OSM 항목의 name:en,0,0
+07c69917-a78f-39b3-9e7e-eb895fda7dd6,해동장횟집,name_en,,Haedongjang Fish Restaurant,OSM node/368973261 (ODbL),같은 OSM 항목의 name:en,0,0
+debd14a7-4c2b-349a-8eeb-71947cb22858,해동횟집,name_en,,Haedong Fish Restaurant,OSM node/368958366 (ODbL),같은 OSM 항목의 name:en,0,0
+f8796c5f-d15d-3ced-a0c2-7cf30feca650,해동횟집,name_en,,Haedong Fish Restaurant,OSM node/368958104 (ODbL),같은 OSM 항목의 name:en,0,0
+3c8752b9-51cb-3182-ac36-9ebb6b1a618c,해동횟집,name_en,,Haedong Fish Restaurant,OSM node/368957889 (ODbL),같은 OSM 항목의 name:en,0,0
+2f9febe8-01d0-3309-8127-9ff693a98053,해림장횟집,name_en,,Haerimjang Fish Restaurant,OSM node/368956821 (ODbL),같은 OSM 항목의 name:en,0,0
+216904cb-03fb-3c48-ba4e-64dc7a3d2b1c,해마횟집,name_en,,Haema Fish Restaurant,OSM node/368958941 (ODbL),같은 OSM 항목의 name:en,0,0
+357b8c2f-e735-34fc-bf39-7e825832b88a,해변횟집,name_en,,Haebyeon Fish Restaurant,OSM node/368973143 (ODbL),같은 OSM 항목의 name:en,0,0
+2fc3b54c-2b00-3e76-9760-da5da9e76b1e,해변횟집,name_en,,Haebyeon Fish Restaurant,OSM node/368957448 (ODbL),같은 OSM 항목의 name:en,0,0
+e25a930a-8a5f-3c61-a887-5ad144cb5d69,해성횟집,name_en,,Haeseong Fish Restaurant,OSM node/368958011 (ODbL),같은 OSM 항목의 name:en,0,0
+ea0dc379-3ac5-3534-9a82-ce7e8f680bd6,해송횟집,name_en,,Haesong Fish Restaurant,OSM node/368958891 (ODbL),같은 OSM 항목의 name:en,0,0
+66f5b079-d713-36f9-bb23-e084fc6065e2,해송횟집,name_en,,Haesong Fish Restaurant,OSM node/368956926 (ODbL),같은 OSM 항목의 name:en,0,0
+fefe6c17-cc21-3f7f-9da6-28309c175da2,해운대 모래축제,name_en,,Haeundae Sand Festival,TourAPI EngService2 contentid=293062,"제목 속 한국어 「해운대 모래축제」 이름 열쇠 같음, 0m",0,0
+ab0b0d4e-1fce-324c-a23a-6b0734a318da,해인불교전시관,name_en,,Haein Buddhism Exhibition Hall,OSM node/368898386 (ODbL),같은 OSM 항목의 name:en,0,0
+0908c1c6-8b2f-303d-857f-b4917873291e,해진횟집,name_en,,Haejin Fish Restaurant,OSM node/368973366 (ODbL),같은 OSM 항목의 name:en,0,0
+94e5b476-7ceb-3083-8cc1-e3c38879dcca,해창횟집,name_en,,Haechang Fish Restaurant,OSM node/368959376 (ODbL),같은 OSM 항목의 name:en,0,0
+24fe346b-4f03-365c-a33b-335f3729c0f8,해청횟집,name_en,,Haecheong Fish Restaurant,OSM node/368958854 (ODbL),같은 OSM 항목의 name:en,0,0
+135831d8-8443-3de5-989d-89baa2db0fef,해풍횟집,name_en,,Haepung Fish Restaurant,OSM node/368957955 (ODbL),같은 OSM 항목의 name:en,0,0
+53b1d0d5-e335-3e17-835c-b91ec359b05f,향천횟집,name_en,,Hyangcheon Fish Restaurant,OSM node/368957328 (ODbL),같은 OSM 항목의 name:en,0,0
+af87da82-4664-3a72-abe8-354a34b9b99e,허심청,name_en,,Hurshimchung,TourAPI EngService2 contentid=1348725,"제목 속 한국어 「허심청」 이름 열쇠 같음, 0m",0,0
+71b4bcb5-3486-3354-9c4d-195b75b40790,허심청브로이 옥토버페스트,name_en,,Hurshimchung Bräu Oktoberfest,TourAPI EngService2 contentid=3358450,"제목 속 한국어 「허심청브로이 옥토버페스트」 이름 열쇠 같음, 0m",0,0
+8c4b55e5-62ed-34ed-9a84-0e79797f6118,현대횟집,name_en,,Hyeondae Fish Restaurant,OSM node/368959189 (ODbL),같은 OSM 항목의 name:en,0,0
+e091bd70-2cd6-3357-b4fb-24a62c6349f7,홀닭,name_en,,Holdak,OSM node/10821295500 (ODbL),같은 OSM 항목의 name:en,0,0
+6e47a1fc-1cb2-390d-8f31-acc2453aa004,홀릭,name_en,,Holic,OSM node/12070874176 (ODbL),같은 OSM 항목의 name:en,0,0
+899db69c-3739-3ad0-a742-7d880a273928,화락횟집,name_en,,Hwarak Fish Restaurant,OSM node/368958597 (ODbL),같은 OSM 항목의 name:en,0,0
+82ceb20c-dd04-4303-af3c-002487931001,화명생태공원,name_en,,Hwamyeong Ecological Park,Wikidata Q131383881 (CC0),"한국어 이름 「화명생태공원」 열쇠 같음, 425m",0,0
+3600a376-85ba-3321-8ac1-ce6288d4b0f2,화목횟집,name_en,,Hwamok Fish Restaurant,OSM node/368958443 (ODbL),같은 OSM 항목의 name:en,0,0
+6ae0b69c-1c86-37db-8d88-4f7de83f40fc,화목횟집,name_en,,Hwamok Fish Restaurant,OSM node/368958291 (ODbL),같은 OSM 항목의 name:en,0,0
+2cd5e1a5-ff4b-30b8-9f0f-b54cf464ba16,화성횟집,name_en,,Hwaseong Fish Restaurant,OSM node/368959625 (ODbL),같은 OSM 항목의 name:en,0,0
+5f1905ca-8e9e-351e-9976-3ba661c5f2b6,화성횟집,name_en,,Hwaseong Fish Restaurant,OSM node/368959212 (ODbL),같은 OSM 항목의 name:en,0,0
+c884b6ce-b52c-3812-92a9-69446f2a935d,화전횟집,name_en,,Hwajeon Fish Restaurant,OSM node/368958207 (ODbL),같은 OSM 항목의 name:en,0,0
+e3255336-0f0f-3432-84c3-9db80193f700,화청횟집,name_en,,Hwacheong Fish Restaurant,OSM node/368959568 (ODbL),같은 OSM 항목의 name:en,0,0
+f51907e0-1ebb-38b4-ae4a-c131e602fecb,환성횟집,name_en,,Hwanseong Fish Restaurant,OSM node/368958083 (ODbL),같은 OSM 항목의 name:en,0,0
+c4faa05d-9921-33c3-9efd-35ef56543a98,황령산 봉수대,name_en,,Hwangnyeongsan Fire Signaling Mound,OSM node/6745076159 (ODbL),같은 OSM 항목의 name:en,0,0
+ed5c65fb-0c12-34d9-b37a-f0759fe6951a,회동횟집,name_en,,Hoedong Fish Restaurant,OSM node/368957623 (ODbL),같은 OSM 항목의 name:en,0,0

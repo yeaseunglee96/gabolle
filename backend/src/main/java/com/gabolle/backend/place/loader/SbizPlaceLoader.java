@@ -41,6 +41,9 @@ public class SbizPlaceLoader {
 	/** {@code place.source_type}. 어디서 온 행인지 되짚을 때 이 값으로 찾는다. */
 	public static final String SOURCE_TYPE = "SBIZ";
 
+	/** 업종 소분류 원문을 담는 피처 종류 — {@code {"name":"돼지고기 구이/찜"}}. V20260930160000 이 DB 에 열었다. */
+	static final String BUSINESS_SUBCATEGORY = "BUSINESS_SUBCATEGORY";
+
 	/**
 	 * {@code place.name_ko} 는 VARCHAR(200), {@code address} 는 VARCHAR(300) 이다. 넘치면 DB 가
 	 * 거절해 그 덩어리 전체가 롤백된다 — 한 행 때문에 덩어리 전부가 사라진다.
@@ -128,6 +131,15 @@ public class SbizPlaceLoader {
 			}
 			for (String cuisine : AppFoodVocabulary.cuisineTags(row.subCategory(), row.name())) {
 				features.add(feature(placeId, row.storeId(), "CUISINE_TAG", cuisine, collectedAt, datasetVersion));
+			}
+			// 업종 소분류 원문도 남긴다(S15P21E201-1873). 식단 판정이 「돼지고기 구이/찜」「횟집」「백반/한정식」으로
+			// 고깃집·해산물집·반찬 한 끼를 가른다 — 이름만 보면 놓치는 집이 많았다. 태그로 접지 않고 글 그대로 둔다.
+			String subCategory = (row.subCategory() == null) ? "" : row.subCategory().trim();
+			if (!subCategory.isEmpty()) {
+				features.add(PlaceFeature.imported(
+						featureIdOf(row.storeId(), BUSINESS_SUBCATEGORY, null), placeId, BUSINESS_SUBCATEGORY, null,
+						"{\"name\":\"" + subCategory.replace("\\", "\\\\").replace("\"", "\\\"") + "\"}",
+						PlaceEvidenceStatus.ESTIMATED, SOURCE_TYPE, row.storeId(), null, datasetVersion, collectedAt));
 			}
 		}
 		if (places.isEmpty()) {

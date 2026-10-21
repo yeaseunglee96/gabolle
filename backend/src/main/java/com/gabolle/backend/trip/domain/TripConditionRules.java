@@ -27,6 +27,9 @@ public final class TripConditionRules {
 
 	public static final int BUDGET_UNIT_KRW = 10_000;
 
+	/** 꼭 가는 곳은 하루에 이만큼까지 받는다(S15P21E201-1971). 여행 일수를 곱한 것이 상한이다. */
+	public static final int MUST_VISIT_PER_DAY = 3;
+
 	private TripConditionRules() {
 	}
 
@@ -123,6 +126,20 @@ public final class TripConditionRules {
 		}
 		throw new TripConditionRejectedException(List.of(
 				new Violation("accommodation", "1박 이상 여행은 숙소가 있어야 한다. 숙소나 묵을 동네를 골라 주세요")));
+	}
+
+	/**
+	 * 꼭 가는 곳의 상한 — 여행 일수 × {@value #MUST_VISIT_PER_DAY} 곳(S15P21E201-1971). 날짜가 없거나 거꾸로면
+	 * {@code -1}(상한 없음) — 그 칸은 {@link #check} 가 따로 답한다.
+	 *
+	 * <p>🔴 넘었다고 거절하지 않는다. 상한이 없던 옛 앱(iOS 1.0.1 등)이 그대로 보내면 여행 만들기 자체가 실패하기
+	 * 때문이다. 대신 저장할 때 앞에서부터 이만큼만 적는다 — 고른 순서가 곧 우선순위다. 새 앱은 화면에서 미리 막는다.
+	 */
+	public static long mustVisitLimit(LocalDate startDate, LocalDate finishDate) {
+		if (startDate == null || finishDate == null || finishDate.isBefore(startDate)) {
+			return -1;
+		}
+		return (ChronoUnit.DAYS.between(startDate, finishDate) + 1) * MUST_VISIT_PER_DAY;
 	}
 
 	/** @param field 응답에 그대로 실려 화면이 어느 칸을 짚을지 정한다 — 요청의 칸 이름과 같게 쓴다 */

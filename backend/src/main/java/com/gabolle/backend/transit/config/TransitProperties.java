@@ -38,6 +38,21 @@ public class TransitProperties {
 	 */
 	private Duration extraReadTimeout = Duration.ofMillis(1500);
 
+	/** 근처 정류소 목록을 다시 부르지 않는 시간 (S15P21E201-1956). 정류소는 움직이지 않는다. */
+	private Duration stopsCacheTtl = Duration.ofMinutes(10);
+
+	/** 도착 목록을 다시 부르지 않는 시간. 도착 시간은 이 정도면 거의 그대로다. */
+	private Duration arrivalsFreshTtl = Duration.ofSeconds(20);
+
+	/** 도착 호출이 실패했을 때 대신 쓸 수 있는 값의 나이 상한. 넘으면 실패를 그대로 알린다. */
+	private Duration arrivalsStaleTtl = Duration.ofSeconds(90);
+
+	public Duration getStopsCacheTtl() { return this.stopsCacheTtl; }
+	public void setStopsCacheTtl(Duration stopsCacheTtl) { this.stopsCacheTtl = stopsCacheTtl; }
+	public Duration getArrivalsFreshTtl() { return this.arrivalsFreshTtl; }
+	public void setArrivalsFreshTtl(Duration arrivalsFreshTtl) { this.arrivalsFreshTtl = arrivalsFreshTtl; }
+	public Duration getArrivalsStaleTtl() { return this.arrivalsStaleTtl; }
+	public void setArrivalsStaleTtl(Duration arrivalsStaleTtl) { this.arrivalsStaleTtl = arrivalsStaleTtl; }
 	public String getServiceKey() { return this.serviceKey; }
 	public void setServiceKey(String serviceKey) { this.serviceKey = serviceKey; }
 	public String getBaseUrl() { return this.baseUrl; }

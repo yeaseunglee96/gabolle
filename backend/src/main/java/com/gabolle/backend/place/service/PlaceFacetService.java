@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import com.gabolle.backend.place.api.PlaceFacetResponse;
 import com.gabolle.backend.place.api.PlaceFacetResponse.FacetItem;
 import com.gabolle.backend.place.api.PlaceFacetResponse.FacetKeyCount;
+import com.gabolle.backend.place.domain.ExtraInterestTagCode;
 import com.gabolle.backend.place.domain.InterestTagCode;
 import com.gabolle.backend.place.domain.MatchKind;
 import com.gabolle.backend.place.domain.PlaceFeature;
@@ -148,6 +149,10 @@ public class PlaceFacetService {
 	 * {@link InterestTagCode#displayOrder()} 순으로 여덟 개를 먼저 채우고(자료가 없으면 0건),
 	 * 그 밖의 값이 이미 적재돼 있으면 뒤에 붙인다 — 안 붙이면 쌓인 자료가 조회에서 조용히
 	 * 사라진다.
+	 *
+	 * <p>뒤에 붙는 것 가운데 {@link ExtraInterestTagCode}(자료가 있을 때만 나타나는 갈래 — 지금은 「맛집」·「카페」, 이 순서)는
+	 * 이름표를 함께 준다. 이름표가 없으면 앱이 이름 없는 갈래를 목록에서 거르므로(S15P21E201-2051) 있는데 안 보인다.
+	 * 여덟 갈래의 동작은 그대로다 — 항상 전부 나오고, 자료가 없으면 0건이다.
 	 */
 	private List<FacetKeyCount> interestTagKeys(Map<String, Set<UUID>> placeIdsByKey) {
 		List<FacetKeyCount> keys = new ArrayList<>();
@@ -163,9 +168,12 @@ public class PlaceFacetService {
 			if (entry.getKey() == null || knownKeys.contains(entry.getKey())) {
 				continue;
 			}
-			extras.add(new FacetKeyCount(entry.getKey(), entry.getValue().size(), null));
+			String label = ExtraInterestTagCode.from(entry.getKey()).map(ExtraInterestTagCode::labelKo).orElse(null);
+			extras.add(new FacetKeyCount(entry.getKey(), entry.getValue().size(), label));
 		}
-		extras.sort(Comparator.comparing(FacetKeyCount::featureKey));
+		// 선언 순서(맛집 → 카페)가 먼저이고, 모르는 낱말은 그 뒤에 글자순이다. 글자순만 쓰면 LOCAL_CAFE 가 LOCAL_RESTAURANT 앞에 선다.
+		extras.sort(Comparator.comparingInt((FacetKeyCount key) -> ExtraInterestTagCode.from(key.featureKey())
+				.map(Enum::ordinal).orElse(Integer.MAX_VALUE)).thenComparing(FacetKeyCount::featureKey));
 		keys.addAll(extras);
 		return keys;
 	}

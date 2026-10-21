@@ -73,7 +73,7 @@ public class RecommendationJobController {
 				: new CreateRecommendationJobRequest(null, null);
 		// 요청자를 헤더가 아니라 인증 주체에서 정한다. 헤더는 부르는 쪽이 마음대로 정하는
 		// 값이라 소유·참여 검사가 그 주장 위에서 돈다.
-		String requester = AuthenticatedUsers.requireId(authentication).toString();
+		String requester = AuthenticatedUsers.requireTripActor(authentication);
 
 		RecommendationJobRunner.EnqueueOutcome outcome = this.runner.enqueue(tripId, requester,
 				body.preferenceSnapshotVersion(), body.topK(), idempotencyKey);
@@ -98,7 +98,7 @@ public class RecommendationJobController {
 	@GetMapping("/api/v1/trips/{tripId}/recommendation-jobs")
 	public ApiResponse<List<RecommendationJobResponse>> listByTrip(@PathVariable String tripId,
 			Authentication authentication) {
-		String requester = AuthenticatedUsers.requireId(authentication).toString();
+		String requester = AuthenticatedUsers.requireTripActor(authentication);
 
 		// 목록에서는 막은 조건을 캐지 않는다 — 작업 수만큼 질의가 늘고, 「어느 조건 때문인가」
 		// 는 실패한 작업 하나를 열어 봤을 때 필요한 말이지 목록에서 필요한 말이 아니다.
@@ -205,7 +205,9 @@ public class RecommendationJobController {
 	 * "없는 것" 과 "남의 것" 의 경계가 응답 모양으로 샌다.
 	 */
 	static boolean isOwner(RecommendationJob job, Authentication authentication) {
-		return AuthenticatedUsers.optionalId(authentication)
+		// 익명 세션이 만든 작업은 user_id 에 세션 ID 가 들어 있어 같은 비교로 주인이 가려진다.
+		// 로그인하면 승계가 이 칸도 새 계정으로 옮긴다(JpaTripRepository#claimAnonymousTrips).
+		return AuthenticatedUsers.optionalTripActor(authentication)
 				.map(id -> id.equals(job.getUserId()))
 				.orElse(false);
 	}

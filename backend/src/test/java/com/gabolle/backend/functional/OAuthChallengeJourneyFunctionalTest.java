@@ -30,7 +30,7 @@ import org.springframework.http.ResponseEntity;
  */
 class OAuthChallengeJourneyFunctionalTest extends FunctionalJourneyTest {
 
-	private static final String REDIRECT_URI_TEMPLATE = "https://j15e201.p.ssafy.io/oauth/%s/callback";
+	private static final String REDIRECT_URI_TEMPLATE = "https://gabolle.kr/oauth/%s/callback";
 
 	/**
 	 * 인증 헤더 없이 챌린지를 발급받을 수 있어야 한다 — 401 이 나오면 허용 목록과 컨트롤러 매핑 중

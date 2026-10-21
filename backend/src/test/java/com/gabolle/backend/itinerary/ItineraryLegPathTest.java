@@ -46,6 +46,24 @@ class ItineraryLegPathTest {
 		assertThat(legWith(null).path()).isNull();
 	}
 
+	private static ItineraryLeg legWith(List<double[]> path, List<ItineraryLeg.Piece> pieces) {
+		return new ItineraryLeg(UUID.randomUUID().toString(), UUID.randomUUID().toString(), 0, 1,
+				null, UUID.randomUUID().toString(), "WALK", 8_400, 21, 8_400, null, null,
+				ItineraryItem.DataStatus.VERIFIED, null, path, pieces, null, Instant.now());
+	}
+
+	@Test
+	@DisplayName("🔴 경사·계단 조각은 선형이 있을 때만 든다 — 선형이 없으면 가리킬 자리가 없다. 빈 목록도 「없다」다")
+	void piecesNeedAPath() {
+		List<double[]> road = List.of(new double[] { 129.1604, 35.1587 }, new double[] { 129.0756, 35.1796 });
+		List<ItineraryLeg.Piece> pieces = List.of(new ItineraryLeg.Piece(0, 1, 4.2, false));
+
+		assertThat(legWith(road, pieces).pieces()).isEqualTo(pieces);
+		assertThat(legWith(null, pieces).pieces()).isNull();
+		assertThat(legWith(road, List.of()).pieces()).isNull();
+		assertThat(legWith(road).pieces()).as("조각 칸 이전의 생성자").isNull();
+	}
+
 	@Test
 	@DisplayName("선형 칸 이전의 생성자는 그대로 돈다 — 그때 만들어진 구간은 선형이 없다")
 	void olderConstructorStillWorks() {

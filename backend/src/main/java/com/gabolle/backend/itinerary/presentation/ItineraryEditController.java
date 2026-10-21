@@ -1,6 +1,8 @@
 package com.gabolle.backend.itinerary.presentation;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -23,7 +25,9 @@ import com.gabolle.backend.itinerary.application.ItineraryAccess;
 import com.gabolle.backend.itinerary.application.ItineraryEditService;
 import com.gabolle.backend.itinerary.application.ItineraryQueryService;
 import com.gabolle.backend.itinerary.domain.ItineraryVersion;
+import com.gabolle.backend.itinerary.domain.ItineraryItem;
 import com.gabolle.backend.itinerary.presentation.dto.AddItemRequest;
+import com.gabolle.backend.itinerary.presentation.dto.ChangeStayRequest;
 import com.gabolle.backend.itinerary.presentation.dto.ItineraryDetailResponse;
 import com.gabolle.backend.itinerary.presentation.dto.ItineraryEditResponse;
 import com.gabolle.backend.itinerary.presentation.dto.LockItemRequest;
@@ -76,8 +80,9 @@ public class ItineraryEditController {
 			@Valid @RequestBody LockItemRequest request,
 			Authentication authentication) {
 
+		boolean locked = request.lockedOrDefault();
 		ItineraryEditResponse body = applyLock(itineraryId, itemId,
-				request.lockedOrDefault(), request.baseVersion(), authentication);
+				locked, locked ? request.modeOrDefault() : null, request.baseVersion(), authentication);
 
 		return ResponseEntity.status(HttpStatus.CREATED)
 				.body(ApiResponse.success(body, "req_" + UUID.randomUUID()));
@@ -104,10 +109,19 @@ public class ItineraryEditController {
 			@Valid @RequestBody AddItemRequest request,
 			Authentication authentication) {
 
-		String editor = AuthenticatedUsers.requireId(authentication).toString();
+		String editor = AuthenticatedUsers.requireTripActor(authentication);
 		ItineraryAccess.Access access = this.itineraryAccess.requireEditor(itineraryId, editor);
 
 		requireDayInsideTrip(access, request.dayIndex());
+
+		// 자리를 골랐으면 그 자리에 끼우고 시각까지 바로 매긴다(S15P21E201-2017). 안 골랐으면 예전 그대로다.
+		if (request.position() != null) {
+			ItineraryEditService.AdjustOutcome outcome = this.editService.insertPlace(itineraryId,
+					request.placeId(), request.dayIndex(), request.position(), access.trip().startDate(),
+					access.trip().finishDate(), request.baseVersion(), editor);
+			return ResponseEntity.status(HttpStatus.CREATED)
+					.body(ApiResponse.success(adjusted(itineraryId, editor, outcome), "req_" + UUID.randomUUID()));
+		}
 
 		ItineraryVersion saved = this.editService.addPlace(itineraryId, request.placeId(),
 				request.dayIndex(), access.trip().startDate(), access.trip().finishDate(),
@@ -118,6 +132,39 @@ public class ItineraryEditController {
 				.body(ApiResponse.success(ItineraryEditResponse.of(detail, saved,
 						this.editService.openingHoursForDay(itineraryId, saved.version(), request.dayIndex())),
 						"req_" + UUID.randomUUID()));
+	}
+
+	/**
+	 * 한 곳에 머무는 시간을 바꾼다 — 15분 단위, 15분 이상(S15P21E201-2017). 그날 뒤따르는 곳의 시각이 다시 매겨진다.
+	 * 본문 {@code {stayMinutes, baseVersion}}. 하루 끝을 넘기거나 시각 고정을 못 지켜도 저장하고 {@code warnings} 에
+	 * {@code DAY_END_EXCEEDED}·{@code TIME_FIX_MISSED} 를 싣는다. 영업시간을 어기면 순서 바꾸기와 같은 경고가 실린다.
+	 * 있는 판을 고친 것이라 {@code 200} 이다.
+	 */
+	@PostMapping("/items/{itemId}/stay")
+	public ApiResponse<ItineraryEditResponse> changeStay(
+			@PathVariable String itineraryId,
+			@PathVariable String itemId,
+			@Valid @RequestBody ChangeStayRequest request,
+			Authentication authentication) {
+
+		String editor = AuthenticatedUsers.requireTripActor(authentication);
+		this.itineraryAccess.requireEditor(itineraryId, editor);
+
+		ItineraryEditService.AdjustOutcome outcome = this.editService.changeStay(itineraryId, itemId,
+				request.stayMinutes(), request.baseVersion(), editor);
+		return ApiResponse.success(adjusted(itineraryId, editor, outcome), "req_" + UUID.randomUUID());
+	}
+
+	private static final ZoneId BUSAN = ZoneId.of("Asia/Seoul");
+
+	private ItineraryEditResponse adjusted(String itineraryId, String editor,
+			ItineraryEditService.AdjustOutcome outcome) {
+		ItineraryDetailResponse detail = this.queryService.getDetail(itineraryId, editor);
+		List<ItineraryEditResponse.Warning> notices = outcome.notices().stream()
+				.map((notice) -> new ItineraryEditResponse.Warning(notice.code(), notice.itemKey(), notice.placeId(),
+						notice.at() == null ? null : notice.at().atZone(BUSAN).toOffsetDateTime().toString()))
+				.toList();
+		return ItineraryEditResponse.of(detail, outcome.version(), outcome.openingHours(), notices);
 	}
 
 	/**
@@ -134,7 +181,7 @@ public class ItineraryEditController {
 			@Valid @RequestBody ReorderDayRequest request,
 			Authentication authentication) {
 
-		String editor = AuthenticatedUsers.requireId(authentication).toString();
+		String editor = AuthenticatedUsers.requireTripActor(authentication);
 		ItineraryAccess.Access access = this.itineraryAccess.requireEditor(itineraryId, editor);
 
 		requireDayInsideTrip(access, dayIndex);
@@ -165,7 +212,7 @@ public class ItineraryEditController {
 			@RequestParam(value = "baseVersion", required = false) Integer baseVersionParam,
 			Authentication authentication) {
 
-		String editor = AuthenticatedUsers.requireId(authentication).toString();
+		String editor = AuthenticatedUsers.requireTripActor(authentication);
 		this.itineraryAccess.requireEditor(itineraryId, editor);
 
 		Integer baseVersion = baseVersionParam != null ? baseVersionParam : parseIfMatch(ifMatch);
@@ -231,7 +278,7 @@ public class ItineraryEditController {
 			throw new MissingBaseVersionException();
 		}
 
-		ItineraryEditResponse body = applyLock(itineraryId, itemId, false, baseVersion, authentication);
+		ItineraryEditResponse body = applyLock(itineraryId, itemId, false, null, baseVersion, authentication);
 		return ApiResponse.success(body, "req_" + UUID.randomUUID());
 	}
 
@@ -252,7 +299,7 @@ public class ItineraryEditController {
 			@PathVariable String itineraryId,
 			@Valid @RequestBody RevertRequest request,
 			Authentication authentication) {
-		String editor = AuthenticatedUsers.requireId(authentication).toString();
+		String editor = AuthenticatedUsers.requireTripActor(authentication);
 		this.itineraryAccess.requireEditor(itineraryId, editor);
 		ItineraryVersion saved = this.editService.revert(itineraryId, request.baseVersion(), request.toVersion(),
 				editor);
@@ -264,17 +311,17 @@ public class ItineraryEditController {
 	}
 
 	private ItineraryEditResponse applyLock(String itineraryId, String itemKey, boolean locked,
-			int baseVersion, Authentication authentication) {
+			ItineraryItem.LockMode mode, int baseVersion, Authentication authentication) {
 
 		// 요청자를 X-User-Id 헤더가 아니라 인증 주체에서 정한다. 헤더는 부르는 쪽이 정하는 값이라
 		//    검사가 그 주장 위에서 돌고, 앱은 그 헤더를 보내지도 않는다(Authorization 만 싣는다).
-		String editor = AuthenticatedUsers.requireId(authentication).toString();
+		String editor = AuthenticatedUsers.requireTripActor(authentication);
 
 		// 편집 전에 막는다. 회원이 아니면 404(존재를 감춘다), 회원이지만 VIEWER 면 403.
 		//    이 호출이 없으면 인증만 되면 남의 일정도 고칠 수 있다.
 		this.itineraryAccess.requireEditor(itineraryId, editor);
 
-		ItineraryVersion saved = this.editService.setItemLocked(itineraryId, itemKey, locked, baseVersion, editor);
+		ItineraryVersion saved = this.editService.setItemLocked(itineraryId, itemKey, locked, mode, baseVersion, editor);
 		ItineraryDetailResponse detail = this.queryService.getDetail(itineraryId, editor);
 		return ItineraryEditResponse.of(detail, saved,
 				this.editService.openingHoursForItem(itineraryId, saved.version(), itemKey));

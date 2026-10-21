@@ -11,12 +11,12 @@ import java.util.Optional;
  */
 public enum TravelArea {
 
-	HAEUNDAE("해운대", 35.1587, 129.1604, 2_500),
-	GWANGALLI("광안리", 35.1532, 129.1186, 2_000),
-	NAMPO("남포동", 35.0980, 129.0306, 2_000),
-	SEOMYEON("서면", 35.1578, 129.0594, 2_000),
-	YEONGDO("영도", 35.0911, 129.0682, 3_000),
-	SONGJEONG("송정", 35.1786, 129.1996, 2_000);
+	HAEUNDAE("해운대", 35.1587, 129.1604, 2_500, 35.163672, 129.158908),   // 해운대역 2호선
+	GWANGALLI("광안리", 35.1532, 129.1186, 2_000, 35.157916, 129.113168),  // 광안역 2호선
+	NAMPO("남포동", 35.0980, 129.0306, 2_000, 35.097953, 129.034869),      // 남포역 1호선
+	SEOMYEON("서면", 35.1578, 129.0594, 2_000, 35.158282, 129.059556),     // 서면역 1호선
+	YEONGDO("영도", 35.0911, 129.0682, 3_000, null, null),
+	SONGJEONG("송정", 35.1786, 129.1996, 2_000, null, null);
 
 	private final String koreanName;
 
@@ -26,7 +26,18 @@ public enum TravelArea {
 
 	private final int radiusM;
 
-	TravelArea(String koreanName, double lat, double lng, int radiusM) {
+	/**
+	 * 이 동네를 숙소로 고른 여행의 기준점 — 그 동네의 지하철역 (S15P21E201-2046).
+	 * 중심은 길이 닿는 자리가 아니라서 앱이 숙소↔장소 구간을 곧은 점선으로 그렸다. 역은 실제 길이 시작하는 곳이다.
+	 * 좌표는 부산교통공사 역 자료({@code transit/busan-subway-network.json}) 값 그대로다. 정하지 않은 동네는 중심을 쓴다.
+	 */
+	private final Double stationLat;
+
+	private final Double stationLng;
+
+	TravelArea(String koreanName, double lat, double lng, int radiusM, Double stationLat, Double stationLng) {
+		this.stationLat = stationLat;
+		this.stationLng = stationLng;
 		this.koreanName = koreanName;
 		this.lat = lat;
 		this.lng = lng;
@@ -51,6 +62,16 @@ public enum TravelArea {
 
 	public String koreanName() {
 		return this.koreanName;
+	}
+
+	/** 숙소 기준점 위도 — 역이 있으면 역, 없으면 중심. */
+	public double lodgingLat() {
+		return this.stationLat != null ? this.stationLat : this.lat;
+	}
+
+	/** 숙소 기준점 경도 — 역이 있으면 역, 없으면 중심. */
+	public double lodgingLng() {
+		return this.stationLng != null ? this.stationLng : this.lng;
 	}
 
 	public double lat() {

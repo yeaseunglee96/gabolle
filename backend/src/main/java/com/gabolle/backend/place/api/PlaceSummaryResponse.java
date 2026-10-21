@@ -1,5 +1,6 @@
 package com.gabolle.backend.place.api;
 
+import java.util.Map;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -49,14 +50,24 @@ public record PlaceSummaryResponse(
 		 * 출처 문구와 함께 이것을 보여야 쓸 수 있다. 이 칸으로 받은 것이 없으면 키가 빠진다 —
 		 * 공공누리 사진은 지금 전부 그렇고, 그 표기는 {@code photoSource} 가 진다.
 		 */
-		@JsonInclude(JsonInclude.Include.NON_NULL) Place.PhotoLicense photoLicense) {
+		@JsonInclude(JsonInclude.Include.NON_NULL) Place.PhotoLicense photoLicense,
+		/**
+		 * 장소 이름의 일본어·중국어(간체·번체) — 관광공사가 번역해 둔 곳만 있다(V20260930130000, S15P21E201-1859).
+		 * 키는 앱의 언어 코드({@code ja} · {@code zh-Hans} · {@code zh-Hant}), 없는 언어는 빠지고 다 없으면 칸째 빠진다.
+		 */
+		@JsonInclude(JsonInclude.Include.NON_EMPTY) Map<String, String> localNames,
+		/**
+		 * 주소의 일본어·중국어(간체·번체) — 관광공사가 번역해 둔 곳만 있다(V20260930180000, S15P21E201-1876).
+		 * 키는 {@code localNames} 와 같고, 없는 언어는 빠지고 다 없으면 칸째 빠진다. 화면은 없으면 영문 → 한국어 주소로 물러선다.
+		 */
+		@JsonInclude(JsonInclude.Include.NON_EMPTY) Map<String, String> localAddresses) {
 
 	/** 이름 검색 결과 한 줄. 어느 이름 칸이 걸렸는지 서비스 계층의 순위 계산이 정해 준다. */
 	public static PlaceSummaryResponse of(Place place, MatchedField matchedField) {
 		return new PlaceSummaryResponse(place.getPlaceId(), place.getNameKo(), place.getNameEn(),
 				place.getCategory(), place.getAddress(), place.getLat(), place.getLng(), matchedField,
 				place.getPhotoUrl(), place.getPhotoSource(), place.getAddressEn(), place.getPhotoSubject(),
-				place.getPhotoLicense());
+				place.getPhotoLicense(), place.localNames(), place.localAddresses());
 	}
 
 	/** 갈래 필터 목록 결과 한 줄. 이름 매칭이 아니라 표식으로 골랐으므로 matchedField 가 없다. */
@@ -64,15 +75,17 @@ public record PlaceSummaryResponse(
 		return new PlaceSummaryResponse(place.getPlaceId(), place.getNameKo(), place.getNameEn(),
 				place.getCategory(), place.getAddress(), place.getLat(), place.getLng(), null,
 				place.getPhotoUrl(), place.getPhotoSource(), place.getAddressEn(), place.getPhotoSubject(),
-				place.getPhotoLicense());
+				place.getPhotoLicense(), place.localNames(), place.localAddresses());
 	}
 
 	/**
 	 * 이름 검색에서 어느 이름 칸이 걸렸는가. 이 값 목록은 자바가 정본이다 — 마이그레이션으로
-	 * 늘어나는 값이 아니라 이 서비스만의 고정된 두 갈래다.
+	 * 늘어나는 값이 아니라 이 서비스만의 고정된 갈래다. {@code NAME_LOCAL} 은 관광공사 일본어·중국어
+	 * 공식 이름(간체·번체) 중 하나가 걸렸다는 뜻이다(S15P21E201-1875).
 	 */
 	public enum MatchedField {
 		NAME_KO,
-		NAME_EN
+		NAME_EN,
+		NAME_LOCAL
 	}
 }

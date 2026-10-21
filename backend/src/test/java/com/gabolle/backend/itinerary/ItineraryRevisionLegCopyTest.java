@@ -94,6 +94,7 @@ class ItineraryRevisionLegCopyTest {
 			assertThat(same.fareKrw()).as("요금").isEqualTo(original.fareKrw());
 			assertThat(same.path()).as("선형").isNotNull().hasSameSizeAs(original.path());
 			assertThat(same.path().get(0)).containsExactly(original.path().get(0));
+			assertThat(same.pieces()).as("경사·계단 조각 — 같은 길이라 조각도 참이다").isNotNull().isEqualTo(original.pieces());
 			assertThat(same.uncalibratedDurationMin()).isEqualTo(original.uncalibratedDurationMin());
 		}
 	}
@@ -110,6 +111,7 @@ class ItineraryRevisionLegCopyTest {
 		path.add(new double[] { 129.0 + to / 100.0, 35.2 });
 		return new ItineraryLeg(id(), this.base.itineraryVersionId(), day, sequence, this.places.get(from),
 				this.places.get(to), "PRIVATE_CAR", 3_000, 12, null, null, null, ItineraryItem.DataStatus.VERIFIED, fare, path,
+				List.of(new ItineraryLeg.Piece(0, 1, 1.5 + from, false)),
 				10, NOW);
 	}
 

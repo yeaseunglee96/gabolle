@@ -75,6 +75,15 @@ public final class AuthedClient {
 				responseType);
 	}
 
+	/** 로그인 토큰에 다른 헤더를 더해 보내는 {@code POST}. 비회원 출입증을 넘기는 승계가 둘을 함께 싣는다. */
+	public <T> ResponseEntity<T> post(String path, Object body, HttpHeaders extraHeaders,
+			ParameterizedTypeReference<T> responseType) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.addAll(extraHeaders);
+		headers.setBearerAuth(bearerToken);
+		return rest.exchange(path, HttpMethod.POST, new HttpEntity<>(body, headers), responseType);
+	}
+
 	private <B> HttpEntity<B> authed(B body) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setBearerAuth(bearerToken); // 이 인스턴스에만 붙는다 — 공유 빈은 안 건드린다

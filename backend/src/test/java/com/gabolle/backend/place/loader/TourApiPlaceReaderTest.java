@@ -129,6 +129,28 @@ class TourApiPlaceReaderTest {
 		assertThat(loaded.rows()).extracting(TourApiPlaceRow::title).containsExactly("국제시장");
 	}
 
+	@Test
+	@DisplayName("🔴 cat1 이 빈 새 항목은 새 분류(lclsSystm1)로 옛 대분류를 채운다 — 음식(FD)은 여전히 버린다")
+	void emptyCat1FallsBackToNewClassification() throws IOException {
+		Path file = write(listLine(
+				withLcls(item("126831", "12", "", "", "장안사(부산)", "부산광역시 기장군", "129.24", "35.33"), "HS"),
+				withLcls(item("2672393", "12", "", "", "해운대 블루라인파크", "부산광역시 해운대구", "129.19", "35.16"), "VE"),
+				withLcls(item("2931511", "38", "", "", "하나로마트", "부산광역시 부산진구", "129.06", "35.16"), "SH"),
+				withLcls(item("2807703", "39", "", "", "딤타오", "부산광역시 해운대구", "129.15", "35.16"), "FD"),
+				withLcls(item("129156", "12", "A01", "A01010400", "금정산", "부산광역시 금정구", "129.0", "35.2"), "VE")));
+
+		TourApiPlaceReader.Loaded loaded = TourApiPlaceReader.read(file);
+
+		assertThat(loaded.rows()).extracting(TourApiPlaceRow::cat1).containsExactly("A02", "A02", "A04", "A01");
+		assertThat(loaded.counts().skippedFood()).isEqualTo(1);
+		assertThat(TourApiCategory.of("126831", "12", loaded.rows().get(0).cat1(), loaded.rows().get(0).cat3()))
+				.isEqualTo("CULTURE_TEMPLE");
+	}
+
+	private static String withLcls(String item, String lcls1) {
+		return item.substring(0, item.length() - 1) + ",\"lclsSystm1\":\"" + lcls1 + "\"}";
+	}
+
 	private Path write(String... lines) throws IOException {
 		Path file = this.dir.resolve("tourapi.ndjson");
 		Files.write(file, List.of(lines), StandardCharsets.UTF_8);

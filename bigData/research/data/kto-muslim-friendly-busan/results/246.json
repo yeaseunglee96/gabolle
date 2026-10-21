@@ -1,0 +1,59 @@
+{
+  "newAddress": null,
+  "found": true,
+  "newTypes": [],
+  "photoCandidates": [],
+  "no": "246",
+  "nameEn": "U Ri",
+  "nameKo": "우리횟집",
+  "roadAddrKo": "부산광역시 중구 자갈치해안로 52",
+  "addressMatchesPdf": true,
+  "operating": "unknown",
+  "operatingEvidence": [
+    {
+      "url": "https://english.visitkorea.or.kr/svc/contents/contentsView.do?vcontsId=138574",
+      "date": null,
+      "note": "한국관광공사 무슬림 친화 식당 소개(U Ri 우리횟집), 전화 051-247-4282 일치, 날짜 미확인"
+    }
+  ],
+  "queries": [
+    "\"051-247-4282\"",
+    "우리 자갈치해안로 52 중구 부산 회 고등어구이 자갈치",
+    "자갈치해안로 52 우리 횟집 051-247-4282 OR \"우리횟집\" 자갈치 고등어구이"
+  ],
+  "confidence": "medium",
+  "sources": [
+    "https://english.visitkorea.or.kr/svc/contents/contentsView.do?vcontsId=138574",
+    "https://www.visitkorea.or.id/index.php/halal_restaurant/u-ri-sushi-bar"
+  ],
+  "whyPeopleGo": [
+    {
+      "type": "기관 선정",
+      "note": "한국관광공사 무슬림 친화 식당 목록에 올라 있음",
+      "sources": [
+        0,
+        1
+      ]
+    },
+    {
+      "type": "동네·시장 지목",
+      "note": "자갈치시장 안 횟집",
+      "sources": [
+        0
+      ]
+    }
+  ],
+  "descriptors": {
+    "yearsClaimed": null,
+    "generations": null,
+    "queueing": null,
+    "parking": null,
+    "audience": "tourist",
+    "signatureDishes": [
+      "모둠회",
+      "고등어구이"
+    ],
+    "priceBand": null
+  },
+  "notes": "자갈치시장 건물 안이며 같은 주소에 44곳이 등록돼 있다. 후기·방문기는 찾지 못했다. visitkorea 상세 페이지 이미지는 WebFetch 400으로 열지 못해 사진 후보를 적지 않았다."
+}

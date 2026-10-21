@@ -80,10 +80,14 @@ class SbizPlaceLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 
 		List<Map<String, Object>> features = this.jdbcTemplate.queryForList("""
 				SELECT feature_type, feature_key, evidence_status, source_version
-				FROM place_feature WHERE source_type = 'SBIZ' ORDER BY feature_type
+				FROM place_feature WHERE source_type = 'SBIZ' AND feature_type <> 'BUSINESS_SUBCATEGORY' ORDER BY feature_type
 				""");
 
 		assertThat(features).hasSize(2);
+		// 태그와 별개로 업종 소분류 원문이 한 줄 붙는다(S15P21E201-1873) — 식단 판정이 읽는다.
+		assertThat(this.jdbcTemplate.queryForList(
+				"SELECT value ->> 'name' FROM place_feature WHERE source_type = 'SBIZ' AND feature_type = 'BUSINESS_SUBCATEGORY'",
+				String.class)).containsExactly("백반/한정식");
 		assertThat(features).extracting(f -> f.get("feature_type") + ":" + f.get("feature_key"))
 				// 채점기가 앱이 보낸 코드와 이 값을 글자 그대로 비교한다 — 서버 낱말이면 한 건도 안 맞는다.
 				.containsExactly("CATEGORY_TAG:FOOD", "CUISINE_TAG:PORK_SOUP");
@@ -102,7 +106,7 @@ class SbizPlaceLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 
 		List<String> keys = this.jdbcTemplate.queryForList("""
 				SELECT feature_type || ':' || feature_key FROM place_feature
-				WHERE source_type = 'SBIZ' ORDER BY feature_type, feature_key
+				WHERE source_type = 'SBIZ' AND feature_key IS NOT NULL ORDER BY feature_type, feature_key
 				""", String.class);
 
 		// CATEGORY_TAG:FOOD 하나만 붙으면 후보가 전부 똑같이 맞아 겹침 비율이 다 같아진다.
@@ -129,7 +133,7 @@ class SbizPlaceLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 		load(csv(row("MA011", "어느 백반집", "", "음식", "백반/한정식", "부산광역시 중구 광복로 1", "129.03", "35.10")));
 
 		List<String> keys = this.jdbcTemplate.queryForList(
-				"SELECT feature_type || ':' || feature_key FROM place_feature WHERE source_type = 'SBIZ'",
+				"SELECT feature_type || ':' || feature_key FROM place_feature WHERE source_type = 'SBIZ' AND feature_key IS NOT NULL",
 				String.class);
 
 		// 「백반/한정식」에는 서로 다른 음식이 섞여 있어 통째로 붙이면 대부분이 오답이 된다.
@@ -163,7 +167,8 @@ class SbizPlaceLoaderIntegrationTest extends PlacePostgresIntegrationTest {
 
 		assertThat(afterFirst).isEqualTo(2);
 		assertThat(placeCount()).isEqualTo(2);
-		assertThat(featureCount()).isEqualTo(4);
+		// 가게마다 태그 둘과 업종 소분류 한 줄이다.
+		assertThat(featureCount()).isEqualTo(6);
 	}
 
 	@Test

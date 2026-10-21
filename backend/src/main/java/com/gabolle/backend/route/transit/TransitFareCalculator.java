@@ -92,6 +92,10 @@ public class TransitFareCalculator {
 			return null;
 		}
 		if (route.kind() == TransitNetwork.Kind.SUBWAY) {
+			// 경전철·동해선은 도시철도 요금표가 아니다 — 모르는 것으로 둔다(지어내지 않는다, S15P21E201-2072).
+			if (route.fareType() != null && !"도시철도".equals(route.fareType())) {
+				return null;
+			}
 			TransitNetwork.Stop from = network.stop(ride.fromStopId());
 			TransitNetwork.Stop to = network.stop(ride.toStopId());
 			// 좌표를 모르면 구간을 못 가른다. 1구간으로 찍으면 2구간 여정이 200원 싸게 나온다.

@@ -37,18 +37,22 @@ public final class BarrierFreeAccessibility {
 	/**
 	 * 이 장소에 붙일 접근성 코드들. {@code exitText} 는 주출입구 칸, {@code routeText} 는
 	 * 거기까지 가는 경로 칸, {@code strollerText} 는 유모차 칸의 문장이다.
+	 *
+	 * <p>🔴 유모차 칸으로는 {@code STROLLER} 를 붙이지 않는다. 그 칸은 「유아차를 빌려주는가」를 적는 자리다 — 부산
+	 * 수집본(bigData/data/raw/tourapi/tourapi-barrier-free-busan.ndjson, 181곳)에서 값이 있는 15곳이 전부
+	 * 「대여가능」·「유모차 무료 대여(2대,1층안내데스크)」·「대여 가능(10대/안내소)」·「유모차 있음」·「가능」 같은 대여
+	 * 안내였다. 예전에는 값이 있기만 하면 「유아차로 갈 수 있음(확인됨)」으로 붙여서, 유아차를 빌려주는 산 위 박물관이
+	 * 경사 검사도 건너뛰고 확인된 곳으로 통과했다(확인된 표식은 경사 추정보다 앞선다). 빌려준다는 것은 들어갈 수
+	 * 있다는 말이 아니다. 접근을 말하는 문구가 원천에 생기면 그때 휠체어처럼 그 문구 하나로 붙인다.
 	 */
 	public static List<String> of(String exitText, String routeText, String strollerText) {
-		List<String> codes = new ArrayList<>(2);
+		List<String> codes = new ArrayList<>(1);
 		// exit 과 route 는 같은 문구 규칙으로 본다. 원천이 출입구와 거기까지 가는 길을 나눠
 		// 적었을 뿐 같은 사실이라, 둘 중 하나만 말해도 붙인다.
 		if (saysWheelchairAccessible(exitText) || saysWheelchairAccessible(routeText)) {
 			codes.add("WHEELCHAIR");
 		}
-		if (strollerText != null && !strollerText.isBlank()) {
-			// 유모차 칸은 있다는 말만 들어온다. 뜻을 해석하지 않고 값이 있다는 사실만 쓴다.
-			codes.add("STROLLER");
-		}
+		// strollerText 는 읽지 않는다 — 위 설명. 매개변수는 부르는 쪽이 칸을 그대로 넘기는 모양을 지키려고 둔다.
 		return List.copyOf(codes);
 	}
 }
