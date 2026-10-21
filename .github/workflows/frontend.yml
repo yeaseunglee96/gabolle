@@ -1,0 +1,76 @@
+# 앱·웹 화면 검사와 웹 배포 — GitHub Actions 판 (S15P21E201-2075, 2026-10-21)
+#
+# SSAFY GitLab 의 frontend:unit · frontend:smoke · deploy:server 를 GitHub 비공개 저장소(gabolle-private)로
+# 옮길 때를 위해 둔다. GitLab 은 .github/ 를 읽지 않으므로 GitLab 쪽 흐름에는 영향이 없다.
+#
+# 🔴 배포는 저장소 변수 DEPLOY_ENABLED 가 'true' 일 때만 돈다(Settings → Variables). 옮기는 날 켠다 —
+#    그 전에 켜면 GitLab 과 GitHub 가 같은 서버에 번갈아 배포한다.
+#    서버 쪽은 배포 전용 열쇠(DEPLOY_SSH_KEY)가 ci-deploy-gate.sh 로 묶여 `deploy-gh front|back` 만 돌린다 —
+#    그러면 서버의 deploy.sh 가 코드를 GitHub(gabolle-private)에서 받는다.
+name: frontend
+
+on:
+  push:
+    branches: [front/dev]
+  pull_request:
+    branches: [front/dev]
+  workflow_dispatch:
+
+concurrency:
+  group: frontend-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      # 워커 수를 고정한다 — GitLab 에서 호스트 코어 수만큼 워커가 떠 시간 초과가 났다(S15P21E201-1746)
+      - run: npm test -- --ci --maxWorkers=2
+
+  smoke:
+    runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci --no-audit --no-fund
+      - run: npm run check:button-container
+      - run: npm run check:menu-translations
+      - run: npm run check:translations
+      - run: npm run check:palette
+      - run: npx tsc --noEmit
+      - run: npx expo export --platform web
+      - run: |
+          npx serve dist -l 3000 &
+          sleep 2
+          npm run smoke -- http://localhost:3000
+
+  deploy:
+    needs: [unit, smoke]
+    if: github.event_name == 'push' && vars.DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: production-server
+      cancel-in-progress: false
+    steps:
+      - name: 서버에 웹 배포 (deploy-gh front)
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy && chmod 600 ~/.ssh/deploy
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          ssh -i ~/.ssh/deploy -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o ServerAliveInterval=30 ubuntu@3.34.84.167 "deploy-gh front"

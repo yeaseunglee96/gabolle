@@ -1,15 +1,33 @@
 import { apiRequest, ApiClientError } from '@/api/client';
 import { UNAVAILABLE_MESSAGE } from '@/api/errorText';
+import type { SlopePiece } from '@/map/slopeGrades';
+import type { LocalNames } from '@/discovery/localNames';
+import type { OneLine } from '@/plan/placeOneLine';
+
+/** 시각 칸(HH:mm). 시각이 없거나 모양이 다르면 null — 부르는 쪽이 「미정」을 그린다. */
+export function stopClock(startsAt: string | null | undefined): string | null {
+  return typeof startsAt === 'string' && startsAt.length >= 16 ? startsAt.slice(11, 16) : null;
+}
 
 export type ItineraryItemDto = {
   id: string;
-  startsAt: string;
+  /**
+   * 이 곳에 닿는 시각(ISO, 부산 현지). 서버가 시각을 못 깐 항목은 null 이다 — 오후에 만든 오늘 출발 여행에서 이동만으로
+   * 첫날이 차거나(DayTimeLayout), 일정을 고치며 새로 넣은 곳이다. 자르기 전에 {@link stopClock} 를 거친다.
+   */
+  startsAt: string | null;
   /**
    * 이 곳을 떠나는 시각 — 모양은 startsAt 과 같다(S15P21E201-1667 계약). 두 곳 사이의 빈 시각을 여기서 센다.
    * 🔴 **지금 운영 서버에는 이 칸이 없다**(undefined). 시각을 못 깐 날은 null. 둘 다 「모른다」다 — 짐작해 채우지 않는다.
    */
   endsAt?: string | null;
   title: string;
+  /** 장소 영어 이름 — 장소 상세의 nameEn 과 같다(S15P21E201-1937). 옛 서버는 안 보낸다. */
+  nameEn?: string | null;
+  /** 일본어·중국어 이름 — 장소 상세의 localNames 와 같다. 없는 언어는 빠져 온다. */
+  localNames?: LocalNames;
+  /** 장소 한 줄 소개 — 언어별(S15P21E201-2029). 없는 장소·옛 서버는 칸이 없다. 고르는 법은 oneLineFor. */
+  oneLine?: OneLine;
   description?: string | null;
   estimatedCostKrw?: number | null;
   /**
@@ -19,11 +37,31 @@ export type ItineraryItemDto = {
   reasonCodes?: string[];
   walkingMeters?: number | null;
   locked: boolean;
+  /**
+   * 고정 방식(S15P21E201-2017) — 'ORDER' 순서 고정 · 'TIME' 시각 고정. 고정이 아니면 null.
+   * 옛 서버에는 칸이 없다(undefined) — 그때 고정은 순서 고정이다({@link lockModeOf}).
+   */
+  lockMode?: 'ORDER' | 'TIME' | null;
   dataStatus?: 'VERIFIED' | 'ESTIMATED' | 'UNKNOWN';
   // travelDataStatus 를 반드시 함께 본다. ESTIMATED(직선거리 어림값)를 실제 소요시간처럼
   // 그리면 사용자가 그 시간에 맞춰 움직이다 늦는다. 이 기능 이전에 만들어진 판은 null 이다.
   travelDurationMin?: number | null;
   travelDataStatus?: 'VERIFIED' | 'ESTIMATED' | 'UNKNOWN' | null;
+  /**
+   * 이 곳으로 들어오는 구간의 대중교통 요금(원) — 서버 ItineraryDetailResponse.Item.travelFareKrw. 대중교통으로 가는 구간에만 차고
+   * 걷는 구간·옛 서버는 null/undefined 다(운영 실측 2026-09-29: 서면→청학시장 1,550원). S15P21E201-1833.
+   */
+  travelFareKrw?: number | null;
+  /**
+   * 이 곳으로 들어오는 구간이 실제로 지나는 길 — [[경도, 위도], …](GeoJSON 순서, 서버 ItineraryDetailResponse.Item.travelPath).
+   * 길찾기 응답을 실제로 받은 구간에만 있다. null·없음은 「어느 길인지 모른다」이지 직선을 그리라는 뜻이 아니다.
+   */
+  travelPath?: Array<[number, number]> | null;
+  /**
+   * 그 길(travelPath)의 경사 조각 — 길찾기 걷기 응답의 pieces 와 같은 모양(from·to 는 travelPath 의 자리 번호).
+   * 있으면 지도가 길을 다시 묻지 않고 이것으로 경사·계단을 칠한다. 옛 서버에는 칸이 없다(undefined).
+   */
+  travelPieces?: SlopePiece[] | null;
   // — 이 항목이 가리키는 장소. "다녀오셨나요" 평가를
   // 어느 장소로 보낼지 여기서 얻는다. ItineraryDetailResponse.Item 기준.
   placeId: string;
@@ -99,7 +137,32 @@ export type ItineraryDto = {
   canEdit?: boolean;
   // — 이 일정이 어느 여행의 것인가.
   tripId?: string;
+  /**
+   * 이 여행이 계단·급경사를 피하는 길로 다녀야 하나 — 휠체어·유아차·계단 피하기를 골랐으면 true(서버가 정한다).
+   * 지도가 구간 길을 물을 때 stepFree=true 를 싣는다(routeDirections.ts). 옛 서버에는 칸이 없다(undefined) — 보통 길로 묻는다.
+   */
+  stepFree?: boolean;
+  /**
+   * 이 여행이 「가파른 경사 피하기」를 골랐나 — 서버가 여행의 최신 선호 스냅샷에서 뽑아 준다(S15P21E201-1895). 지도가 걷는 길을
+   * 경사 색으로 칠할지 정한다(routeGrading.ts). 🔴 **옛 서버에는 칸이 없다**(undefined) — 그때만 기기의 초안(slopeConstraint)으로
+   * 대신한다. 서버가 false 라고 답했으면 초안이 무엇이든 false 다.
+   */
+  slopeAvoid?: boolean;
+  /** 이 여행이 「그늘 많은 곳 우선」을 골랐나 — slopeAvoid 와 같은 규칙(초안 대신: shadePreference). */
+  shadePrefer?: boolean;
+  /**
+   * 이 일정이 어디서 왔나 — `SELF` 는 「AI 없이 직접 짜기」로 만든 일정(S15P21E201-2018), `RECOMMENDATION` 은 추천이 만든 일정.
+   * 직접 짠 일정에는 고른 추천 코스가 없어서 여행 화면이 「코스 A 확정」·코스 바꾸기를 안 그린다. 옛 서버에는 칸이 없다(추천으로 본다).
+   */
+  origin?: 'SELF' | 'RECOMMENDATION' | null;
+  /** 여행이 고른 이동수단 — 자동차 ["PRIVATE_CAR"] · 대중교통 ["BUS","SUBWAY"] · 도보 ["WALK"] (서버 !2162). 옛 서버에는 칸이 없다. */
+  travelModes?: string[];
 };
+
+/** 자동차 여행인가 — 구간 줄에 「대중교통」 대신 「자동차」를 적고, 도착지 근처 주차장 안내를 보인다(S15P21E201-2061). */
+export function isCarTrip(itinerary: { travelModes?: string[] | null } | null | undefined): boolean {
+  return (itinerary?.travelModes ?? []).includes('PRIVATE_CAR');
+}
 
 export type ItineraryVersionEntryDto = {
   version: number;
@@ -147,9 +210,14 @@ export async function loadItinerary(id: string, accessToken: string | null): Pro
   }
 }
 
-export async function setItineraryItemLocked(input: { itineraryId: string; itemId: string; locked: boolean; baseVersion: number; accessToken: string | null }): Promise<ItineraryMutationResult> {
+/** 고정 방식 — 순서 고정(재계산이 빼지 않고 자리를 지킨다) · 시각 고정(시작 시각도 지킨다). S15P21E201-2017. */
+export type ItineraryLockMode = 'ORDER' | 'TIME';
+
+export async function setItineraryItemLocked(input: { itineraryId: string; itemId: string; locked: boolean; mode?: ItineraryLockMode; baseVersion: number; accessToken: string | null }): Promise<ItineraryMutationResult> {
   try {
-    const dto = await apiRequest<ItineraryDto & { warnings?: ItineraryOpeningHoursWarning[]; notChecked?: ItineraryOpeningHoursNotChecked[] }>(`/api/v1/itineraries/${encodeURIComponent(input.itineraryId)}/items/${encodeURIComponent(input.itemId)}/lock`, { method: 'POST', accessToken: input.accessToken, body: { locked: input.locked, baseVersion: input.baseVersion } });
+    // mode 는 고정할 때만 싣는다 — 안 실으면 서버가 순서 고정으로 읽는다(예전 앱과 같은 뜻).
+    const body = input.locked && input.mode ? { locked: input.locked, baseVersion: input.baseVersion, mode: input.mode } : { locked: input.locked, baseVersion: input.baseVersion };
+    const dto = await apiRequest<ItineraryDto & { warnings?: ItineraryOpeningHoursWarning[]; notChecked?: ItineraryOpeningHoursNotChecked[] }>(`/api/v1/itineraries/${encodeURIComponent(input.itineraryId)}/items/${encodeURIComponent(input.itemId)}/lock`, { method: 'POST', accessToken: input.accessToken, body });
     return { state: 'success', itinerary: dto, ...parseOpeningHoursFields(dto) };
   } catch (error) {
     return failure(error);
@@ -160,11 +228,39 @@ export async function setItineraryItemLocked(input: { itineraryId: string; itemI
 // 같은 모양(일정 전체 + 경고)이고, 재계산 Job 은 서버가 접수하지 않는다 — 화면이 응답의
 // 새 판 번호로 recalculateItineraryDay 를 이어 불러야 시각이 채워진다(서버 주석 그대로).
 // dayIndex 는 0 이 첫날이다. 여행 기간을 벗어나면 400, 판이 낡았으면 409다.
-export async function addItineraryItem(input: { itineraryId: string; placeId: string; dayIndex: number; baseVersion: number; accessToken: string | null }): Promise<ItineraryMutationResult> {
+// position(그날 안의 몇 번째, 1부터 — S15P21E201-2017)을 주면 서버가 그 자리에 끼우고 구간·시각까지 바로 매긴다 —
+// 그때는 recalculateItineraryDay 를 부르지 않는다. 안 주면 예전처럼 맨 끝, 시각 비움.
+export async function addItineraryItem(input: { itineraryId: string; placeId: string; dayIndex: number; baseVersion: number; position?: number; accessToken: string | null }): Promise<ItineraryMutationResult> {
   try {
-    const dto = await apiRequest<ItineraryDto & { warnings?: ItineraryOpeningHoursWarning[]; notChecked?: ItineraryOpeningHoursNotChecked[] }>(`/api/v1/itineraries/${encodeURIComponent(input.itineraryId)}/items`, { method: 'POST', accessToken: input.accessToken, body: { placeId: input.placeId, dayIndex: input.dayIndex, baseVersion: input.baseVersion } });
+    const body = input.position == null
+      ? { placeId: input.placeId, dayIndex: input.dayIndex, baseVersion: input.baseVersion }
+      : { placeId: input.placeId, dayIndex: input.dayIndex, baseVersion: input.baseVersion, position: input.position };
+    const dto = await apiRequest<ItineraryDto & { warnings?: ItineraryOpeningHoursWarning[]; notChecked?: ItineraryOpeningHoursNotChecked[] }>(`/api/v1/itineraries/${encodeURIComponent(input.itineraryId)}/items`, { method: 'POST', accessToken: input.accessToken, body });
     return { state: 'success', itinerary: dto, ...parseOpeningHoursFields(dto) };
   } catch (error) {
+    // 이미 담긴 장소(409)는 판 충돌이 아니다 — 「최신 일정을 불러오라」고 하면 틀린 안내다(S15P21E201-2017).
+    if (error instanceof ApiClientError && error.status === 409 && error.code === 'ITINERARY_PLACE_ALREADY_ADDED') {
+      return { state: 'error', message: '그날 일정에 이미 들어 있는 장소예요.' };
+    }
+    return failure(error);
+  }
+}
+
+/**
+ * 한 곳에 머무는 시간을 바꾼다 — 15분 단위, 15분 이상(S15P21E201-2017). 서버가 그날 뒤따르는 곳의 시각을 다시 매기고,
+ * 하루 끝을 넘기거나(DAY_END_EXCEEDED) 시각 고정을 못 지키면(TIME_FIX_MISSED) warnings 에 싣는다 — 저장은 된다.
+ */
+export async function changeItineraryStay(input: { itineraryId: string; itemId: string; stayMinutes: number; baseVersion: number; accessToken: string | null }): Promise<ItineraryMutationResult> {
+  try {
+    const dto = await apiRequest<ItineraryDto & { warnings?: ItineraryOpeningHoursWarning[]; notChecked?: ItineraryOpeningHoursNotChecked[] }>(`/api/v1/itineraries/${encodeURIComponent(input.itineraryId)}/items/${encodeURIComponent(input.itemId)}/stay`, { method: 'POST', accessToken: input.accessToken, body: { stayMinutes: input.stayMinutes, baseVersion: input.baseVersion } });
+    return { state: 'success', itinerary: dto, ...parseOpeningHoursFields(dto) };
+  } catch (error) {
+    if (error instanceof ApiClientError && error.status === 400 && error.code === 'ITINERARY_STAY_INVALID') {
+      return { state: 'error', message: '머무는 시간은 15분 단위로, 15분 이상이어야 해요.' };
+    }
+    if (error instanceof ApiClientError && error.status === 422 && error.code === 'ITINERARY_REPLAN_OVERFLOWS_DAY') {
+      return { state: 'error', message: '자정을 넘겨서 이 시간으로는 바꿀 수 없어요.' };
+    }
     return failure(error);
   }
 }

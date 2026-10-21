@@ -25,7 +25,7 @@ const draftPass: TripPassData = {
   owner: '진미리',
   fields: [],
   url: null,
-  validText: '이 승차권은 10.3(금) – 10.5(일) 여행에만 쓸 수 있어요',
+  validText: '이 승차권은 10.3(금) – 10.5(일) 여행에만 쓸 수 있어요', firstStop: null, lastStop: null, conditions: []
 };
 
 /** 일정을 받아 온 뒤 — 코드와 방문지가 채워진다. */

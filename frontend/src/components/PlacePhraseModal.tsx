@@ -39,7 +39,7 @@ export function PlacePhraseModal({ visible, onClose, category }: PlacePhraseModa
 
 const styles = StyleSheet.create({
   backdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing[4], backgroundColor: 'rgba(25,25,25,0.62)' },
-  card: { width: '100%', maxWidth: 480, maxHeight: '85%', gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.brand.ivory },
+  card: { width: '100%', maxWidth: 480, maxHeight: '85%', gap: spacing[3], padding: spacing[4], borderRadius: radius.lg, backgroundColor: color.brand.ivory, overflow: 'hidden' },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   close: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.card },
   pressed: { opacity: 0.72 },

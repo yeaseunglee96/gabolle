@@ -89,7 +89,7 @@ export function MyPageCover({
 }) {
   return (
     <View style={styles.cover}>
-      <Image source={coverUri ? { uri: coverUri } : DEFAULT_COVER} resizeMode="cover" accessibilityLabel="" style={StyleSheet.absoluteFill} />
+      <Image source={coverUri ? { uri: coverUri } : DEFAULT_COVER} resizeMode="cover" accessibilityLabel="" style={styles.coverPhoto} />
       {/* 시안의 세 단계 — 위는 살짝, 아래로 갈수록 진하게. */}
       <LinearGradient
         colors={['rgba(25,25,25,0.10)', 'rgba(25,25,25,0.55)', 'rgba(25,25,25,0.80)']}
@@ -159,6 +159,8 @@ const styles = StyleSheet.create({
     backgroundColor: color.action.secondary, borderWidth: 4, borderColor: color.brand.ivory,
   },
   avatarPhoto: { width: '100%', height: '100%' },
+  // 🔴 위치만(absoluteFill) 주면 웹의 Image 가 그림 본래 폭(기본 커버 1536px)으로 그려 1920 화면 오른쪽이 회색이 됐다 (S15P21E201-1951).
+  coverPhoto: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' },
   copy: { gap: spacing[2], flexShrink: 1, minWidth: 0 },
 
   pills: { flexDirection: 'row', gap: spacing[2], marginTop: spacing[1] },

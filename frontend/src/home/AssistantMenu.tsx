@@ -6,7 +6,7 @@
 //
 // 데스크톱과 폰이 같은 부품을 쓴다. 폭과 행 높이만 다르다 — 두 벌로 만들면 항목이 늘 때
 // 한쪽만 늘어나고, 그 차이는 두 화면을 나란히 눌러 봐야만 보인다.
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Animated, BackHandler, Easing, Image, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
@@ -14,9 +14,11 @@ import { GabolleMascot } from '@/components/DongbaekMascot';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
 import { useI18n } from '@/i18n';
+import { takeScreenGuide } from '@/onboarding/firstRun';
 
 const cameraIcon = require('../../assets/icons/common/camera.png');
 const speakerIcon = require('../../assets/icons/common/speaker.png');
+const pinIcon = require('../../assets/icons/common/pin.png');
 
 type Item = {
   key: string;
@@ -31,6 +33,8 @@ type Item = {
 const ITEMS: Item[] = [
   { key: 'menu', ko: '메뉴판 번역', en: 'Menu translation', subKo: '메뉴판을 찍으면 읽어 드려요', subEn: 'Snap a menu and we read it', path: '/field/menu-scan', icon: cameraIcon },
   { key: 'speak', ko: '통역', en: 'Interpreter', subKo: '현장에서 말하고 들려주기', subEn: 'Speak and play it out loud', path: '/field/speak', icon: speakerIcon },
+  // 근처 편의시설 — 통역 바로 아래(S15P21E201-2052, 사용자 지시 2026-10-15). 주차장·약국·화장실·짐보관 네 탭 화면으로 간다.
+  { key: 'nearby', ko: '근처 편의시설', en: 'Nearby facilities', subKo: '주차장 · 환전소 · 화장실 · 짐보관', subEn: 'Parking · currency exchange · restrooms · lockers', path: '/field/nearby', icon: pinIcon },
   // 챗봇만 마스코트를 쓴다 — 셋 중 「우리가 하는 것」이 어느 것인지 그림으로 구분된다.
   { key: 'chat', ko: 'AI 챗봇', en: 'AI chat', subKo: '일정 · 통역 · 여행 도움', subEn: 'Plans · phrases · travel help', path: '/chat' },
 ];
@@ -45,7 +49,7 @@ export const ASSISTANT_PATHS = ITEMS.map((item) => item.path);
 
 /** 라벨 부제 — 메뉴에 있는 것을 그대로 적는다. 없는 것을 약속하지 않는다. */
 export function assistantSubtitle(tx: (ko: string, en: string) => string) {
-  return tx('메뉴판 번역 · 통역 · AI 챗봇', 'Menu · interpreter · AI chat');
+  return tx('메뉴판 번역 · 통역 · 근처 편의시설 · AI 챗봇', 'Menu · interpreter · nearby · AI chat');
 }
 
 export function AssistantMenu({
@@ -61,6 +65,17 @@ export function AssistantMenu({
   const router = useRouter();
   const { tx } = useI18n();
   const progress = useRef(new Animated.Value(0)).current;
+  // 처음 열었을 때 한 번 — 셋 중 무엇을 언제 쓰는지(UI 캔버스 ㉔-3, S15P21E201-1885). 고를 게 여럿이라 한 칸만 비추지 않고
+  // 메뉴 맨 위에 한 줄로 둔다. 메뉴를 열 때마다 묻지 않게, 한 번 떴으면 이 화면에 있는 동안은 그대로 둔다.
+  const [guide, setGuide] = useState(false);
+  const asked = useRef(false);
+  useEffect(() => {
+    if (!open || asked.current) return;
+    asked.current = true;
+    let alive = true;
+    void takeScreenGuide('assistant').then((show) => { if (alive && show) setGuide(true); });
+    return () => { alive = false; };
+  }, [open]);
 
   useEffect(() => {
     Animated.timing(progress, {
@@ -111,6 +126,15 @@ export function AssistantMenu({
           },
         ]}
       >
+        {guide ? (
+          <View accessibilityRole="alert" style={styles.guide}>
+            <Text variant="util" weight="bold">{tx('여행 중에 막히면 여기예요', 'Stuck on the road? Start here')}</Text>
+            <Text variant="caption" color={color.text.body}>{tx('식당에서는 메뉴판 번역, 말이 안 통할 땐 통역. 그 밖의 것은 AI 챗봇에게 물어보세요.', 'Menu translation at restaurants, the interpreter when words fail. Ask the AI chat about anything else.')}</Text>
+            <Pressable accessibilityRole="button" onPress={() => setGuide(false)} hitSlop={8} style={({ pressed }) => [styles.guideOk, pressed && styles.itemPressed]}>
+              <Text variant="caption" weight="bold">{tx('알겠어요', 'Got it')}</Text>
+            </Pressable>
+          </View>
+        ) : null}
         {ITEMS.map((item) => (
           <Pressable
             key={item.key}
@@ -185,4 +209,7 @@ const styles = StyleSheet.create({
   icon: { width: 18, height: 18 },
   itemMascot: { width: 30, height: 30 },
   itemText: { flex: 1, minWidth: 0 },
+  // 첫 안내 한 줄 — 연한 동백빛은 현장 도구·AI 화면의 색 표시다(tokens surface.blush). 이 메뉴가 바로 그 셋이다.
+  guide: { gap: spacing[1], marginHorizontal: spacing[2], marginBottom: spacing[2], padding: spacing[3], borderRadius: radius.md, backgroundColor: color.surface.blush },
+  guideOk: { alignSelf: 'flex-end', minHeight: 32, paddingHorizontal: spacing[2], justifyContent: 'center', borderRadius: radius.sm },
 });

@@ -3,7 +3,7 @@
 // ((trip)/[id]/collaborate.tsx,을 그대로 따른다 — 참여자 목록 + 초대 + 제거/나가기
 // 라는 같은 모양의 문제라 화면도 같은 모양으로 푼다.
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Modal, Pressable, Share as NativeShare, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Modal, Pressable, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useAuth } from '@/auth/AuthProvider';
@@ -20,6 +20,7 @@ import { addStoryCoauthors, createStoryInvite, listStoryCoauthors, removeStoryCo
 import { listTripMembers, type TripMember } from '@/trip/collaboration';
 import { txf } from '@/i18n/format';
 import { localizeMessage } from '@/i18n/messages';
+import { shareLink, type ShareOutcome } from '@/utils/shareLink';
 
 type State =
   | { status: 'loading' }
@@ -35,6 +36,7 @@ export default function StoryCoauthors() {
   const [busyUserId, setBusyUserId] = useState<string | null>(null);
   const [actionError, setActionError] = useState('');
   const [inviting, setInviting] = useState(false);
+  const [shareNotice, setShareNotice] = useState('');
   const [invite, setInvite] = useState<{ inviteUrl: string; expiresAt: string } | null>(null);
   const [pickerVisible, setPickerVisible] = useState(false);
 
@@ -62,7 +64,10 @@ export default function StoryCoauthors() {
     setInviting(false);
     if (result.state === 'success') {
       setInvite({ inviteUrl: result.inviteUrl, expiresAt: result.expiresAt });
-      await NativeShare.share({ title: tx('가볼래 기록 함께 쓰기', 'GABOLLE record co-writing'), message: txf(tx, '이 기록을 함께 써요.\n%s', 'Write this record together.\n%s', result.inviteUrl), url: result.inviteUrl });
+      // 웹에서 공유 창을 닫으면 거절된다 — 링크는 위 카드에 이미 보인다. 복사됐을 때만 알린다(S15P21E201-1958).
+      let outcome: ShareOutcome;
+      try { outcome = await shareLink({ title: tx('가볼래 기록 함께 쓰기', 'GABOLLE record co-writing'), message: txf(tx, '이 기록을 함께 써요.\n%s', 'Write this record together.\n%s', result.inviteUrl), url: result.inviteUrl }); } catch { outcome = 'failed'; }
+      setShareNotice(outcome === 'copied' ? tx('링크를 복사했어요. 붙여넣어 공유하세요.', 'Link copied. Paste it to share.') : '');
     } else {
       setActionError(result.message);
     }
@@ -115,7 +120,7 @@ export default function StoryCoauthors() {
 
       {isAuthor && <>
         <Button label={inviting ? tx('초대 링크 만드는 중…', 'Creating invite link…') : tx('초대 링크 만들기', 'Create invite link')} disabled={inviting} onPress={() => void makeInvite()} containerStyle={styles.actionRowButton} />
-        {invite && <View accessibilityLiveRegion="polite" style={styles.successCard}><Text weight="bold" color={color.state.success}>{tx('초대 링크를 만들었어요', 'Invite link created')}</Text><Text selectable color={color.text.body}>{invite.inviteUrl}</Text><Text variant="caption" color={color.text.muted}>{txf(tx, '만료: %s', 'Expires: %s', formatDateTime(invite.expiresAt, locale))}</Text></View>}
+        {invite && <View accessibilityLiveRegion="polite" style={styles.successCard}><Text weight="bold" color={color.state.success}>{tx('초대 링크를 만들었어요', 'Invite link created')}</Text><Text selectable color={color.text.body}>{invite.inviteUrl}</Text><Text variant="caption" color={color.text.muted}>{txf(tx, '만료: %s', 'Expires: %s', formatDateTime(invite.expiresAt, locale))}</Text>{shareNotice ? <Text testID="story-invite-share-notice" variant="caption" color={color.text.muted}>{shareNotice}</Text> : null}</View>}
         {state.story.tripId && <Button label={tx('여행 동행자 추가', 'Add a trip companion')} variant="tertiary" onPress={() => setPickerVisible(true)} containerStyle={styles.actionRowButton} />}
       </>}
     </>}

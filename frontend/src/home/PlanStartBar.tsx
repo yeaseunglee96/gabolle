@@ -1,7 +1,8 @@
 // 홈의 여행 시작 바 — 출발지 · 날짜 · 인원을 홈에서 받는다.
 // 시안: docs/design_handoff_plan_flow/PlanFlow.dc.html 의 p0.
 import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
-import { AccessibilityInfo, ActivityIndicator, Animated, BackHandler, Easing, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { AccessibilityInfo, ActivityIndicator, Animated, BackHandler, Easing, Platform, Pressable, ScrollView, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
+import Svg, { Circle, Path } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Text } from '@/components/Text';
@@ -12,6 +13,7 @@ import { isOvernight } from '@/plan/lodgingRequired';
 import { lodgingSnapshotOf, MAJOR_BUSAN_ORIGINS, RECOMMENDED_LODGING_AREAS, attachEnglishNames, searchOrigins, type OriginCandidate, type OriginSearchResult } from '@/plan/origins';
 import { searchPlacesByName, type PlaceSearchItem } from '@/discovery/places';
 import { stopNameForLanguage } from '@/discovery/romanize';
+import { addressForLanguage } from '@/discovery/localAddress';
 import { MonthPicker } from '@/home/MonthPicker';
 import { MAX_MONTH_OFFSET, monthOffsetOf } from '@/home/monthJump';
 import {
@@ -29,6 +31,7 @@ import {
   summarizeStartBar,
   toDateKey,
   type StartBarValue,
+  MAX_TRIP_NIGHTS,
 } from '@/home/startBarValue';
 import { txf } from '@/i18n/format';
 
@@ -84,9 +87,16 @@ export function monthWeeks(year: number, month: number): Array<Array<string | nu
 }
 
 export function MonthGrid({
-  year, month, value, today, onPick, tx, onPressTitle, titleOpen = false,
+  year, month, value, today, onPick, tx, onPressTitle, titleOpen = false, maxDate, hideTitle = false,
 }: {
+  /** 부르는 쪽이 달 제목을 따로 그린다(여행 만들기 1단계 — 제목 왼쪽 · 화살표 오른쪽). */
+  hideTitle?: boolean;
   year: number; month: number; value: StartBarValue; today: string;
+  /**
+   * 이 날 뒤는 못 고른다 — 출발일을 찍고 돌아오는 날을 고르는 동안(최대 7박, TripConditionRules.MAX_NIGHTS).
+   * 🔴 전에는 17일 뒤도 눌리고, 끝까지 답한 뒤 서버가 거절했다(UI 캔버스 ⑤). 흐리게 + 줄을 그어 둔다.
+   */
+  maxDate?: string;
   onPick: (key: string) => void; tx: (ko: string, en: string) => string;
   /** 있으면 제목을 눌러 «달 바로 고르기»를 연다 — S15P21E201-1539. */
   onPressTitle?: () => void;
@@ -96,7 +106,7 @@ export function MonthGrid({
   const heads = WEEKDAY_HEADS_KO.map((head, index) => tx(head, WEEKDAY_HEADS_EN[index]));
   return (
     <View style={styles.month}>
-      {onPressTitle
+      {hideTitle ? null : onPressTitle
         ? <Pressable accessibilityRole="button" accessibilityState={{ expanded: titleOpen }} onPress={onPressTitle} style={styles.monthTitleButton}>
             <Text variant="caption" weight="bold" style={styles.monthTitle}>
               {tx(`${year}년 ${month + 1}월`, `${month + 1}/${year}`)} {titleOpen ? '▴' : '▾'}
@@ -116,22 +126,25 @@ export function MonthGrid({
         {week.map((key, index) => {
           if (!key) return <View key={`blank-${index}`} style={styles.cell} />;
           const past = key < today;
+          const beyond = Boolean(maxDate && key > maxDate);
           const isStart = key === value.startDate;
           const isEnd = key === value.endDate;
           // 🔴 고른 기간은 한 띠로 이어진다(S15P21E201-1720). 전에는 시작·끝 칸을 칸 전체 검정 알약으로, 사이 칸을
           //    회색 네모로 그려서 셋이 끊겨 보였고, 칸이 넓은 넓은 화면에서는 시작·끝이 가로로 긴 알약이 됐다.
           //    띠는 칸 폭을 채우고(시작은 가운데부터 · 끝은 가운데까지), 시작·끝은 고정 크기 동그라미를 얹는다.
           //    줄마다 알약으로 닫는다 — 줄 처음(일요일·앞이 빈칸)은 띠 왼쪽을, 줄 끝(토요일·뒤가 빈칸)은 오른쪽을 둥글게.
-          const range = Boolean(value.startDate && value.endDate && value.startDate !== value.endDate && key >= value.startDate && key <= value.endDate);
           const rowStart = index === 0 || !week[index - 1];
           const rowEnd = index === week.length - 1 || !week[index + 1];
+          // 끝 날이 줄 맨 앞이면(또는 시작 날이 줄 맨 끝이면) 그 칸의 띠는 동그라미 밖으로 삐져나온 반달만 남는다 — 안 그린다.
+          const range = Boolean(value.startDate && value.endDate && value.startDate !== value.endDate && key >= value.startDate && key <= value.endDate)
+            && !(key === value.endDate && rowStart) && !(key === value.startDate && rowEnd);
           return (
             <Pressable
               key={key}
-              disabled={past}
+              disabled={past || beyond}
               onPress={() => onPick(key)}
               accessibilityRole="button"
-              accessibilityState={{ selected: isStart || isEnd, disabled: past }}
+              accessibilityState={{ selected: isStart || isEnd, disabled: past || beyond }}
               accessibilityLabel={formatDateShort(key, tx)}
               style={styles.cell}
             >
@@ -148,7 +161,8 @@ export function MonthGrid({
                 weight={isStart || isEnd ? 'bold' : 'regular'}
                 // 지난 날짜를 숨기지 않고 흐리게 둔다. 사라지면 달력의 칸이 밀려서
                 // 사람이 날짜를 잘못 짚는다.
-                color={past ? color.text.muted : isStart || isEnd ? color.text.onAction : color.text.heading}
+                color={past || beyond ? color.text.muted : isStart || isEnd ? color.text.onAction : color.text.heading}
+                style={beyond ? styles.beyondDay : undefined}
               >
                 {String(parseDateKey(key)?.getDate() ?? '')}
               </Text>
@@ -190,8 +204,17 @@ export type PlanStartBarProps = {
   /** 값을 밖에서 들고 있을 때. 알약과 시트가 같은 값을 봐야 해서 홈이 들고 있는다. */
   value?: StartBarValue;
   onChange?: (value: StartBarValue) => void;
+  /** 값을 넘겨받지 않고(안에서 든 채로) 바뀐 것만 알린다 — 웹 홈이 위쪽 메뉴 알약에 고른 값을 적으려고 쓴다 */
+  onValueChange?: (value: StartBarValue) => void;
+  /** 알약 글 — 칸 이름을 붙이는 규칙(segmentLabel)과 같게 만들어 넘긴다. 빈 칸은 null */
+  onLabelsChange?: (labels: { origin: string | null; dates: string | null; people: string | null }) => void;
   /** 시트의 ✕. 값은 그대로 두고 시트만 닫는다. */
   onClose?: () => void;
+  /**
+   * 시트 단추 글자 — 여행 만들기 질문 화면이 출발지·숙소만 고치러 열 때 「이대로 적용」(UI 캔버스 ⑤).
+   * 주면 「전체 삭제」도 숨긴다 — 답하던 날짜·인원까지 지우면 안 된다. 홈은 안 주므로 「일정 물어보기」 그대로다.
+   */
+  submitLabel?: string;
   /**
    * 폰 알약을 눌렀을 때. 주면 알약 아래로 패널을 펼치는 대신 «이것»을 부른다 —
    * 홈이 전체 화면 시트를 연다. 안 주면 지금까지대로 아래로 펼친다.
@@ -263,7 +286,7 @@ async function searchOriginsWithNames(query: string, accessToken: string | null,
  * 카카오는 한국어 주소만 주고, 택시에 보여 줄 값이다.
  * 🔴 한국어 원문은 origins.ts 의 RECOMMENDED_LODGING_AREAS 와 같은 문장이다. 한쪽을 바꾸면 둘 다 바꾼다.
  */
-function lodgingAreaNote(candidate: OriginCandidate, tx: (ko: string, en: string) => string): string {
+export function lodgingAreaNote(candidate: OriginCandidate, tx: (ko: string, en: string) => string): string {
   switch (candidate.externalId) {
     case 'lodging-haeundae': return tx('바다 앞 호텔·리조트가 모여 있어요', 'Beachfront hotels and resorts');
     case 'lodging-seomyeon': return tx('교통 중심 · 어디든 가기 편해요', 'Transit hub · easy to get anywhere');
@@ -273,12 +296,20 @@ function lodgingAreaNote(candidate: OriginCandidate, tx: (ko: string, en: string
   }
 }
 
+/** 이 폭보다 좁은 데스크톱 판은 「일정 물어보기」를 돋보기 원으로 줄인다 */
+export const COMPACT_CTA_BELOW = 960;
+
 export function PlanStartBar({
   wide, accessToken, onSubmit, today = new Date(), initialSection = null, initialValue,
-  sheet = false, value: controlledValue, onChange, onClose, onOpenSheet,
+  sheet = false, value: controlledValue, onChange, onValueChange, onLabelsChange, onClose, onOpenSheet, submitLabel,
 }: PlanStartBarProps) {
   const { tx, language } = useI18n();
   const insets = useSafeAreaInsets();
+  const { width: windowWidth } = useWindowDimensions();
+  // 🔴 세로로 세운 탭(아이패드 미니 768 · 서피스 960)은 데스크톱 판인데 칸 넷과 「일정 물어보기」가 한 줄에 다 안 들어가
+  //    「どこから出発しま…」처럼 잘렸다(사용자 요청 2026-10-02 — 「가독성 너무 안 좋다」). 좁으면 단추를 돋보기 원으로 줄여
+  //    칸에 자리를 주고, 단추가 품던 「날짜를 골라 주세요」는 바 아래 한 줄로 옮긴다.
+  const compactCta = wide && windowWidth < COMPACT_CTA_BELOW;
   // 🔴 「영어가 아니면 한국어」로 가르면 일본어·중국어 사용자가 한국어를 본다.
   // 그 언어들은 번역표에 없는 문구가 있으면 영어로 떨어지기로 정해져 있다
   // (resolveTextLanguage). 그 규칙을 그대로 쓴다 — S15P21E201-1296.
@@ -294,6 +325,7 @@ export function PlanStartBar({
     const resolved = typeof next === 'function' ? (next as (prev: StartBarValue) => StartBarValue)(valueRef.current) : next;
     if (onChange) onChange(resolved);
     else setSelfValue(resolved);
+    onValueChange?.(resolved);
   };
   // 시트는 «펼친 채로» 열린다. 빈 카드 세 장을 보여 주고 한 번 더 누르게 하면
   // 시트를 연 사람 눈에는 아무 일도 안 일어난 것이다 — 1350 이 고친 것과 같은 실수다.
@@ -378,6 +410,8 @@ export function PlanStartBar({
     setSection('dates');
   };
 
+  // 출발일만 찍은 동안 8일째 뒤는 못 누른다 — 여행 만들기 달력(DateRangeCard)과 같은 최대 7박.
+  const lastPickable = value.startDate && !value.endDate ? addDays(value.startDate, MAX_TRIP_NIGHTS) : undefined;
   const pickDate = (key: string) => {
     setValue((prev) => {
       // 첫 탭은 출발일, 두 번째 탭은 귀환일. 앞선 날짜를 다시 찍으면 처음부터 다시 고른다.
@@ -407,6 +441,14 @@ export function PlanStartBar({
     const total = value.adults + value.children;
     return total > 0 ? (value.children ? tx(`성인 ${value.adults} · 어린이 ${value.children}`, `${value.adults} adults · ${value.children} children`) : tx(`성인 ${value.adults}`, `${value.adults} adults`)) : tx('인원 추가', 'Add travelers');
   };
+
+  // 위쪽 메뉴 알약에 고른 값을 적는다(㉖ 시안 「어디서 출발 · 날짜 추가 · 성인 2」). 빈 칸은 null — 알약이 제 안내를 쓴다.
+  const pillOrigin = value.origin ? segmentLabel('origin') : null;
+  const pillDates = value.startDate ? segmentLabel('dates') : null;
+  const pillPeople = segmentLabel('people');
+  useEffect(() => {
+    onLabelsChange?.({ origin: pillOrigin, dates: pillDates, people: pillPeople });
+  }, [pillOrigin, pillDates, pillPeople]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 두 가지가 움직인다.
   // · 고른 칸을 따라다니는 강조 알약 — 칸 사이를 미끄러진다
@@ -528,7 +570,7 @@ export function PlanStartBar({
       {(results.length ? results : MAJOR_BUSAN_ORIGINS).map((candidate) => (
         <Pressable key={candidate.externalId} onPress={() => pickOrigin(candidate)} accessibilityRole="button" style={styles.originRow}>
           <Text weight="bold">{stopNameForLanguage(candidate.name, candidate.nameEn, language)}</Text>
-          <Text variant="caption" color={color.text.muted}>{candidate.address}</Text>
+          <Text variant="caption" color={color.text.muted}>{addressForLanguage(candidate, language)}</Text>
         </Pressable>
       ))}
     </View>
@@ -589,10 +631,11 @@ export function PlanStartBar({
       {monthPickerOpen
         ? <MonthPicker today={today} selected={monthOffset} onPick={(offset) => { setMonthOffset(Math.min(maxOffset, offset)); setMonthPickerOpen(false); }} tx={tx} />
         : <View style={wide ? styles.monthRow : undefined}>
-            <MonthGrid {...monthBase} value={value} today={todayKey} onPick={pickDate} tx={tx} onPressTitle={() => setMonthPickerOpen(true)} />
-            {wide ? <MonthGrid {...secondMonth} value={value} today={todayKey} onPick={pickDate} tx={tx} /> : null}
+            <MonthGrid {...monthBase} value={value} today={todayKey} onPick={pickDate} tx={tx} onPressTitle={() => setMonthPickerOpen(true)} maxDate={lastPickable} />
+            {wide ? <MonthGrid {...secondMonth} value={value} today={todayKey} onPick={pickDate} tx={tx} maxDate={lastPickable} /> : null}
           </View>}
-      <View style={styles.chipRow}>
+      {/* 🔴 기간 넷은 같은 폭으로 한 줄 — 좁은 카드(넓은 화면의 가운데 칸)에서 3+1 로 꺾여 「3박 4일」 하나만 다음 줄에 남았다. */}
+      <View style={styles.equalChipRow}>
         {[0, 1, 2, 3].map((nights) => (
           <Pressable
             key={nights}
@@ -601,10 +644,10 @@ export function PlanStartBar({
               const start = prev.startDate && prev.startDate >= todayKey ? prev.startDate : todayKey;
               return { ...prev, startDate: start, endDate: addDays(start, nights) };
             })}
-            style={styles.chip}
+            style={[styles.chip, styles.equalChip]}
           >
-            <Text variant="caption" weight="bold">
-              {nights === 0 ? tx('당일치기', 'Day trip') : tx(`${nights}박 ${nights + 1}일`, `${nights} nights`)}
+            <Text variant="caption" weight="bold" numberOfLines={1}>
+              {nights === 0 ? tx('당일치기', 'Day trip') : tx(`${nights}박 ${nights + 1}일`, `${nights} ${nights === 1 ? 'night' : 'nights'}`)}
             </Text>
           </Pressable>
         ))}
@@ -700,10 +743,11 @@ export function PlanStartBar({
         <View style={[styles.sheetFoot, { paddingBottom: spacing[6] + insets.bottom }]}>
           <Pressable
             onPress={() => { setValue(EMPTY_START_BAR); setSection('origin'); }}
+            disabled={Boolean(submitLabel)}
             accessibilityRole="button"
             style={styles.sheetClear}
           >
-            <Text weight="bold">{tx('전체 삭제', 'Clear all')}</Text>
+            {submitLabel ? null : <Text weight="bold">{tx('전체 삭제', 'Clear all')}</Text>}
           </Pressable>
           <Pressable
             onPress={() => { if (ready) { onClose?.(); onSubmit(value); } }}
@@ -712,7 +756,7 @@ export function PlanStartBar({
             style={[styles.cta, styles.sheetCta, !ready && styles.ctaOff]}
           >
             {/* 꺼져 있을 때 흰 글자를 두면 연회색 바탕에서 안 읽힌다. */}
-            <Text weight="bold" color={ready ? color.text.onAction : color.text.muted}>{tx('일정 물어보기', 'Ask for a plan')}</Text>
+            <Text weight="bold" color={ready ? color.text.onAction : color.text.muted}>{submitLabel ?? tx('일정 물어보기', 'Ask for a plan')}</Text>
             {blocker ? <Text variant="micro" color={color.text.muted}>{blocker}</Text> : null}
           </Pressable>
         </View>
@@ -752,10 +796,18 @@ export function PlanStartBar({
             onPress={submit}
             disabled={!ready}
             accessibilityRole="button"
-            style={[styles.cta, !ready && styles.ctaOff]}
+            accessibilityLabel={compactCta ? tx('일정 물어보기', 'Ask for a plan') : undefined}
+            accessibilityHint={compactCta && blocker ? blocker : undefined}
+            style={[styles.cta, compactCta && styles.ctaRound, !ready && styles.ctaOff]}
           >
-            <Text weight="bold" color={ready ? color.text.onAction : color.text.muted}>{tx('일정 물어보기', 'Ask for a plan')}</Text>
-            {blocker ? <Text variant="micro" color={color.text.muted}>{blocker}</Text> : null}
+            {compactCta ? (
+              <Svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={ready ? color.text.onAction : color.text.muted} strokeWidth={2.6} strokeLinecap="round"><Circle cx={11} cy={11} r={6.5} /><Path d="M20 20l-4-4" /></Svg>
+            ) : (
+              <>
+                <Text weight="bold" color={ready ? color.text.onAction : color.text.muted}>{tx('일정 물어보기', 'Ask for a plan')}</Text>
+                {blocker ? <Text variant="micro" color={color.text.muted}>{blocker}</Text> : null}
+              </>
+            )}
           </Pressable>
         </View>
       ) : (
@@ -770,6 +822,8 @@ export function PlanStartBar({
           </Text>
         </Pressable>
       )}
+
+      {compactCta && blocker ? <Text variant="caption" color={color.text.muted} style={styles.compactBlocker}>{blocker}</Text> : null}
 
       {inlinePanel ? (
         <Animated.View
@@ -833,6 +887,7 @@ export function PlanStartBar({
 }
 
 const styles = StyleSheet.create({
+  beyondDay: { textDecorationLine: 'line-through', opacity: 0.5 },
   root: { width: '100%', gap: spacing[3], zIndex: 10 },
   // 🔴 새 배색은 「카드에 선을 두지 않는다」지만 시작 바는 예외로 붉은 선 하나를 둔다.
   // 이것이 화면의 «유일한 입력 진입점»이라, 선이 없으면 다른 카드들 사이에 묻힌다.
@@ -855,6 +910,8 @@ const styles = StyleSheet.create({
   cta: { minHeight: 56, paddingHorizontal: spacing[6], borderRadius: radius.full, backgroundColor: color.action.primary, alignItems: 'center', justifyContent: 'center' },
   ctaWide: { alignSelf: 'stretch', marginTop: spacing[3] },
   ctaOff: { backgroundColor: color.surface.field },
+  ctaRound: { width: 56, paddingHorizontal: 0 },
+  compactBlocker: { alignSelf: 'center', marginTop: spacing[2] },
   phonePill: {
     minHeight: 56, paddingHorizontal: spacing[4], justifyContent: 'center',
     borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.action.outline,
@@ -896,6 +953,8 @@ const styles = StyleSheet.create({
   //    34 인 까닭: 칸 폭이 작은 폰(360)에서 29.4 · 390 에서 33.7 이라, 40 이면 옆 날짜 글자와 3 남짓밖에 안 떨어졌다.
   dot: { position: 'absolute', top: 3, left: '50%', marginLeft: -17, width: 34, height: 34, borderRadius: radius.full, backgroundColor: color.brand.navy },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: spacing[2] },
+  equalChipRow: { flexDirection: 'row', gap: spacing[2] },
+  equalChip: { flex: 1, minWidth: 0, alignItems: 'center', paddingHorizontal: spacing[1] },
   chip: { minHeight: 32, paddingHorizontal: spacing[3], justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.soft },
   counterRow: { minHeight: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   counter: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },

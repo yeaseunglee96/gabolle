@@ -6,18 +6,37 @@ import { resolveTextLanguage, type LanguageCode } from '@/i18n/languages';
 import type { PhotoLicense, PhotoSubject } from '@/discovery/places';
 import { apiRequest, ApiClientError, isServerError } from '@/api/client';
 import { UNAVAILABLE_MESSAGE } from '@/api/errorText';
+import { localNameFor, type LocalNames } from '@/discovery/localNames';
+import type { LocalAddresses } from '@/discovery/localAddress';
 
 export type FacetKeyEntry = { featureKey: string; placeCount: number; labelKo: string; labelEn?: string | null };
 // 서버 목록과 순서는 그대로 유지한다. 이 사전은 영문 표기가 없는 기존 응답의 번역만 맡는다.
 const ENGLISH_FACET_LABELS: Record<string, string> = {
   FESTIVAL: 'Festivals', NIGHT_MARKET: 'Night markets', TRADITIONAL_MARKET: 'Traditional markets',
   ACTIVITY: 'Activities', WALK: 'Walks', NATURE: 'Nature', NIGHT_VIEW: 'Night views', SOUVENIR_SHOP: 'Souvenir shops',
+  // 현지인이 추천했거나 공공기관이 인증한 식당(S15P21E201-2051)과 카페(S15P21E201-2059). 일본어·중국어·베트남어는 한국어 이름 「맛집」「카페」를 번역표에서 찾는다.
+  LOCAL_RESTAURANT: 'Restaurants',
+  LOCAL_CAFE: 'Cafes',
 };
-export function localFacetLabel(entry: FacetKeyEntry, language: LanguageCode): string {
-  if (resolveTextLanguage(language) === 'ko') return entry.labelKo;
-  return entry.labelEn?.trim() || ENGLISH_FACET_LABELS[entry.featureKey] || entry.labelKo;
+/**
+ * 갈래 이름 — 서버는 한국어·영어 이름만 준다.
+ * 🔴 일본어·중국어 화면에서 「Festivals」「Traditional markets」가 영어로 떴다(5개 언어 점검 2026-09-29).
+ *    tx 를 주면 한국어 이름을 번역표에서 찾는다 — 표에 없으면 tx 가 영어로 떨어진다.
+ * 🔴 베트남어도 같다 — 2026-10-16 웹 점검에서 베트남어 탐색 칩이 「Festivals … Restaurants, Cafes」로 영어였다(S15P21E201-2060).
+ *    번역표에는 갈래 열 개의 베트남어(「Lễ hội」「Quán ngon」「Cà phê」 …)가 이미 다 있었는데, 여기서 베트남어를 표로 안 보냈다.
+ */
+export function localFacetLabel(entry: FacetKeyEntry, language: LanguageCode, tx?: (ko: string, en: string) => string): string {
+  const text = resolveTextLanguage(language);
+  if (text === 'ko') return entry.labelKo;
+  const english = entry.labelEn?.trim() || ENGLISH_FACET_LABELS[entry.featureKey] || entry.labelKo;
+  // resolveTextLanguage 는 한국어가 아니면 전부 'en' 이다 — 영어 말고 번역표가 있는 네 언어는 원래 코드로 가른다.
+  const tableLanguage = language === 'ja' || language === 'zh-Hans' || language === 'zh-Hant' || language === 'vi';
+  return tableLanguage && tx ? tx(entry.labelKo, english) : english;
 }
-export function localPlaceName(place: { nameKo: string; nameEn: string | null }, language: LanguageCode): string {
+export function localPlaceName(place: { nameKo: string; nameEn: string | null; localNames?: LocalNames }, language: LanguageCode): string {
+  // 일본어·중국어는 관광공사 번역 이름이 먼저(S15P21E201-1860). 없으면 예전처럼 영어 → 한국어.
+  const local = localNameFor(place.localNames, language);
+  if (local) return local;
   return resolveTextLanguage(language) === 'en' ? place.nameEn?.trim() || place.nameKo : place.nameKo;
 }
 export type LocalFacetEntry = FacetKeyEntry & { placeFeatureType: string };
@@ -60,9 +79,13 @@ export type NearbyPlaceItem = {
   placeId: string;
   nameKo: string;
   nameEn: string | null;
+  /** 일본어·중국어 이름 — 관광공사가 번역해 둔 곳만(S15P21E201-1859). 없으면 칸째 빠져 온다. */
+  localNames?: LocalNames;
   category: string | null;
   address: string | null;
   addressEn?: string;
+  /** 일본어·중국어 주소 — 관광공사가 번역해 둔 곳만(S15P21E201-1876). 화면은 addressForLanguage 로 고른다. */
+  localAddresses?: LocalAddresses;
   lat: number;
   lng: number;
   distanceM: number;

@@ -57,6 +57,8 @@ for (const match of catalogSource.matchAll(/^\s*'((?:[^'\\]|\\.)*)':\s*\{(.*)\},
     ja: /\bja:\s*'/.test(body),
     zhHans: /\bzhHans:\s*'/.test(body),
     zhHant: /\bzhHant:\s*'/.test(body),
+    // 여섯째 언어 베트남어 — S15P21E201-2003. 빠지면 베트남어 화면에서 그 줄만 영어로 뜬다.
+    vi: /\bvi:\s*'/.test(body),
   });
 }
 
@@ -77,7 +79,7 @@ function check(key, where) {
   checked += 1;
   const entry = catalog.get(key);
   if (!entry) { missing.push(`${where}  ${JSON.stringify(key)}`); return; }
-  const holes = ['ja', 'zhHans', 'zhHant'].filter((field) => !entry[field]);
+  const holes = ['ja', 'zhHans', 'zhHant', 'vi'].filter((field) => !entry[field]);
   if (holes.length > 0) incomplete.push(`${where}  ${JSON.stringify(key)}  (빠진 언어: ${holes.join(' · ')})`);
 }
 
@@ -156,7 +158,7 @@ if (checked < 500) {
 if (missing.length > 0 || incomplete.length > 0) {
   console.error('🔴 카탈로그에 없는 문구가 있습니다 (S15P21E201-1340). 일본어·중국어 화면에서 이 줄만 영어로 뜹니다.\n');
   for (const line of [...missing, ...incomplete]) console.error('  ' + line);
-  console.error('\nsrc/i18n/translations.ts 에 그 한국어 원문을 키로 ja·zhHans·zhHant 를 채우세요.');
+  console.error('\nsrc/i18n/translations.ts 에 그 한국어 원문을 키로 ja·zhHans·zhHant·vi 를 채우세요.');
   console.error('값이 끼는 문구: 숫자만 끼면 숫자 자리를 %d 로 바꾼 모양을 올리고, 글자가 끼면 txf(tx, \'%s…\', \'%s…\', 값) 으로 바꾸세요.');
   process.exit(1);
 }

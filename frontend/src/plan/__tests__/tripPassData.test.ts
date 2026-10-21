@@ -225,3 +225,26 @@ describe('여행표 오른쪽 칸 (시안 p4 의 details)', () => {
     expect(rows()['예상 비용']).toBe('7.8만원');
   });
 });
+
+// UI 캔버스 ⑤-6 — 「출발 09:30 → 도착 부산 17:30」은 17:30 에 부산에 도착하는 것처럼 읽혔다.
+describe('첫·마지막 일정과 지킨 조건', () => {
+  it('🔴 첫 일정과 마지막 일정의 시각·이름을 앞면 위 줄에 싣는다', () => {
+    const pass = buildTripPass(input());
+    expect(pass.firstStop).toEqual({ time: '10:30', name: '감천문화마을' });
+    expect(pass.lastStop).toEqual({ time: '11:00', name: '해운대해수욕장' });
+    // 위 줄에 있으니 아래 칸에서 「첫 일정」을 또 적지 않는다.
+    expect(pass.fields.map((field) => field.key)).not.toContain('첫 일정');
+  });
+
+  it('한 곳뿐이면 위 줄은 예전 모양(마지막이 없다)', () => {
+    const one = itinerary({ days: [{ date: '2026-09-20', items: [{ id: 'i1', startsAt: '2026-09-20T10:30:00', title: '감천문화마을', locked: false, placeId: 'p1' } as never] }] });
+    const pass = buildTripPass(input({ itinerary: one }));
+    expect(pass.firstStop).toBeNull();
+    expect(pass.fields.map((field) => field.key)).toContain('첫 일정');
+  });
+
+  it('지킨 조건은 부르는 쪽이 준 것만 — 없으면 빈 배열', () => {
+    expect(buildTripPass(input({ conditions: ['채식', '계단 피하기'] })).conditions).toEqual(['채식', '계단 피하기']);
+    expect(buildTripPass(input()).conditions).toEqual([]);
+  });
+});

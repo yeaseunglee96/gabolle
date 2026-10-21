@@ -18,11 +18,12 @@ import { NotificationsBody } from '@/me/panels/NotificationsBody';
 import { PreferencesBody } from '@/me/panels/PreferencesBody';
 import { ProfileBody } from '@/me/panels/ProfileBody';
 import { RelationBody } from '@/me/panels/RelationBody';
+import { SavedPlacesBody } from '@/me/panels/SavedPlacesBody';
 import { SavedRecordsBody } from '@/me/panels/SavedRecordsBody';
 import { TermsBody } from '@/me/panels/TermsBody';
 
 export type MyPanelKey =
-  | 'posts' | 'saved' | 'replies' | 'followers' | 'following' | 'preferences'
+  | 'posts' | 'saved' | 'saved-places' | 'replies' | 'followers' | 'following' | 'preferences'
   | 'identities' | 'profile' | 'delete-account' | 'notifications' | 'blocked' | 'help' | 'terms';
 
 type Translate = (ko: string, en: string) => string;
@@ -37,6 +38,8 @@ export function panelTitle(key: MyPanelKey, tx: Translate): { title: string; des
   switch (key) {
     case 'posts': return { title: tx('내 기록', 'My records'), description: tx('피드에 남긴 내 글이에요. 공개 범위는 쓸 때 정한 그대로 보여드려요.', 'These are the posts you left on the feed, with the visibility you chose when writing them.') };
     case 'saved': return { title: tx('저장한 기록', 'Saved records'), description: tx('다른 여행자의 기록 중 눌러 담아 둔 것이에요.', 'Records from other travellers that you bookmarked.') };
+    // 둘러보기·장소 상세에서 「내 여행 후보에 저장」한 곳 — 저장은 됐는데 볼 길이 없었다(S15P21E201-1969).
+    case 'saved-places': return { title: tx('저장한 장소', 'Saved places'), description: tx('둘러보기와 장소 상세에서 내 여행 후보로 저장한 곳이에요. 여행을 만들 때 꼭 가고 싶은 곳으로 고를 수 있어요.', 'Places you saved as trip candidates from Explore and place pages. You can pick them as must-visit places when you plan a trip.') };
     case 'replies': return { title: tx('내 댓글', 'My comments'), description: tx('내가 남긴 댓글이에요. 원글이 지워지거나 가려져도 여기서 찾고 지울 수 있어요.', 'Comments you left. You can find and delete them here even if the original post was deleted or hidden.') };
     case 'followers': return { title: tx('팔로워', 'Followers'), description: tx('나를 팔로우하는 사람들이에요.', 'People who follow you.') };
     case 'following': return { title: tx('팔로잉', 'Following'), description: tx('내가 팔로우하는 사람들이에요.', 'People you follow.') };
@@ -73,6 +76,7 @@ export function myPanelBody(key: MyPanelKey): ReactNode {
     case 'notifications': return <NotificationsBody />;
     case 'posts': return <MyPostsBody />;
     case 'saved': return <SavedRecordsBody />;
+    case 'saved-places': return <SavedPlacesBody />;
     case 'replies': return <MyRepliesBody />;
     case 'preferences': return <PreferencesBody />;
     case 'profile': return <ProfileBody />;
@@ -86,6 +90,6 @@ export function isPanelKey(value: unknown): value is MyPanelKey {
 }
 
 const PANEL_KEYS: readonly MyPanelKey[] = [
-  'posts', 'saved', 'replies', 'followers', 'following', 'preferences',
+  'posts', 'saved', 'saved-places', 'replies', 'followers', 'following', 'preferences',
   'identities', 'profile', 'delete-account', 'notifications', 'blocked', 'help', 'terms',
 ];

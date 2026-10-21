@@ -74,7 +74,8 @@ export function MyPageSheetBody({
     <View style={styles.head}>
       <View style={styles.headCopy}>
         <Eyebrow>{tx('내 계정', 'Account')}</Eyebrow>
-        <Text variant="display" weight="bold" numberOfLines={1}>{title}</Text>
+        {/* 두 줄까지 — 일본어는 제목이 길어 한 줄이면 「ブロックしたアカウ…」로 잘렸다(S15P21E201-1867). */}
+        <Text variant="display" weight="bold" numberOfLines={2}>{title}</Text>
         {description ? <Text variant="caption">{description}</Text> : null}
       </View>
       <Pressable accessibilityRole="button" onPress={onClose} style={({ pressed }) => [styles.closeChip, pressed && styles.pressed]}>
@@ -96,6 +97,9 @@ const styles = StyleSheet.create({
   closeChip: { minHeight: 32, justifyContent: 'center', paddingHorizontal: spacing[3], borderRadius: radius.full, backgroundColor: color.surface.soft },
   pressed: { opacity: 0.72 },
   // 머리와 본문 사이에 선을 긋는다 — 본문이 길면 머리가 어디까지인지 안 보인다.
-  body: { flex: 1, marginTop: spacing[3], borderTopWidth: 1, borderTopColor: color.surface.border, backgroundColor: color.canvas },
-  bodyContent: { paddingTop: spacing[4], paddingBottom: spacing[4] },
+  // 🔴 회색 판은 시트 끝까지 붙인다(S15P21E201-1867). 전에는 시트의 안쪽 여백(좌우 12 · 아래 16) 안에 회색 판이 한 겹 더 들어가,
+  //    흰 시트 속에 회색 상자가 떠 있고 양옆·아래에 흰 띠가 남았다 — 흰 카드는 그 회색 판 끝에 딱 붙었다.
+  //    판은 시트 여백만큼 밖으로 내고(시트가 둥근 모서리로 잘라 준다), 여백은 판 «안»으로 옮긴다.
+  body: { flex: 1, marginTop: spacing[3], marginHorizontal: -spacing[3], marginBottom: -spacing[4], borderTopWidth: 1, borderTopColor: color.surface.border, backgroundColor: color.canvas },
+  bodyContent: { paddingTop: spacing[4], paddingHorizontal: spacing[3], paddingBottom: spacing[6] },
 });

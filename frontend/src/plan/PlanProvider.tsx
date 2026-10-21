@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState, type R
 import { getApiLanguage } from '@/api/client';
 import { useAuth } from '@/auth/AuthProvider';
 import { conflictingFoodCode, foodLabel } from './foodConflicts';
-import { conditionsToDraftPatch, loadTravelConditions } from './travelConditions';
+import { loadTravelConditions, type TravelConditions } from './travelConditions';
 import type { PlaceSnapshot } from './origins';
 import type { PlaceEnglishName } from '@/home/startBarValue';
 import { hasPlanInput, parseStoredDraft } from './planDraftCarry';
@@ -64,6 +64,8 @@ export type PlanDraft = {
   shadePreference: 'PREFER' | 'NO_PREFERENCE' | null;
   wheelchair: boolean | null;
   stroller: boolean | null;
+  // 큰 짐. 서버는 이것을 접근성 표식 없이 «경사로만» 가른다(BaselineCandidateScorer.evaluateMobility) —
+  // 「반드시」면 8.33% 넘게 가파른 곳을 빼고 「되도록」이면 경고만. 계단 없는 길 찾기(stepFree)에는 안 들어간다.
   luggage: boolean | null;
   accessibilityNeeds: string[];
   travelAreas: string[];
@@ -81,6 +83,9 @@ export type PlanDraft = {
    * 채워져 있으면 제출 시 일반 생성 대신 POST /api/v1/shares/{token}/clone 을 부른다.
    */
   cloneShareToken: string | null;
+  /** 이 초안으로 «한 번» 만드는 시도의 이름표 — S15P21E201-1994. 여행 생성 Idempotency-Key 에 섞는다.
+   *  조건만으로 키를 만들면 같은 조건의 새 여행이 앞 여행으로 열렸다. 비운 뒤 처음 고칠 때 새로 붙는다. */
+  attemptId?: string | null;
 };
 
 const VERSION = 1;
@@ -93,12 +98,20 @@ const ANONYMOUS_KEY = `${STORAGE_PREFIX}:anonymous`;
 const LEGACY_STORAGE_KEY = STORAGE_PREFIX;
 
 const storageKeyFor = (userId: string | null) => (userId ? `${STORAGE_PREFIX}:${userId}` : ANONYMOUS_KEY);
-export const EMPTY_PLAN: PlanDraft = { startDate: '', endDate: '', travelers: 1, adults: 1, children: 0, origin: '', originLat: null, originLng: null, lodging: '', lodgingLat: null, lodgingLng: null, lodgingPlace: null, originEnglish: null, lodgingEnglish: null, transport: 'TRANSIT', budgetKrw: DAILY_BUDGET_PER_PERSON_KRW, budgetEdited: false, dayStartTime: '09:00', dayEndTime: '21:00', walkingLevel: 'MEDIUM', companionType: 'SOLO', preferences: [], preferenceAnswerStatus: { category: 'UNKNOWN', atmosphere: 'UNKNOWN', locality: 'UNKNOWN', quietness: 'UNKNOWN', touristPreference: 'UNKNOWN', foodPreference: 'UNKNOWN' }, atmospheres: [], localityLevel: null, quietLevel: null, touristLevel: null, foods: [], dietTypes: [], allergies: [], allergyStatus: 'UNKNOWN', allergyAnswered: false, dietStatus: 'UNKNOWN', dietAnswered: false, maxWalkingDistanceM: null, slopeConstraint: null, stairsConstraint: null, shadePreference: null, wheelchair: null, stroller: null, luggage: null, accessibilityNeeds: [], travelAreas: [], maxCompletedStep: 0, paceLevel: null, englishMenuRequired: false, foreignCardRequired: false, soloDiningPreferred: false, accommodation: '', accommodationPlace: null, maxTransfers: null, mustVisitPlaces: [], cloneShareToken: null };
+/** 시도 이름표 — 겹치지만 않으면 된다(보안 값이 아니다). */
+export function newAttemptId(): string { return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`; }
 
+export const EMPTY_PLAN: PlanDraft = { startDate: '', endDate: '', travelers: 1, adults: 1, children: 0, origin: '', originLat: null, originLng: null, lodging: '', lodgingLat: null, lodgingLng: null, lodgingPlace: null, originEnglish: null, lodgingEnglish: null, transport: 'TRANSIT', budgetKrw: DAILY_BUDGET_PER_PERSON_KRW, budgetEdited: false, dayStartTime: '09:00', dayEndTime: '21:00', walkingLevel: 'MEDIUM', companionType: 'SOLO', preferences: [], preferenceAnswerStatus: { category: 'UNKNOWN', atmosphere: 'UNKNOWN', locality: 'UNKNOWN', quietness: 'UNKNOWN', touristPreference: 'UNKNOWN', foodPreference: 'UNKNOWN' }, atmospheres: [], localityLevel: null, quietLevel: null, touristLevel: null, foods: [], dietTypes: [], allergies: [], allergyStatus: 'UNKNOWN', allergyAnswered: false, dietStatus: 'UNKNOWN', dietAnswered: false, maxWalkingDistanceM: null, slopeConstraint: null, stairsConstraint: null, shadePreference: null, wheelchair: null, stroller: null, luggage: null, accessibilityNeeds: [], travelAreas: [], maxCompletedStep: 0, paceLevel: null, englishMenuRequired: false, foreignCardRequired: false, soloDiningPreferred: false, accommodation: '', accommodationPlace: null, maxTransfers: null, mustVisitPlaces: [], cloneShareToken: null, attemptId: null };
+
+// 초안을 기기에 적을 때 비우는 칸. 여기 있는 조건은 새로고침 뒤 여행 조건(travelConditions.ts)이 다시 채운다.
+// 🔴 휠체어·유아차·큰 짐은 여기 두지 않는다 — 여행마다 바뀌는 답이라 여행 조건에 저장되지 않아, 비우면
+//    다시 채울 곳이 없다. 새로고침이나 웹 소셜 로그인(페이지를 떠났다 돌아온다) 한 번에 답이 null 이 되고,
+//    그 null 이 「모름(UNKNOWN)」으로 나가 휠체어 조건 없이 일정이 만들어졌다. 초안은 여행을 만들면 clear() 로
+//    지워지므로 다음 여행에 새지 않는다.
 const VOLATILE_CONSTRAINTS: Partial<PlanDraft> = {
   allergies: [], dietTypes: [], allergyStatus: 'UNKNOWN', allergyAnswered: false, dietStatus: 'UNKNOWN', dietAnswered: false,
   maxWalkingDistanceM: null, slopeConstraint: null, stairsConstraint: null,
-  shadePreference: null, wheelchair: null, stroller: null, luggage: null,
+  shadePreference: null,
   accessibilityNeeds: [],
 };
 
@@ -128,6 +141,35 @@ export function applyTasteProfile(current: PlanDraft, saved: TasteAnswers): Plan
   return changed ? { ...current, ...patch, preferenceAnswerStatus: status } : current;
 }
 
+/**
+ * 저장해 둔 여행 조건을 이번 여행에서 **아직 답하지 않은 칸에만** 넣는다 — 평소 취향(applyTasteProfile)과 같은 규칙.
+ *
+ * 🔴 전에는 저장값 전체를 덮어썼다(`{ ...current, ...저장값 }`). 그래서
+ *    ① 저장값의 slopeConstraint 가 null 이면, 먼저 도착한 평소 취향이 채운 경사 답을 null 로 지웠다 — 두 응답 중
+ *       어느 것이 먼저 오느냐에 따라 경사 답이 있다 없다 했다.
+ *    ② 알레르기·식단이 「모름」인 동안에는 로그인 열쇠가 바뀔 때마다(한 시간마다) 다시 덮어써서, 이번 여행에서
+ *       고친 경사·계단·걷기 답이 저장값으로 되돌아갔다.
+ *    이제 null·UNKNOWN 인 칸만 채우고, 값이 있는 칸은 건드리지 않는다. 바뀐 것이 없으면 같은 객체를 돌려준다.
+ */
+export function fillSavedConditions(current: PlanDraft, saved: TravelConditions): PlanDraft {
+  const patch: Partial<PlanDraft> = {};
+  if (current.allergyStatus === 'UNKNOWN' && saved.allergyStatus !== 'UNKNOWN') {
+    patch.allergyStatus = saved.allergyStatus;
+    patch.allergies = saved.allergyStatus === 'VALUES' ? [...saved.allergies] : [];
+    patch.allergyAnswered = true;
+  }
+  if (current.dietStatus === 'UNKNOWN' && saved.dietStatus !== 'UNKNOWN') {
+    patch.dietStatus = saved.dietStatus;
+    patch.dietTypes = saved.dietStatus === 'VALUES' ? [...saved.dietTypes] : [];
+    patch.dietAnswered = true;
+  }
+  if (current.maxWalkingDistanceM === null && saved.maxWalkingDistanceM !== null) patch.maxWalkingDistanceM = saved.maxWalkingDistanceM;
+  if (current.slopeConstraint === null && saved.slopeConstraint !== null) patch.slopeConstraint = saved.slopeConstraint;
+  if (current.stairsConstraint === null && saved.stairsConstraint !== null) patch.stairsConstraint = saved.stairsConstraint;
+  if (current.shadePreference === null && saved.shadePreference !== null) patch.shadePreference = saved.shadePreference;
+  return Object.keys(patch).length ? { ...current, ...patch } : current;
+}
+
 type PlanContextValue = {
   draft: PlanDraft;
   ready: boolean;
@@ -152,6 +194,10 @@ export function PlanProvider({ children }: { children: ReactNode }) {
   const [foodConflictNotice, setFoodConflictNotice] = useState<string | null>(null);
   const changedBeforeHydration = useRef(false);
   const tasteProfileAppliedKey = useRef<string | null>(null);
+  // 저장해 둔 여행 조건을 이 열쇠(계정)에 얹었나 — 로그인 열쇠가 바뀔 때마다 다시 얹지 않는다(fillSavedConditions 주석 ②).
+  const conditionsAppliedKey = useRef<string | null>(null);
+  // clear() 로 새 여행을 시작할 때 늘린다 — 비운 초안에 저장해 둔 여행 조건을 다시 기본값으로 얹는다.
+  const [conditionsNonce, setConditionsNonce] = useState(0);
   const ready = hydratedKey !== null;
 
   useEffect(() => {
@@ -207,17 +253,17 @@ export function PlanProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // 로그인 안 한 사람에게도 얹는다. 그 사람의 답은 기기에만 있지만, 이번 여행에는
     // 똑같이 걸린다 — 여기서 빼면 로그인 전에 적은 알레르기가 새로고침 한 번에 사라진다.
-    if (!authReady || hydratedKey !== storageKey) return;
+    if (!authReady || hydratedKey !== storageKey || conditionsAppliedKey.current === storageKey) return;
     let alive = true;
     void loadTravelConditions(userId, accessToken).then((record) => {
       const saved = record.conditions;
       if (!alive || !saved) return;
-      setDraft((current) => (current.allergyStatus === 'UNKNOWN' && current.dietStatus === 'UNKNOWN'
-        ? { ...current, ...conditionsToDraftPatch(saved) }
-        : current));
-    });
+      // 🔴 받아서 얹은 뒤에만 표시한다 — 받는 도중 열쇠가 바뀌어 이 답을 버렸으면 다음 번에 다시 묻는다.
+      conditionsAppliedKey.current = storageKey;
+      setDraft((current) => fillSavedConditions(current, saved));
+    }).catch(() => { /* 여행 조건을 못 읽어도 여행 작성은 막지 않는다. */ });
     return () => { alive = false; };
-  }, [accessToken, authReady, hydratedKey, storageKey, userId]);
+  }, [accessToken, authReady, hydratedKey, storageKey, userId, conditionsNonce]);
 
   // 계정에 저장된 평소 취향(로컬성·조용함·음식·경사)을 새 여행의 기본값으로 얹는다.
   // 여행 조건(위)과 같은 방식이다 — 아직 답하지 않은 칸에만 넣으므로, /plan 에서 그 문항을
@@ -257,9 +303,14 @@ export function PlanProvider({ children }: { children: ReactNode }) {
     draft,
     ready,
     // 인원·날짜가 바뀌면 손대지 않은 예산 기본값이 따라간다 — 모든 입력(홈 시작 바·질문 화면·AI 도우미)이 여기를 지난다.
-    update: (patch) => { if (!ready) changedBeforeHydration.current = true; setDraft((current) => applyBudgetDefault(current, patch)); },
+    update: (patch) => { if (!ready) changedBeforeHydration.current = true; setDraft((current) => { const next = applyBudgetDefault(current, patch); return next.attemptId ? next : { ...next, attemptId: newAttemptId() }; }); },
     completeStep: (step) => setDraft((current) => ({ ...current, maxCompletedStep: Math.max(current.maxCompletedStep, step) })),
-    clear: async () => { setDraft(EMPTY_PLAN); await AsyncStorage.removeItem(storageKey); },
+    clear: async () => {
+      setDraft(EMPTY_PLAN);
+      conditionsAppliedKey.current = null;
+      setConditionsNonce((n) => n + 1);
+      await AsyncStorage.removeItem(storageKey);
+    },
     basicComplete: Boolean(draft.startDate && draft.endDate && draft.endDate >= draft.startDate && draft.travelers > 0),
     foodConflictNotice,
     clearFoodConflictNotice: () => setFoodConflictNotice(null),
@@ -272,4 +323,14 @@ export function usePlan() {
   const value = useContext(PlanContext);
   if (!value) throw new Error(tx('usePlan은 PlanProvider 안에서 사용해야 합니다.', 'usePlan must be used inside PlanProvider.'));
   return value;
+}
+
+/**
+ * 여행 계획 초안 — PlanProvider 밖에서도 부를 수 있고, 밖이면 null 이다(던지지 않는다).
+ *
+ * 여행 페이지가 «서버가 경사·그늘 선택을 아직 안 알려 줄 때» 기기의 초안으로 대신하려고 쓴다(S15P21E201-1896). 여행 페이지는
+ * 초안 없이도 열려야 하므로 usePlan 처럼 던지면 안 된다.
+ */
+export function useOptionalPlanDraft(): PlanDraft | null {
+  return useContext(PlanContext)?.draft ?? null;
 }

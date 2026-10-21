@@ -144,8 +144,8 @@ export async function buildNearbyNowResult(
     state: 'partial',
     candidates,
     weatherApplied: false,
-    message: t('지금 갈 곳 추천은 아직 준비 중이에요. 그동안 현재 위치에서 가까운 순서로 보여드려요 — 이동 시간은 걷는 속도로 어림한 값이고, 영업 시간은 확인하지 못했어요.',
-      'Nearby-now recommendations are still being built. Meanwhile, here are real places sorted by distance — walking times are estimates, and opening hours are unconfirmed.'),
+    message: t('지금 위치에서 가까운 순서로 골랐어요. 이동 시간은 걷는 속도로 어림한 값이에요. 영업 시간은 가기 전에 확인해 주세요.',
+      'Sorted by distance from where you are. Walking times are estimates — check opening hours before you go.'),
   };
 }
 

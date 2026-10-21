@@ -5,7 +5,7 @@ import { stopNameForLanguage } from '@/discovery/romanize';
 import { txf } from '@/i18n/format';
 import { resolveTextLanguage, type LanguageCode } from '@/i18n/languages';
 import { lodgingMissing } from '@/plan/lodgingRequired';
-import type { PlaceSnapshot } from '@/plan/origins';
+import { knownPlaceLocalName, type PlaceSnapshot } from '@/plan/origins';
 
 /**
  * 고른 출발지·숙소의 영어 이름 — S15P21E201-1795(고지혁 QA). **화면에만 쓴다.**
@@ -59,7 +59,8 @@ export function englishNameOf(name: string, english: PlaceEnglishName | null | u
 export function startBarPlaceName(name: string, english: PlaceEnglishName | null | undefined, language?: LanguageCode): string {
   const trimmed = name.trim();
   if (!language || !trimmed) return trimmed;
-  return stopNameForLanguage(trimmed, englishNameOf(name, english), language);
+  // 정해 둔 출발지·동네는 일본어·중국어 이름이 먼저다(S15P21E201-1923) — 「釜山駅 (부산역)」.
+  return stopNameForLanguage(trimmed, knownPlaceLocalName(trimmed, language) ?? englishNameOf(name, english), language);
 }
 
 /**
@@ -70,7 +71,7 @@ export function startBarPlaceName(name: string, english: PlaceEnglishName | null
 export function startBarPlaceShortName(name: string, english: PlaceEnglishName | null | undefined, language?: LanguageCode): string {
   const trimmed = name.trim();
   if (!language || resolveTextLanguage(language) === 'ko') return trimmed;
-  return englishNameOf(name, english) ?? trimmed;
+  return knownPlaceLocalName(trimmed, language) ?? englishNameOf(name, english) ?? trimmed;
 }
 
 export const EMPTY_START_BAR: StartBarValue = {
@@ -137,6 +138,9 @@ export function startBarFromDraft(draft: StartBarValue): StartBarValue {
 const WEEKDAY_KO = ['일', '월', '화', '수', '목', '금', '토'];
 const WEEKDAY_EN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+/** 서버가 받는 가장 긴 여행 — TripConditionRules.MAX_NIGHTS(7박 8일). 달력이 8일째 뒤를 못 누르게 한다. */
+export const MAX_TRIP_NIGHTS = 7;
+
 export function toDateKey(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
@@ -199,7 +203,7 @@ export function summarizeStartBar(value: StartBarValue, tx: StartBarTx, language
       : formatDateShort(value.startDate, tx);
     parts.push(range);
     const nights = nightCount(value.startDate, value.endDate || value.startDate);
-    parts.push(nights > 0 ? tx(`${nights}박`, `${nights} nights`) : tx('당일치기', 'Day trip'));
+    parts.push(nights > 0 ? tx(`${nights}박`, `${nights} ${nights === 1 ? 'night' : 'nights'}`) : tx('당일치기', 'Day trip'));
   }
 
   const people: string[] = [];
@@ -224,7 +228,7 @@ export function startBarChips(value: StartBarValue, tx: StartBarTx, language?: L
       ? `${formatDateShort(value.startDate, tx)} – ${formatDateShort(value.endDate, tx)}`
       : formatDateShort(value.startDate, tx);
     const nights = nightCount(value.startDate, value.endDate || value.startDate);
-    const stay = nights > 0 ? tx(`${nights}박`, `${nights} nights`) : tx('당일치기', 'Day trip');
+    const stay = nights > 0 ? tx(`${nights}박`, `${nights} ${nights === 1 ? 'night' : 'nights'}`) : tx('당일치기', 'Day trip');
     chips.push(`${range} · ${stay}`);
   }
   const people: string[] = [];

@@ -1,4 +1,5 @@
-import { Image, StyleSheet, View, type ImageSourcePropType, type StyleProp, type ViewStyle } from 'react-native';
+import { StyleSheet, View, type ImageSourcePropType, type StyleProp, type ViewStyle } from 'react-native';
+import { AppImage } from '@/components/AppImage';
 
 import { PhotoCreditBar } from '@/components/PhotoCreditBar';
 import { Text } from '@/components/Text';
@@ -48,13 +49,14 @@ export function PlaceVisual({ name, address, style, photoUrl, photoSource, photo
   const visualKey = resolvePlaceVisual(name, address);
   const labels = photoLabels({ photoSource, photoLicense }, tx);
   const credit = photoUrl ? labels.credit : null;
+  const frame = frameStyle(style);
 
   // 서버 사진이 있으면 그것이 먼저다 — 번들 사진은 이름이 우연히 맞은 것이고
   // 서버 사진은 그 장소를 가리켜 붙은 것이다.
   if (photoUrl && credit) {
     return (
-      <View style={[styles.frame, style]}>
-        <Image source={{ uri: photoUrl }} resizeMode="cover" accessibilityLabel={`${name} 장소 사진`} style={styles.image} />
+      <View testID="place-visual-frame" style={frame}>
+        <AppImage source={{ uri: photoUrl }} resizeMode="cover" accessibilityLabel={`${name} 장소 사진`} style={styles.image} />
         <PhotoSubjectBadge photoSubject={photoSubject} style={styles.subjectBadge} />
         {/* 출처 띠는 둘러보기 카드와 같은 부품이다(S15P21E201-1682) — 「사진: …」 두 줄까지, 라이선스는 둘째 줄에 따로. */}
         {photoSource ? <PhotoCreditBar source={photoSource} license={photoLicense?.name ?? null} licenseUrl={labels.licenseUrl} tx={tx} /> : null}
@@ -63,9 +65,9 @@ export function PlaceVisual({ name, address, style, photoUrl, photoSource, photo
   }
 
   return (
-    <View style={[styles.frame, style]}>
+    <View testID="place-visual-frame" style={frame}>
       {visualKey ? (
-        <Image
+        <AppImage
           source={PLACE_IMAGES[visualKey]}
           resizeMode="cover"
           accessibilityLabel={`${name} 장소 사진`}
@@ -86,6 +88,20 @@ export function PlaceVisual({ name, address, style, photoUrl, photoSource, photo
   );
 }
 
+/**
+ * 틀 모양 — 기본은 폭 100% · 4:3. 부르는 쪽이 높이를 주면(칸 채우기) 4:3 을 버린다 (S15P21E201-1952).
+ * 높이와 비율이 함께 있으면 네이티브는 높이에 맞춰 폭을 4/3 배로 늘려, 칸 밖으로 나간 양쪽이 잘린다 —
+ * 탭 앱 일정 카드의 출처 띠가 「진: 한국관광공사」로 앞 글자가 잘렸다. 비율을 직접 주면 그 비율을 쓴다.
+ */
+function frameStyle(style: StyleProp<ViewStyle>): StyleProp<ViewStyle> {
+  const own = StyleSheet.flatten(style) ?? {};
+  if (own.height != null && own.aspectRatio == null) {
+    const { aspectRatio: _dropped, ...rest } = StyleSheet.flatten([styles.frame, style]);
+    return rest;
+  }
+  return [styles.frame, style];
+}
+
 const styles = StyleSheet.create({
   // 출처 문구는 사진 위에 얹는다 — 카드가 작아 아래에 줄을 더하면 이름이 밀린다.
   // 어두운 띠를 깔아 밝은 사진 위에서도 읽히게 한다 (공공누리 표기 의무).
@@ -94,7 +110,8 @@ const styles = StyleSheet.create({
   frame: { position: 'relative', width: '100%', aspectRatio: 4 / 3, overflow: 'hidden', borderRadius: radius.md, backgroundColor: color.surface.soft },
   image: { width: '100%', height: '100%' },
   fallback: { flex: 1, overflow: 'hidden', backgroundColor: '#dceff2' },
-  sun: { position: 'absolute', top: spacing[3], right: spacing[3], width: 28, height: 28, borderRadius: radius.full, backgroundColor: '#ffd391' },
+  // 해는 오른쪽 위 모서리를 비운다 — 그 자리에 하트(저장) 버튼이 얹혀, 해가 하트 뒤의 동그라미로 보였다(사용자 지적 2026-10-02)
+  sun: { position: 'absolute', top: spacing[3], right: 56, width: 28, height: 28, borderRadius: radius.full, backgroundColor: '#ffd391' },
   waveBack: { position: 'absolute', left: -24, right: -24, bottom: -28, height: '58%', borderRadius: radius.full, backgroundColor: '#8fcbd3', transform: [{ rotate: '-4deg' }] },
   waveFront: { position: 'absolute', left: -32, right: -20, bottom: -48, height: '58%', borderRadius: radius.full, backgroundColor: '#4da8b5', transform: [{ rotate: '5deg' }] },
   pin: { position: 'absolute', top: '27%', left: '44%', width: 30, height: 30, borderRadius: radius.full, borderBottomRightRadius: radius.sm, alignItems: 'center', justifyContent: 'center', backgroundColor: color.action.secondary, transform: [{ rotate: '45deg' }] },

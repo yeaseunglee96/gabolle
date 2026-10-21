@@ -2221,6 +2221,11 @@ export const OPEN_SOURCE_NOTICES = [
     "license": "MIT"
   },
   {
+    "name": "expo-image",
+    "version": "57.0.5",
+    "license": "MIT"
+  },
+  {
     "name": "expo-image-manipulator",
     "version": "57.0.16",
     "license": "MIT"

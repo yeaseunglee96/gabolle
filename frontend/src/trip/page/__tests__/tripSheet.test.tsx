@@ -15,9 +15,12 @@ import * as reanimated from 'react-native-reanimated';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 
 import { OnboardingPreferencesProvider } from '@/onboarding/OnboardingPreferences';
+import { radius } from '@/design/tokens';
 import { TripPageMobile } from '@/trip/page/TripPageMobile';
 
 const mapProps: Array<{ height?: number; bottomInset?: number; topInset?: number; refitKey?: string | number | null }> = [];
+// 색 범례(S15P21E201-1896) — 칠한 선이 있을 때만 있다. 가짜 useTripPage 가 이 값을 그대로 돌려준다.
+let mockRouteLegend: { grading: { slope: boolean; shade: boolean }; hasShade: boolean } | null = null;
 
 const mockPush = jest.fn();
 jest.mock('expo-router', () => ({ useRouter: () => ({ push: mockPush, replace: jest.fn(), back: jest.fn(), canGoBack: () => true }) }));
@@ -25,8 +28,6 @@ jest.mock('react-native-safe-area-context', () => ({ useSafeAreaInsets: () => ({
 jest.mock('@/auth/AuthProvider', () => ({ useAuth: () => ({ accessToken: 'token', ready: true }) }));
 jest.mock('@/layout/useLayout', () => ({ useLayout: () => ({ kind: 'phone', desktop: false, width: 390, height: 844, isLandscape: false }) }));
 jest.mock('@/map/RouteMap', () => ({ RouteMap: (props: { height?: number; bottomInset?: number }) => { mapProps.push(props); return null; } }));
-jest.mock('@/map/MobilityLayerToggle', () => ({ MobilityLayerToggle: () => null }));
-jest.mock('@/map/mobilityLayers', () => ({ ...jest.requireActual('@/map/mobilityLayers'), useMobilityLayer: () => ({ lines: [], basis: null }) }));
 jest.mock('@/trip/TripInvitePanel', () => ({ TripInvitePanel: () => { const { Text: T } = jest.requireActual('react-native'); return <T>invite-panel</T>; } }));
 jest.mock('@/trip/TripReadLinkPanel', () => ({ TripReadLinkPanel: () => { const { Text: T } = jest.requireActual('react-native'); return <T>share-panel</T>; } }));
 jest.mock('@/trip/TripWeatherPanel', () => ({ TripWeatherPanel: () => { const { Text: T } = jest.requireActual('react-native'); return <T>weather-panel</T>; } }));
@@ -52,14 +53,14 @@ jest.mock('@/trip/page/useTripPage', () => {
     anyEstimatedLine: false, allItems: [item], travelTotal: 0, budget: null, atRisk: [], allEstimated: false,
     title: '광안리 여행', headSub: '10월 3일', confirm: noop, confirming: false,
   };
-  return { useTripPage: () => value };
+  return { useTripPage: () => ({ ...value, routeLegend: mockRouteLegend }) };
 });
 
 const wrapper = ({ children }: { children: ReactNode }) => <OnboardingPreferencesProvider>{children}</OnboardingPreferencesProvider>;
 const mount = () => render(<TripPageMobile source={{ kind: 'itinerary', itineraryId: 'it-1' }} />, { wrapper });
 const openModals = () => screen.UNSAFE_queryAllByType(Modal).filter((modal) => modal.props.visible);
 
-beforeEach(() => { mapProps.length = 0; mockPush.mockClear(); jest.useFakeTimers(); });
+beforeEach(() => { mapProps.length = 0; mockRouteLegend = null; mockPush.mockClear(); jest.useFakeTimers(); });
 // 창의 움직임을 끝까지 돌리고 정리한다 — 안 그러면 시험이 끝난 뒤에도 움직임이 돌아 경고가 쏟아진다.
 afterEach(() => { act(() => { jest.runOnlyPendingTimers(); }); jest.useRealTimers(); });
 
@@ -90,17 +91,34 @@ describe('폰 여행 화면의 일정 창', () => {
     expect(mapProps[mapProps.length - 1].height).toBe(opened);
   });
 
+  it('🔴 지도 아래쪽이 화면 밖으로 밀린 만큼도 가렸다고 알린다 — − 단추가 창 윗변에 깔리지 않게(S15P21E201-1962)', () => {
+    // 지도는 둥근 모서리를 숨기려 위·아래로 radius.lg 씩 화면 밖에 있다. 창 윗변(시험 화면에서 190) 위로 드러난 지도 =
+    // 지도 높이 − 아래 가림 − 위로 밀린 radius.lg. 아래로 밀린 radius.lg 를 빼먹으면 단추가 그만큼 낮아 창에 깔린다.
+    mount();
+    const last = mapProps[mapProps.length - 1];
+    expect((last.height ?? 0) - (last.bottomInset ?? 0) - radius.lg).toBe(190);
+  });
+
   it('🔴 «지도 보기»로 접을 때만 지도를 다시 맞춘다 — 창을 열 때는 안 맞춘다(S15P21E201-1754)', () => {
     mount();
     const last = () => mapProps[mapProps.length - 1];
     // 창이 열려 있을 때는 다시 맞추라는 신호가 없다
     expect(last().refitKey ?? null).toBeNull();
-    // 위쪽 칩(요약 40 자리 + 경사/그늘 32) 만큼은 늘 가려져 있다고 알린다
-    expect(last().topInset ?? 0).toBeGreaterThanOrEqual(72);
+    // 위쪽 요약 칩(40 자리)만큼은 늘 가려져 있다고 알린다
+    expect(last().topInset ?? 0).toBeGreaterThanOrEqual(60);
     fireEvent.press(screen.getByText('지도 보기'));
     expect(last().refitKey).not.toBeNull();
     fireEvent.press(screen.getByLabelText('일정 펼치기'));
     expect(last().refitKey ?? null).toBeNull();
+  });
+
+  it('🔴 색 범례가 떠 있으면 그 높이만큼 위쪽이 더 가려져 있다고 지도에 알린다 — 경로가 범례 밑에 깔리지 않게(S15P21E201-1896)', () => {
+    mount();
+    const without = mapProps[mapProps.length - 1].topInset ?? 0;
+    mockRouteLegend = { grading: { slope: true, shade: false }, hasShade: false };
+    mapProps.length = 0;
+    mount();
+    expect(mapProps[mapProps.length - 1].topInset ?? 0).toBeGreaterThan(without);
   });
 
   it('🔴 창은 막대가 제자리에서 늘어난 것 — 펴고 접을 때 같은 시간·곡선(S15P21E201-1756)', () => {

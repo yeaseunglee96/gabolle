@@ -18,15 +18,29 @@ export const WARNING_LABEL: Record<string, [string, string]> = {
   ],
   // "못 간다" 가 아니라 "안 재 봤다" 로 옮긴다. 영어도 Not verified 이지
   // Not accessible 이 아니다 — 갈 수 있는 곳을 못 가게 만드는 말이 된다.
-  // 휠체어만이 아니다 — 유아차·큰 짐을 고른 사람에게도 이 경고가 붙는다(S15P21E201-1640, 백엔드 지적).
+  // 휠체어만이 아니다 — 유아차를 고른 사람에게도 이 경고가 붙는다(S15P21E201-1640, 백엔드 지적).
+  // 「큰 짐」은 여기 없다 — 서버가 큰 짐에는 이 경고를 안 붙인다(경사로만 가른다, 큰 짐 표식이 원천 자료에 없다).
   ACCESSIBILITY_UNVERIFIED: [
-    '휠체어·유아차·큰 짐으로 다니기 편한지 아직 확인되지 않은 곳이에요.',
-    'Access with a wheelchair, stroller, or large luggage has not been checked here yet.',
+    '휠체어·유아차로 다니기 편한지 아직 확인되지 않은 곳이에요.',
+    'Access with a wheelchair or stroller has not been checked here yet.',
   ],
-  /** 둘레 걷는 길이 휠체어 경사로 기준(8.33%, 1:12)보다 가파르다 — 둘레 길로 짐작한 추정값(백엔드 !1624). */
+  /**
+   * 둘레 걷는 길이 8.33%(1:12)보다 가파르다 — 둘레 길로 짐작한 추정값(백엔드 !1624).
+   * 🔴 휠체어만이 아니다 — 채점기는 휠체어·유아차·큰 짐 어느 것을 골라도 같은 경사 상한으로 이 경고를 단다.
+   *    큰 짐은 S15P21E201-1855 에서 뺐다가 되살렸다 — 서버가 큰 짐을 경사로만 가르므로 이 경고는 큰 짐에게도 맞는 말이다.
+   */
   SLOPE_OVER_LIMIT: [
-    '주변 길이 가팔라요(추정). 휠체어·유아차로는 힘들 수 있어요.',
-    'Paths around here are steep (estimated) — may be hard with a wheelchair or stroller.',
+    '주변 길이 가팔라요(추정). 휠체어·유아차·큰 짐으로는 힘들 수 있어요.',
+    'Paths around here are steep (estimated) — may be hard with a wheelchair, stroller, or large luggage.',
+  ],
+  /**
+   * 「되도록」 휠체어·유아차로 고른 여행에서, 재 보니 들어가기 어렵다고 **확인된** 곳 — 빼지 않고 경고로 남긴다(백엔드
+   * BaselineCandidateScorer 의 ACCESS_VERIFIED_UNAVAILABLE). 🔴 위 ACCESSIBILITY_UNVERIFIED(아직 안 재 봄)와 다른 사실이다 —
+   * 이쪽은 「모른다」가 아니라 「어렵다고 나왔다」라서 그렇게 말한다.
+   */
+  ACCESS_VERIFIED_UNAVAILABLE: [
+    '휠체어·유아차로는 들어가기 어렵다고 확인된 곳이에요.',
+    'This place has been confirmed as hard to get into with a wheelchair or stroller.',
   ],
 
   // 🔴 식단 미확인 — S15P21E201-1468 의 ㄴ. 서버가 DIET_SUPPORT_UNVERIFIED 를
@@ -97,6 +111,14 @@ export const WARNING_LABEL: Record<string, [string, string]> = {
     'Not enough data to rank this one.',
   ],
   /** 「일부만 채웠다. 후보가 자리보다 적었다」 */
+  /**
+   * 고른 「꼭 가고 싶은 곳」 가운데 일정에 못 넣은 곳이 있다(백엔드 !2028 — 전에는 조용히 빠졌다). 하루 3곳 × 일수를 넘게
+   * 보낸 옛 앱의 요청도 거절하지 않고 앞에서부터 넣은 뒤 이 경고를 남긴다. S15P21E201-1980.
+   */
+  MUST_VISIT_NOT_PLACED: [
+    '꼭 가고 싶다고 고른 곳 중 일부는 일정에 넣지 못했어요. 일정을 고쳐 직접 넣을 수 있어요.',
+    "Some of your must-visit places didn't fit into the itinerary. You can add them yourself by editing it.",
+  ],
   RECALC_DAY_PARTIALLY_FILLED: [
     '그날 일정을 일부만 채웠어요. 넣을 곳이 모자랐어요.',
     'Only part of that day was filled — not enough places to add.',

@@ -160,7 +160,7 @@ export function StoryReactionRow({
         >
           <QuoteIcon tint={offTint} />
           <Text variant="util" weight="bold" color={offTint}>
-            {tx(`인용 ${quotes}`, `${quotes} quotes`)}
+            {tx(`인용 ${quotes}`, quotes === 1 ? '1 quote' : `${quotes} quotes`)}
           </Text>
         </Pressable>
       ) : null}
@@ -191,6 +191,8 @@ export const storyReactionStyles = StyleSheet.create({
   row: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing[2], paddingHorizontal: spacing[4], paddingBottom: spacing[3], marginTop: -spacing[2] },
   // 알약 — 높이 36, 좌우 12, 완전한 둥근 모서리, 연한 바탕(시안 그대로).
   button: {
+    // 줄어들지 않는다 — 줄어들면 「저장」이 「저」로 잘렸다(2026-10-17 폰). 자리가 모자라면 flexWrap 으로 다음 줄로 간다.
+    flexShrink: 0,
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing[1],

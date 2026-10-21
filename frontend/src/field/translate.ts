@@ -6,7 +6,7 @@ import { isVendorNotReady } from '@/api/vendorReady';
 // 🔴 서버(back/dev 의 TranslationDirection)는 아직 EN_TO_KO · KO_TO_EN 둘뿐이다. 일본어·중국어 방향은
 //    백엔드에 요청해 둔 것(S15P21E201-1363)이고, 서버가 모르는 방향을 받으면 400 을 준다 — 그때는
 //    영어 방향으로 한 번 더 부른다(아래 translateText). 업체가 LLM 이라 일본어 입력도 대개 번역된다.
-export type TranslationDirection = 'EN_TO_KO' | 'KO_TO_EN' | 'JA_TO_KO' | 'ZH_HANS_TO_KO' | 'ZH_HANT_TO_KO';
+export type TranslationDirection = 'EN_TO_KO' | 'KO_TO_EN' | 'JA_TO_KO' | 'ZH_HANS_TO_KO' | 'ZH_HANT_TO_KO' | 'VI_TO_KO';
 
 /** 번역이 안 되는 이유. 화면이 이유마다 다르게 말해야 해서 뭉뚱그리지 않는다. */
 export type TranslationBlockedReason =
@@ -40,8 +40,30 @@ export function directionForLanguage(language: LanguageCode): TranslationDirecti
     case 'ja': return 'JA_TO_KO';
     case 'zh-Hans': return 'ZH_HANS_TO_KO';
     case 'zh-Hant': return 'ZH_HANT_TO_KO';
+    case 'vi': return 'VI_TO_KO';
     default: return resolveTextLanguage(language) === 'en' ? 'EN_TO_KO' : null;
   }
+}
+
+/** 번체에만 쓰는 흔한 글자 — 이 가운데 하나라도 있으면 번체로 본다. */
+const TRADITIONAL_ONLY = /[們個來時說對這會國學還與為發見關點電話嗎麼樣請謝買賣東車門開間問題錢吃飯]/;
+
+/**
+ * 입력한 글자를 보고 원문 언어를 고른다(S15P21E201-1904). 앱 언어만 보면 일본어 화면에서 중국어로 치거나
+ * 중국어 화면에서 번체로 쳐도 그 방향으로만 번역해 원문이 그대로 나왔다(팀원 보고).
+ * 가나 → 일본어 · 한자만 → 번체 글자가 있으면 번체, 아니면 간체 · 라틴 글자 → 영어 · 한글뿐 → 번역 안 함(null).
+ * 판단이 안 서면 앱 언어 방향(fallback)을 쓴다.
+ */
+export function directionForText(text: string, fallback: TranslationDirection | null): TranslationDirection | null {
+  // 가나(히라가나·가타카나) U+3040–30FF · 한자 U+4E00–9FFF · 한글 음절 U+AC00–D7A3
+  if (/[぀-ヿ]/.test(text)) return 'JA_TO_KO';
+  const han = /[一-鿿]/.test(text);
+  if (han) return TRADITIONAL_ONLY.test(text) ? 'ZH_HANT_TO_KO' : (fallback === 'ZH_HANT_TO_KO' ? 'ZH_HANT_TO_KO' : 'ZH_HANS_TO_KO');
+  // 베트남어 성조·모음 글자(ă â đ ê ô ơ ư 와 성조 표시)가 있으면 베트남어다 — 라틴 글자라 영어로 잘못 보낸다(S15P21E201-2003).
+  if (/[ăâđêôơưĂÂĐÊÔƠỪ-̣Ạ-ỹ]/.test(text.normalize('NFC')) && !/[가-힣]/.test(text)) return 'VI_TO_KO';
+  if (/[A-Za-z]/.test(text) && !/[가-힣]/.test(text)) return 'EN_TO_KO';
+  if (/[가-힣]/.test(text)) return null;
+  return fallback;
 }
 
 /** 번역된 문장을 읽을 때 쓸 음성. 영어 문장을 한국어 음성으로 읽으면 알아들을 수 없다. */

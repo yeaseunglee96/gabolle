@@ -29,8 +29,13 @@ describe('부산 구·군 이름을 영어로', () => {
     expect(regionText('해운대구', tx)).toBe('해운대구');
   });
 
-  it.each(['해운대', '부산 해운대구', '해운대구 우동', ' 해운대구', '광안리해수욕장 · 수영구', '영도'])('🔴 글자 그대로가 아니면 그대로 — 「%s」', (region) => {
+  it.each(['해운대', '부산 해운대구', '해운대구 우동', ' 해운대구', '영도'])('🔴 글자 그대로가 아니면 그대로 — 「%s」', (region) => {
     expect(regionText(region, txEn)).toBe(region);
+  });
+
+  // 「장소 · 구」 묶음은 우리 묶음 기호 « · » 로만 나눠 마디마다 글자 그대로 맞춘다(S15P21E201-1912).
+  it('「광안리해수욕장 · 수영구」 — 구 마디만 바뀌고 장소 마디는 그대로', () => {
+    expect(regionText('광안리해수욕장 · 수영구', txEn)).toBe('광안리해수욕장 · Suyeong-gu');
   });
 
   it.each([
@@ -43,7 +48,7 @@ describe('부산 구·군 이름을 영어로', () => {
   ])('%s — 동네 이름을 그리는 %i 곳이 모두 regionText 를 거친다', (file, count) => {
     const source = readFileSync(join(__dirname, '..', '..', '..', file), 'utf8') as string;
     // placeRegion — 장소 제목 아래 줄은 앞의 장소 이름을 뗀 값을 거친다(S15P21E201-1759).
-    expect(source.match(/regionText\((?:story\.region|placeRegion), tx\)/g) ?? []).toHaveLength(count);
+    expect(source.match(/regionText\((?:story\.region|placeRegion), tx[,)]/g) ?? []).toHaveLength(count);
   });
 
   it('마이페이지 걸러 보기 칩 — 글자만 바꾸고, 고르는 값은 원래 글자', () => {

@@ -40,6 +40,37 @@ describe('카드 사진 출처 띠', () => {
     open.mockRestore();
   });
 
+  // 🔴 2026-10-16 웹 점검 — 구글 사진 카드에 「Google 지도 · 사진 …」 아래로 「Google 지도」가 한 번 더 떴다(S15P21E201-2060).
+  //    서버는 사진 출처를 「Google 지도 · 사진 박대규」, 라이선스 이름을 「Google 지도」로 따로 준다 — 라이선스 이름이 출처 글자에 이미 들면 한 줄이다.
+  it('🔴 출처 글자에 라이선스 이름이 이미 들어 있으면 같은 말을 둘째 줄에 또 쓰지 않는다 — 「Google 지도 / Google 지도」', () => {
+    render(<PhotoCreditBar source="Google 지도 · 사진 박대규" license="Google 지도" licenseUrl={null} tx={tx} />);
+    expect(screen.getByText('Google 지도 · 사진 박대규')).toBeTruthy();
+    expect(screen.queryByText('Google 지도')).toBeNull();
+    // 한 줄이 된 출처는 두 줄까지 보인다 — 긴 이름이 잘리지 않게.
+    expect(lines('Google 지도 · 사진 박대규')).toBe(2);
+  });
+
+  it('🔴 일본어 화면에서도 번역도 안 된 한국어 「Google 지도」 줄이 따로 남지 않는다', () => {
+    const ja = (ko: string, en: string) => (ko === 'Google 지도 · 사진 %s' ? 'Google マップ · 写真: %s' : en);
+    render(<PhotoCreditBar source="Google 지도 · 사진 Chell L" license="Google 지도" licenseUrl={null} tx={ja} />);
+    expect(screen.getByText('Google マップ · 写真: Chell L')).toBeTruthy();
+    expect(screen.queryByText('Google 지도')).toBeNull();
+  });
+
+  it('라이선스 이름이 출처에 없으면 둘째 줄은 그대로다 — 「출처 : 부산관광아카이브」 + 「공공누리 제1유형」', () => {
+    render(<PhotoCreditBar source="출처 : 부산관광아카이브" license="공공누리 제1유형" licenseUrl={null} tx={tx} />);
+    expect(screen.getByText('출처 : 부산관광아카이브')).toBeTruthy();
+    expect(screen.getByText('공공누리 제1유형')).toBeTruthy();
+  });
+
+  it('줄이 하나가 돼도 라이선스 링크는 살아 있다 — 띠를 누르면 파일 페이지가 열리고 읽는 이름에 같은 말을 두 번 안 쓴다', () => {
+    const open = jest.spyOn(Linking, 'openURL').mockResolvedValue(true);
+    render(<PhotoCreditBar source="Google 지도 · 사진 박대규" license="Google 지도" licenseUrl="https://maps.google.com/x" tx={tx} />);
+    fireEvent.press(screen.getByRole('link', { name: 'Google 지도 · 사진 박대규' }));
+    expect(open).toHaveBeenCalledWith('https://maps.google.com/x');
+    open.mockRestore();
+  });
+
   it('어두운 띠에 흰 글자 — 어떤 사진 위에서도 읽힌다', () => {
     render(<PhotoCreditBar source="한국관광공사" license={null} licenseUrl={null} tx={tx} />);
     const text = screen.getByText('사진: 한국관광공사') as unknown as Node;

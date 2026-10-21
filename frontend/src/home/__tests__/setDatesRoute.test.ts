@@ -72,8 +72,9 @@ describe('화면들이 실제로 그렇게 이어져 있다', () => {
 
   it('🔴 문항 화면은 날짜를 «그 자리에서» 고른다 — 홈으로 보내지 않는다 (S15P21E201-1376)', () => {
     // 1350 은 홈의 날짜 칸을 열어 보냈다. 그래도 돌아오면 문항이 1번부터라(2026-09-21 실기)
-    // 이제는 문항 화면 안의 달력 카드(DateRangeCard)를 편다. 밀어 보내는 옛 꼴 둘 다 없어야 한다.
-    expect(QUESTIONS).toContain('DateRangeCard');
+    // 이제는 여행 만들기 1단계가 이 화면 안에 달력(DateRangePicker)을 그린다(S15P21E201-1865). 밀어 보내는 옛 꼴 둘 다 없어야 한다.
+    expect(QUESTIONS).toContain('PlanStepBody');
+    expect(require('fs').readFileSync(require('path').join(__dirname, '..', '..', 'plan', 'PlanSteps.tsx'), 'utf8')).toContain('<DateRangePicker ');
     expect(QUESTIONS).not.toContain("params: { edit: 'dates' }");
     expect(QUESTIONS).not.toContain("router.push(wide ? '/' : '/home')");
   });

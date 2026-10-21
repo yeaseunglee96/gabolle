@@ -16,7 +16,7 @@ import { ACCOUNT_DELETION_SECTIONS, PRIVACY_SECTIONS, TERMS_SECTIONS } from '../
 // 공개 문서가 말해야 하는 값. 바꿀 때는 이 세 줄과 legalContent.ts, 번역 카탈로그, 자동응답(공용 Gmail 설정)을 같이 바꾼다.
 const SUPPORT_EMAIL = 'gabolle.support@gmail.com';
 const DELETION_RESPONSE_DAYS = 7;
-const ACCOUNT_DELETION_URL = 'https://j15e201.p.ssafy.io/legal/account-deletion';
+const ACCOUNT_DELETION_URL = 'https://gabolle.kr/legal/account-deletion';
 
 jest.mock('expo-router', () => ({
   useRouter: () => ({ back: jest.fn(), replace: jest.fn(), push: jest.fn(), canGoBack: () => false }),

@@ -1,0 +1,23 @@
+{
+  "_comment": "frontend:dependency-scan 의 예외 목록 — tools/audit-gate.mjs 가 읽는다. 고친 판이 **아직 없는** HIGH/CRITICAL 권고만 넣는다. 만료(expires)가 지나면 그 권고는 다시 검사를 실패시킨다 — 날짜를 늘리기 전에 고친 판이 나왔는지(npm view <꾸러미> version) 먼저 본다. S15P21E201-1977, 이예승 검토·승인 2026-10-05.",
+  "advisories": [
+    {
+      "id": "GHSA-vfj7-8cjw-p6xm",
+      "package": "braces",
+      "range": "<=3.0.3",
+      "expires": "2026-10-31",
+      "fixAvailable": false,
+      "inAppBundle": false,
+      "reason": "고친 판이 없다(최신 3.0.3). micromatch 를 거쳐 metro·@expo/cli·jest 만 쓴다 — 번들러·시험 도구가 개발 PC/CI 에서 돌릴 때만 실행되고, 앱 번들(src·app)은 가져오지 않는다. 위험은 우리가 쓴 glob 패턴을 처리할 때의 스택 소진(DoS)이라 바깥 입력이 닿지 않는다."
+    },
+    {
+      "id": "GHSA-86w9-cpqp-85rv",
+      "package": "node-forge",
+      "range": "<=1.4.0",
+      "expires": "2026-10-31",
+      "fixAvailable": false,
+      "inAppBundle": false,
+      "reason": "고친 판이 없다(최신 1.4.0). @expo/cli(와 @expo/code-signing-certificates)만 쓴다 — expo 명령줄 도구의 개발 서버·코드 서명용이고, 앱 번들에는 코드가 없다(2026-10-05 운영 웹 번들 확인: 오픈소스 고지의 이름 문자열 한 줄뿐). 앱은 RSA 서명 검증에 node-forge 를 쓰지 않는다."
+    }
+  ]
+}

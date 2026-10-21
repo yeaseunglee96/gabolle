@@ -1,6 +1,7 @@
 // 폰 홈. 디자인 인계 `design_handoff_home_phone` 의 절충안(C).
 import { useEffect, useRef, useState } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { AppImage } from '@/components/AppImage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -18,7 +19,8 @@ import { TAB_BAR_HEIGHT, TabBar, bottomDockPosition, tabBarBottomMargin } from '
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
-import { PlaceRow, StoryRow } from '@/home/HomeBlocks';
+import { LocalPicksRow, StoryRow, headerWeatherLabel } from '@/home/HomeBlocks';
+import { headerWeather, localTimeText } from '@/trip/weather';
 import { useHomeData } from '@/home/useHomeData';
 import { AssistantBackdrop, AssistantMenu } from '@/home/AssistantMenu';
 import { dismissChecklist, loadChecklist, takeHomeCoach, type ChecklistState } from '@/onboarding/firstRun';
@@ -38,7 +40,6 @@ import { humanTripTitle, tripDatesLabel, tripNameOrDates } from '@/trip/tripNami
 import { enCount, enPlural, txf } from '@/i18n/format';
 
 const bellIcon = require('../../assets/icons/home/bell.png');
-const heartIcon = require('../../assets/icons/home/heart.png');
 
 /**
  * 폰의 카드 한 변. 한 화면에 두 장이 들어오고 세 번째가 살짝 보이는 크기다 —
@@ -212,6 +213,7 @@ export default function Home() {
 
   const signedIn = home.signedIn;
   const weather = home.weather;
+  const chipWeather = weather ? headerWeather(weather, localTimeText()) : null;
 
   return (
     <View style={styles.shell}>
@@ -230,17 +232,17 @@ export default function Home() {
                     하는데, 날씨·준비물 화면이 이미 있으므로 그리로 잇는 편이 맞다.
                     🔴 목적지는 현장 도구 허브(/field/translate)가 아니라 「날씨·준비물 — 여행 고르기」다(S15P21E201-1791).
                     허브로 보내면 번역이 먼저 떠서 이름표(「내 여행 날씨·준비물」)와 다른 곳에 닿는다. 허브의 날씨 칸도 같은 곳으로 간다. */}
-                {weather && (weather.maxTemperature !== null || weather.minTemperature !== null) ? (
+                {/* 칩 내용은 `[ 하늘 지금 N° ]` — 지금 기온이 없으면 `[ 하늘 오늘 최고 N° ]`(S15P21E201-1981). 상단 바와 같은 규칙. */}
+                {chipWeather ? (
                   <Pressable
                     accessibilityRole="button"
                     accessibilityLabel={tx('내 여행 날씨·준비물', 'Weather and packing for my trip')}
                     onPress={() => router.push({ pathname: '/trips', params: { open: 'prepare' } })}
                     style={({ pressed }) => [styles.weatherChip, pressed && styles.pressed]}
                   >
-                    <Text variant="caption" weight="bold" numberOfLines={1} style={styles.weatherWord}>
-                      {weather.skyCondition === 'CLEAR' ? tx('맑음', 'Clear') : weather.skyCondition === 'CLOUDY' ? tx('흐림', 'Cloudy') : tx('구름 조금', 'Partly cloudy')}
-                    </Text>
-                    <Text variant="caption" numberOfLines={1} style={styles.weatherTemp}>{weatherTemperatureText(weather)}</Text>
+                    {chipWeather.icon ? <Text variant="caption" numberOfLines={1} accessibilityElementsHidden importantForAccessibility="no">{chipWeather.icon}</Text> : null}
+                    <Text variant="caption" numberOfLines={1} style={styles.weatherWord}>{headerWeatherLabel(chipWeather.kind, tx)}</Text>
+                    <Text variant="caption" weight="bold" numberOfLines={1} style={styles.weatherTemp}>{`${Math.round(chipWeather.value)}°`}</Text>
                   </Pressable>
                 ) : null}
                 {/* 미읽음이 있는지 알려주는 조회가 없어 주황 점은 안 찍는다 — 늘 찍으면
@@ -256,7 +258,7 @@ export default function Home() {
                 🔴 위쪽 메뉴가 떠 있으면(폴드 펼침 등 태블릿) 로그인·종이 거기 이미 있다 — 두 번 그리지 않는다(S15P21E201-1547). */}
             {topNav ? null : (
               <Pressable accessibilityRole="button" accessibilityLabel={tx('알림 확인', 'Check notifications')} onPress={() => router.push('/notifications')} style={({ pressed }) => [styles.bell, pressed && styles.pressed]}>
-                <Image source={bellIcon} resizeMode="contain" style={styles.bellIcon} />
+                <AppImage source={bellIcon} resizeMode="contain" style={styles.bellIcon} />
                 {bellDot ? <View style={styles.bellDot} /> : null}
               </Pressable>
             )}
@@ -299,18 +301,16 @@ export default function Home() {
             데스크톱과 같은 줄 부품을 쓴다 — 두 화면이 어긋나면 나란히 놓고 봐야만 보인다. */}
         <StoryRow stories={home.stories} width={width} cardWidth={MOBILE_CARD} gutter={spacing[6]} arrows={false} />
 
-        {home.facetRows.map((row) => (
-          <PlaceRow
-            key={row.facetKey}
-            row={row}
-            width={width}
-            cardWidth={MOBILE_CARD}
-            gutter={spacing[6]}
-            arrows={false}
-            likedIds={saved.likedIds}
-            onToggleLike={saved.toggle}
-          />
-        ))}
+        {/* 로컬 탐색 — 축제·전통시장 두 줄을 여섯 갈래 한 줄로(S15P21E201-2021). */}
+        <LocalPicksRow
+          picks={home.localPicks}
+          width={width}
+          cardWidth={MOBILE_CARD}
+          gutter={spacing[6]}
+          arrows={false}
+          likedIds={saved.likedIds}
+          onToggleLike={saved.toggle}
+        />
 
         {/* ── 내 여행 (로그인만) ── */}
         {signedIn ? (
@@ -355,6 +355,8 @@ export default function Home() {
           </View>
         ) : null}
         {saved.consentPrompt}
+        {/* 🔴 떠 있는 AI 단추(64)가 맨 아래 카드·「축제 →」 단추를 덮었다(S15P21E201-1986, 폴드 바깥 화면) — 그 높이만큼 더 내릴 수 있게 비워 둔다. */}
+        <View testID="home-assistant-clearance" style={styles.assistantClearance} />
         <ConditionsPromptModal visible={conditions.open} reprompt={conditions.reprompt} onClose={closeConditions} />
   </Screen>
 
@@ -450,12 +452,6 @@ const styles = StyleSheet.create({
   placeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing[3] },
   placeCard: { width: '47%', gap: spacing[1] },
   placeThumbWrap: { position: 'relative' },
-  heartButton: { position: 'absolute', top: 0, right: 0, width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  heartBackdrop: { width: 28, height: 28, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full },
-  heartBackdropOn: { backgroundColor: color.surface.card, shadowColor: color.brand.navy, shadowOpacity: 0.15, shadowRadius: 4, shadowOffset: { width: 0, height: 1 }, elevation: 2 },
-  heartIcon: { width: 16, height: 16 },
-  heartOn: { tintColor: color.action.secondary },
-  heartOff: { tintColor: color.text.muted },
 
   tripCard: { gap: spacing[1], padding: spacing[4], borderRadius: radius.lg, borderWidth: 1, borderColor: color.surface.border, backgroundColor: color.surface.card },
   tripSkeleton: { height: 140 },
@@ -473,4 +469,5 @@ const styles = StyleSheet.create({
   assistantButton: { width: 64, height: 64, alignItems: 'center', justifyContent: 'center', borderRadius: radius.full, backgroundColor: color.surface.card, borderWidth: 1, borderColor: color.surface.field, shadowColor: color.brand.navy, shadowOpacity: 0.14, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
   assistantBadge: { position: 'absolute', top: -2, right: -2, minWidth: 22, height: 18, paddingHorizontal: 5, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.card, borderWidth: 1.5, borderColor: color.action.outline },
   assistantMascot: { width: 50, height: 50 },
+  assistantClearance: { height: 64 + spacing[3] },
 });

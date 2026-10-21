@@ -1,7 +1,8 @@
 // 앱(폰)의 지도 — S15P21E201-1140.
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
+import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
 import { Text } from '@/components/Text';
@@ -10,11 +11,12 @@ import { useI18n } from '@/i18n';
 
 import { buildKakaoMapHtml } from './kakaoMapHtml';
 import { fitPadding, focusShiftY } from './mapFocus';
-import { slopeSegments, type SlopePiece } from './slopeGrades';
+import { gradedSegments, type RouteGrading } from './routeGrading';
+import type { SlopePiece } from './slopeGrades';
 
 import type { MapPathPoint, MapStop } from './types';
 
-/** 웹 RouteMap.tsx 의 MapRouteLayer 와 같은 모양 — 경로·어림·굵기·경사 조각(S15P21E201-1658)까지 WebView 로 그대로 넘긴다. */
+/** 웹 RouteMap.tsx 의 MapRouteLayer 와 같은 모양 — 경로·어림·굵기·경사 조각(S15P21E201-1658)·고른 조건(S15P21E201-1896)까지 WebView 로 그대로 넘긴다. */
 export type MapRouteLayer = {
   id: string;
   color: string;
@@ -24,6 +26,7 @@ export type MapRouteLayer = {
   weight?: number;
   opacity?: number;
   pieces?: SlopePiece[];
+  grading?: RouteGrading;
 };
 export type MapPointLayer = { id: string; label: string; color: string; stops: MapStop[] };
 export type CurrentLocation = { latitude: number; longitude: number };
@@ -45,6 +48,12 @@ type RouteMapProps = {
   refitKey?: string | number | null;
   /** 고른 곳을 지도 가운데로 옮긴다 — 웹 RouteMap 과 같은 뜻(S15P21E201-1535). 기본은 꺼짐. */
   focusSelected?: boolean;
+  /** 점 표시(기준 장소 등)도 맞추는 범위에 넣는다 — 웹 RouteMap 과 같은 뜻(S15P21E201-2052). 기본은 꺼짐. */
+  fitPoints?: boolean;
+  /** 길 안내 중 — 내 위치를 따라가고 처음 한 번 동네가 보이게 확대한다(S15P21E201-1903). */
+  followLocation?: boolean;
+  /** 지도가 좌우로 화면 밖에 걸친 폭(px) — 그만큼 +/− 단추를 안쪽으로 들인다(S15P21E201-1943). */
+  sideBleed?: number;
 };
 
 /**
@@ -69,8 +78,14 @@ export function RouteMap({
   topInset = 0,
   refitKey = null,
   focusSelected = false,
+  fitPoints = false,
+  followLocation = false,
+  sideBleed = 0,
 }: RouteMapProps) {
   const { tx } = useI18n();
+  // 🔴 가로 화면에서는 안드로이드 내비 막대가 오른쪽에 서서 +/− 단추를 덮었다(실기기 10/1, S15P21E201-1909).
+  //    공급자가 없는 시험에서도 그려지게 훅 대신 맥락을 읽는다(없으면 0).
+  const rightInset = useContext(SafeAreaInsetsContext)?.right ?? 0;
   const webViewRef = useRef<WebView | null>(null);
   const sdkReadyRef = useRef(false);
   const [scriptFailed, setScriptFailed] = useState(false);
@@ -80,10 +95,11 @@ export function RouteMap({
   const html = useMemo(() => (appKey ? buildKakaoMapHtml(appKey) : ''), [appKey]);
 
   const visibleStops = useMemo(() => [...stops, ...points.flatMap((layer) => layer.stops)], [points, stops]);
-  // 걷는 길의 경사 조각을 잘라 색을 붙여 둔다 — WebView 안의 스크립트는 slopeGrades.ts 를 못 읽는다(S15P21E201-1658).
+  // 걷는 길의 조각을 잘라 고른 조건의 색을 붙여 둔다 — WebView 안의 스크립트는 routeGrading.ts 를 못 읽는다(S15P21E201-1658 · -1896).
+  // 🔴 웹 지도(RouteMap.tsx)와 같은 함수(gradedSegments)를 부른다 — 여행 중 GPS 로 따라갈 때도 이 지도가 같은 선을 그린다.
   const drawnRoutes = useMemo(
     () => (routes ?? [{ id: 'selected', color: color.action.primary, stops }]).map((route) => {
-      const segments = route.weight == null && route.path?.length ? slopeSegments(route.path, route.pieces) : null;
+      const segments = route.weight == null && route.path?.length ? gradedSegments(route.path, route.pieces, route.grading) : null;
       return segments ? { ...route, segments } : route;
     }),
     [routes, stops],
@@ -103,7 +119,8 @@ export function RouteMap({
       fitPadding: fitPadding(bottomInset, height, topInset),
       colors: { navy: color.brand.navy, selected: color.action.secondary, canvas: color.canvas, casing: color.surface.card },
       focus: focusSelected,
-      shiftY: focusShiftY(bottomInset, height),
+      fitPoints,
+      shiftY: focusShiftY(bottomInset, height, topInset),
     };
     webViewRef.current.injectJavaScript(`window.__renderKakaoMap(${JSON.stringify(data)}); true;`);
   };
@@ -112,21 +129,28 @@ export function RouteMap({
   //    지도가 여행 전체로 튀었다. 마커 모양만 바꾸고 지금 화면에서 고른 곳으로 민다.
   const sendSelect = () => {
     if (!sdkReadyRef.current || !webViewRef.current) return;
-    const data = { selectedId, focus: focusSelected, shiftY: focusShiftY(bottomInset, height) };
+    const data = { selectedId, focus: focusSelected, shiftY: focusShiftY(bottomInset, height, topInset) };
     webViewRef.current.injectJavaScript(`window.__selectKakaoMap(${JSON.stringify(data)}); true;`);
   };
 
   // 여백만 새로 보내 같은 범위를 다시 맞춘다(S15P21E201-1754) — «지도 보기»처럼 딱 끊어지는 전환 때만.
   const sendRefit = () => {
     if (!sdkReadyRef.current || !webViewRef.current) return;
-    const data = { fitPadding: fitPadding(bottomInset, height, topInset), shiftY: focusShiftY(bottomInset, height) };
+    const data = { fitPadding: fitPadding(bottomInset, height, topInset), shiftY: focusShiftY(bottomInset, height, topInset) };
     webViewRef.current.injectJavaScript(`window.__fitKakaoMap(${JSON.stringify(data)}); true;`);
+  };
+
+  // 창을 열 때(refitKey 가 null 로) — 가려진 번호 점이 있을 때만 다시 맞춘다(S15P21E201-1989). 다 보이면 지도는 그대로다.
+  const sendEnsureFits = () => {
+    if (!sdkReadyRef.current || !webViewRef.current) return;
+    const data = { fitPadding: fitPadding(bottomInset, height, topInset), shiftY: focusShiftY(bottomInset, height, topInset) };
+    webViewRef.current.injectJavaScript(`window.__ensureKakaoMapFits && window.__ensureKakaoMapFits(${JSON.stringify(data)}); true;`);
   };
 
   // 현재 위치는 점만 옮긴다. 위치 객체는 부를 때마다 새것이라 좌표 두 숫자로 본다.
   const sendLocation = () => {
     if (!sdkReadyRef.current || !webViewRef.current) return;
-    webViewRef.current.injectJavaScript(`window.__moveKakaoLocation(${JSON.stringify(currentLocation ?? null)}); true;`);
+    webViewRef.current.injectJavaScript(`window.__moveKakaoLocation(${JSON.stringify(currentLocation ?? null)}, ${followLocation ? 'true' : 'false'}); true;`);
   };
 
   // stops·points·routes 가 바뀔 때마다 이미 떠 있는 지도에 새 데이터를 밀어 넣는다(고른 곳·현재 위치는 아래 따로).
@@ -142,12 +166,14 @@ export function RouteMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId, focusSelected]);
 
-  // 🔴 null 로 바뀔 때(창을 다시 열 때)는 안 맞춘다 — 창을 열 때 지도가 튀면 안 된다. 처음 뜰 때는 sendRender 가 맞춘다.
+  // 🔴 null 로 바뀔 때(창을 다시 열 때)는 무조건 맞추지 않는다 — 창을 열 때 지도가 튀면 안 된다. 가려진 점이 있을 때만 맞춘다(S15P21E201-1989).
+  //    처음 뜰 때는 sendRender 가 맞춘다.
   const lastRefitKey = useRef(refitKey);
   useEffect(() => {
     if (refitKey === lastRefitKey.current) return;
     lastRefitKey.current = refitKey;
     if (refitKey != null) sendRefit();
+    else sendEnsureFits();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refitKey]);
 
@@ -181,11 +207,11 @@ export function RouteMap({
   if (!appKey) {
     return (
       <View style={[styles.fallback, { minHeight: height }]}>
-        <Text variant="title" weight="bold">{tx('지도 키가 이 빌드에 안 들어갔어요', 'This build was made without a map key')}</Text>
+        <Text variant="title" weight="bold">{tx('지금은 지도를 불러올 수 없어요', 'The map can’t be shown right now')}</Text>
         <Text variant="body" style={styles.description}>
           {tx(
-            '앱 지도를 그리려면 빌드할 때 카카오 지도 키가 함께 들어가야 하는데, 이 빌드에는 빈 값이 들어갔습니다. 방문 순서와 장소 목록은 아래에서 그대로 볼 수 있어요.',
-            'The app map needs a Kakao map key baked in at build time, and this build got an empty one. You can still use the visit order and place list below.',
+            '지도 설정에 문제가 있어 지도를 그리지 못했어요. 방문 순서와 장소 목록은 아래에서 그대로 볼 수 있어요.',
+            'Something is wrong with the map setup, so we couldn’t draw it. You can still use the visit order and place list below.',
           )}
         </Text>
         <Text variant="caption" style={styles.tech}>EXPO_PUBLIC_KAKAO_MAP_JS_KEY = (빈 값) · EAS 빌드 환경 변수로 넣어야 한다</Text>
@@ -229,6 +255,15 @@ export function RouteMap({
         javaScriptEnabled
         domStorageEnabled
       />
+      {/* 🔴 확대·축소 단추(S15P21E201-1903) — 길 안내처럼 스크롤 안에 든 지도는 두 손가락 확대가 화면 스크롤과 다툰다.
+          오른쪽에 둔다 — 왼쪽 아래는 카카오 로고·축척 자리다(아래 backRow 주석). 창에 가려진 높이만큼 올린다. */}
+      <View style={[styles.zoomColumn, { right: spacing[3] + rightInset + sideBleed, bottom: Math.max(0, Math.min(bottomInset, height - 140)) + spacing[3] }]}>
+        {([[-1, '+', tx('지도 확대', 'Zoom in')], [1, '−', tx('지도 축소', 'Zoom out')]] as const).map(([delta, glyph, label]) => (
+          <Pressable key={glyph} accessibilityRole="button" accessibilityLabel={label} hitSlop={6} onPress={() => webViewRef.current?.injectJavaScript(`window.__zoomKakaoMap && window.__zoomKakaoMap(${delta}); true;`)} style={({ pressed }) => [styles.zoomButton, pressed && styles.zoomPressed]}>
+            <Text variant="title" weight="bold" color={color.text.heading}>{glyph}</Text>
+          </Pressable>
+        ))}
+      </View>
       {/* 걷는 길 경사 색의 안내 문구는 뺐다 — 어색하다는 사용자 결정(S15P21E201-1820). 색 선은 그대로 긋는다. */}
       {onBackToList ? (
         <View style={styles.backRow}>
@@ -240,7 +275,7 @@ export function RouteMap({
 }
 
 /** WebView 가 자기 출처로 말할 주소 — S15P21E201-1176. */
-const RAW_MAP_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'https://j15e201.p.ssafy.io';
+const RAW_MAP_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'https://api.gabolle.kr';
 const MAP_BASE_URL = RAW_MAP_BASE_URL.endsWith('/') ? RAW_MAP_BASE_URL.slice(0, -1) : RAW_MAP_BASE_URL;
 
 const styles = StyleSheet.create({
@@ -257,6 +292,9 @@ const styles = StyleSheet.create({
    * 빼면 부르는 화면 넷의 높이 계산이 같이 어긋난다.
    */
   backRow: { position: 'absolute', left: spacing[3], top: spacing[3] },
+  zoomColumn: { position: 'absolute', right: spacing[3], gap: spacing[2] },
+  zoomButton: { width: 44, height: 44, borderRadius: radius.full, backgroundColor: color.surface.card, alignItems: 'center', justifyContent: 'center', shadowColor: color.text.heading, shadowOpacity: 0.15, shadowRadius: 6, shadowOffset: { width: 0, height: 2 }, elevation: 3 },
+  zoomPressed: { opacity: 0.7 },
   empty: { width: '100%', borderRadius: radius.lg, backgroundColor: color.surface.soft },
   fallback: {
     width: '100%', borderRadius: radius.lg, backgroundColor: color.surface.soft,

@@ -11,6 +11,6 @@ describe('코스를 바꿔도 보던 날을 유지한다', () => {
     expect(src).toMatch(/setDayIndex\(\(prev\) => Math\.min\(prev, dayCount - 1\)\)/);
   });
   it('다른 여행을 열면 1일차부터 보인다', () => {
-    expect(src).toMatch(/useEffect\(\(\) => \{ setDayIndex\(0\); \}, \[sourceKey\]\)/);
+    expect(src).toMatch(/useEffect\(\(\) => \{ setDayIndex\(0\); openedDayFor\.current = null; \}, \[sourceKey\]\)/);
   });
 });

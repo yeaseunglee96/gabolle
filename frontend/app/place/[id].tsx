@@ -7,14 +7,16 @@ import { ApiClientError } from '@/api/client';
 import { sendAppEvent } from '@/analytics/appEvents';
 import { useBehaviorConsentAsk } from '@/personalization/consentAsk';
 import { useAuth } from '@/auth/AuthProvider';
+import { LocalPickBadge } from '@/discovery/LocalPickBadge';
 import { BrandLogoLink } from '@/components/BrandLogoLink';
 import { Button } from '@/components/Button';
 import { PhotoSubjectBadge } from '@/components/PhotoSubjectBadge';
 import { Screen } from '@/components/Screen';
 import { PhotoCredit } from '@/components/PhotoCredit';
+import { PlacePhotoGallery } from '@/components/PlacePhotoGallery';
 import { Text } from '@/components/Text';
 import { color, radius, spacing } from '@/design/tokens';
-import { formatBreakTime, formatCheckInOut, formatFeatureSlot, formatLastOrderTime, formatSlopePercent, formatSoloFriendly, formatStairsPresent, getPlace, hasFoodSafetyConfirmed, needsFoodSafetyCheck, photoLabels, type Place as ApiPlace } from '@/discovery/places';
+import { formatBreakTime, formatCheckInOut, formatFeatureSlot, formatLastOrderTime, formatSoloFriendly, getPlace, hasFoodSafetyConfirmed, isMuslimFriendlyListed, knownAccessText, needsFoodSafetyCheck, photoLabels, placePhotos, type Place as ApiPlace } from '@/discovery/places';
 import { placeNameForLanguage } from '@/discovery/romanize';
 import { DEMO_PLACES, loadSavedPlaceIds, setSavedPlace } from '@/discovery/savedPlaces';
 import { useI18n } from '@/i18n';
@@ -22,6 +24,16 @@ import { isAtLeast } from '@/layout/breakpoints';
 import { useLayout } from '@/layout/useLayout';
 import { PlacePhraseModal } from '@/components/PlacePhraseModal';
 import { txf } from '@/i18n/format';
+import { otherNameFor } from '@/discovery/localNames';
+import { addressForLanguage, koreanAddressLine } from '@/discovery/localAddress';
+import { GuideCallout } from '@/onboarding/GuideCallout';
+import { NearbyParkingLine } from '@/place/NearbyParkingLine';
+import { PlaceDetailExtras } from '@/place/PlaceDetailExtras';
+import { PlaceRoutesSection } from '@/routepost/PlaceRoutesSection';
+import { takeScreenGuide } from '@/onboarding/firstRun';
+import * as Location from 'expo-location';
+import { readCurrentPosition } from '@/location/currentPosition';
+import { useLocationGate } from '@/personalization/useLocationGate';
 
 // 데모 3곳·저장 키는 src/discovery/savedPlaces.ts 로 옮겼다 — (tabs)/saved.tsx 도 같은 값을 쓴다.
 const PLACES = DEMO_PLACES;
@@ -50,6 +62,8 @@ export default function Place() {
   const [phraseModalOpen, setPhraseModalOpen] = useState(false);
   const [heroLoaded, setHeroLoaded] = useState(false);
   const heroReveal = useRef(new Animated.Value(0)).current;
+  // 여러 장일 때 지금 보이는 사진 — 출처 줄이 그 사진의 것이어야 한다(S15P21E201-1839).
+  const [photoIndex, setPhotoIndex] = useState(0);
 
   // 데모 3곳은 로컬 값을, 그 밖의 id 는 방금 받아온 API 응답을 같은 모양으로 맞춘다.
   // useMemo 로 묶는다 — 안 묶으면 매 렌더 새 객체가 생겨 resolved 를 의존성으로 삼는
@@ -58,18 +72,58 @@ export default function Place() {
   //    (S15P21E201-1725 · 번역 함수 쪽 방어 !1720 에 더한 호출부 방어 S15P21E201-1726). 없으면 부제를 비운다.
   const resolved = useMemo(() => (
     demoPlace
-      ? { title: tx(demoPlace.titleKo, demoPlace.titleEn), subtitle: tx(demoPlace.subtitleKo, demoPlace.subtitleEn), apiPlace: null as ApiPlace | null }
+      ? { title: tx(demoPlace.titleKo, demoPlace.titleEn), subtitle: tx(demoPlace.subtitleKo, demoPlace.subtitleEn), koreanAddress: null as string | null, apiPlace: null as ApiPlace | null }
       : remote.status === 'loaded'
-        ? { title: placeNameForLanguage(remote.place.nameKo, remote.place.nameEn, language), subtitle: remote.place.address ? tx(remote.place.address, remote.place.addressEn ?? remote.place.address) : '', apiPlace: remote.place }
+        ? { title: placeNameForLanguage(remote.place.nameKo, otherNameFor(remote.place.nameEn, remote.place.localNames, language), language), subtitle: addressForLanguage(remote.place, language),
+            // 한국어 원문 — 기사에게 보여 주고 지도 앱에 붙여 넣는 것은 한국어 주소다(S15P21E201-1877).
+            koreanAddress: koreanAddressLine(remote.place, language), apiPlace: remote.place }
         : null
   ), [demoPlace, remote, tx]);
-  const photoUrl = resolved?.apiPlace?.photoUrl ?? null;
+  // 사진 목록 — 서버가 photos 를 보내면 그것, 안 보내면 옛 photoUrl 한 장(S15P21E201-1839).
+  const photos = useMemo(() => (resolved?.apiPlace ? placePhotos(resolved.apiPlace) : []), [resolved]);
+  const photoUrl = photos[0]?.url ?? null;
+  const currentPhoto = photos[Math.min(photoIndex, Math.max(0, photos.length - 1))] ?? null;
   // 사진 출처 줄 — 위키미디어 사진은 라이선스 이름을 덧붙이고, 누르면 파일 페이지가 열린다(S15P21E201-1610).
-  const photoCredit = resolved?.apiPlace ? photoLabels(resolved.apiPlace, tx) : null;
+  //    여러 장이면 지금 보이는 사진의 출처·라이선스다. 「행사장 사진」 표시는 대표 사진(첫 장)에 대한 말이라 첫 장에서만.
+  const photoCredit = resolved?.apiPlace && currentPhoto
+    ? photoLabels({ photoSource: currentPhoto.source, photoLicense: currentPhoto.license, photoSubject: photoIndex === 0 ? resolved.apiPlace.photoSubject : null }, tx)
+    : null;
   const taxiPlaceId = resolved?.apiPlace?.placeId ?? null;
+  const locationGate = useLocationGate(accessToken);
+  const [locating, setLocating] = useState(false);
+  // 길 안내 — 내 위치를 한 번 읽어 길 안내 화면으로. 위치를 못 쓰면 무엇이 필요한지 말한다(눌러도 아무 일 없는 단추를 만들지 않는다).
+  const openDirections = async () => {
+    const dest = resolved?.apiPlace;
+    if (!dest) return;
+    setLocating(true);
+    try {
+      const needLocation = tx('길 안내는 내 위치가 있어야 해요. 위치 사용에 동의해 주세요.', 'Directions need your location. Please allow location use.');
+      if (!(await locationGate.request())) { setFeedback(needLocation); return; }
+      const permission = await Location.requestForegroundPermissionsAsync();
+      if (!permission.granted) { setFeedback(needLocation); return; }
+      const position = await readCurrentPosition();
+      router.push({ pathname: '/route-detail', params: {
+        originLat: String(position.coords.latitude), originLng: String(position.coords.longitude), originName: tx('내 위치', 'My location'),
+        destLat: String(dest.lat), destLng: String(dest.lng), destName: resolved?.title ?? '', destPlaceId: dest.placeId, mode: 'TRANSIT',
+      } });
+    } catch {
+      setFeedback(tx('지금 위치를 찾지 못했어요. 잠시 뒤 다시 눌러 주세요.', 'Could not find your location. Try again in a moment.'));
+    } finally {
+      setLocating(false);
+    }
+  };
+  // 택시 카드 첫 안내(UI 캔버스 ㉔-1, S15P21E201-1885) — 택시 단추가 있는 장소에서 처음 한 번.
+  const [taxiGuide, setTaxiGuide] = useState(false);
+  useEffect(() => {
+    if (!taxiPlaceId) return;
+    let alive = true;
+    void takeScreenGuide('taxi').then((show) => { if (alive && show) setTaxiGuide(true); });
+    return () => { alive = false; };
+  }, [taxiPlaceId]);
 
   useEffect(() => {
     setHeroLoaded(false);
+    setPhotoIndex(0);
     heroReveal.setValue(0);
   }, [photoUrl, heroReveal]);
 
@@ -173,13 +227,40 @@ export default function Place() {
             <View style={styles.heroCopy}>
               <Text variant="display" weight="bold" color={color.text.onAction}>{resolved.title}</Text>
               <Text color={color.text.onAction}>{resolved.subtitle}</Text>
+              {resolved.koreanAddress ? <Text testID="place-korean-address" selectable variant="caption" color={color.text.onAction} style={styles.koreanAddress}>{resolved.koreanAddress}</Text> : null}
             </View>
           </ImageBackground>
-        ) : resolved.apiPlace?.photoUrl ? (
+        ) : photos.length > 1 ? (
+          // 여러 장 — 옆으로 넘긴다(S15P21E201-1839). 그늘·글자는 사진 판 위에 한 벌만 얹고, 손가락은 아래 판까지 통과시킨다.
+          <View style={[styles.hero, isAtLeast(width, 'md') && styles.heroWide]}>
+            <View style={[StyleSheet.absoluteFill, styles.heroPlaceholder]} />
+            <Animated.View style={[StyleSheet.absoluteFill, { opacity: heroReveal }]}>
+              <PlacePhotoGallery urls={photos.map((photo) => photo.url)} onFirstLoad={() => setHeroLoaded(true)} onIndexChange={setPhotoIndex} />
+            </Animated.View>
+            <View pointerEvents="box-none" style={[StyleSheet.absoluteFill, styles.heroFill]}>
+              <View pointerEvents="none" style={styles.shade} />
+              <View pointerEvents="none" style={styles.shadeLow} />
+              <View pointerEvents="none" style={styles.shadeLower} />
+              <View pointerEvents="none" style={styles.shadeLowest} />
+              <View pointerEvents="box-none" style={styles.heroCopy}>
+                {/* 🔴 이름·주소는 오른쪽을 비운다 — 사진 판의 「›」 단추(웹)와 「1/15」 쪽 번호가 오른쪽에 떠 있어서, 긴 이름(「Gamcheon Culture Village」
+                    · 「수변최고돼지국밥」)이 두 줄로 꺾이면 그 위로 겹쳤다(2026-10-16 웹 점검, S15P21E201-2060). 출처·「행사장 사진」 줄은 맨 아래라 안 겹친다. */}
+                <Text variant="display" weight="bold" color={color.text.onAction} style={[styles.heroText, styles.heroTextInset]}>{resolved.title}</Text>
+                <Text color={color.text.onAction} style={[styles.heroText, styles.heroTextInset]}>{resolved.subtitle}</Text>
+                {resolved.koreanAddress ? <Text testID="place-korean-address" selectable variant="caption" color={color.text.onAction} style={[styles.heroText, styles.koreanAddress, styles.heroTextInset]}>{resolved.koreanAddress}</Text> : null}
+                {/* 「행사장 사진」 표시·출처 줄의 접근성 라벨이 왜 있는지는 아래 한 장 그림의 주석에 있다. */}
+                <PhotoSubjectBadge photoSubject={photoIndex === 0 ? resolved.apiPlace?.photoSubject : null} style={styles.subjectBadge} />
+                {photoCredit?.credit ? (
+                  <PhotoCredit testID="place-photo-credit" accessibilityLabel={photoCredit.credit} credit={photoCredit.credit} licenseUrl={photoCredit.licenseUrl} variant="caption" color={color.text.onAction} style={[styles.photoCredit, styles.heroText]} />
+                ) : null}
+              </View>
+            </View>
+          </View>
+        ) : photoUrl ? (
           <View style={[styles.hero, isAtLeast(width, 'md') && styles.heroWide]}>
             <View style={[StyleSheet.absoluteFill, styles.heroPlaceholder]} />
             <Animated.View style={[StyleSheet.absoluteFill, { opacity: heroReveal, transform: [{ scale: heroReveal.interpolate({ inputRange: [0, 1], outputRange: [1.04, 1] }) }] }]}>
-              <ImageBackground source={{ uri: resolved.apiPlace.photoUrl }} resizeMode="cover" style={styles.heroFill} imageStyle={styles.heroImage} onLoad={() => setHeroLoaded(true)} onError={() => setHeroLoaded(true)}>
+              <ImageBackground source={{ uri: photoUrl }} resizeMode="cover" style={styles.heroFill} imageStyle={styles.heroImage} onLoad={() => setHeroLoaded(true)} onError={() => setHeroLoaded(true)}>
                 <View style={styles.shade} />
                 <View style={styles.shadeLow} />
                 <View style={styles.shadeLower} />
@@ -187,10 +268,11 @@ export default function Place() {
                 <View style={styles.heroCopy}>
                   <Text variant="display" weight="bold" color={color.text.onAction} style={styles.heroText}>{resolved.title}</Text>
                   <Text color={color.text.onAction} style={styles.heroText}>{resolved.subtitle}</Text>
+                  {resolved.koreanAddress ? <Text testID="place-korean-address" selectable variant="caption" color={color.text.onAction} style={[styles.heroText, styles.koreanAddress]}>{resolved.koreanAddress}</Text> : null}
                   {/* 사진이 이 장소를 찍은 것이 아니면 그렇게 말한다 — S15P21E201-1206.
                       여태 축제 화면만 말하고 여기는 아무 말도 안 했다.
                   */}
-                  <PhotoSubjectBadge photoSubject={resolved.apiPlace.photoSubject} style={styles.subjectBadge} />
+                  <PhotoSubjectBadge photoSubject={resolved.apiPlace?.photoSubject} style={styles.subjectBadge} />
                   {/* 🔴 accessibilityLabel 을 반드시 함께 준다 (2026-09-22, build 41 실기기).
 
                       iOS 에서는 testID 가 accessibility identifier 로 나가는데, 라벨이 없으면
@@ -211,6 +293,7 @@ export default function Place() {
             <View style={styles.heroCopy}>
               <Text variant="display" weight="bold" color={color.text.onAction}>{resolved.title}</Text>
               <Text color={color.text.onAction}>{resolved.subtitle}</Text>
+              {resolved.koreanAddress ? <Text testID="place-korean-address" selectable variant="caption" color={color.text.onAction} style={styles.koreanAddress}>{resolved.koreanAddress}</Text> : null}
             </View>
           </View>
         )}
@@ -219,6 +302,8 @@ export default function Place() {
         */}
         <View style={wide ? styles.wideGrid : undefined}>
         <View style={wide ? styles.mainColumn : undefined}>
+        {/* 현지인이 제안해 승인된 장소면 「현지인 추천」과 누가·왜를 맨 위에 보인다(S15P21E201-2031). 아니면 아무것도 안 그린다. */}
+        {resolved.apiPlace ? <LocalPickBadge placeId={resolved.apiPlace.placeId} accessToken={accessToken} /> : null}
         {resolved.apiPlace && (formatFeatureSlot(resolved.apiPlace.openingHours, tx) || formatFeatureSlot(resolved.apiPlace.priceLevel, tx) || formatCheckInOut(resolved.apiPlace, tx)) ? (
           <View style={styles.infoRows}>
             {formatFeatureSlot(resolved.apiPlace.openingHours, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted} style={styles.infoLabel}>{tx('영업시간', 'Hours')}</Text><Text variant="body" style={styles.infoValue}>{formatFeatureSlot(resolved.apiPlace.openingHours, tx)}</Text></View> : null}
@@ -244,16 +329,31 @@ export default function Place() {
         {/* : 이동약자 접근성 — 여기 있는 건 이 장소 자체의 경사·계단 정보다.
             "구간(경로)" 단위 접근성은 아직 백엔드에 없어 이 증분에 없다 — 티켓 코멘트 참고.
         */}
-        {resolved.apiPlace && (formatStairsPresent(resolved.apiPlace, tx) || formatSlopePercent(resolved.apiPlace, tx)) ? (
+        {resolved.apiPlace && (knownAccessText(resolved.apiPlace, 'STAIRS_PRESENT', tx) || knownAccessText(resolved.apiPlace, 'SLOPE_PERCENT', tx)) ? (
           <View style={styles.infoRows}>
-            {formatStairsPresent(resolved.apiPlace, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted} style={styles.infoLabel}>{tx('계단', 'Stairs')}</Text><Text variant="body" style={styles.infoValue}>{formatStairsPresent(resolved.apiPlace, tx)}</Text></View> : null}
-            {formatSlopePercent(resolved.apiPlace, tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted} style={styles.infoLabel}>{tx('경사도', 'Slope')}</Text><Text variant="body" style={styles.infoValue}>{formatSlopePercent(resolved.apiPlace, tx)}</Text></View> : null}
+            {knownAccessText(resolved.apiPlace, 'STAIRS_PRESENT', tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted} style={styles.infoLabel}>{tx('계단', 'Stairs')}</Text><Text variant="body" style={styles.infoValue}>{knownAccessText(resolved.apiPlace, 'STAIRS_PRESENT', tx)}</Text></View> : null}
+            {knownAccessText(resolved.apiPlace, 'SLOPE_PERCENT', tx) ? <View style={styles.infoRow}><Text variant="caption" weight="bold" color={color.text.muted} style={styles.infoLabel}>{tx('경사', 'Slope')}</Text><Text variant="body" style={styles.infoValue}>{knownAccessText(resolved.apiPlace, 'SLOPE_PERCENT', tx)}</Text></View> : null}
+          </View>
+        ) : null}
+        {/* 대표 메뉴·외국어 메뉴판·편의시설·입장료·가까운 명소·좋은 때·걷기 난이도(S15P21E201-1888). 값이 없으면 아무것도 안 그린다. */}
+        {resolved.apiPlace ? <PlaceDetailExtras category={resolved.apiPlace.category} features={resolved.apiPlace.features} /> : null}
+        {/* 근처 주차장 한 줄 — 가장 싼 곳의 1시간 요금·거리, 누르면 근처 편의시설 화면(S15P21E201-2052). 근처에 없거나 못 불러오면 아무것도 안 그린다. */}
+        {resolved.apiPlace ? <NearbyParkingLine lat={resolved.apiPlace.lat} lng={resolved.apiPlace.lng} placeName={resolved.title} accessToken={accessToken} /> : null}
+        {/* 관광공사 「무슬림 친화 식당」 목록 — 서버가 2026-09-30 부터 싣는다(S15P21E201-1873). 🔴 「할랄 인증」이라고 하지 않는다:
+            목록은 인증·자가 인증·포크프리 등을 한데 모았고 등급은 안 실려 온다. 출처와 기준일을 밝힌다(S15P21E201-1878). */}
+        {resolved.apiPlace && isMuslimFriendlyListed(resolved.apiPlace) ? (
+          <View testID="muslim-friendly-listing" style={styles.notice} accessibilityRole="text">
+            <Text variant="caption" weight="bold" color={color.text.accent}>{tx('무슬림 친화 식당', 'Muslim-friendly restaurant')}</Text>
+            <Text color={color.text.body}>{tx('한국관광공사 「무슬림 친화 식당」 목록(2021년 12월)에 오른 곳이에요. 할랄 인증·자가 인증·포크프리처럼 기준이 가게마다 달라요.', 'Listed in the Korea Tourism Organization’s Muslim-friendly restaurant guide (Dec 2021). Standards vary by restaurant — certified, self-certified or pork-free.')}</Text>
           </View>
         ) : null}
         {resolved.apiPlace && needsFoodSafetyCheck(resolved.apiPlace) ? (
           <View style={styles.safetyNotice} accessibilityRole="alert">
             <Text variant="caption" weight="bold" color={color.state.danger}>{tx('확인 필요', 'Needs confirmation')}</Text>
-            <Text color={color.text.body}>{tx('알레르기·식단 정보가 없어 주문 전 확인이 필요합니다.', 'Allergy and dietary information is not available for this place — please check before ordering.')}</Text>
+            {/* 목록 식당에 「식단 정보가 없다」고 하면 바로 위 표시와 어긋난다 — 무엇이 없는지를 정확히 말한다. */}
+            <Text color={color.text.body}>{isMuslimFriendlyListed(resolved.apiPlace)
+              ? tx('알레르기 정보가 없고 할랄 기준도 가게마다 달라, 주문 전 확인이 필요합니다.', 'Allergy information is not available and halal standards vary — please check before ordering.')
+              : tx('알레르기·식단 정보가 없어 주문 전 확인이 필요합니다.', 'Allergy and dietary information is not available for this place — please check before ordering.')}</Text>
           </View>
         ) : null}
         {/* : "확인 못 함"(위 배너)과 "확인했고 문제 없음"을 다른 표시로 보여준다
@@ -271,6 +371,8 @@ export default function Place() {
             <Text color={color.text.body} style={styles.noticeCopy}>{tx('영업시간·가격대 같은 상세 정보는 곧 추가돼요. 확인되지 않은 정보는 임의로 보여드리지 않아요.', "Details like hours and price level are coming soon. We never show unverified information.")}</Text>
           </View>
         ) : null}
+        {/* 이 장소가 들어간 루트 — 다른 여행자가 이곳을 넣어 다녀온 코스, 인기순(S15P21E201-2028). 없으면 칸째 안 그린다. */}
+        {resolved.apiPlace?.placeId ? <PlaceRoutesSection placeId={resolved.apiPlace.placeId} wide={wide} /> : null}
         </View>
         <View style={wide ? styles.asideColumn : undefined}>
         {/* 사용자 리포트 — 버튼 네 개가 전폭으로 세로로 쌓여 가독성이 떨어졌다. 2열 그리드로
@@ -279,12 +381,30 @@ export default function Place() {
             경고하는 "containerStyle 로 배경색을 흉내내는" 것과는 다르다(폭은 바깥 껍데기의
             레이아웃일 뿐, 안쪽 Pressable 의 색과 부딪히지 않는다).
         */}
+        {/* 🔴 네 단추가 같은 무게라 무엇을 먼저 할지 안 보였다. 이 화면에서 할 일은 「후보에 저장」 하나 —
+            그것만 주 단추(빨강 한 번)로 전폭, 현장 도구 둘은 그 아래 반씩 연회색, 리뷰는 글자 링크.
+            저장한 뒤에는 빼기라 주 단추가 아니다(연회색). */}
         <View style={styles.actions}>
           {/* 🔴 저장했는지 알기 전에는 누를 수 없다 — 위 savedKnown 의 주석(S15P21E201-1644). */}
-          <Button label={isSaved ? tx('후보에서 빼기', 'Unsave') : tx('내 여행 후보에 저장', 'Save')} variant="tertiary" disabled={!savedKnown} onPress={() => void toggleSaved()} containerStyle={styles.actionHalf} />
-          <Button label={tx('한국어로 말하기', 'Speak Korean')} variant="field" onPress={() => setPhraseModalOpen(true)} containerStyle={styles.actionHalf} />
-          {taxiPlaceId ? <Button label={tx('리뷰 보기', 'See reviews')} variant="tertiary" onPress={() => router.push(`/place-reviews/${taxiPlaceId}`)} containerStyle={styles.actionHalf} /> : null}
-          {taxiPlaceId ? <Button label={tx('기사님께 보여주기', 'Show to driver')} variant="field" onPress={() => router.push(`/taxi-card/${taxiPlaceId}`)} containerStyle={styles.actionHalf} /> : null}
+          <Button label={isSaved ? tx('후보에서 빼기', 'Unsave') : tx('내 여행 후보에 저장', 'Save')} variant={isSaved ? 'tertiary' : 'primary'} disabled={!savedKnown} onPress={() => void toggleSaved()} containerStyle={styles.actionFull} />
+          {taxiPlaceId && taxiGuide ? (
+            <GuideCallout
+              pointDown
+              title={tx('말이 안 통해도 택시를 탈 수 있어요', 'Take a taxi even without Korean')}
+              body={tx('「길 안내」에서 「택시·자동차」를 고르고 「택시 기사에게 주소 카드 보여주기」를 누르면 한국어 주소가 크게 떠요.', 'In “Directions”, pick “Taxi · car” and tap “Show the address card to a taxi driver” — the Korean address appears in large type.')}
+              onDone={() => setTaxiGuide(false)}
+              style={styles.actionFull}
+            />
+          ) : null}
+          {/* 🔴 「기사님께 보여주기」 대신 길 안내 — 내 위치에서 대중교통·택시·자동차·도보를 비교하는 화면으로 간다(S15P21E201-2065).
+              택시 주소 카드는 그 화면의 택시·자동차 탭에 있다. */}
+          {taxiPlaceId && resolved.apiPlace ? <Button label={tx('길 안내', 'Directions')} variant="tertiary" disabled={locating} onPress={() => void openDirections()} containerStyle={styles.actionHalf} /> : null}
+          <Button label={tx('한국어로 말하기', 'Speak Korean')} variant="tertiary" onPress={() => setPhraseModalOpen(true)} containerStyle={styles.actionHalf} />
+          {taxiPlaceId ? (
+            <Pressable accessibilityRole="link" onPress={() => router.push(`/place-reviews/${taxiPlaceId}`)} hitSlop={8} style={({ pressed }) => [styles.reviewLink, pressed && styles.pressed]}>
+              <Text weight="bold">{tx('리뷰 보기', 'See reviews')} ›</Text>
+            </Pressable>
+          ) : null}
           {feedback ? <Text accessibilityLiveRegion="polite" color={color.text.body} style={styles.feedback}>{feedback}</Text> : null}
         </View>
         {consent.prompt}
@@ -292,6 +412,7 @@ export default function Place() {
         </View>
       </> : null}
 
+      {locationGate.sheet}
       <PlacePhraseModal visible={phraseModalOpen} onClose={() => setPhraseModalOpen(false)} category={resolved?.apiPlace?.category} />
 
       {notFound ? <View style={styles.notice} accessibilityRole="alert">
@@ -331,8 +452,13 @@ const styles = StyleSheet.create({
   shadeLower: { position: 'absolute', left: 0, right: 0, bottom: 0, height: '45%', backgroundColor: 'rgba(8, 27, 53, 0.18)' },
   shadeLowest: { position: 'absolute', left: 0, right: 0, bottom: 0, height: '24%', backgroundColor: 'rgba(8, 27, 53, 0.22)' },
   // 사진이 어떤 색이든 글자 윤곽이 서게 한다. 능짐 안 가리면서 가장 확실하다.
+  // 한국어 원문 줄 — 지도 앱에 붙여 넣거나 보여 줄 수 있게 고를 수 있다(S15P21E201-1877). 위 줄보다 한 단계 흐리게.
+  koreanAddress: { opacity: 0.85, marginTop: 2 },
   heroText: { textShadowColor: 'rgba(8, 27, 53, 0.9)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 },
   heroCopy: { gap: spacing[1], padding: spacing[4] },
+  // 여러 장일 때 이름·주소의 오른쪽 여백 — 「›」 단추(오른쪽 8 + 폭 36)와 쪽 번호 알약(오른쪽 12 + 폭 약 50) 왼쪽 끝보다 안쪽에서 꺾이게 한다.
+  // heroCopy 의 안쪽 여백 16 에 더해 40 이니 글자 오른쪽 끝은 사진 오른쪽에서 56 안쪽이다(단추 왼쪽 끝 44 + 12).
+  heroTextInset: { paddingRight: spacing[8] + spacing[2] },
   subjectBadge: { marginTop: spacing[2] },
   // opacity 0.8 을 뽑았다. 이 줄은 공공누리 이용 조건이라
   // 읽힐 수 있어야 한다 — 지켜야 하는 표기를 일부러 흐리게 할 이유가 없다.
@@ -352,6 +478,8 @@ const styles = StyleSheet.create({
   // flexBasis 로 최소 폭을 잡고 flexGrow 로 남는 자리를 채운다 — 홀수 개(리뷰·택시 버튼이
   // 없는 장소)일 때도 마지막 버튼이 어색하게 반쪽만 남지 않고 자연스럽게 늘어난다.
   actionHalf: { flexBasis: '46%', flexGrow: 1 },
+  actionFull: { width: '100%' },
+  reviewLink: { width: '100%', minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   feedback: { textAlign: 'center', width: '100%' },
   recoveryButton: { marginTop: spacing[2] },
 });

@@ -2,7 +2,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AuthorAvatar } from '@/social/AuthorAvatar';
-import { ActivityIndicator, Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { AppImage } from '@/components/AppImage';
 import * as Clipboard from 'expo-clipboard';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -10,6 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/auth/AuthProvider';
 import { DropdownMenu, useDropdownMenu, type DropdownMenuItem } from '@/components/DropdownMenu';
 import { MarkdownBody } from '@/components/MarkdownBody';
+import { RegionPicker } from '@/components/RegionPicker';
 import { PhotoGrid } from '@/components/PhotoGrid';
 import { PhotoViewer } from '@/components/PhotoViewer';
 import { Button } from '@/components/Button';
@@ -24,10 +26,11 @@ import { useI18n } from '@/i18n';
 import { BlockUserDialog } from '@/social/BlockUserDialog';
 import { CoauthorByline } from '@/social/CoauthorByline';
 import { findCourseLink, withoutCourseLink } from '@/social/courseLink';
+import { PlaceRoutesSection } from '@/routepost/PlaceRoutesSection';
 import { CourseLinkCard } from '@/social/CourseLinkCard';
 import { regionText } from '@/social/districtNames';
 import { regionBesidePlace } from '@/social/placeRegion';
-import { createStory, deleteStory, getCachedStory, getStory, getStoryReplies, getUserProfile, loadSavedStoryIds, recordStoryLinkCopy, relativeStoryTime, reportStory, resetFeedAfterPost, setBlocked, setFollowing, setStoryReaction, setStorySaved, storyMetricLabels, storyShareUrl, updateStory, VISIBILITY_LABEL, type StoryDto, type StoryReportReason } from '@/social/stories';
+import { createStory, deleteStory, getCachedStory, getStory, getStoryReplies, getUserProfile, loadSavedStoryIds, recordStoryLinkCopy, relativeStoryTime, reportStory, resetFeedAfterPost, setBlocked, setFollowing, setStoryReaction, setStorySaved, storyMetricLabels, storyShareUrl, updateStory, VISIBILITY_LABEL, type StoryDto, type StoryVisibility, type StoryReportReason, storyPlaceName } from '@/social/stories';
 import { applyReaction, nextReaction, StoryReactionRow, storyReactionStyles, type ReactableStory, type Reaction } from '@/social/StoryReactionRow';
 import { txf } from '@/i18n/format';
 import { MAX_STORY_IMAGES, useStoryImages } from '@/social/useStoryImages';
@@ -66,21 +69,21 @@ function DetailPhotoGrid({ images }: { images: StoryDto['images'] }) {
 
 /** 장소 제목 블록 — 시안 2a 의 맨 위 */
 function PlaceHeading({ story, onOpen }: { story: StoryDto; onOpen: () => void }) {
-  const { tx } = useI18n();
+  const { tx, language } = useI18n();
   if (!story.place) return null;
   // 🔴 지역 칸은 「장소 · 구」라 그대로 쓰면 제목의 장소 이름이 한 번 더 나온다(S15P21E201-1759).
   const placeRegion = regionBesidePlace(story.region, story.place.name);
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={txf(tx, '%s 상세 보기', 'View details for %s', story.place.name)}
+      accessibilityLabel={txf(tx, '%s 상세 보기', 'View details for %s', storyPlaceName(story.place, tx, language))}
       onPress={onOpen}
       style={({ pressed }) => [styles.placeHeading, pressed && styles.pressed]}
     >
-      <Text variant="display" weight="bold" color={color.text.heading}>{story.place.name}</Text>
+      <Text variant="display" weight="bold" color={color.text.heading}>{storyPlaceName(story.place, tx, language)}</Text>
       {placeRegion
         ? <View style={styles.placeMetaRow}>
-            <Image source={require('../../assets/icons/common/pin.png')} resizeMode="contain" accessibilityIgnoresInvertColors style={styles.placePin} />
+            <AppImage source={require('../../assets/icons/common/pin.png')} resizeMode="contain" accessibilityIgnoresInvertColors style={styles.placePin} />
             <Text variant="body" color={color.text.body}>{regionText(placeRegion, tx)}</Text>
           </View>
         : null}
@@ -333,8 +336,8 @@ export function ReplyCard({
 
 export default function StoryDetail() {
   const router = useRouter();
-  const { accessToken } = useAuth();
-  const { tx } = useI18n();
+  const { accessToken, user } = useAuth();
+  const { tx, language } = useI18n();
   const { id } = useLocalSearchParams<{ id: string }>();
   const [state, setState] = useState<State>({ status: 'loading', cached: null });
   // 어느 글을 신고하는 중인지 — 원글(id)일 수도, 댓글(reply.id)일 수도 있다. 신고 모달은
@@ -348,6 +351,13 @@ export default function StoryDetail() {
   const [copyNotice, setCopyNotice] = useState('');
   const [postEditing, setPostEditing] = useState(false);
   const [postDraft, setPostDraft] = useState('');
+  const [postVisibility, setPostVisibility] = useState<StoryVisibility>('PUBLIC');
+  // 🔴 쓸 때 고른 지역·장소도 고칠 때 바꿀 수 있어야 한다 — 전에는 본문·공개 범위만 고쳐져서 잘못 단 장소를 떼려면
+  //    지우고 다시 써야 했다(사용자 여정 점검 2026-09-29). 서버는 이미 받는다(StoryUpdateRequest.region·placeId·clearPlace).
+  const [postRegion, setPostRegion] = useState('');
+  const [postPlaceId, setPostPlaceId] = useState<string | undefined>(undefined);
+  // 카카오 결과처럼 가볼래에 아직 없는 장소 — 고칠 때는 서버가 스냅샷을 안 받아서 지역 이름으로만 남는다.
+  const [postPlaceOutside, setPostPlaceOutside] = useState(false);
   const [postSaving, setPostSaving] = useState(false);
   const [postSaveError, setPostSaveError] = useState('');
   // 복사 알림은 목록(feed.tsx)처럼 잠깐 떴다 사라진다. 남겨 두면 다음에 눌렀을 때 같은 글자라 새로 떴는지 모른다.
@@ -470,10 +480,18 @@ export default function StoryDetail() {
     return true;
   };
 
+  // 🔴 쓸 때 고른 공개 범위를 고칠 때도 바꿀 수 있어야 한다 — 전에는 본문만 고쳐져서, 잘못 고른 「전체 공개」를 지우고
+  //    다시 써야 했다(사용자 지적 2026-09-29). 서버는 이미 받는다(StoryUpdateRequest.visibility, 작성자만).
+  const isAuthor = Boolean(story && user && story.author.id === user.userId);
+
   // 원글 본문 수정 — 댓글 수정(ReplyCard)과 같은 모양이다. 취소하면 초안을 버리고 원래 본문이 그대로 남는다.
   const startPostEdit = () => {
     if (!story) return;
     setPostDraft(story.body);
+    setPostVisibility(story.visibility);
+    setPostRegion(story.region ?? '');
+    setPostPlaceId(story.place?.id);
+    setPostPlaceOutside(false);
     setPostSaveError('');
     setConfirmingDelete(false);
     setPostEditing(true);
@@ -484,7 +502,15 @@ export default function StoryDetail() {
     if (!id || postSaving) return;
     if (!body) { setPostSaveError(tx('1자 이상 입력해 주세요', 'Please enter at least 1 character')); return; }
     setPostSaving(true);
-    const outcome = await updateStory(id, body, accessToken);
+    // 공개 범위는 작성자만 — 공동 작성자가 보내면 서버가 거절한다. 바뀌었을 때만 싣는다.
+    const changes: Parameters<typeof updateStory>[3] = {};
+    if (isAuthor && story && postVisibility !== story.visibility) changes.visibility = postVisibility;
+    if (story && postRegion.trim() !== (story.region ?? '')) changes.region = postRegion.trim();
+    if (story && postPlaceId !== story.place?.id) {
+      if (postPlaceId) changes.placeId = postPlaceId;
+      else if (story.place) changes.clearPlace = true;
+    }
+    const outcome = await updateStory(id, body, accessToken, changes);
     setPostSaving(false);
     if (outcome.state !== 'success') { setPostSaveError(outcome.message); return; }
     setPostEditing(false);
@@ -658,6 +684,10 @@ export default function StoryDetail() {
           <View style={styles.headerRow}>
             {/* 작성자 이름 뒤에 공동 작성자 「· 이예승」(S15P21E201-1583). 이름 버튼 «안»에 둘 수 없어서
                 (버튼 안의 버튼) 이름만 프로필로 가는 버튼이 되고, 시각·지역 줄은 그 아래 글자로 선다. */}
+            {/* 🔴 목록 카드에는 작성자 사진이 있는데 들어오면 이름만 있었다(사용자 지적 2026-09-29) — 같은 사람이 다르게 보였다. */}
+            <Pressable accessibilityElementsHidden importantForAccessibility="no-hide-descendants" onPress={() => router.push(`/user/${story.author.id}`)}>
+              <AuthorAvatar name={story.author.displayName} uri={story.author.avatarUrl} style={styles.headerAvatar} />
+            </Pressable>
             <View style={styles.grow}>
               <View style={styles.bylineRow}>
                 <Pressable accessibilityRole="link" accessibilityLabel={txf(tx, '%s 프로필 보기', "View %s's profile", story.author.displayName)} onPress={() => router.push(`/user/${story.author.id}`)} style={styles.authorLink}>
@@ -667,7 +697,7 @@ export default function StoryDetail() {
               </View>
               <Text variant="caption" color={color.text.muted}>
                 {relativeStoryTime(story.createdAt, tx)}
-                {story.region ? ` · ${regionText(story.region, tx)}` : ''}
+                {story.region ? ` · ${regionText(story.region, tx, story.place ? { ko: story.place.name, shown: storyPlaceName(story.place, tx, language) } : null)}` : ''}
               </Text>
             </View>
             {story.mine && story.visibility !== 'PUBLIC' ? (
@@ -699,6 +729,40 @@ export default function StoryDetail() {
                 multiline
                 style={styles.composerInput}
               />
+              {isAuthor ? (
+                <View style={styles.editVisibility}>
+                  <Text variant="caption" weight="bold" color={color.text.muted}>{tx('공개 범위', 'Visibility')}</Text>
+                  <View accessibilityRole="radiogroup" style={styles.editVisibilityRow}>
+                    {(['PUBLIC', 'FOLLOWERS', 'PRIVATE'] as const).map((value) => {
+                      const selected = postVisibility === value;
+                      return <Pressable key={value} accessibilityRole="radio" accessibilityState={{ selected }} onPress={() => setPostVisibility(value)} style={[styles.editVisibilityOption, selected && styles.editVisibilityOptionSelected]}>
+                        <Text variant="caption" weight="bold" numberOfLines={1} color={selected ? color.text.onAction : color.text.heading}>{tx(...VISIBILITY_LABEL[value])}</Text>
+                      </Pressable>;
+                    })}
+                  </View>
+                </View>
+              ) : null}
+              <View style={styles.editVisibility}>
+                <Text variant="caption" weight="bold" color={color.text.muted}>{tx('지역 (선택)', 'Region (optional)')}</Text>
+                {/* 글쓰기와 같은 부품 — 지역을 고르는 방법이 쓸 때와 고칠 때 달라지지 않게. */}
+                <RegionPicker
+                  region={postRegion}
+                  onChangeRegion={setPostRegion}
+                  placeId={postPlaceId}
+                  onChangePlaceId={setPostPlaceId}
+                  onChangePlace={(place) => setPostPlaceOutside(Boolean(place))}
+                  accessToken={accessToken}
+                />
+                {postPlaceId && postPlaceId === story.place?.id ? (
+                  <View style={styles.editPlaceRow}>
+                    <Text variant="caption" weight="bold" style={styles.editPlaceName} numberOfLines={1}>{txf(tx, '📍 %s 연결됨', '📍 Linked to %s', story.place.name)}</Text>
+                    <Pressable accessibilityRole="button" accessibilityLabel={txf(tx, '%s 연결 빼기', 'Unlink %s', story.place.name)} hitSlop={8} onPress={() => setPostPlaceId(undefined)}>
+                      <Text variant="caption" weight="bold" color={color.text.muted}>{tx('연결 빼기', 'Unlink')}</Text>
+                    </Pressable>
+                  </View>
+                ) : null}
+                {postPlaceOutside ? <Text variant="caption" color={color.text.muted}>{tx('가볼래에 아직 없는 장소라 고칠 때는 지역 이름으로만 남아요.', 'This place isn’t in GABOLLE yet, so an edit keeps it as a region name only.')}</Text> : null}
+              </View>
               {postSaveError ? <Text accessibilityRole="alert" variant="caption" color={color.state.danger}>{postSaveError}</Text> : null}
               <View style={styles.confirmButtons}>
                 <Button label={tx('취소', 'Cancel')} variant="tertiary" disabled={postSaving} onPress={() => { setPostEditing(false); setPostSaveError(''); }} compact />
@@ -714,6 +778,9 @@ export default function StoryDetail() {
           {/* 좋아요·인용·저장 — 카드 «안»에 둔다(사용자 지적 2026-09-24, S15P21E201-1576). 카드 밖에 두면 그 기록의 것인지
               아래 댓글의 것인지 흐려진다. 목록(feed.tsx)과 같은 부품이다. */}
           <StoryReactionRow story={story} reacting={reacting} onReact={(reaction) => void react(reaction)} saved={savedIds.has(story.id)} saving={saving} onToggleSave={() => void toggleSave()} onQuote={() => void copyLink()} style={styles.inCardReactions} />
+
+          {/* 이 기록의 장소가 들어간 루트 — 「장소 포스트도 이거 포함한 루트들 추천해주면 좋겠다」(S15P21E201-2028). 없으면 안 그린다. */}
+          {story.place && !postEditing ? <PlaceRoutesSection placeId={story.place.id} /> : null}
 
  {/*— 삭제·신고·차단은 우상단 ⋯ 메뉴로 옮겼다. 공동 작성자는
               "더 보기" 성격이 아니라 주된 이동이라 그대로 남긴다. 삭제 확인은 메뉴에서
@@ -829,7 +896,7 @@ export default function StoryDetail() {
               {replyPhotos.images.length ? <Text variant="caption" color={color.text.muted}>{tx('사진의 위치 정보는 지워져요.', 'Location data is removed from photos.')}</Text> : null}
               <View style={styles.composerActions}>
                 <Pressable accessibilityRole="button" accessibilityLabel={tx('댓글에 사진 추가', 'Add photo to comment')} disabled={!replyPhotos.canAddMore} onPress={() => void replyPhotos.addImage()} style={[styles.composerTool, !replyPhotos.canAddMore && styles.composerToolBusy]}>
-                  <Image source={require('../../assets/icons/common/camera.png')} resizeMode="contain" accessibilityLabel="" style={styles.composerToolIcon} />
+                  <AppImage source={require('../../assets/icons/common/camera.png')} resizeMode="contain" accessibilityLabel="" style={styles.composerToolIcon} />
                   <Text variant="body" color={color.text.body}>{tx(`사진 ${replyPhotos.images.length}/${MAX_STORY_IMAGES}`, `Photos ${replyPhotos.images.length}/${MAX_STORY_IMAGES}`)}</Text>
                 </Pressable>
                 <Button
@@ -919,6 +986,12 @@ const styles = StyleSheet.create({
   confirmRow: { flex: 1, gap: spacing[2] },
   confirmText: { textAlign: 'right' },
   confirmButtons: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing[2] },
+  headerAvatar: { width: 40, height: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: color.brand.navy },
+  editVisibility: { gap: spacing[2] },
+  editPlaceRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] }, editPlaceName: { flex: 1 },
+  editVisibilityRow: { flexDirection: 'row', gap: spacing[2] },
+  editVisibilityOption: { flex: 1, minHeight: 40, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing[1], borderWidth: 1, borderColor: color.surface.field, borderRadius: radius.md, backgroundColor: color.surface.card },
+  editVisibilityOptionSelected: { backgroundColor: color.action.secondary, borderColor: color.action.secondary },
   recoveryButton: { marginTop: spacing[2] },
 
   // 지표 줄 — 댓글 머리 바로 위. 붙는 자리라 위 여백만 준다.

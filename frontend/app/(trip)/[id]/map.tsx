@@ -42,15 +42,15 @@ type RouteComparisonSeed = {
   deltaKo: string; deltaEn: string;
 };
 
-// 아래 숫자는 실제 측정값이다. 번역하며 반올림하거나 다듬지 않는다.
+// 아래 숫자는 실제 측정값이다. 번역하며 반올림하거나 다듬지 않는다. 그늘은 % 대신 말로 낸다(S15P21E201-2023).
 const SHADE_ROUTE: RouteComparisonSeed = {
   titleKo: '그늘 경로', titleEn: 'Shaded route',
   subtitleKo: '해운대 → 광안리, 오후 5시 (실측 2026-09-01)', subtitleEn: 'Haeundae → Gwangalli, 5 PM (measured 2026-09-01)',
   rows: [
-    { labelKo: '최단 경로', labelEn: 'Shortest route', distance: '2,703m', noteKo: '그늘 15.9%', noteEn: '15.9% shaded', status: 'neutral' },
-    { labelKo: '그늘 우선', labelEn: 'Shade-first route', distance: '2,915m', noteKo: '그늘 30.8%', noteEn: '30.8% shaded', status: 'pass' },
+    { labelKo: '최단 경로', labelEn: 'Shortest route', distance: '2,703m', noteKo: '그늘 적음', noteEn: 'Little shade', status: 'neutral' },
+    { labelKo: '그늘 우선', labelEn: 'Shade-first route', distance: '2,915m', noteKo: '그늘 많음', noteEn: 'Shady', status: 'pass' },
   ],
-  deltaKo: '212m(5.2%) 더 걸어 그늘이 두 배', deltaEn: 'Walk 212m (5.2%) more for twice the shade',
+  deltaKo: '212m 더 걸어 그늘이 두 배', deltaEn: 'Walk 212m more for twice the shade',
 };
 
 const WHEELCHAIR_ROUTE: RouteComparisonSeed = {

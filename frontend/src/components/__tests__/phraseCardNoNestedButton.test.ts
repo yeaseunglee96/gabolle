@@ -23,7 +23,7 @@ describe('말하기 카드', () => {
   });
 
   it('듣기 단추는 둘 다 그대로 있다 — 가드가 단추를 지우지 않았다', () => {
-    expect(source).toContain("tx('보통 속도로 듣기', 'Listen at normal speed')");
-    expect(source).toContain("tx('느린 속도로 듣기', 'Listen at slow speed')");
+    expect(source).toContain("tx('보통, 보통 속도로 듣기', 'Normal, listen at normal speed')");
+    expect(source).toContain("tx('느리게, 느린 속도로 듣기', 'Slow, listen at slow speed')");
   });
 });

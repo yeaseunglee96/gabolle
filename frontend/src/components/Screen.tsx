@@ -38,19 +38,28 @@ type ScreenProps = {
   style?: StyleProp<ViewStyle>;
   /** scroll 화면에서 화면이 스스로 굴러야 할 때(펼친 칸을 보여 주기 등) 쓴다. */
   scrollRef?: Ref<ScrollView>;
+  /** 탭바 위에 떠 있는 단추 줄(피드의 「지도 표시하기」 등)의 높이. 그만큼 목록 끝을 더 비워서
+   *  마지막 카드의 좋아요·인용 줄이 단추 밑에 깔리지 않게 한다 (S15P21E201-1870). */
+  floatingDockHeight?: number;
 };
 
-export function Screen({ children, scroll = false, wide = false, withTabBar = false, style, scrollRef }: ScreenProps) {
-  const { kind } = useLayout();
+export function Screen({ children, scroll = false, wide = false, withTabBar = false, style, scrollRef, floatingDockHeight = 0 }: ScreenProps) {
+  const { kind, width } = useLayout();
   const insets = useSafeAreaInsets();
 
   // 하단만 SafeAreaView 에 안 맡기고 내용 여백으로 처리한다.
   const contentStyle = [
     styles.content,
     kind === 'tablet' && (wide ? styles.tabletWide : styles.tablet),
+    // 🔴 세로로 든 태블릿·펼친 폴드(폭 600 이상인데 폰 판)도 가운데로 묶는다 — 안 묶으면 폰 화면이 800~900 폭
+    //    끝까지 늘어나 달력 칸·단추가 휑하게 벌어졌다(반응형 점검 2026-10-02). 데스크톱 판과 같은 720.
+    kind === 'phone' && !wide && width >= 600 && styles.tablet,
     style,
-    { paddingBottom: screenBottomPadding(insets.bottom, withTabBar) },
+    // 🔴 떠 있는 단추 줄이 있으면 목록 끝만 비워서는 모자란다 — 첫 화면(스크롤 전)에서 단추가 첫 카드의
+    //    좋아요·인용 줄 위에 그대로 앉는다(S15P21E201-1872 실기). 그래서 스크롤 창 자체를 단추 위에서 끝낸다.
+    { paddingBottom: floatingDockHeight > 0 && scroll ? spacing[8] : screenBottomPadding(insets.bottom, withTabBar, floatingDockHeight) },
   ];
+  const reserve = scroll ? floatingDockReserve(insets.bottom, withTabBar, floatingDockHeight) : 0;
 
   // 안드로이드에는 behavior 를 주지 않는다. 키보드가 올라올 때 화면을 밀어 올리는 일은
   // app.json 의 softwareKeyboardLayoutMode="pan" 이 맡는다 — edge-to-edge 에서는 RN 의
@@ -59,7 +68,7 @@ export function Screen({ children, scroll = false, wide = false, withTabBar = fa
   const keyboardBehavior = Platform.OS === 'ios' ? 'padding' : undefined;
 
   const body = scroll ? (
-    <ScrollView ref={scrollRef} contentContainerStyle={contentStyle} keyboardShouldPersistTaps="handled">
+    <ScrollView ref={scrollRef} style={reserve > 0 ? { marginBottom: reserve } : undefined} contentContainerStyle={contentStyle} keyboardShouldPersistTaps="handled">
       {children}
     </ScrollView>
   ) : (
@@ -75,12 +84,19 @@ export function Screen({ children, scroll = false, wide = false, withTabBar = fa
   );
 }
 
-export function screenBottomPadding(bottomInset: number, withTabBar: boolean) {
+export function screenBottomPadding(bottomInset: number, withTabBar: boolean, floatingDockHeight = 0) {
   // 지금은 탭바가 떠 있어서 레이아웃 자리를 안 먹는다. 그래서 이 화면이 그만큼을
   // 대신 비워 주지 않으면 스크롤 맨 끝 내용이 알약 밑에 영원히 깔린다 — 더 스크롤할
   // 것이 없으니 드러낼 방법도 없다.
-  if (withTabBar) return spacing[8] + TAB_BAR_HEIGHT + tabBarBottomMargin(bottomInset);
-  return spacing[8] + bottomInset;
+  if (withTabBar) return spacing[8] + TAB_BAR_HEIGHT + tabBarBottomMargin(bottomInset) + floatingDockHeight;
+  return spacing[8] + bottomInset + floatingDockHeight;
+}
+
+/** 떠 있는 단추 줄의 윗변까지의 높이 — 스크롤 창이 여기서 끝나야 어떤 카드도 단추 밑에 깔리지 않는다.
+ *  단추 줄이 없으면 0 이다(탭바만 있는 화면은 예전처럼 목록 끝 여백으로 충분하다). */
+export function floatingDockReserve(bottomInset: number, withTabBar: boolean, floatingDockHeight: number) {
+  if (floatingDockHeight <= 0) return 0;
+  return (withTabBar ? TAB_BAR_HEIGHT + tabBarBottomMargin(bottomInset) : bottomInset) + floatingDockHeight;
 }
 
 const styles = StyleSheet.create({

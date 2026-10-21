@@ -121,7 +121,13 @@ export function formatMonthDay(value: string, locale: string): string | null {
  * 한 화면에 섞이면 앞뒤를 눈으로 못 견준다. 그래서 여기만은 나라별 관습을 안 따른다 —
  * 날짜는 맡기고 시각은 고정하는 것이 일부러 하는 선택이다.
  */
+/** 「2026-10-11T09:09…」 — 문자열에 적힌 그대로의 시·분. */
+const WALL_CLOCK = /^\d{4}-\d{2}-\d{2}T(\d{2}):(\d{2})/;
+
 export function formatClock(value: string, locale: string): string {
+  // 🔴 서버 시각은 여행지(부산) 벽시계를 담고 있다 — 기기 시간대로 옮기면 GMT 폰에서 09:09 가 00:09 가 된다(S15P21E201-2043).
+  const wall = WALL_CLOCK.exec(value);
+  if (wall) return `${wall[1]}:${wall[2]}`;
   const date = parse(value);
   if (!date) return value.slice(11, 16) || value;
   const pad = (n: number) => String(n).padStart(2, '0');
